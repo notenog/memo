@@ -34,8 +34,11 @@ jobs:
       - name: Install Dependencies and Build Quartz
         run: |
           npm ci
-          # Quartzビルドコマンドを実行
-          ./node_modules/.bin/quartz build
+          # 💡 ここで node_modules/.bin 以下のスクリプトに実行権限を付与
+          chmod +x ./node_modules/.bin/*
+          
+          # 💡 実行権限を付与してから npx quartz build を実行
+          npx quartz build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
