@@ -6,5 +6,5 @@
 .explorer-panel .file-link,
 .explorer-panel .folder-link {
     /* 例: 字間を0.3ピクセル広げる */
-    letter-spacing: 0.8px;
+    letter-spacing: 1.2px;
 }
