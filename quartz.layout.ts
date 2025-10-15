@@ -38,7 +38,6 @@ export const defaultContentPageLayout: PageLayout = {
  
 
     Component.Explorer({
-      title: "Explorer",
       sortFn: (a, b) => {
         const orderA = a.frontmatter?.order ?? 999
         const orderB = b.frontmatter?.order ?? 999
@@ -74,7 +73,6 @@ export const defaultListPageLayout: PageLayout = {
 
 
     Component.Explorer({
-  title: "Explorer",
   sortFn: (a, b) => {
     // orderフィールドを取得（なければ999を設定）
     const orderA = a.frontmatter?.order ?? 999
