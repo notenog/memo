@@ -1,6 +1,7 @@
 ---
 title: index
-draft: false
 // 使う場合はどちらか↑↓
 hideFromIndex: true
 ---
+
+test
