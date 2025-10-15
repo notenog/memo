@@ -34,8 +34,7 @@ jobs:
       - name: Install Dependencies and Build Quartz
         run: |
           npm ci
-          npx quartz build
-
+          npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v4
         
