@@ -7,17 +7,17 @@ export default {
   },
   components: {
     callout: {
-      note: "ノート",
-      abstract: "抄録",
-      info: "情報",
-      todo: "やるべきこと",
-      tip: "ヒント",
-      success: "成功",
-      question: "質問",
-      warning: "警告",
-      failure: "失敗",
-      danger: "危険",
-      bug: "バグ",
+      note: "Note",
+      abstract: "Abstract",
+      info: "Info",
+      todo: "Todo",
+      tip: "Tip",
+      success: "Success",
+      question: "Question",
+      warning: "Warning",
+      failure: "Failure",
+      danger: "Danger",
+      bug: "Bug",
       example: "例",
       quote: "引用",
     },
@@ -33,10 +33,10 @@ export default {
       title: "リーダーモード",
     },
     explorer: {
-      title: "エクスプローラー",
+      title: "📂 一覧",
     },
     footer: {
-      createdWith: "作成",
+      createdWith: "Created with",
     },
     graph: {
       title: "グラフビュー",
@@ -50,11 +50,11 @@ export default {
       linkToOriginal: "元記事へのリンク",
     },
     search: {
-      title: "検索",
+      title: "Search",
       searchBarPlaceholder: "検索ワードを入力",
     },
     tableOfContents: {
-      title: "目次",
+      title: "📄 Contents",
     },
     contentMeta: {
       readingTime: ({ minutes }) => `${minutes} min read`,
@@ -68,7 +68,7 @@ export default {
     error: {
       title: "Not Found",
       notFound: "ページが存在しないか、非公開設定になっています。",
-      home: "ホームページに戻る",
+      home: "Back",
     },
     folderContent: {
       folder: "フォルダ",

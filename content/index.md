@@ -1,16 +1,13 @@
 ---
 title: index
 draft: false
-tags: 
-  - coc
-  - insane
-  - sw2.5
+tags:
 ---
 
-# ノートの内容
-...
-# test
 
-## test
+# \[について]
 
-### test
+
+# \[について]
+
+# \[について]
