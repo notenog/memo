@@ -15,7 +15,7 @@ const config: QuartzConfig = {
       provider: "plausible",
     },
     locale: "ja-JP",
-    baseUrl: "",
+    baseUrl: "https://notenog.github.io/memo/",
     ignorePatterns: ["private", "templates", ".obsidian"],
     defaultDateType: "modified",
     pageSourceDir: "content",
@@ -78,7 +78,7 @@ const config: QuartzConfig = {
     emitters: [
       Plugin.AliasRedirects(),
       Plugin.ComponentResources(),
-      // Plugin.ContentPage(),
+      Plugin.ContentPage(),
       Plugin.FolderPage(),
       // Plugin.TagPage(),
       Plugin.ContentIndex({
