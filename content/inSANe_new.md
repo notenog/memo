@@ -1,5 +1,5 @@
 ---
-title: "inSANe／ハウスルール"
+title: "👁️ inSANe(新)／ハウスルール"
 draft: false
 ---
 

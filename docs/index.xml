@@ -6,35 +6,29 @@
       <description>最新の10件 on MEMO</description>
       <generator>Quartz -- quartz.jzhao.xyz</generator>
       <item>
-    <title>index</title>
-    <link>https://https://notenog.github.io/memo/</link>
-    <guid>https://https://notenog.github.io/memo/</guid>
-    <description><![CDATA[ セッション前について 【🔧 使用ツール】 Tekey()を使用します 【立ち絵について】 用意される場合は、縦450pxを基準に、**「股下～膝上」**程度にカットを推奨します 横幅は自由です セッション当日について 【💁‍♀️ 立ち絵位置】 特に指定がなければ 【🎨 文字色】 通常、GMは赤・灰・黒系を使用します それ以外の色でお願い致します 【📸 スクリーンショットの公開】 ネタバレの配慮をして頂ければX(Twitter)等にあげて貰って大丈夫です 厳密には「NPC」「マップ」「エネミー」等は映さないように重々注意して下さい . ]]></description>
-    <pubDate>Wed, 15 Oct 2025 14:45:48 GMT</pubDate>
-  </item><item>
-    <title>Test Page</title>
-    <link>https://https://notenog.github.io/memo/test</link>
-    <guid>https://https://notenog.github.io/memo/test</guid>
-    <description><![CDATA[ これはテスト用のページです。. ]]></description>
-    <pubDate>Wed, 15 Oct 2025 13:30:14 GMT</pubDate>
-  </item><item>
-    <title>CoC</title>
+    <title>📕 CoC／ハウスルール</title>
     <link>https://https://notenog.github.io/memo/CoC</link>
     <guid>https://https://notenog.github.io/memo/CoC</guid>
     <description><![CDATA[ test. ]]></description>
-    <pubDate>Wed, 15 Oct 2025 13:20:28 GMT</pubDate>
+    <pubDate>Wed, 15 Oct 2025 14:48:37 GMT</pubDate>
   </item><item>
-    <title>inSANe／ハウスルール</title>
+    <title>👁️ inSANe(新)／ハウスルール</title>
     <link>https://https://notenog.github.io/memo/inSANe_new</link>
     <guid>https://https://notenog.github.io/memo/inSANe_new</guid>
     <description><![CDATA[ test. ]]></description>
-    <pubDate>Wed, 15 Oct 2025 13:20:28 GMT</pubDate>
+    <pubDate>Wed, 15 Oct 2025 14:48:37 GMT</pubDate>
   </item><item>
-    <title>inSANe</title>
+    <title>👁️‍🗨️ inSANe(旧)／ハウスルール</title>
     <link>https://https://notenog.github.io/memo/inSANe_old</link>
     <guid>https://https://notenog.github.io/memo/inSANe_old</guid>
     <description><![CDATA[ test. ]]></description>
-    <pubDate>Wed, 15 Oct 2025 13:20:28 GMT</pubDate>
+    <pubDate>Wed, 15 Oct 2025 14:48:37 GMT</pubDate>
+  </item><item>
+    <title>index</title>
+    <link>https://https://notenog.github.io/memo/</link>
+    <guid>https://https://notenog.github.io/memo/</guid>
+    <description><![CDATA[ ◯ セッション前について 【🔧 使用ツール】 Tekey()を使用します 【立ち絵について】 用意される場合は、縦450pxを基準に、**「股下～膝上」**程度にカットを推奨します 横幅は自由です ◯ セッション当日について 【💁‍♀️ 立ち絵位置】 特に指定がなければ 【🎨 文字色】 通常、GMは赤・灰・黒系を使用します それ以外の色でお願い致します 【📸 スクリーンショットの公開】 ネタバレの配慮をして頂ければX(Twitter)等にあげて貰って大丈夫です 厳密には「NPC」「マップ」「エネミー」等は映さないように重々注意して下さい . ]]></description>
+    <pubDate>Wed, 15 Oct 2025 14:48:37 GMT</pubDate>
   </item>
     </channel>
   </rss>
