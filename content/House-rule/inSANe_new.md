@@ -1,5 +1,5 @@
 ---
-title: 🏚️ inSANe(新)／
+title: inSANe(新)／
 draft: false
 ---
 

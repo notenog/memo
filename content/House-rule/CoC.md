@@ -1,5 +1,5 @@
 ---
-title: 🏚️ CoC／
+title: CoC／
 draft: false
 ---
 test
