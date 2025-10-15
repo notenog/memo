@@ -15,7 +15,7 @@ const config: QuartzConfig = {
       provider: "plausible",
     },
     locale: "ja-JP",
-    baseUrl: "quartz.jzhao.xyz",
+    baseUrl: "memo",
     ignorePatterns: ["private", "templates", ".obsidian"],
     defaultDateType: "modified",
     pageSourceDir: "content",
