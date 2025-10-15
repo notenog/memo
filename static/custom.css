@@ -1,10 +1,12 @@
 .toc {
     /* 例: 字間を0.5ピクセル広げる */
     letter-spacing: 1.0px;
+        line-height: 1.2; 
 }
 
 .explorer-panel .file-link,
 .explorer-panel .folder-link {
     /* 例: 字間を0.3ピクセル広げる */
-    letter-spacing: 1.2px;
+    letter-spacing: 0.8px;
+        line-height: 1.8;
 }
