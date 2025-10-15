@@ -35,7 +35,7 @@ jobs:
         run: |
           npm ci
           # Quartzビルドコマンドを実行
-          npm run build
+          ./node_modules/.bin/quartz build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
