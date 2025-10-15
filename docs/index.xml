@@ -6,6 +6,12 @@
       <description>最新の10件 on MEMO</description>
       <generator>Quartz -- quartz.jzhao.xyz</generator>
       <item>
+    <title>index</title>
+    <link>https://https://notenog.github.io/memo/</link>
+    <guid>https://https://notenog.github.io/memo/</guid>
+    <description><![CDATA[ 01. セッション前について 【🔧 使用ツール】 Tekey()を使用します 【✨ 立ち絵サイズ】 用意される場合は、縦450pxを基準に、**「股下～膝上」**程度にカットを推奨します 横幅は自由です 02. ]]></description>
+    <pubDate>Wed, 15 Oct 2025 15:15:13 GMT</pubDate>
+  </item><item>
     <title>📕 CoC／ハウスルール</title>
     <link>https://https://notenog.github.io/memo/CoC</link>
     <guid>https://https://notenog.github.io/memo/CoC</guid>
@@ -22,12 +28,6 @@
     <link>https://https://notenog.github.io/memo/inSANe_old</link>
     <guid>https://https://notenog.github.io/memo/inSANe_old</guid>
     <description><![CDATA[ test. ]]></description>
-    <pubDate>Wed, 15 Oct 2025 15:00:13 GMT</pubDate>
-  </item><item>
-    <title>index</title>
-    <link>https://https://notenog.github.io/memo/</link>
-    <guid>https://https://notenog.github.io/memo/</guid>
-    <description><![CDATA[  # ◯ セッション前について ## 【🔧 使用ツール】 * Tekey()を使用します ## 【立ち絵について】 * 用意される場合は、**縦450px**を基準に、**「股下～膝上」**程度にカットを推奨します * 横幅は自由です # ◯ セッション当日について ## 【💁‍♀️ 立ち絵位置】 * 特に指定がなければ ## 【🎨 文字色】 通常、GMは赤・灰・黒系を使用します それ以外の色でお願い致します ## 【📸 スクリーンショットの公開】 * **ネタバレの配慮**をして頂ければX(Twitter)等にあげて貰って大丈夫です * 厳密には「NPC」「マップ」「エネミー」等は映... ]]></description>
     <pubDate>Wed, 15 Oct 2025 15:00:13 GMT</pubDate>
   </item>
     </channel>
