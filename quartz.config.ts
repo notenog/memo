@@ -18,7 +18,7 @@ const config: QuartzConfig = {
     baseUrl: "quartz.jzhao.xyz",
     ignorePatterns: ["private", "templates", ".obsidian"],
     defaultDateType: "modified",
-    pageSourceDir: "content", 
+    pageSourceDir: "content",
     theme: {
       
       fontOrigin: "googleFonts",
