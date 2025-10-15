@@ -37,7 +37,19 @@ export const defaultContentPageLayout: PageLayout = {
     }),
  
 
-    Component.Explorer()
+    Component.Explorer({
+      title: "Explorer",
+      sortFn: (a, b) => {
+        const orderA = a.frontmatter?.order ?? 999
+        const orderB = b.frontmatter?.order ?? 999
+        
+        if (orderA !== orderB) {
+          return orderA - orderB
+        }
+        
+        return a.name.localeCompare(b.name, "ja")
+      },
+    }),
   ],
   right: [
     //Component.Graph(),
@@ -61,7 +73,22 @@ export const defaultListPageLayout: PageLayout = {
     }),
 
 
-    Component.Explorer()
+    Component.Explorer({
+  title: "Explorer",
+  sortFn: (a, b) => {
+    // orderフィールドを取得（なければ999を設定）
+    const orderA = a.frontmatter?.order ?? 999
+    const orderB = b.frontmatter?.order ?? 999
+    
+    // order順にソート
+    if (orderA !== orderB) {
+      return orderA - orderB
+    }
+    
+    // orderが同じ場合はアルファベット順
+    return a.name.localeCompare(b.name, "ja")
+  },
+}),
   ],
   right: [
   Component.Search(),
