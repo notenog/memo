@@ -10,7 +10,7 @@
     <link>https://https://notenog.github.io/memo/inSANe_old/tool</link>
     <guid>https://https://notenog.github.io/memo/inSANe_old/tool</guid>
     <description><![CDATA[  .tool-ui { display: flex; flex-direction: column; align-items: center; } /* 横並びコンテナ */ .side-by-side { display: flex; gap: 1em; /* 左右の間隔 */ max-width: 1600px; /* 800px × 2 + gap */ width: 100%; align-items: stretch; /* 高さを揃える */ } /* ★修正箇所★: side-by-sideの子要素にflex: 1を適用し、均等に幅を分割 */ .side-by-side &gt... ]]></description>
-    <pubDate>Thu, 16 Oct 2025 17:00:31 GMT</pubDate>
+    <pubDate>Thu, 16 Oct 2025 17:16:20 GMT</pubDate>
   </item><item>
     <title>🏚️ ハウスルール</title>
     <link>https://https://notenog.github.io/memo/inSANe_old/inSANe_old</link>
