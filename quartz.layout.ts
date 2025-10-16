@@ -8,7 +8,7 @@ export const sharedPageComponents: SharedLayout = {
   afterBody: [],
   footer: Component.Footer({
     links: {
-      \@disconog: "https://discordapp.com/users/318729033737043969",
+      "@disconog": "https://discordapp.com/users/318729033737043969",
     },
   }),
 }
