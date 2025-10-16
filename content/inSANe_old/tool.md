@@ -1,8 +1,9 @@
-
 ---
 title: "⚙ ツール"
 draft: false
-___
+---
+
+
 
 <textarea id="input" rows="20" cols="60" placeholder="キャラシートを貼り付けてね"></textarea>
 <br>
