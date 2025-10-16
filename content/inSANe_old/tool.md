@@ -58,11 +58,11 @@ draft: false
 </head>
 <body>
 
-<h2>🛠 キャラシート → チャットパレット変換</h2>
+<h2>🛠 CS → コマ情報変換</h2>
 
-<textarea id="input" placeholder="キャラシートを貼り付けてね"></textarea>
+<textarea id="input" placeholder="ここにコピペ"></textarea>
 <br>
-<button onclick="convert()">変換する！</button>
+<button onclick="convert()">変換</button>
 
 <div class="output-container">
   <button class="copy-button" onclick="copyOutput()">📋</button>
@@ -70,6 +70,7 @@ draft: false
 </div>
 
 <script>
+
 function convert() {
   const raw = document.getElementById('input').value;
   const lines = raw.split('\n');
@@ -116,20 +117,32 @@ function convert() {
 ------------------------------------------
 ❤ 感情
 　・PC名　→　感情(+/-)
+　
 ------------------------------------------
 📓 情報/居所
 　・
+　
 ------------------------------------------
 ------------------------------------------
+
 `.trim();
 
   document.getElementById('output').textContent = output;
 }
-
 function extractSkill(line) {
   const match = line.match(/：(.+)/);
-  const raw = match ? match[1].trim() : '';
-  return raw ? `〈${raw.replace(/[〈〉]/g, '')}〉` : '〈〉';
+  if (!match) return '〈〉';
+
+  const raw = match[1]
+    .replace(/[〈〉]/g, '')       // 括弧除去
+    .replace(/○：?/g, '')        // 習得マーク除去
+    .replace(/：/g, '')          // 残ったコロン除去
+    .trim();
+
+  if (!raw) return '〈〉';
+
+  const parts = raw.split(/、|,/).map(s => s.trim()).filter(Boolean);
+  return parts.map(p => `〈${p}〉`).join('、');
 }
 
 function extractMultipleSkills(line) {
@@ -148,7 +161,7 @@ function formatAbility(line) {
 function copyOutput() {
   const text = document.getElementById('output').textContent;
   navigator.clipboard.writeText(text).then(() => {
-    alert('コピーしました！🦊');
+    alert('コピーしました！');
   }).catch(err => {
     alert('コピーに失敗しました…🌀');
     console.error(err);
