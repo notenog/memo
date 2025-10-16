@@ -3,8 +3,7 @@ title: "index"
 draft: false
 ---
 
-<h1 class="heading-33"><span class="heading-33">01. セッション前準備</span></h1>
-
+# 01. セッション前準備
 ___
 ## 【🔧 使用ツール】
 

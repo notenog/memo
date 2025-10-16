@@ -116,7 +116,7 @@ ___
     <textarea id="input" placeholder="ここにコピペ"></textarea>
     
     <div class="output-container">
-      <button class="copy-button" onclick="copyOutput()">📋</button>
+      <button class="copy-button" onclick="copyOutput()">Copy</button>
       <pre id="output"></pre>
     </div>
   </div>
