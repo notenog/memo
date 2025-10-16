@@ -13,10 +13,13 @@ draft: false
       font-family: sans-serif;
       padding: 1em;
       background: #f9f9f9;
+    display: flex;
+     flex-direction: column;
+     align-items: center;
     }
 
     textarea {
-      width: 100%;
+      width: 700%;
       height: 300px;
       font-family: monospace;
     }
@@ -58,8 +61,13 @@ draft: false
 </head>
 <body>
 
-<h2>🛠 CS → コマ情報変換</h2>
-
+<h2>🛠 CS → コマ情報整形</h2><br>
+<a href="https://character-sheets.appspot.com/">キャラクターシート倉庫]</a>さん上部にある、「Tekeyフォーマット出力」をクリック　→<br>
+全文をコピーして下部エリアにペースト　→<br>
+「変換」をクリックでTekeyのコマ用に整形された文章が整形されます。<br>
+⚠️インセインにしか対応していません<br>
+<br>
+<br>
 <textarea id="input" placeholder="ここにコピペ"></textarea>
 <br>
 <button onclick="convert()">変換</button>
