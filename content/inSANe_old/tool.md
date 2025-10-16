@@ -10,8 +10,7 @@ draft: false
 }
 
 textarea {
-  max-width: 800px;
-  width: 100%;
+  width: 800px; /* 固定幅 */
   min-height: 200px; /* 初期の高さを指定 */
   padding: 1em;
   font-family: monospace;
@@ -23,8 +22,7 @@ textarea {
 }
 
 .output-container {
-  max-width: 800px;
-  width: 100%;
+  width: 800px; /* 固定幅 */
   margin: 0 auto;
   position: relative;
   background: #fff;
@@ -66,10 +64,7 @@ button {
 ## 🛠 CS → コマ情報整形
 ___
 
-> [!tip] 
-　[キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力をクリック →
-　全文をコピーして下部エリアにペースト →
-　　「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
+> [!tip]- [キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力をクリック →<br>全文をコピーして下部エリアにペースト →<br>　「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
   
   
 > [!warning]  インセインにしか対応していません<br>また、ｇのセッション周りのみでの使用を想定してます

@@ -9,8 +9,8 @@
     <title>⚙ ツール</title>
     <link>https://https://notenog.github.io/memo/inSANe_old/tool</link>
     <guid>https://https://notenog.github.io/memo/inSANe_old/tool</guid>
-    <description><![CDATA[  .tool-ui { display: flex; flex-direction: column; align-items: center; } textarea { max-width: 800px; width: 100%; min-height: 200px; /* 初期の高さを指定 */ padding: 1em; font-family: monospace; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; /* 縦方向のリサイズのみ許可 */ box-sizing: bo... ]]></description>
-    <pubDate>Thu, 16 Oct 2025 15:12:31 GMT</pubDate>
+    <description><![CDATA[  .tool-ui { display: flex; flex-direction: column; align-items: center; } textarea { width: 800px; /* 固定幅 */ min-height: 200px; /* 初期の高さを指定 */ padding: 1em; font-family: monospace; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; /* 縦方向のリサイズのみ許可 */ box-sizing: border-bo... ]]></description>
+    <pubDate>Thu, 16 Oct 2025 15:29:03 GMT</pubDate>
   </item><item>
     <title>🏚️ ハウスルール</title>
     <link>https://https://notenog.github.io/memo/inSANe_old/inSANe_old</link>
