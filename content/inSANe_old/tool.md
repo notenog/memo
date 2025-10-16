@@ -142,7 +142,7 @@ function convert() {
         const match = line.match(regex);
         const raw = match[1].trim();
         if (field === '怪異') {
-          skills['怪異'] = raw.split('、').map(s => s.trim().replace(/[〈〉]/g, ''));
+          skills['怪異'] = raw.split(/、|,/).map(s => s.trim().replace(/[〈〉]/g, ''));
         } else {
           skills[field] = extractSkill(raw);
         }
@@ -150,7 +150,7 @@ function convert() {
         if (field === '怪異') {
           const match = line.match(/怪異：.*?：(.+)/);
           if (match) {
-            skills['怪異'] = match[1].split('、').map(s => s.trim().replace(/[〈〉]/g, ''));
+            skills['怪異'] = match[1].split(/、|,/).map(s => s.trim().replace(/[〈〉]/g, ''));
           }
         } else {
           skills[field] = extractSkill(line);
@@ -169,6 +169,7 @@ function convert() {
   }
 
   const output = `
+━━━━━━━━━━━━━━━━━
 ------------------------------------------
 　名前：${name}
 　PL　：
@@ -181,7 +182,8 @@ function convert() {
 　3/知覚分野：${skills['知覚']}
 　4/技術分野：${skills['技術']}
 　5/知識分野：${skills['知識']}
-　6/怪異分野：${skills['怪異'].map(s => `〈${s}〉`).join(' ')}
+　6/怪異分野：${skills['怪異'].map(s => `〈${s}〉`).join('')}
+　
 ✨好奇心：${special}　　✖恐怖心：${fear}
 ------------------------------------------
 💠 アビリティ
@@ -195,24 +197,29 @@ function convert() {
 　・
 　
 ------------------------------------------
-------------------------------------------
+━━━━━━━━━━━━━━━━━
 `.trim();
 
   document.getElementById('output').textContent = output;
 }
 
-function extractSkill(raw) {
-  if (!raw || typeof raw !== 'string') return '';
-  raw = raw
+function extractSkill(lineOrRaw) {
+  if (!lineOrRaw || typeof lineOrRaw !== 'string') return '';
+
+  // 「1/暴力：　：切断」 → 「切断」だけ抽出
+  const match = lineOrRaw.match(/：\s*：?(.*)/);
+  const raw = match ? match[1] : lineOrRaw;
+
+  const cleaned = raw
     .replace(/[〈〉]/g, '')
     .replace(/○：?/g, '')
     .replace(/：/g, '')
     .trim();
 
-  if (!raw) return '';
+  if (!cleaned) return '';
 
-  const parts = raw.split(/、|,/).map(s => s.trim()).filter(Boolean);
-  return parts.length ? `〈${parts.join('〉、〈')}〉` : '';
+  const parts = cleaned.split(/、|,/).map(s => s.trim()).filter(Boolean);
+  return parts.length ? parts.map(p => `〈${p}〉`).join('') : '';
 }
 
 function formatAbility(line) {
@@ -226,13 +233,14 @@ function formatAbility(line) {
 function copyOutput() {
   const text = document.getElementById('output').textContent;
   navigator.clipboard.writeText(text).then(() => {
-    alert('コピーしました！🦊');
+    alert('コピーしました！');
   }).catch(err => {
     alert('コピーに失敗しました…🌀');
     console.error(err);
   });
 }
 </script>
+
 
 <style>
 /* カスタムモーダル用のCSSを追記 */
