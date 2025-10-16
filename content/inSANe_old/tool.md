@@ -26,6 +26,9 @@ ___
     <pre id="output"></pre>
   </div>
 </div>
+
+<!-- 👇ここに空行を入れる！ -->
+
 <style>
 
   textarea,
@@ -67,6 +70,7 @@ ___
   }
 </style>
 
+<!-- 👇ここに空行を入れる！ -->
 
 <script>
 
