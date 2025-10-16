@@ -3,51 +3,63 @@ title: "⚙ ツール"
 draft: false
 ---
 <style>
-
 .tool-ui {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-  textarea,
-  .output-container {
-    max-width: 800px;
-    min-width:800x
-    width: 100%;
-    margin: 0 auto;
-  }
+textarea {
+  max-width: 800px;
+  width: 100%;
+  min-height: 200px; /* 初期の高さを指定 */
+  padding: 1em;
+  font-family: monospace;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical; /* 縦方向のリサイズのみ許可 */
+  box-sizing: border-box; /* paddingを含めた幅計算 */
+}
 
-  button {
-    margin: 0.5em 0;
-    padding: 0.5em 0.5em;
-    font-size: 13px;
-    cursor: pointer;
-  }
-  .output-container {
-    position: relative;
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 1em;
-    margin-top: 1em;
-    white-space: pre-wrap;
-    font-family: monospace;
-  }
-  .copy-button {
-    position: absolute;
-    top: 0.5em;
-    right: 0.5em;
-    background: #eee;
-    border: none;
-    padding: 0.3em 0.6em;
-    cursor: pointer;
-    font-size: 14px;
-    border-radius: 4px;
-    transition: background 0.2s;
-  }
-  .copy-button:hover {
-    background: #ddd;
-  }
+.output-container {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 1em;
+  margin-top: 1em;
+  white-space: pre-wrap;
+  font-family: monospace;
+  min-height: 100px; /* 最小の高さを指定 */
+  box-sizing: border-box;
+}
+
+button {
+  margin: 0.5em 0;
+  padding: 0.5em 0.5em;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.copy-button {
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  background: #eee;
+  border: none;
+  padding: 0.3em 0.6em;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.copy-button:hover {
+  background: #ddd;
+}
 </style>
 
 
@@ -55,9 +67,9 @@ draft: false
 ___
 
 > [!tip] 
-> 　[キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力」をクリック →  
-> 　全文をコピーして下部エリアにペースト →  
-> 　「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
+　[キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力をクリック →
+　全文をコピーして下部エリアにペースト →
+　　「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
   
   
 > [!warning]  インセインにしか対応していません<br>また、ｇのセッション周りのみでの使用を想定してます
