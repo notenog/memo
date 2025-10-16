@@ -13,6 +13,7 @@ draft: false
   textarea,
   .output-container {
     max-width: 800px;
+    min-width:800x
     width: 100%;
     margin: 0 auto;
   }
@@ -54,9 +55,9 @@ draft: false
 ___
 
 > [!tip] 
-> [キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力」をクリック →  
-> 全文をコピーして下部エリアにペースト →  
-> 「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
+> 　[キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力」をクリック →  
+> 　全文をコピーして下部エリアにペースト →  
+> 　「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
   
   
 > [!warning]  インセインにしか対応していません<br>また、ｇのセッション周りのみでの使用を想定してます
