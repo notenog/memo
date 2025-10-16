@@ -45,15 +45,15 @@ ___
 
   textarea,
   .output-container {
-    max-width: 750px;
+    max-width: 800px;
     width: 100%;
     margin: 0 auto;
   }
 
   button {
     margin: 0.5em 0;
-    padding: 0.5em 1em;
-    font-size: 14px;
+    padding: 0.5em 0.5em;
+    font-size: 13px;
     cursor: pointer;
   }
   .output-container {
