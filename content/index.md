@@ -3,23 +3,22 @@ title: "index"
 draft: false
 ---
 
-# <h1 class="heading-33"><span class="heading-33">01. セッション前準備</span></h1>
-
+# <span class="heading-33">01. セッション前準備</span>
 ___
 ## 【🔧 使用ツール】
 
 * [Tekey ver. 2](https://tekey.jp/game)を使用します
 * 特に指示がない限り、完テキで行います
 
-<br> <br> 
+<br> 
 
 ## 【✨ 立ち絵サイズ】
 * 用意される場合は、<b>縦450px</b>を基準に、<b>「股下～膝上」</b>程度にカットを推奨します
 * 横幅は自由です
 
-<br> <br> <br> 
+<br> <br> 
   
-# <h1 class="heading-33"><span class="heading-33">02. セッション当日準備</span></h1>
+# <span class="heading-33">02. セッション当日準備</span>
 ___
 ## 【💁‍♀️ 立ち絵位置】
 * 特に指定がなければ以下を目安にして下さい
@@ -40,7 +39,7 @@ ___
 * 通常、GMは`赤・灰・黒`系を使用します
 * それ以外の色の使用をお願いします
 
-<br> <br> 
+<br> 
   
 ## 【📸 スクリーンショットの公開】
 * **ネタバレの配慮**をして頂ければ、X(Twitter)等にあげて頂いて問題ありません
