@@ -6,13 +6,15 @@ draft: false
 ## 🛠 CS → コマ情報整形
 ___
 
+> [!tip] 
 [キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力」をクリック →  
 全文をコピーして下部エリアにペースト →  
 「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
+  
+  
+> [!warning]  インセインにしか対応していません<br>また、自分のセッション周り用のみとして想定しています
 
-> [!warning]  インセインにしか対応していません  
-> また、自分用です
-
+<br><br>
 
 <!-- ここからHTML UI部分 -->
 <div class="tool-ui">
@@ -27,13 +29,15 @@ ___
   </div>
 </div>
 
+<br><br><br>
+
 <!-- 👇ここに空行を入れる！ -->
 
 <style>
 
   textarea,
   .output-container {
-    max-width: 800px;
+    max-width: 650px;
     width: 100%;
     margin: 0 auto;
   }
@@ -41,7 +45,7 @@ ___
   button {
     margin: 0.5em 0;
     padding: 0.5em 1em;
-    font-size: 1em;
+    font-size: 10px;
     cursor: pointer;
   }
   .output-container {
