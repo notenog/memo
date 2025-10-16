@@ -19,15 +19,41 @@
   letter-spacing: 0.8px;
   
   ul {
-    line-height: 1.8;
+    line-height: 2.0;
   }
   
   li {
-    margin-bottom: 0.4rem; /* 項目間のスペース */
+    margin-bottom: 0.6rem; /* 項目間のスペース */
   }
   
   .explorer-link {
     letter-spacing: 0.8px;
-    line-height: 1.8;
+    line-height: 2.0;
   }
 }
+
+/* 見出しの色設定（青緑系） */
+h1 {
+  color: #1E3A5F; /* ダークブルー */
+}
+
+h2 {
+  color: #284b63; /* ミディアムブルー */
+}
+
+h3 {
+  color: #5A7A8C; /* ライトブルーグレー */
+}
+
+h4 {
+  color: #6B8A9A; /* より明るいブルーグレー */
+}
+
+h5 {
+  color: #7B97AA; /* さらに明るいブルー */
+}
+
+h6 {
+  color: #8BA5B5; /* 最も明るいブルーグレー */
+}
+
