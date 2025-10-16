@@ -10,7 +10,8 @@ draft: false
   <title>インセイン変換ツール</title>
   <style>
     body {
-      font-family: sans-serif;
+     <!--font-family: sans-serif;-->
+      font-size: 0.8pxf;
       padding: 1em;
       background: #f9f9f9;
     display: flex;
@@ -27,7 +28,7 @@ draft: false
     button {
       margin: 0.5em 0;
       padding: 0.5em 1em;
-      font-size: 1em;
+      font-size: 0.8px;
       cursor: pointer;
     }
 
@@ -62,7 +63,7 @@ draft: false
 <body>
 
 <h2>🛠 CS → コマ情報整形</h2><br>
-<a href="https://character-sheets.appspot.com/">キャラクターシート倉庫]</a>さん上部にある、「Tekeyフォーマット出力」をクリック　→<br>
+<a href="https://character-sheets.appspot.com/" target="_blank">キャラクターシート倉庫]</a>さん上部にある「Tekeyフォーマット出力」をクリック　→<br>
 全文をコピーして下部エリアにペースト　→<br>
 「変換」をクリックでTekeyのコマ用に整形された文章が整形されます。<br>
 ⚠️インセインにしか対応していません<br>
