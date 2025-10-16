@@ -9,21 +9,31 @@ draft: false
   align-items: center;
 }
 
+/* 横並びコンテナ */
+.side-by-side {
+  display: flex;
+  gap: 1em; /* 左右の間隔 */
+  max-width: 1600px; /* 800px × 2 + gap */
+  width: 100%;
+}
+
 textarea {
-  width: 700px; /* 固定幅 */
-  min-height: 200px; /* 初期の高さを指定 */
+  width: 100%;
+  min-width: 400px; /* 最小幅 */
+  min-height: 400px; /* 高さを揃える */
   padding: 1em;
   font-family: monospace;
   font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  resize: vertical; /* 縦方向のリサイズのみ許可 */
-  box-sizing: border-box; /* paddingを含めた幅計算 */
+  resize: both; /* 縦横両方リサイズ可能 */
+  box-sizing: border-box;
 }
 
 .output-container {
-  width: 700px; /* 固定幅 */
-  margin: 0 auto;
+  width: 100%;
+  min-width: 400px;
+  margin: 0;
   position: relative;
   background: #fff;
   border: 1px solid #ccc;
@@ -65,9 +75,9 @@ button {
 ___
 
 > [!tip]
-[キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力をクリック →
-全文をコピーして下部エリアにペースト →
-「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
+> [キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力をクリック →
+> 全文をコピーして下部エリアにペースト →
+> 「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
   
   
 > [!warning]  インセインにしか対応していません<br>また、ｇのセッション周りのみでの使用を想定してます
@@ -76,16 +86,15 @@ ___
 
 <!-- ここからHTML UI部分 -->
 <div class="tool-ui">
-<div class="tool-ui">
-  <textarea id="input" placeholder="ここにコピペ"></textarea>
-  <br>
   <button onclick="convert()">変換</button>
-
-<br>
-
-  <div class="output-container">
-    <button class="copy-button" onclick="copyOutput()">📋</button>
-    <pre id="output"></pre>
+  
+  <div class="side-by-side">
+    <textarea id="input" placeholder="ここにコピペ"></textarea>
+    
+    <div class="output-container">
+      <button class="copy-button" onclick="copyOutput()">📋</button>
+      <pre id="output"></pre>
+    </div>
   </div>
 </div>
 
