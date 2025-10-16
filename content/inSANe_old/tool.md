@@ -2,77 +2,71 @@
 title: "⚙ ツール"
 draft: false
 ---
-<h2>🛠 CS → コマ情報整形</h2><br>
-<a href="https://character-sheets.appspot.com/" target="_blank">キャラクターシート倉庫</a>さん上部にある「Tekeyフォーマット出力」をクリック　→<br>
-全文をコピーして下部エリアにペースト　→<br>
-「変換」をクリックでTekeyのコマ用に整形された文章が整形されます。<br>
-> [!warning]- ⚠️インセインにしか対応していません<br>
-<br>
-<br>
+
+## 🛠 CS → コマ情報整形
+___
+
+[キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力」をクリック →  
+全文をコピーして下部エリアにペースト →  
+「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
+
+> [!warning]  インセインにしか対応していません  
+> また、自分用です
+
 
 <!-- ここからHTML UI部分 -->
 <div class="tool-ui">
+<div class="tool-ui">
+  <textarea id="input" placeholder="ここにコピペ"></textarea>
+  <br>
+  <button onclick="convert()">変換</button>
 
-<textarea id="input" placeholder="ここにコピペ"></textarea>
-<br>
-<button onclick="convert()">変換</button>
-
-<div class="output-container">
-  <button class="copy-button" onclick="copyOutput()">📋</button>
-  <pre id="output"></pre>
+  <div class="output-container">
+    <button class="copy-button" onclick="copyOutput()">📋</button>
+    <pre id="output"></pre>
+  </div>
 </div>
+<style>
 
-  <style>
-    body {
-     <!--font-family: sans-serif;-->
-      font-size: 0.8pxf;
-      padding: 1em;
-      background: #f9f9f9;
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-    }
+  textarea,
+  .output-container {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+  }
 
-    textarea {
-      width: 80%;
-      height: 300px;
-      font-family: monospace;
-    }
+  button {
+    margin: 0.5em 0;
+    padding: 0.5em 1em;
+    font-size: 1em;
+    cursor: pointer;
+  }
+  .output-container {
+    position: relative;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 1em;
+    margin-top: 1em;
+    white-space: pre-wrap;
+    font-family: monospace;
+  }
+  .copy-button {
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+    background: #eee;
+    border: none;
+    padding: 0.3em 0.6em;
+    cursor: pointer;
+    font-size: 1em;
+    border-radius: 4px;
+    transition: background 0.2s;
+  }
+  .copy-button:hover {
+    background: #ddd;
+  }
+</style>
 
-    button {
-      margin: 0.5em 0;
-      padding: 0.5em 1em;
-      font-size: 0.8px;
-      cursor: pointer;
-    }
-
-    .output-container {
-      position: relative;
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 1em;
-      margin-top: 1em;
-      white-space: pre-wrap;
-      font-family: monospace;
-    }
-
-    .copy-button {
-      position: absolute;
-      top: 0.5em;
-      right: 0.5em;
-      background: #eee;
-      border: none;
-      padding: 0.3em 0.6em;
-      cursor: pointer;
-      font-size: 1em;
-      border-radius: 4px;
-      transition: background 0.2s;
-    }
-
-    .copy-button:hover {
-      background: #ddd;
-    }
-  </style>
 
 <script>
 
