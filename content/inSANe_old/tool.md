@@ -2,39 +2,6 @@
 title: "⚙ ツール"
 draft: false
 ---
-
-## 🛠 CS → コマ情報整形
-___
-
-> [!tip] 
-> [キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力」をクリック →  
-> 全文をコピーして下部エリアにペースト →  
-> 「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
-  
-  
-> [!warning]  インセインにしか対応していません<br>また、ｇのセッション周りのみでの使用を想定してます
-
-<br><br>
-
-<!-- ここからHTML UI部分 -->
-<div class="tool-ui">
-<div class="tool-ui">
-  <textarea id="input" placeholder="ここにコピペ"></textarea>
-  <br>
-  <button onclick="convert()">変換</button>
-
-<br><br>
-
-  <div class="output-container">
-    <button class="copy-button" onclick="copyOutput()">📋</button>
-    <pre id="output"></pre>
-  </div>
-</div>
-
-<br><br><br>
-
-<!-- 👇ここに空行を入れる！ -->
-
 <style>
 
 .tool-ui {
@@ -81,6 +48,38 @@ ___
     background: #ddd;
   }
 </style>
+
+
+## 🛠 CS → コマ情報整形
+___
+
+> [!tip] 
+> [キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力」をクリック →  
+> 全文をコピーして下部エリアにペースト →  
+> 「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
+  
+  
+> [!warning]  インセインにしか対応していません<br>また、ｇのセッション周りのみでの使用を想定してます
+
+<br><br>
+
+<!-- ここからHTML UI部分 -->
+<div class="tool-ui">
+<div class="tool-ui">
+  <textarea id="input" placeholder="ここにコピペ"></textarea>
+  <br>
+  <button onclick="convert()">変換</button>
+
+<br><br>
+
+  <div class="output-container">
+    <button class="copy-button" onclick="copyOutput()">📋</button>
+    <pre id="output"></pre>
+  </div>
+</div>
+
+<br><br><br>
+
 
 <!-- 👇ここに空行を入れる！ -->
 
