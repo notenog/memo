@@ -115,42 +115,65 @@ ___
 
 <br><br><br>
 
-
 <script>
-
 function convert() {
-  const raw = document.getElementById('input').value;
-  const lines = raw.split('\n');
+  const raw = document.getElementById('input').value;
+  const lines = raw.split('\n');
 
-  let name = '';
-  let special = '';
-  let skills = {
-    暴力: '〈〉', 情動: '〈〉', 知覚: '〈〉', 技術: '〈〉', 知識: '〈〉', 怪異:  '〈〉'
-  };
-  let fear = '〈〉';
-  let abilities = [];
+  let name = '';
+  let mission = '';
+  let special = '';
+  let skills = {
+    暴力: '', 情動: '', 知覚: '', 技術: '', 知識: '', 怪異: []
+  };
+  let fear = '';
+  let abilities = [];
 
-  for (let line of lines) {
-    if (line.includes('名前：')) name = line.split('名前：')[1].trim();
-    if (line.includes('好奇心分野には○')) special = '好奇心';
-    if (line.match(/暴力：/)) skills['暴力'] = extractSkill(line);
-    if (line.match(/情動：/)) skills['情動'] = extractSkill(line);
-    if (line.match(/知覚：/)) skills['知覚'] = extractSkill(line);
-    if (line.match(/技術：/)) skills['技術'] = extractSkill(line);
-    if (line.match(/知識：/)) skills['知識'] = extractSkill(line);
-    if (line.match(/怪異：/)) skills['怪異'] = extractMultipleSkills(line);
-    if (line.includes('恐怖心：')) fear = extractSkill(line);
-    if (line.includes('：装備') || line.includes('：攻撃') || line.includes('：サポ')) {
-      abilities.push(formatAbility(line));
-    }
-  }
+  const skillFields = ['暴力', '情動', '知覚', '技術', '知識', '怪異'];
 
-  const output = `
+  for (let line of lines) {
+    if (line.includes('名前：')) name = line.split('名前：')[1].trim();
+    if (line.includes('【使命】')) mission = line.split('【使命】')[1].trim();
+
+    for (let field of skillFields) {
+      const regex = new RegExp(`${field}：.*?○：?(.*)`);
+      if (regex.test(line)) {
+        special = field; // ○がついてる分野を好奇心に設定
+        const match = line.match(regex);
+        const raw = match[1].trim();
+        if (field === '怪異') {
+          skills['怪異'] = raw.split('、').map(s => s.trim().replace(/[〈〉]/g, ''));
+        } else {
+          skills[field] = extractSkill(raw);
+        }
+      } else if (line.includes(`${field}：`)) {
+        if (field === '怪異') {
+          const match = line.match(/怪異：.*?：(.+)/);
+          if (match) {
+            skills['怪異'] = match[1].split('、').map(s => s.trim().replace(/[〈〉]/g, ''));
+          }
+        } else {
+          skills[field] = extractSkill(line);
+        }
+      }
+    }
+
+    if (line.includes('恐怖心：')) {
+      const rawFear = line.split('恐怖心：')[1].trim().replace(/[〈〉]/g, '');
+      fear = rawFear ? `〈${rawFear}〉` : '';
+    }
+
+    if (line.includes('：装備') || line.includes('：攻撃') || line.includes('：サポ')) {
+      abilities.push(formatAbility(line));
+    }
+  }
+
+  const output = `
 ------------------------------------------
 　名前：${name}
 　PL　：
 ------------------------------------------
-【使命】　
+【使命】${mission}
 ------------------------------------------
 👁️‍🗨️ 特技　
 　1/暴力分野：${skills['暴力']}
@@ -158,100 +181,59 @@ function convert() {
 　3/知覚分野：${skills['知覚']}
 　4/技術分野：${skills['技術']}
 　5/知識分野：${skills['知識']}
-　6/怪異分野：${skills['怪異'].map(s => `〈${s}〉`).join('、')}
-
+　6/怪異分野：${skills['怪異'].map(s => `〈${s}〉`).join(' ')}
 ✨好奇心：${special}　　✖恐怖心：${fear}
 ------------------------------------------
 💠 アビリティ
-  ${abilities.join('\n  ')}
+　${abilities.join('\n　')}
 ------------------------------------------
 ❤ 感情
-  ・PC名　→　感情(+/-)
-  
+　・PC名　→　感情(+/-)
+　
 ------------------------------------------
 📓 情報/居所
-  ・
-  
+　・
+　
 ------------------------------------------
 ------------------------------------------
-
 `.trim();
 
-  document.getElementById('output').textContent = output;
-}
-function extractSkill(line) {
-  const match = line.match(/：(.+)/);
-  if (!match) return '〈〉';
-
-  const raw = match[1]
-    .replace(/[〈〉]/g, '')       // 括弧除去
-    .replace(/○：?/g, '')        // 習得マーク除去
-    .replace(/：/g, '')          // 残ったコロン除去
-    .trim();
-
-  if (!raw) return '〈〉';
-
-  const parts = raw.split(/、|,/).map(s => s.trim()).filter(Boolean);
-  return parts.map(p => `〈${p}〉`).join('、');
+  document.getElementById('output').textContent = output;
 }
 
-function extractMultipleSkills(line) {
-  const match = line.match(/怪異：○：(.+)/);
-  return match ? match[1].split('、').map(s => s.trim().replace(/[〈〉]/g, '')) : [];
+function extractSkill(raw) {
+  if (!raw || typeof raw !== 'string') return '';
+  raw = raw
+    .replace(/[〈〉]/g, '')
+    .replace(/○：?/g, '')
+    .replace(/：/g, '')
+    .trim();
+
+  if (!raw) return '';
+
+  const parts = raw.split(/、|,/).map(s => s.trim()).filter(Boolean);
+  return parts.length ? `〈${parts.join('〉、〈')}〉` : '';
 }
 
 function formatAbility(line) {
-  const parts = line.split('：');
-  const name = parts[0].trim();
-  const type = parts[1].trim();
-  const skill = parts[2] ? parts[2].trim().replace(/[〈〉]/g, '') : '';
-  return `【　${name}　】：　${type}　：　〈${skill || 'なし'}〉`;
+  const parts = line.split('：');
+  const name = parts[0].trim();
+  const type = parts[1].trim();
+  const skill = parts[2] ? parts[2].trim().replace(/[〈〉]/g, '') : '';
+  return `【　${name}　】：　${type}　：　〈${skill || 'なし'}〉`;
 }
 
-// alert()の代わりにカスタムモーダルを使用
 function copyOutput() {
-  const text = document.getElementById('output').textContent;
-  
-  // クリップボードにコピー
-  navigator.clipboard.writeText(text).then(() => {
-    showFeedback('コピーしました！ 🎉');
-  }).catch(err => {
-    showFeedback('コピーに失敗しました…🌀');
-    console.error(err);
-  });
-}
-
-// 簡易的なフィードバック表示関数 (alertの代替)
-function showFeedback(message) {
-    let feedback = document.getElementById('feedback-message');
-    if (!feedback) {
-        feedback = document.createElement('div');
-        feedback.id = 'feedback-message';
-        feedback.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-            font-size: 16px;
-        `;
-        document.body.appendChild(feedback);
-    }
-    
-    feedback.textContent = message;
-    feedback.style.opacity = '1';
-    
-    setTimeout(() => {
-        feedback.style.opacity = '0';
-    }, 1500);
+  const text = document.getElementById('output').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('コピーしました！🦊');
+  }).catch(err => {
+    alert('コピーに失敗しました…🌀');
+    console.error(err);
+  });
 }
 </script>
+
 <style>
 /* カスタムモーダル用のCSSを追記 */
 #feedback-message {
