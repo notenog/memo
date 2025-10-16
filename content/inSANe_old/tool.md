@@ -3,12 +3,71 @@ title: "⚙ ツール"
 draft: false
 ---
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>インセイン変換ツール</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1em;
+      background: #f9f9f9;
+    }
 
+    textarea {
+      width: 100%;
+      height: 300px;
+      font-family: monospace;
+    }
 
-<textarea id="input" rows="20" cols="60" placeholder="キャラシートを貼り付けてね"></textarea>
+    button {
+      margin: 0.5em 0;
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    .output-container {
+      position: relative;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 1em;
+      margin-top: 1em;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+
+    .copy-button {
+      position: absolute;
+      top: 0.5em;
+      right: 0.5em;
+      background: #eee;
+      border: none;
+      padding: 0.3em 0.6em;
+      cursor: pointer;
+      font-size: 1em;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .copy-button:hover {
+      background: #ddd;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🛠 キャラシート → チャットパレット変換</h2>
+
+<textarea id="input" placeholder="キャラシートを貼り付けてね"></textarea>
 <br>
 <button onclick="convert()">変換する！</button>
-<pre id="output"></pre>
+
+<div class="output-container">
+  <button class="copy-button" onclick="copyOutput()">📋</button>
+  <pre id="output"></pre>
+</div>
 
 <script>
 function convert() {
@@ -18,9 +77,9 @@ function convert() {
   let name = '';
   let special = '';
   let skills = {
-    暴力: '', 情動: '', 知覚: '', 技術: '', 知識: '', 怪異: []
+    暴力: '〈〉', 情動: '〈〉', 知覚: '〈〉', 技術: '〈〉', 知識: '〈〉', 怪異: []
   };
-  let fear = '';
+  let fear = '〈〉';
   let abilities = [];
 
   for (let line of lines) {
@@ -39,9 +98,10 @@ function convert() {
   }
 
   const output = `
-◆名前：${name}　◆PL：
 ------------------------------------------
-◆特技　★${special}
+👁️‍🗨️ 名前：${name}　PL：
+------------------------------------------
+⚜ 特技　★${special}
 　暴力分野：${skills['暴力']}
 　情動分野：${skills['情動']}
 　知覚分野：${skills['知覚']}
@@ -49,15 +109,18 @@ function convert() {
 　知識分野：${skills['知識']}
 ★怪異分野：${skills['怪異'].map(s => `〈${s}〉`).join('、')}
 
-✖恐怖心：〈${fear}〉
+✖恐怖心：${fear}
 ------------------------------------------
-◆アビリティ
-${abilities.join('\n')}
+💠 アビリティ
+　${abilities.join('\n　')}
 ------------------------------------------
-◆感情
-PC名→感情(+/-)
+❤ 感情
+　・PC名　→　感情(+/-)
 ------------------------------------------
-◆情報/居所
+📓 情報/居所
+　・
+------------------------------------------
+------------------------------------------
 `.trim();
 
   document.getElementById('output').textContent = output;
@@ -65,19 +128,33 @@ PC名→感情(+/-)
 
 function extractSkill(line) {
   const match = line.match(/：(.+)/);
-  return match ? `〈${match[1].trim()}〉` : '';
+  const raw = match ? match[1].trim() : '';
+  return raw ? `〈${raw.replace(/[〈〉]/g, '')}〉` : '〈〉';
 }
 
 function extractMultipleSkills(line) {
   const match = line.match(/怪異：○：(.+)/);
-  return match ? match[1].split('、').map(s => s.trim()) : [];
+  return match ? match[1].split('、').map(s => s.trim().replace(/[〈〉]/g, '')) : [];
 }
 
 function formatAbility(line) {
   const parts = line.split('：');
   const name = parts[0].trim();
   const type = parts[1].trim();
-  const skill = parts[2].trim();
-  return `【　${name}　】：　${type}　：　${skill ? `〈${skill}〉` : 'なし'}`;
+  const skill = parts[2] ? parts[2].trim().replace(/[〈〉]/g, '') : '';
+  return `【　${name}　】：　${type}　：　〈${skill || 'なし'}〉`;
+}
+
+function copyOutput() {
+  const text = document.getElementById('output').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('コピーしました！🦊');
+  }).catch(err => {
+    alert('コピーに失敗しました…🌀');
+    console.error(err);
+  });
 }
 </script>
+
+</body>
+</html>

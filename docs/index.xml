@@ -9,8 +9,8 @@
     <title>⚙ ツール</title>
     <link>https://https://notenog.github.io/memo/inSANe_old/tool</link>
     <guid>https://https://notenog.github.io/memo/inSANe_old/tool</guid>
-    <description><![CDATA[  変換する！ function convert() { const raw = document.getElementById(&#039;input&#039;).value; const lines = raw.split(&#039;\n&#039;); let name = &#039;&#039;; let special = &#039;&#039;; let skills = { 暴力: &#039;&#039;, 情動: &#039;&#039;, 知覚: &#039;&#039;, 技術: &#039;&#039;, 知識: &#039;&#039;, 怪異: [] }; l... ]]></description>
-    <pubDate>Thu, 16 Oct 2025 09:56:59 GMT</pubDate>
+    <description><![CDATA[  インセイン変換ツール body { font-family: sans-serif; padding: 1em; background: #f9f9f9; } textarea { width: 100%; height: 300px; font-family: monospace; } button { margin: 0.5em 0; padding: 0.5em 1em; font-size: 1em; cursor: pointer; } .output-container { position: relative; background: #fff; border: 1px sol... ]]></description>
+    <pubDate>Thu, 16 Oct 2025 09:59:54 GMT</pubDate>
   </item><item>
     <title>🏚️ ハウスルール</title>
     <link>https://https://notenog.github.io/memo/inSANe_old/inSANe_old</link>
