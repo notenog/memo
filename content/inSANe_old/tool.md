@@ -15,12 +15,13 @@ draft: false
   gap: 1em; /* 左右の間隔 */
   max-width: 1600px; /* 800px × 2 + gap */
   width: 100%;
+  align-items: stretch; /* 高さを揃える */
 }
 
 textarea {
   width: 100%;
-  min-width: 400px; /* 最小幅 */
-  min-height: 400px; /* 高さを揃える */
+  min-width: 350px; /* 最小幅 */
+  min-height: 350px; /* 高さを揃える */
   padding: 1em;
   font-family: monospace;
   font-size: 14px;
@@ -32,16 +33,15 @@ textarea {
 
 .output-container {
   width: 100%;
-  min-width: 400px;
-  margin: 0;
+  min-width: 350px;
+  min-height: 350px; /* textareaと高さを揃える */
+  margin: 0; /* margin-topを削除 */
   position: relative;
   background: #fff;
   border: 1px solid #ccc;
   padding: 1em;
-  margin-top: 1em;
   white-space: pre-wrap;
   font-family: monospace;
-  min-height: 100px; /* 最小の高さを指定 */
   box-sizing: border-box;
 }
 
@@ -75,9 +75,7 @@ button {
 ___
 
 > [!tip]
-> [キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力をクリック →
-> 全文をコピーして下部エリアにペースト →
-> 「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
+> 　[キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力をクリック →<br>　全文をコピーして下部エリアにペースト →<br>　「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
   
   
 > [!warning]  インセインにしか対応していません<br>また、ｇのセッション周りのみでの使用を想定してます
@@ -96,7 +94,6 @@ ___
       <pre id="output"></pre>
     </div>
   </div>
-</div>
 
 <br><br><br>
 
