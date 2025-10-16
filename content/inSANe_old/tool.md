@@ -7,12 +7,12 @@ draft: false
 ___
 
 > [!tip] 
-[キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力」をクリック →  
-全文をコピーして下部エリアにペースト →  
-「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
+> [キャラクターシート倉庫](https://character-sheets.appspot.com/) さん上部にある「Tekeyフォーマット出力」をクリック →  
+> 全文をコピーして下部エリアにペースト →  
+> 「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
   
   
-> [!warning]  インセインにしか対応していません<br>また、自分のセッション周り用のみとして想定しています
+> [!warning]  インセインにしか対応していません<br>また、ｇのセッション周り用のみの使用を想定してます
 
 <br><br>
 
@@ -35,6 +35,12 @@ ___
 
 <style>
 
+.tool-ui {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
   textarea,
   .output-container {
     max-width: 650px;
@@ -45,7 +51,7 @@ ___
   button {
     margin: 0.5em 0;
     padding: 0.5em 1em;
-    font-size: 10px;
+    font-size: 14px;
     cursor: pointer;
   }
   .output-container {
@@ -65,7 +71,7 @@ ___
     border: none;
     padding: 0.3em 0.6em;
     cursor: pointer;
-    font-size: 1em;
+    font-size: 14px;
     border-radius: 4px;
     transition: background 0.2s;
   }
