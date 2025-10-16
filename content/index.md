@@ -3,7 +3,8 @@ title: "index"
 draft: false
 ---
 
-# <span class="heading-33">01. セッション前準備</span>
+<h1 class="heading-33"><span class="heading-33">01. セッション前準備</span></h1>
+
 ___
 ## 【🔧 使用ツール】
 
@@ -18,7 +19,7 @@ ___
 
 <br> <br> 
   
-# <span class="heading-33">02. セッション当日準備</span>
+# 02. セッション当日準備
 ___
 ## 【💁‍♀️ 立ち絵位置】
 * 特に指定がなければ以下を目安にして下さい
