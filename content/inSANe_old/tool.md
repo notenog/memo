@@ -63,11 +63,20 @@ textarea {
     word-break: break-all;
 }
 
-button {
-  margin: 0.5em 0;
-  padding: 0.5em 0.5em;
-  font-size: 13px;
-  cursor: pointer;
+
+
+.button-1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+    margin:0 auto;
+    padding: .9em 2em;
+    border: 1px solid #2589d0;
+    border-radius: 25px;
+    background-color: #fff;
+    color: #2589d0;
+    font-size: 1em;
 }
 
 .copy-button {
@@ -101,7 +110,7 @@ ___
 
 <!-- ここからHTML UI部分 -->
 <div class="tool-ui">
-  <button onclick="convert()">変換</button>
+  <button class="button-1" onclick="convert()">ボタンデザイン</button>
   
   <div class="side-by-side">
     <textarea id="input" placeholder="ここにコピペ"></textarea>
@@ -169,8 +178,7 @@ function convert() {
   }
 
   const output = `
-━━━━━━━━━━━━━━━━━
-------------------------------------------
+==========================================
 　名前：${name}
 　PL　：
 ------------------------------------------
@@ -196,8 +204,7 @@ function convert() {
 📓 情報/居所
 　・
 　
-------------------------------------------
-━━━━━━━━━━━━━━━━━
+==========================================
 `.trim();
 
   document.getElementById('output').textContent = output;
