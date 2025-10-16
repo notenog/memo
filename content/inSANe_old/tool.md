@@ -12,7 +12,7 @@ ___
 > 「変換」をクリックでTekeyのコマ用に整形された文章が表示されます。
   
   
-> [!warning]  インセインにしか対応していません<br>また、ｇのセッション周り用のみの使用を想定してます
+> [!warning]  インセインにしか対応していません<br>また、ｇのセッション周りのみでの使用を想定してます
 
 <br><br>
 
@@ -22,6 +22,8 @@ ___
   <textarea id="input" placeholder="ここにコピペ"></textarea>
   <br>
   <button onclick="convert()">変換</button>
+
+<br><br>
 
   <div class="output-container">
     <button class="copy-button" onclick="copyOutput()">📋</button>
@@ -43,7 +45,7 @@ ___
 
   textarea,
   .output-container {
-    max-width: 650px;
+    max-width: 750px;
     width: 100%;
     margin: 0 auto;
   }
