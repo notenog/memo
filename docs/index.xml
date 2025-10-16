@@ -9,8 +9,8 @@
     <title>⚙ ツール</title>
     <link>https://https://notenog.github.io/memo/inSANe_old/tool</link>
     <guid>https://https://notenog.github.io/memo/inSANe_old/tool</guid>
-    <description><![CDATA[  インセイン変換ツール body { &lt;!--font-family: sans-serif;--&gt; font-size: 0.8pxf; padding: 1em; background: #f9f9f9; display: flex; flex-direction: column; align-items: center; } textarea { width: 700%; height: 300px; font-family: monospace; } button { margin: 0.5em 0; padding: 0.5em 1em; font-size: 0.8px... ]]></description>
-    <pubDate>Thu, 16 Oct 2025 11:14:57 GMT</pubDate>
+    <description><![CDATA[ 🛠 CS → コマ情報整形 キャラクターシート倉庫さん上部にある「Tekeyフォーマット出力」をクリック → 全文をコピーして下部エリアにペースト → 「変換」をクリックでTekeyのコマ用に整形された文章が整形されます。 &gt; [!warning]- ⚠️インセインにしか対応していません &gt; 変換 📋 body { &lt;!--font-family: sans-serif;--&gt; font-size: 0.8pxf; padding: 1em; background: #f9f9f9; display: flex; flex-direction: column; al... ]]></description>
+    <pubDate>Thu, 16 Oct 2025 11:22:59 GMT</pubDate>
   </item><item>
     <title>🏚️ ハウスルール</title>
     <link>https://https://notenog.github.io/memo/inSANe_old/inSANe_old</link>
