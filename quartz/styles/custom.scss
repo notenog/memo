@@ -70,7 +70,7 @@ h1 {
         display: inline-block;
         position: relative;
         padding: 0 .4em .2em;
-        color: #333333;
+        // color: #333333;
         
         &::before {
             position: absolute;
@@ -89,7 +89,7 @@ h1 {
     display: inline-block;
     position: relative;
     padding: 0 .4em .2em;
-    color: #333333;
+    // color: #333333;
     border-bottom: 3px solid #faf8f8;
     
     &::after {
