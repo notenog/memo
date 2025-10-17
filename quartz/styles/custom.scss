@@ -62,14 +62,11 @@ h6 {
 
 // 見出しの装飾
 
-h1 {
+h1:not([style*="color"]) {
+    display: inline-block;
+    position: relative;
+    padding: 0 .4em .2em;
     border-bottom: 3px solid #faf8f8;
-    
-    // h1の中のテキストをspanで包む必要がある場合
-    span {
-        display: inline-block;
-        position: relative;
-        padding: 0 .4em .2em;
         // color: #333333;
         
         &::before {
@@ -82,7 +79,7 @@ h1 {
             content: '';
         }
     }
-}
+
 
 // もしh1の直接のテキストに適用したい場合（spanなし）
 h1 {
