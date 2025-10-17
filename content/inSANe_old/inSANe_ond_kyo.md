@@ -12,7 +12,7 @@ ___
 <br>
 <br>
 
-<h1 style="color: #2663dc;">《 共演者ルール 》</h1>
+<h1 class="no-underline" style="color: #2663dc;">《 共演者ルール 》</h1>
 
 ___
 * 共演者はPCと同じようにCSを作成し特技・アビリティ・アイテムを使用する。

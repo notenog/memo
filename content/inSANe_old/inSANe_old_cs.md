@@ -12,7 +12,8 @@ ___
 <br>
 <br>
 
-<h1 style="color: #DC2626;">《 CS秘匿ルール 》</h1>
+<h1 sclass="no-underline" style="color: #DC2626;">《 CS秘匿ルール 》</h1>
+
 ___
 ## 【生命点・正気度・アイテムの公開について】
 * 「生命点」「正気度」は全体公開です。
