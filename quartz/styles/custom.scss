@@ -69,7 +69,7 @@ h1:not([style*="color"]) {
     border-bottom: 3px solid #faf8f8;
         // color: #333333;
         
-        &::before {
+        &::after {
             position: absolute;
             bottom: -3px;
             left: 0;
