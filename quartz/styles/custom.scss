@@ -189,8 +189,8 @@ h1 {
     opacity: 1;
 }
 
-// 目次のスクロールバーを非表示
-.toc {
+// 目次のスクロールバーを削除
+ul.toc-content.overflow {
     overflow: visible !important;
     max-height: none !important;
 }
