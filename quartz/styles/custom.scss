@@ -5,7 +5,7 @@
 /* 記事本文全体（Markdownのテキスト部分）の行間を調整 */
 .popover-hint {
   letter-spacing: 0.02em;
-  line-height: 1.85; 
+  line-height: 1.9; 
 }
 
 /* もし上記で効かない場合は、body全体を対象にすることもできます */
@@ -18,7 +18,7 @@ body {
 .markdown cite {
   font-style: italic;       // 斜体（デフォルト）
   color: #888;              // グレー系にする
-  font-size: 0.85em;        // 少し小さめに
+  font-size: 0.7em;        // 少し小さめに
   letter-spacing: 0.02em;   // 字間調整
 }
 
