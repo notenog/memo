@@ -11,5 +11,3 @@ git commit -m "fix: Final push of clean assets with all content emitters disable
 git push origin master
 ```
 
-
-|テキスト| |:-|

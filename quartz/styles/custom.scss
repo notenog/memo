@@ -15,16 +15,23 @@ body {
 }
 */
 
-.markdown cite {
-  font-style: italic;       // 斜体（デフォルト）
-  color: #888888;              // グレー系にする
-  font-size: 0.3em;        // 少し小さめに
-  letter-spacing: 0.02em;   // 字間調整
+
+/* 引用ブロック (<blockquote>) の中にある <cite> タグにスタイルを適用する */
+/* これで、引用元の著者名や作品名だけを装飾できます */
+blockquote cite {
+  font-style: italic;           /* 斜体（元の指定通り） */
+  color: #888888;               /* グレー系 */
+  
+  /* ベースサイズ (例: 16px) に対して 0.8em〜0.9em 程度がおすすめです */
+  font-size: 0.80em;            /* 少し小さめに */
+  
+  letter-spacing: 0.02em;       /* 字間調整 */
+  
+  /* 引用元を区別しやすくするために、display: block; を追加して改行させても良いです */
+ display: block;
+ margin-top: 5px;
 }
 
-.markdown cite::before {
-  content: "📖 ";
-}
 
 
 /* 目次（Table of Contents）のスタイル */
@@ -213,12 +220,9 @@ ul.toc-content.overflow {
     width: 100% !important;
 }
 
-  /* ここでフォントサイズを設定します */
-.popover-hint {
-  font-size: 15px; 
-}
+/* custom.css (推奨設定例: 16px) */
 
-/* 記事本文の段落（pタグ）にも適用して確実にする */
+.popover-hint,
 .popover-hint p {
-  font-size: 15px;
+  font-size: 15px; /* 標準的で最も読みやすいサイズ */
 }
