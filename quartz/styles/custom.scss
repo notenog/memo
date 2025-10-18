@@ -18,7 +18,7 @@ body {
 .markdown cite {
   font-style: italic;       // 斜体（デフォルト）
   color: #888;              // グレー系にする
-  font-size: 0.7em;        // 少し小さめに
+  font-size: 0.55em;        // 少し小さめに
   letter-spacing: 0.02em;   // 字間調整
 }
 
@@ -187,4 +187,10 @@ h1 {
 .accordion-004[open] p {
     transform: none;
     opacity: 1;
+}
+
+// 目次のスクロールバーを非表示
+.toc {
+    overflow: visible !important;
+    max-height: none !important;
 }
