@@ -194,3 +194,44 @@ ul.toc-content.overflow {
     overflow: visible !important;
     max-height: none !important;
 }
+
+
+/* 通常の引用ブロック（blockquote）をシンプルで控えめなメモボックスにする */
+blockquote {
+    /* 枠線: 左側だけに細い線を入れる */
+    border-left: 4px solid var(--background-modifier-border); /* テーマの色に合わせた線 */
+    
+    /* 枠線: 他の方向の枠線はすべて消す */
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+
+    /* 余白 */
+    padding: 8px 15px; /* 上下左右の余白 */
+    margin: 1em 0; /* 前後の余白 */
+    
+    /* 背景色: わずかに背景色を付けて目立たせる */
+    background-color: var(--background-primary-alt); /* 記事本文より少し濃い色 */
+    
+    /* 角の丸み */
+    border-radius: 4px;
+    
+    /* テキストスタイルをリセット */
+    color: var(--text-normal);
+}
+
+
+// サイドバー全体を広げる
+.desktop-only {
+    width: 350px !important;  // デフォルトより広く（調整可能）
+}
+
+// 目次エリアも広げる
+.toc {
+    width: 100% !important;
+}
+
+ul.toc-content.overflow {
+    overflow-x: hidden !important;
+    width: 100% !important;
+}
