@@ -36,7 +36,7 @@ blockquote cite {
 
 /* 目次（Table of Contents）のスタイル */
 .toc {
-  letter-spacing: 0.9px;
+  letter-spacing: 0.7px;
   font-size: 0.85rem;
   line-height: 1.2;
   
@@ -212,12 +212,12 @@ ul.toc-content.overflow {
 
 // 目次エリアも広げる
 .toc {
-    width:  280px !important;
+    width:  80% !important;
 }
 
 ul.toc-content.overflow {
-    overflow-x: hidden !important;
-    width: 280px !important;
+    overflow-x: visible !important;
+    width: 80% !important;
 }
 
 /* custom.css (推奨設定例: 16px) */
