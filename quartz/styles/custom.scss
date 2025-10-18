@@ -212,12 +212,12 @@ ul.toc-content.overflow {
 
 // 目次エリアも広げる
 .toc {
-    width:  80% !important;
+    width: 280px !important;
 }
 
 ul.toc-content.overflow {
     overflow-x: visible !important;
-    width: 80% !important;
+    width: 280px !important;
 }
 
 /* custom.css (推奨設定例: 16px) */
@@ -225,4 +225,8 @@ ul.toc-content.overflow {
 .popover-hint,
 .popover-hint p {
   font-size: 15px; /* 標準的で最も読みやすいサイズ */
+}
+
+.callout-title {
+width: 550px !important;
 }
