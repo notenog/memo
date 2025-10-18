@@ -136,33 +136,24 @@ h1 {
     }
 }
 
-//背景色などのスタイル
-// ----------------------------------------
-// テーマ変数の上書き
-// ----------------------------------------
+// フォントの変更
 
-// ▼ ライトモードのテーマカラーを上書きする
-:root {
-  // メインの背景色 (記事本文の白い部分)
-  --background: #fdfdfd; 
-  
-  // サイト全体の外側の色 (サイドバーや余白)
-  --background-alt: #fdfdfd; 
-  
-  // 例: メインの背景を薄いクリーム色に変更したい場合
-  // --background: #FFFCEF; 
+body {
+    font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック体", "Yu Gothic", sans-serif;
 }
 
-// ▼ ダークモードのテーマカラーを上書きする
-:root[data-theme='dark'] {
-  // メインの背景色
-  --background: #161B22; // GitHub Darkを意識した色など
-  
-  // サイト全体の外側の色
-  --background-alt: #0D1117; 
-  
-  // 例: メインの背景を濃い青に変更したい場合
-  // --background: #1A1A2E; 
+
+//背景色などのスタイル
+// ライトモード
+:root {
+    --light: #fdfdfd;  // メインの背景色
+    --lightgray: #f5f5f5;  // サイドバーなどの背景色（必要に応じて調整）
+}
+
+// ダークモード（将来の変更用に残しておく）
+:root[saved-theme="dark"] {
+    // --dark: #1a1a1a;  // メインの背景色
+    // --darkgray: #2d2d2d;  // サイドバーなどの背景色
 }
 
 
