@@ -23,13 +23,13 @@ blockquote cite {
   color: #888888;               /* グレー系 */
   
   /* ベースサイズ (例: 16px) に対して 0.8em〜0.9em 程度がおすすめです */
-  font-size: 0.80em;            /* 少し小さめに */
+  font-size: 0.85em;            /* 少し小さめに */
   
   letter-spacing: 0.02em;       /* 字間調整 */
   
   /* 引用元を区別しやすくするために、display: block; を追加して改行させても良いです */
- display: block;
- margin-top: 5px;
+ /*display: block;
+ margin-top: 5px;*/
 }
 
 
