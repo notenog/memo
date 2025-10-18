@@ -1,4 +1,7 @@
 
+```
+cd D:\memo
+```
 
 ```
 npm run build
