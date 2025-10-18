@@ -108,3 +108,55 @@ h1 {
         content: '';
     }
 }
+
+// 折りたたみアコーディオン
+.accordion-004 {
+    max-width: 500px;
+    margin-bottom: 7px;
+    border: 2px solid #d0d0d0;
+    border-radius: 25px;
+}
+
+.accordion-004 summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    padding: 1em 2em;
+    color: #333333;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.accordion-004 summary::-webkit-details-marker {
+    display: none;
+}
+
+.accordion-004 summary::after {
+    transform: translateY(-25%) rotate(45deg);
+    width: 7px;
+    height: 7px;
+    margin-left: 10px;
+    border-bottom: 3px solid #333333b3;
+    border-right: 3px solid #333333b3;
+    content: '';
+    transition: transform .3s;
+}
+
+.accordion-004[open] summary::after {
+    transform: rotate(225deg);
+}
+
+.accordion-004 p {
+    transform: translateY(-10px);
+    opacity: 0;
+    margin: 0;
+    padding: .3em 2em 1.5em;
+    color: #333333;
+    transition: transform .5s, opacity .5s;
+}
+
+.accordion-004[open] p {
+    transform: none;
+    opacity: 1;
+}
