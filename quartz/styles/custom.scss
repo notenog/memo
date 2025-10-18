@@ -136,26 +136,6 @@ h1 {
     }
 }
 
-// フォントの変更
-
-body {
-    font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック体", "Yu Gothic", sans-serif;
-}
-
-
-//背景色などのスタイル
-// ライトモード
-:root {
-    --light: #fdfdfd;  // メインの背景色
-    --lightgray: #f5f5f5;  // サイドバーなどの背景色（必要に応じて調整）
-}
-
-// ダークモード（将来の変更用に残しておく）
-:root[saved-theme="dark"] {
-    // --dark: #1a1a1a;  // メインの背景色
-    // --darkgray: #2d2d2d;  // サイドバーなどの背景色
-}
-
 
 // アコーディオンメニュー
 .accordion-004 {
