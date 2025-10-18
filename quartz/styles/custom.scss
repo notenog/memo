@@ -17,8 +17,8 @@ body {
 
 .markdown cite {
   font-style: italic;       // 斜体（デフォルト）
-  color: #888;              // グレー系にする
-  font-size: 0.55em;        // 少し小さめに
+  color: #888888;              // グレー系にする
+  font-size: 0.3em;        // 少し小さめに
   letter-spacing: 0.02em;   // 字間調整
 }
 
@@ -29,7 +29,7 @@ body {
 
 /* 目次（Table of Contents）のスタイル */
 .toc {
-  letter-spacing: 0.8px;
+  letter-spacing: 0.75px;
   font-size: 0.85rem;
   line-height: 1.2;
   
@@ -211,4 +211,14 @@ ul.toc-content.overflow {
 ul.toc-content.overflow {
     overflow-x: hidden !important;
     width: 100% !important;
+}
+
+  /* ここでフォントサイズを設定します */
+.popover-hint {
+  font-size: 15px; 
+}
+
+/* 記事本文の段落（pタグ）にも適用して確実にする */
+.popover-hint p {
+  font-size: 15px;
 }
