@@ -9,10 +9,10 @@ import * as Plugin from "./quartz/plugins"
 const config: QuartzConfig = {
     configuration: {
     pageTitle: "memo",
-/*    enableSPA: true,
+    enableSPA: true,
     enablePopovers: true,
     analytics: {
-      provider: "plausible",*/
+      provider: "plausible",
     },
     locale: "ja-JP",
     baseUrl: "https://notenog.github.io/memo/",
