@@ -325,9 +325,10 @@ blockquote:not(.callout) {
 /* コールアウトの左ラインを復活 */
 blockquote.callout {
     position: relative;
-    border-left: 1px solid var(--secondary) !important;
+    border-left: 0.5px solid var(--secondary) !important;
     padding-left: 12px !important;
 }
+
 
 /* コールアウトのアイコン付きタイプ別の色 */
 blockquote.callout[data-callout="info"] {
@@ -352,4 +353,34 @@ blockquote.callout[data-callout="danger"] {
 
 .mark1[data-theme='dark'] {
     background: linear-gradient(transparent 40%, #3D3301 40%);
+}
+
+/* 引用ブロック (blockquote) の縦線調整 - コールアウトを除外 */
+blockquote:not(.callout) {
+    position: relative; 
+    border-left: 2px solid #CCCCCC !important; /* 太さと色を変更 */
+    padding-left: 15px;
+}
+
+// サイドバー全体を広げる
+.desktop-only {
+    width: 350px !important;  // もう少し広く
+}
+
+// 目次エリアも広げる
+.toc {
+    width: 100% !important;  // 親要素いっぱいに
+}
+
+ul.toc-content.overflow {
+    overflow-x: hidden !important;  // visibleをhiddenに変更
+    max-width: 100% !important;  // 追加
+    width: 100% !important;
+}
+
+// 目次の各項目がはみ出さないように
+ul.toc-content.overflow li {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;  // 長い場合は...で省略
 }
