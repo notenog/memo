@@ -246,7 +246,7 @@ ul.toc-content.overflow {
 
 // 目次エリアも広げる
 .toc {
-    width: 280px !important;
+    width: 300px !important;
 }
 
 ul.toc-content.overflow {
@@ -259,8 +259,4 @@ ul.toc-content.overflow {
 .popover-hint,
 .popover-hint p {
   font-size: 15px; /* 標準的で最も読みやすいサイズ */
-}
-
-.callout info is-collapsible is-collapsed {
-width: 550px !important;
 }
