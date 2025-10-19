@@ -392,8 +392,8 @@ ul.toc-content.overflow li {
     &::before {
         content: '';
         display: inline-block;
-        width: 150px;  // 画像の幅（調整してください）
-        height: 150px;  // 画像の高さ（調整してください）
+        width: 100px;  // 画像の幅（調整してください）
+        height: 100px;  // 画像の高さ（調整してください）
         background-image: url('https://raw.githubusercontent.com/notenog/memo/df1fde07b9a49ed3b95c6850f48ee37ddf29ddd5/icon.png');  // 画像URLを指定
         background-size: contain;
         background-repeat: no-repeat;
