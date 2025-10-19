@@ -325,7 +325,7 @@ blockquote:not(.callout) {
 /* コールアウトの左ラインを復活 */
 blockquote.callout {
     position: relative;
-    border-left: 3px solid var(--secondary) !important;
+    border-left: 1px solid var(--secondary) !important;
     padding-left: 12px !important;
 }
 
