@@ -310,31 +310,6 @@ blockquote {
 }
 
 
-// ----------------------------------------
-// 引用ブロックの縦線カスタマイズ（色と太さのみの変更）
-// ----------------------------------------
-
-/* 1. 通常の引用ブロック（>）のみをターゲットにする (太線/グレー) */
-blockquote:not(.callout) {
-    /* 縦線の色と太さを変更する */
-    border-left: 6px solid #CCCCCC !important; 
-    
-    /* 余白を調整して、線と本文の間にスペースを確保 */
-    padding-left: 12px !important; 
-    
-    position: initial !important; 
-    font-style: normal !important; 
-}
-
-/* 2. 【再修正】コールアウトの線も上書きして、確実に太さを4pxに戻す */
-/* コールアウトは背景色（--callout-color）で色がつくため、色指定は不要 */
-.callout {
-    /* 太さをテーマの標準的な太さ（4px）に戻す */
-    border-left-width: 4px !important; 
-    /* 余白もテーマの標準的な値（20px）に戻す */
-    padding-left: 20px !important; 
-}
-
 
 
 .mark1 {
