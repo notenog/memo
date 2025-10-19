@@ -315,7 +315,7 @@ blockquote {
 // ----------------------------------------
 
 /* 1. 引用ブロック全体の設定 */
-blockquote {
+blockquote:not(.callout) {
     /* 縦線の色と太さを変更する */
     border-left: 3px solid #CCCCCC !important; /* 太さ6px、色は見出し色に！ */
     
@@ -331,4 +331,6 @@ blockquote {
 
 
 
-.mark1{ background: linear-gradient(transparent 40%, #f6ff5f 40%);}
+.mark1 {
+    background: linear-gradient(transparent 40%, #f6ff5f 40%);
+}
