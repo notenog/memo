@@ -1,5 +1,39 @@
 @use "./base.scss";
 
+/* custom.css */
+
+/* 記事本文（メインコンテンツ）のコンテナをターゲットにする */
+.popover-hint {
+  /* ---------------------------------------------------- */
+  /* 1. コンテンツの最大幅を制限する (これがおおもとの余白調整) */
+  /* ---------------------------------------------------- */
+  /* デフォルトは ~800px 程度です。コンテンツ幅を狭くすると左右の余白が増えます。 */
+  /* 例: 700px に設定（コンテンツが狭くなり、余白が増える） 
+  max-width: 700px; */
+  
+  /* ---------------------------------------------------- */
+  /* 2. コンテンツを中央寄せにする (必須) */
+  /* ---------------------------------------------------- */
+  margin: 0 auto; 
+  
+  /* ---------------------------------------------------- */
+  /* 3. 画面が狭いときのための余白調整（スマートフォンなど） */
+  /* ---------------------------------------------------- */
+  /* 左右にpaddingを確保することで、画面端にコンテンツが張り付くのを防ぎます */
+  /* 例: 左右に20pxのパディングを追加 */
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* 記事のタイトルやメタデータ部分（もし余白を揃えたい場合） */
+.page-header {
+  // max-width: 700px; /* 上記の max-width と同じ値に設定 */
+  margin: 0 auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+
 
 
 /* 記事本文全体（Markdownのテキスト部分）の行間を調整 */
@@ -207,7 +241,7 @@ ul.toc-content.overflow {
 
 // サイドバー全体を広げる
 .desktop-only {
-    width: 320px !important;  // デフォルトより広く（調整可能）
+    width: 300px !important;  // デフォルトより広く（調整可能）
 }
 
 // 目次エリアも広げる
@@ -217,7 +251,7 @@ ul.toc-content.overflow {
 
 ul.toc-content.overflow {
     overflow-x: visible !important;
-    width: 280px !important;
+    width: 300px !important;
 }
 
 /* custom.css (推奨設定例: 16px) */
@@ -227,6 +261,6 @@ ul.toc-content.overflow {
   font-size: 15px; /* 標準的で最も読みやすいサイズ */
 }
 
-.callout-title {
+.callout info is-collapsible is-collapsed {
 width: 550px !important;
 }
