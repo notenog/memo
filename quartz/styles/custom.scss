@@ -310,39 +310,25 @@ blockquote {
 }
 
 
+// ----------------------------------------
+// 引用ブロックの縦線カスタマイズ（色と太さのみの変更）
+// ----------------------------------------
 
 /* 1. 引用ブロック全体の設定 */
 blockquote {
-    position: relative; 
+    /* 縦線の色と太さを変更する */
+    border-left: 3px solid #CCCCCC !important; /* 太さ6px、色は見出し色に！ */
     
-    /* Obsidianのborder-leftを確実に削除 */
-    border-left: none !important; 
+    /* 余白を調整して、線と本文の間にスペースを確保 */
+    padding-left: 12px !important; 
     
-    /* 線の幅(4px) + 少しの余白(5px)で9px分のパディングを確保 */
-    padding-left: 9px !important; 
+    /* 線の長さを制限する複雑な設定をすべて削除します */
+    position: initial !important; 
+    
+    /* 引用ブロック内のテキストを斜体にしないリセット（任意） 
+    font-style: normal !important; */
 }
 
-/* 2. 引用ブロック (blockquote) の縦線 (::beforeで作成) */
-blockquote::before {
-    content: ''; 
-    position: absolute;
-    
-    /* ***** 修正点: left に負の値を指定し、線が露出するようにする ***** */
-    /* 引用ブロックのインデントを打ち消し、線を見える位置まで左に引き戻す */
-    left: -15px; 
-    
-    top: 50%; 
-    transform: translateY(-50%); 
-    
-    /* --- 線の長さと太さの制御 --- */
-    height: 60%; /* 要素の高さの60%に制限 (短くする！) */
-    width: 4px; /* 線の太さ */
-    
-    /* --- 線の色の設定 --- */
-    background-color: var(--text-accent); /* 目立つ色（アクセントカラー）を使用 */
-    
-    border-radius: 2px;
-}
 
 
 .mark1{ background: linear-gradient(transparent 40%, #f6ff5f 40%);}
