@@ -329,8 +329,20 @@ blockquote:not(.callout) {
     font-style: normal !important; */
 }
 
+/* 2. コールアウトのボーダーの太さをテーマの標準値に戻す */
+/* 引用ブロックへの変更（6px）がコールアウトに影響を与えないようにする */
+.callout {
+    /* テーマのデフォルト値（通常4px程度）に戻します。 */
+    /* !importantで強制的に上書きします。 */
+    border-left-width: 4px !important; 
+    }
+
 
 
 .mark1 {
     background: linear-gradient(transparent 40%, #f6ff5f 40%);
+}
+
+.mark1[data-theme='dark'] {
+    background: linear-gradient(transparent 40%, #3D3301 40%);
 }
