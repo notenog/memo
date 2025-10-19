@@ -55,15 +55,6 @@ const config: QuartzConfig = {
     },
   },
 
-export const: siteMetadata = {
-  title: "memo",
-  logo: {
-    enabled: true,
-    src: "https://raw.githubusercontent.com/notenog/memo/refs/heads/master/logo3.png",
-    alt: "サイトロゴ",
-  },
-}
-
 
   plugins: {
     transformers: [
