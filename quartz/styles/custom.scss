@@ -241,7 +241,7 @@ ul.toc-content.overflow {
 
 // サイドバー全体を広げる
 .desktop-only {
-    width: 300px !important;  // デフォルトより広く（調整可能）
+    width: 320px !important;  // デフォルトより広く（調整可能）
 }
 
 // 目次エリアも広げる
@@ -251,7 +251,7 @@ ul.toc-content.overflow {
 
 ul.toc-content.overflow {
     overflow-x: visible !important;
-    width: 300px !important;
+    width: 320px !important;
 }
 
 /* custom.css (推奨設定例: 16px) */
@@ -300,7 +300,7 @@ blockquote {
 /* 引用ブロック (blockquote) の縦線 (::beforeで作成) */
 blockquote::before {
     content: ''; 
-    color: #CCCCCC;
+    // color: #CCCCCC;
     position: absolute;
     left: 0; /* 線の位置 */
     top: 50%; /* 垂直中央を基準に */
@@ -310,8 +310,9 @@ blockquote::before {
     height: 60%; /* 要素の高さの60%に制限 (短くする！) */
     width: 3px; /* 線の太さ */
     
-    /* --- 線の色の設定 --- 
+    /* --- 線の色の設定 --- */
     background-color: var(--text-muted); /* 引用元のテキスト色に近い色 */
-    // border-radius: 2px;*/
+    border-radius: 2px;
 }
 
+.mark1{ background: linear-gradient(transparent 40%, #f6ff5f 40%);}
