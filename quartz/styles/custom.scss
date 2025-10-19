@@ -335,6 +335,7 @@ blockquote:not(.callout) {
     /* テーマのデフォルト値（通常4px程度）に戻します。 */
     /* !importantで強制的に上書きします。 */
     border-left-width: 4px !important; 
+    padding-left: 20px !important; 
     }
 
 
