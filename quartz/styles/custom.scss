@@ -310,33 +310,34 @@ blockquote {
 }
 
 
-// ----------------------------------------
-// 引用ブロックの縦線カスタマイズ（色と太さのみの変更）
-// ----------------------------------------
-
-/* 1. 引用ブロック全体の設定 */
+/* 1. 通常の引用ブロック（>）のみをターゲットにする (太線/グレー) */
 blockquote:not(.callout) {
     /* 縦線の色と太さを変更する */
-    border-left: 3px solid #CCCCCC !important; /* 太さ6px、色は見出し色に！ */
+    border-left: 6px solid #CCCCCC !important; 
     
     /* 余白を調整して、線と本文の間にスペースを確保 */
     padding-left: 12px !important; 
     
-    /* 線の長さを制限する複雑な設定をすべて削除します */
     position: initial !important; 
-    
-    /* 引用ブロック内のテキストを斜体にしないリセット（任意） 
-    font-style: normal !important; */
+    font-style: normal !important; 
 }
 
-/* 2. コールアウトのボーダーの太さをテーマの標準値に戻す */
-/* 引用ブロックへの変更（6px）がコールアウトに影響を与えないようにする */
-.callout {
-    /* テーマのデフォルト値（通常4px程度）に戻します。 */
-    /* !importantで強制的に上書きします。 */
+/* 2. コールアウトの太さと余白をテーマの標準値に強制的に戻す */
+.callout,
+blockquote.callout {
+    /* **既存の border-left をリセット** */
     border-left-width: 4px !important; 
+
+    /* 余白のリセット */
     padding-left: 20px !important; 
-    }
+}
+
+/* 3. 【最終手段】疑似要素の太さをリセットする */
+/* コールアウトが ::before で縦線を描画している場合に有効 */
+.callout::before {
+    /* 縦線（width）を標準的な太さの 4px に強制リセット */
+    width: 4px !important;
+}
 
 
 
