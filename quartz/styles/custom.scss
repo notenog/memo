@@ -326,32 +326,29 @@ blockquote:not(.callout) {
     
 /* コールアウトの枠線調整 - 左線だけ残す */
 blockquote.callout {
-    border-top: none !important;
-    border-right: none !important;
-    border-bottom: none !important;
-    /* border-leftはデフォルトの1pxのまま */
+    border-top: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    border-left: 1px solid var(--border) !important;  // 左線を明示的に指定
 }
 
-
-
-/* コールアウトのアイコン付きタイプ別の色 */
-
-/* タイプ別の色指定 */
-blockquote.callout[data-callout="info"]::before {
-    background-color: #3b82f6 !important;
+/* タイプ別の色 */
+blockquote.callout[data-callout="info"] {
+    border-left-color: #00b8d4 !important;
 }
 
-blockquote.callout[data-callout="tip"]::before {
-    background-color: #10b981 !important;
+blockquote.callout[data-callout="tip"] {
+    border-left-color: #00bfa5 !important;
 }
 
-blockquote.callout[data-callout="warning"]::before {
-    background-color: #f59e0b !important;
+blockquote.callout[data-callout="warning"] {
+    border-left-color: #db8942 !important;
 }
 
-blockquote.callout[data-callout="danger"]::before {
-    background-color: #ef4444 !important;
-}   
+blockquote.callout[data-callout="danger"] {
+    border-left-color: #db4242 !important;
+}
+
 
 // マーカー線（ライトモード）
 .mark1 {
