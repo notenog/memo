@@ -341,19 +341,19 @@ blockquote.callout {
 
 /* コールアウトのアイコン付きタイプ別の色 */
 
-blockquote.callout[data-callout="info"] {
+blockquote.callout[data-callout="info"]::before {
     border-left-color: #3b82f6 !important;
 }
 
-blockquote.callout[data-callout="tip"] {
+blockquote.callout[data-callout="tip"]::before {
     border-left-color: #10b981 !important;
 }
 
-blockquote.callout[data-callout="warning"] {
+blockquote.callout[data-callout="warning"]::before {
     border-left-color: #f59e0b !important;
 }
 
-blockquote.callout[data-callout="danger"] {
+blockquote.callout[data-callout="danger"]::before {
     border-left-color: #ef4444 !important;
 }
 
@@ -371,7 +371,7 @@ blockquote.callout[data-callout="danger"] {
 blockquote:not(.callout) {
     position: relative !important; 
         border: none !important;  // 一旦全部の線を消す
-    border-left: 1px solid #CCCCCC !important; /* 太さと色を変更 */
+    border-left: 2px solid #CCCCCC !important; /* 太さと色を変更 */
     padding-left: 15px;
 }
 
