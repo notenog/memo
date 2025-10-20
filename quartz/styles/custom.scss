@@ -275,7 +275,7 @@ ul.toc-content.overflow {
     /* max-widthを設定した際は、必ず margin: 0 auto; で中央に配置します。
        上下のマージンも確保するため 1em auto; がおすすめです。
     */
-   
+    margin: 1em auto; 
 }
 
 /* 引用ブロック (blockquote) の縦線調整 */
@@ -334,7 +334,7 @@ blockquote.callout {
         left: -1px;  // 少し外側に配置
         top: 0;
         bottom: 0;
-        width: 1px;  // 1pxに戻す
+        width: 2px;  // 1pxに戻す
         background-color: var(--secondary);
     }
 }
