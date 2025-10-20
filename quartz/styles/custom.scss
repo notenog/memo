@@ -310,19 +310,19 @@ blockquote {
 }
 
 
-/* 引用ブロック (blockquote) の縦線調整 - コールアウトを除外 
+/* 引用ブロック (blockquote) の縦線調整 - コールアウトを除外 */
 blockquote:not(.callout) {
     /* 1. 疑似要素の基準点を設定 */
-   // position: relative; 
+    position: relative; 
     
     /* 2. デフォルトの border-left を削除 */
-   // border-left: none !important; 
+    border-left: none !important; 
     
     /* 3. 疑似要素のための余白を確保 */
-   // padding-left: 15px;
-//}
+    padding-left: 15px;
+}
 
-/* または outline を使う方法 */
+/* または outline を使う方法 
 blockquote.callout {
     border-left: none !important;
     position: relative;
@@ -336,7 +336,7 @@ blockquote.callout {
         width: 0.5px;
         background-color: var(--secondary);  // デフォルト色
     }
-   }
+   }*/
 
 
 
