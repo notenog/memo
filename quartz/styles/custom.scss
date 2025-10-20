@@ -325,8 +325,10 @@ blockquote:not(.callout) {
 /* コールアウトの左ラインを復活 */
 blockquote.callout {
     position: relative !important;
-    border: none !important;  // 一旦全部の線を消す
-    border-left: 0.5px solid var(--secondary) !important;  // 改めて細い線を設定
+    border-top: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: 1px solid var(--secondary) !important;  // 一旦1pxに戻す
     padding-left: 12px !important;
 }
 
