@@ -333,29 +333,31 @@ blockquote.callout {
         left: 0;
         top: 0;
         bottom: 0;
-        width: 0.5px;  // 細い線
-        background-color: var(--secondary);
+        width: 0.5px;
+        background-color: var(--secondary);  // デフォルト色
     }
-}
+   }
+
 
 
 /* コールアウトのアイコン付きタイプ別の色 */
 
+/* タイプ別の色指定 */
 blockquote.callout[data-callout="info"]::before {
-    border-left-color: #3b82f6 !important;
+    background-color: #3b82f6 !important;
 }
 
 blockquote.callout[data-callout="tip"]::before {
-    border-left-color: #10b981 !important;
+    background-color: #10b981 !important;
 }
 
 blockquote.callout[data-callout="warning"]::before {
-    border-left-color: #f59e0b !important;
+    background-color: #f59e0b !important;
 }
 
 blockquote.callout[data-callout="danger"]::before {
-    border-left-color: #ef4444 !important;
-}
+    background-color: #ef4444 !important;
+}   
 
 // マーカー線（ライトモード）
 .mark1 {
