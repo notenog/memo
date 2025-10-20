@@ -359,8 +359,9 @@ blockquote.callout[data-callout="danger"] {
 
 /* 引用ブロック (blockquote) の縦線調整 - コールアウトを除外 */
 blockquote:not(.callout) {
-    position: relative; 
-    border-left: 2px solid #CCCCCC !important; /* 太さと色を変更 */
+    position: relative !important; 
+        border: none !important;  // 一旦全部の線を消す
+    border-left: 1px solid #CCCCCC !important; /* 太さと色を変更 */
     padding-left: 15px;
 }
 
@@ -405,6 +406,8 @@ ul.toc-content.overflow li {
         display: inline-block;
         width: 100px;  // 画像の幅（調整してください）
         height: 100px;  // 画像の高さ（調整してください）
+                text-indent: -9999px !important;  // テキストを画面外に飛ばす
+                 overflow: hidden !important;
         background-image: url('https://raw.githubusercontent.com/notenog/memo/refs/heads/master/logo2.png');  // 画像URLを指定
         background-size: contain;
         background-repeat: no-repeat;
