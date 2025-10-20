@@ -267,7 +267,7 @@ ul.toc-content.overflow {
     /* ------------------------------------------------ */
     /* 1. 親要素の幅に対して90%に設定 */
     /* ------------------------------------------------ */
-    max-width: 80%; 
+    max-width: 90%; 
     
     /* ------------------------------------------------ */
     /* 2. 中央寄せにする */
@@ -401,30 +401,3 @@ ul.toc-content.overflow li {
     text-overflow: ellipsis !important;  // 長い場合は...で省略
 }
 
-// ヘッダーのタイトルを画像に置き換え
-.h2.page-title {
-    font-size: 0 !important;  // テキストを非表示
-        font-size: 0 !important;  // テキストを非表示
-    display: flex !important;
-    // justify-content: center !important;  // 中央揃え
-    align-items: center !important;
-    
-    a {
-        display: inline-block;
-        text-decoration: none;
-    }
-
-    &::before {
-        content: '';
-        display: inline-block;
-        width: 100px;  // 画像の幅（調整してください）
-        height: 100px;  // 画像の高さ（調整してください）
-                text-indent: -9999px !important;  // テキストを画面外に飛ばす
-                 overflow: hidden !important;
-        background-image: url('https://raw.githubusercontent.com/notenog/memo/refs/heads/master/logo2.png');  // 画像URLを指定
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-    }
-    
-}
