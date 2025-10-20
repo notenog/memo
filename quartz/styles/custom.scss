@@ -322,14 +322,20 @@ blockquote:not(.callout) {
     padding-left: 15px;
 }
 
-/* コールアウトの左ラインを復活 */
+/* または outline を使う方法 */
 blockquote.callout {
-    position: relative !important;
-    border-top: none !important;
-    border-right: none !important;
-    border-bottom: none !important;
-    border-left: 0.5px solid #ff0000 !important;// 一旦1pxに戻す
-    padding-left: 12px !important;
+    border-left: none !important;
+    position: relative;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0.5px;  // 細い線
+        background-color: var(--secondary);
+    }
 }
 
 
