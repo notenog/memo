@@ -322,21 +322,14 @@ blockquote:not(.callout) {
     padding-left: 15px;
 }
 
-/* コールアウトの左ライン - 位置調整 */
-blockquote.callout {
-    border-left: none !important;
-    position: relative;
-    padding-left: 12px !important;  // 余白を確保
+
     
-    &::before {
-        content: '';
-        position: absolute;
-        left: -1px;  // 少し外側に配置
-        top: 0;
-        bottom: 0;
-        width: 1.5px;  // 1pxに戻す
-        background-color: var(--secondary);
-    }
+/* コールアウトの枠線調整 - 左線だけ残す */
+blockquote.callout {
+    border-top: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    /* border-leftはデフォルトの1pxのまま */
 }
 
 
