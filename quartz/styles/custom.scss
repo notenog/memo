@@ -328,12 +328,13 @@ blockquote.callout {
     border-top: none !important;
     border-right: none !important;
     border-bottom: none !important;
-    border-left: 4px solid #ff0000 !important;// 一旦1pxに戻す
+    border-left: 0.5px solid #ff0000 !important;// 一旦1pxに戻す
     padding-left: 12px !important;
 }
 
 
 /* コールアウトのアイコン付きタイプ別の色 */
+/*
 blockquote.callout[data-callout="info"] {
     border-left-color: #3b82f6 !important;
 }
@@ -348,7 +349,7 @@ blockquote.callout[data-callout="warning"] {
 
 blockquote.callout[data-callout="danger"] {
     border-left-color: #ef4444 !important;
-}
+}*/
 
 // マーカー線（ライトモード）
 .mark1 {
