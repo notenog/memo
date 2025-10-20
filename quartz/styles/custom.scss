@@ -347,12 +347,14 @@ blockquote.callout[data-callout="danger"] {
     border-left-color: #ef4444 !important;
 }
 
+// マーカー線（ライトモード）
 .mark1 {
     background: linear-gradient(transparent 40%, #f6ff5f 40%);
 }
 
-.mark1[data-theme='dark'] {
-    background: linear-gradient(transparent 40%, #3D3301 40%);
+// マーカー線（ダークモード）
+:root[saved-theme="dark"] .mark1 {
+    background: linear-gradient(transparent 40%, #4a4a00 40%);  // ダークモード用の色
 }
 
 /* 引用ブロック (blockquote) の縦線調整 - コールアウトを除外 */
@@ -388,7 +390,16 @@ ul.toc-content.overflow li {
 // ヘッダーのタイトルを画像に置き換え
 .page-title {
     font-size: 0 !important;  // テキストを非表示
+        font-size: 0 !important;  // テキストを非表示
+    display: flex !important;
+    justify-content: center !important;  // 中央揃え
+    align-items: center !important;
     
+    a {
+        display: inline-block;
+        text-decoration: none;
+    }
+
     &::before {
         content: '';
         display: inline-block;
@@ -399,9 +410,5 @@ ul.toc-content.overflow li {
         background-repeat: no-repeat;
         background-position: center;
     }
-    p {
-  /* 水平方向の中央揃え */
-  text-align: center;
-}
     
 }
