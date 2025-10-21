@@ -36,6 +36,8 @@
 
 
 
+
+
 /* 記事本文全体（Markdownのテキスト部分）の行間を調整 */
 .popover-hint {
   letter-spacing: 0.02em;
@@ -278,22 +280,11 @@ ul.toc-content.overflow {
 //    margin: 1em auto; 
 //}
 
-/* 引用ブロック (blockquote) の縦線調整 */
-blockquote {
-    /* 1. 疑似要素の基準点を設定 */
+/* 引用ブロック (blockquote) - コールアウトを除外 */
+blockquote:not(.callout) {
     position: relative; 
-    
-    /* 2. デフォルトの border-left を削除 (Obsidianのテーマを上書きするため) */
     border-left: none !important; 
-    
-    /* 3. 疑似要素のための余白を確保 (左側を少し空けておく) */
     padding-left: 15px;
-    
-    /* 引用ブロックの本文スタイル（以前の質問の続きであればここに記述） */
-    /* 例:
-    font-style: italic; 
-    color: var(--text-muted); 
-    */
 }
 
 
@@ -309,18 +300,6 @@ blockquote {
   --text-title: #B9F8E4;
 }
 
-
-/* 引用ブロック (blockquote) の縦線調整 - コールアウトを除外 */
-blockquote:not(.callout) {
-    /* 1. 疑似要素の基準点を設定 */
-    position: relative; 
-    
-    /* 2. デフォルトの border-left を削除 */
-    border-left: none !important; 
-    
-    /* 3. 疑似要素のための余白を確保 */
-    padding-left: 15px;
-}
 
 
 /* コールアウトは基本的にデフォルトのまま */
