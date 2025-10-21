@@ -323,7 +323,11 @@ blockquote:not(.callout) {
 }
 
 
-    
+/* コールアウトは基本的にデフォルトのまま */
+blockquote.callout {
+    /* 何も書かない = デフォルトの設定が適用される */
+}
+
 /* コールアウトの枠線調整 - 左線だけ残す 
 blockquote.callout {
     border-top: 0 !important;
