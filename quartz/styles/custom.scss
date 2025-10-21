@@ -263,11 +263,11 @@ ul.toc-content.overflow {
 
 
 
-.callout {
+// .callout {
     /* ------------------------------------------------ */
     /* 1. 親要素の幅に対して90%に設定 */
     /* ------------------------------------------------ */
-    max-width: 80%; 
+ //   max-width: 80%; 
     
     /* ------------------------------------------------ */
     /* 2. 中央寄せにする */
@@ -275,8 +275,8 @@ ul.toc-content.overflow {
     /* max-widthを設定した際は、必ず margin: 0 auto; で中央に配置します。
        上下のマージンも確保するため 1em auto; がおすすめです。
     */
-    margin: 1em auto; 
-}
+//    margin: 1em auto; 
+//}
 
 /* 引用ブロック (blockquote) の縦線調整 */
 blockquote {
@@ -324,7 +324,7 @@ blockquote:not(.callout) {
 
 
     
-/* コールアウトの枠線調整 - 左線だけ残す */
+/* コールアウトの枠線調整 - 左線だけ残す 
 blockquote.callout {
     border-top: 0 !important;
     border-right: 0 !important;
@@ -332,7 +332,7 @@ blockquote.callout {
     border-left: 1px solid var(--border) !important;  // 左線を明示的に指定
 }
 
-/* タイプ別の色 */
+タイプ別の色
 blockquote.callout[data-callout="info"] {
     border-left-color: #00b8d4 !important;
 }
@@ -348,7 +348,7 @@ blockquote.callout[data-callout="warning"] {
 blockquote.callout[data-callout="danger"] {
     border-left-color: #db4242 !important;
 }
-
+*/
 
 // マーカー線（ライトモード）
 .mark1 {
