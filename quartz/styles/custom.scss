@@ -21,16 +21,16 @@
   /* ---------------------------------------------------- */
   /* 左右にpaddingを確保することで、画面端にコンテンツが張り付くのを防ぎます */
   /* 例: 左右に20pxのパディングを追加 */
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 /* 記事のタイトルやメタデータ部分（もし余白を揃えたい場合） */
 .page-header {
   // max-width: 700px; /* 上記の max-width と同じ値に設定 */
   margin: 0 auto;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 
