@@ -236,7 +236,58 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
 .modal-ok:disabled{opacity:.35;cursor:not-allowed;}
 .load-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text4);min-height:22px;margin-top:6px;}
 
-/* ── COOKING ── */
+/* ── COOKING STAGE ── */
+.cook-stage{background:var(--bg1);border:1px solid var(--border2);border-radius:8px;padding:16px 20px;margin-bottom:14px;display:flex;flex-direction:column;align-items:center;gap:12px;min-height:140px;position:relative;overflow:hidden;}
+.cook-stage-chars{display:flex;gap:24px;align-items:flex-end;justify-content:center;}
+.stage-char{display:flex;flex-direction:column;align-items:center;gap:6px;transition:opacity .3s;}
+.stage-char.active{opacity:1;}
+.stage-char.inactive{opacity:.3;}
+.stage-char-ava{width:64px;height:76px;border-radius:6px;border:2px solid var(--border2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--bg2);position:relative;transition:border-color .3s;}
+.stage-char.active .stage-char-ava{border-color:var(--gold);}
+.stage-char-ava img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.stage-char-name{font-size:11px;color:var(--text4);font-family:'Cinzel',serif;}
+.stage-char.active .stage-char-name{color:var(--gold);}
+
+/* ぴょこぴょこアニメ */
+@keyframes bounce{
+  0%,100%{transform:translateY(0);}
+  20%{transform:translateY(-14px);}
+  40%{transform:translateY(-6px);}
+  60%{transform:translateY(-10px);}
+  80%{transform:translateY(-3px);}
+}
+.stage-char.bouncing .stage-char-ava{animation:bounce .6s ease;}
+
+/* ダイスエリア */
+.cook-dice-area{display:flex;gap:16px;align-items:center;justify-content:center;min-height:50px;}
+.dice-box{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.dice-face{width:44px;height:44px;background:var(--bg2);border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:20px;color:var(--text);transition:all .15s;position:relative;}
+.dice-face.rolling{animation:diceRoll .08s linear infinite;}
+.dice-face.settled-ok{border-color:var(--green);color:var(--green);box-shadow:0 0 8px rgba(74,154,74,.4);}
+.dice-face.settled-ng{border-color:var(--red);color:var(--red);box-shadow:0 0 8px rgba(192,64,48,.4);}
+.dice-face.settled-12{border-color:#ffd700;color:#ffd700;box-shadow:0 0 12px rgba(255,215,0,.5);}
+.dice-face.settled-2{border-color:#6a2020;color:#6a2020;}
+.dice-total{font-size:11px;color:var(--text5);}
+@keyframes diceRoll{0%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}100%{transform:rotate(-4deg);}}
+
+/* 結果エフェクト */
+.cook-result-overlay{position:fixed;inset:0;pointer-events:none;z-index:400;}
+.particle{position:absolute;border-radius:50%;animation:particleFall linear forwards;}
+@keyframes particleFall{
+  0%{transform:translateY(-20px) rotate(0deg);opacity:1;}
+  100%{transform:translateY(100vh) rotate(720deg);opacity:0;}
+}
+@keyframes shakeScreen{
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-8px);}
+  40%{transform:translateX(8px);}
+  60%{transform:translateX(-5px);}
+  80%{transform:translateX(5px);}
+}
+@keyframes smokeRise{
+  0%{transform:translateY(0) scale(1);opacity:.6;}
+  100%{transform:translateY(-80px) scale(2.5);opacity:0;}
+}
 .cook-wrap{max-width:860px;margin:0 auto;}
 .cook-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
 .cook-panel{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;}
@@ -262,6 +313,9 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
 .cook-log-line.result-bad{color:#8a2020;font-family:'Cinzel',serif;font-size:15px;margin-top:8px;}
 .cook-log-line.dish-name{color:var(--gold);font-family:'Cinzel',serif;font-size:16px;letter-spacing:2px;margin-top:6px;}
 .cook-log-line.separator{color:var(--border);margin:4px 0;}
+.cook-log-line.dice-ok{font-size:11px;color:#4a7a4a;padding-left:8px;margin-top:-4px;}
+.cook-log-line.dice-ng{font-size:11px;color:#7a3030;padding-left:8px;margin-top:-4px;}
+.cook-log-line.dice-summary{font-size:11px;color:var(--text5);margin:4px 0;}
 .cook-log-line.generating{color:var(--text5);font-style:italic;}
 .cook-sel-count{font-size:11px;color:var(--text5);margin-bottom:8px;}
 
@@ -346,6 +400,13 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
     <button class="cook-start" id="cook-start-btn" onclick="startCooking()" disabled>
       ✦ 料理開始 ✦
     </button>
+
+    <!-- キャラステージ（調理中アニメ） -->
+    <div class="cook-stage" id="cook-stage" style="display:none;">
+      <div class="cook-stage-chars" id="cook-stage-chars"></div>
+      <div class="cook-dice-area" id="cook-dice-area"></div>
+    </div>
+
     <div class="cook-log" id="cook-log">
       <span style="color:var(--text5);font-style:italic;">素材と料理人を選んで料理を開始してください</span>
     </div>
@@ -1220,6 +1281,315 @@ function logLine(text, cls=''){
 }
 function logWait(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
+/* ━━━━━━ STAGE ANIMATION ━━━━━━ */
+function renderStage(chefs, activeIdx){
+  const area = document.getElementById('cook-stage-chars');
+  area.innerHTML = chefs.map((c,i)=>{
+    const isActive = activeIdx===99 || i===activeIdx;
+    const avaContent = c.img ? `<img src="${c.img}" alt="">` : (c.ava||'⚔️');
+    return `
+      <div class="stage-char ${isActive?'active':'inactive'}" id="stchar-${i}">
+        <div class="stage-char-ava">${avaContent}</div>
+        <div class="stage-char-name">${c.name}</div>
+      </div>`;
+  }).join('');
+}
+
+function bounceChar(idx){
+  const el = document.getElementById('stchar-'+idx);
+  if(!el) return;
+  el.classList.remove('bouncing');
+  void el.offsetWidth; // reflow
+  el.classList.add('bouncing');
+  setTimeout(()=>el.classList.remove('bouncing'), 700);
+}
+
+async function animateDice(roll, success){
+  const area = document.getElementById('cook-dice-area');
+  // 2つのダイスを表示
+  area.innerHTML = `
+    <div class="dice-box">
+      <div class="dice-face rolling" id="die1">?</div>
+    </div>
+    <div style="font-size:18px;color:var(--text5);">+</div>
+    <div class="dice-box">
+      <div class="dice-face rolling" id="die2">?</div>
+    </div>
+    <div style="font-size:18px;color:var(--text5);">=</div>
+    <div class="dice-box">
+      <div class="dice-face rolling" id="dietotal" style="width:52px;font-size:22px;">?</div>
+      <div class="dice-total" id="dietotallbl"></div>
+    </div>`;
+
+  // コロコロ演出
+  const faces = ['1','2','3','4','5','6'];
+  const spinDuration = 800;
+  const spinInterval = 80;
+  const start = Date.now();
+  await new Promise(resolve=>{
+    const iv = setInterval(()=>{
+      document.getElementById('die1').textContent = faces[Math.floor(Math.random()*6)];
+      document.getElementById('die2').textContent = faces[Math.floor(Math.random()*6)];
+      document.getElementById('dietotal').textContent = '?';
+      if(Date.now()-start >= spinDuration){
+        clearInterval(iv);
+        resolve();
+      }
+    }, spinInterval);
+  });
+
+  // 結果確定
+  const isDouble12 = roll.d1===6 && roll.d2===6;
+  const isDouble2  = roll.d1===1 && roll.d2===1;
+  const cls = isDouble12 ? 'settled-12' : isDouble2 ? 'settled-2' : success ? 'settled-ok' : 'settled-ng';
+
+  const d1el = document.getElementById('die1');
+  const d2el = document.getElementById('die2');
+  const dtEl = document.getElementById('dietotal');
+  const dlEl = document.getElementById('dietotallbl');
+  if(d1el){ d1el.textContent=roll.d1; d1el.classList.remove('rolling'); d1el.classList.add(cls); }
+  if(d2el){ d2el.textContent=roll.d2; d2el.classList.remove('rolling'); d2el.classList.add(cls); }
+  if(dtEl){ dtEl.textContent=roll.total; dtEl.classList.remove('rolling'); dtEl.classList.add(cls); }
+  if(dlEl) dlEl.textContent = success ? '成功！' : '失敗…';
+}
+
+/* ━━━━━━ RESULT EFFECTS ━━━━━━ */
+function spawnParticles(type){
+  const overlay = document.createElement('div');
+  overlay.className='cook-result-overlay';
+  document.body.appendChild(overlay);
+
+  if(type==='great'){
+    // 金キラキラ
+    for(let i=0;i<60;i++){
+      const p=document.createElement('div');
+      p.className='particle';
+      const size=Math.random()*8+4;
+      const colors=['#ffd700','#ffec6e','#d4a840','#fff8b0','#f0c040'];
+      p.style.cssText=`
+        width:${size}px;height:${size}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        left:${Math.random()*100}vw;top:-20px;
+        animation-duration:${1.5+Math.random()*1.5}s;
+        animation-delay:${Math.random()*0.8}s;
+        border-radius:${Math.random()>0.5?'50%':'2px'};
+      `;
+      overlay.appendChild(p);
+    }
+    setTimeout(()=>overlay.remove(), 4000);
+
+  } else if(type==='ok'){
+    // 緑ふわっと
+    for(let i=0;i<20;i++){
+      const p=document.createElement('div');
+      p.className='particle';
+      p.style.cssText=`
+        width:6px;height:6px;
+        background:#4a9a4a;
+        left:${30+Math.random()*40}vw;top:-10px;
+        animation-duration:${1.2+Math.random()}s;
+        animation-delay:${Math.random()*0.4}s;
+      `;
+      overlay.appendChild(p);
+    }
+    setTimeout(()=>overlay.remove(), 2500);
+
+  } else if(type==='bad'){
+    // 画面シェイク
+    document.body.style.animation='shakeScreen 0.4s ease';
+    setTimeout(()=>document.body.style.animation='', 400);
+    // 煙パーティクル
+    for(let i=0;i<8;i++){
+      const p=document.createElement('div');
+      p.style.cssText=`
+        position:fixed;
+        width:${30+Math.random()*20}px;height:${30+Math.random()*20}px;
+        background:rgba(80,60,40,0.5);border-radius:50%;
+        left:${35+Math.random()*30}vw;top:60vh;
+        animation:smokeRise ${1+Math.random()*0.5}s ease forwards;
+        animation-delay:${Math.random()*0.3}s;
+        pointer-events:none;z-index:400;
+      `;
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(), 2000);
+    }
+    overlay.remove();
+
+  } else {
+    // 失敗：薄い煙
+    for(let i=0;i<4;i++){
+      const p=document.createElement('div');
+      p.style.cssText=`
+        position:fixed;
+        width:20px;height:20px;
+        background:rgba(80,60,40,0.3);border-radius:50%;
+        left:${40+Math.random()*20}vw;top:65vh;
+        animation:smokeRise 1s ease forwards;
+        animation-delay:${i*0.1}s;
+        pointer-events:none;z-index:400;
+      `;
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(), 1500);
+    }
+    overlay.remove();
+  }
+}
+
+async function startCooking(){
+  if(selIngredients.length<3||selChefs.length<3) return;
+
+  const log=document.getElementById('cook-log');
+  log.innerHTML='';
+  document.getElementById('cook-start-btn').disabled=true;
+
+  const ings = selIngredients.map(i=>ingredients[i]);
+  const chefs = selChefs.map(ci=>chars[ci]);
+
+  // シャッフルしてマッチング
+  const shuffledIngs = [...ings].sort(()=>Math.random()-.5);
+  const shuffledChefs = [...chefs].sort(()=>Math.random()-.5);
+
+  // ステージ表示
+  const stage = document.getElementById('cook-stage');
+  stage.style.display='flex';
+  document.getElementById('cook-dice-area').innerHTML='';
+  renderStage(shuffledChefs, -1);
+
+  logLine('── 調理開始 ──','separator');
+  await logWait(400);
+
+  let charTotal=0, ingTotal=0;
+  const chefRolls=[], ingRolls=[];
+
+  for(let i=0;i<3;i++){
+    const chef=shuffledChefs[i];
+    const ing=shuffledIngs[i];
+
+    // アクティブキャラ更新
+    renderStage(shuffledChefs, i);
+    await logWait(300);
+
+    // ボーナス計算
+    const dex=+(chef.stats?.['器用']||chef.stats?.['器用度']||0);
+    const int_=+(chef.stats?.['知力']||0);
+    const bonus=Math.floor(dex/5)+Math.floor(int_/5);
+
+    // ロール
+    const chefRoll=rollDetail();
+    const ingRoll=rollDetail();
+    const chefScore=bonus+chefRoll.total;
+    const ingScore=ing.diff+ingRoll.total;
+
+    chefRolls.push(chefRoll);
+    ingRolls.push(ingRoll);
+    charTotal+=chefScore;
+    ingTotal+=ingScore;
+
+    const success=chefScore>=ingScore;
+
+    // ログ
+    logLine(cookingActionText(chef.name, ing.name));
+
+    // ぴょこぴょこ開始
+    bounceChar(i);
+    await logWait(300);
+
+    // ダイスアニメ
+    await animateDice(chefRoll, success);
+    await logWait(200);
+
+    logLine(`${chef.name}は${cookingResultText(success)}`);
+    const diceInfo = success ? `  ✓ (${chefRoll.d1},${chefRoll.d2})` : `  ✗ (${chefRoll.d1},${chefRoll.d2})`;
+    logLine(diceInfo, success?'dice-ok':'dice-ng');
+    await logWait(700);
+
+    if(i<2){logLine('');await logWait(300);}
+  }
+
+  // 最終判定
+  await logWait(400);
+  // 全員アクティブ表示
+  renderStage(shuffledChefs, 99);
+  document.getElementById('cook-dice-area').innerHTML='';
+  logLine('');
+  logLine('── 最終判定 ──','separator');
+  await logWait(500);
+
+  const charWins = charTotal>=ingTotal;
+  const hasDouble12 = chefRolls.some(r=>r.d1===6&&r.d2===6);
+  const hasDouble1  = chefRolls.some(r=>r.d1===1&&r.d2===1);
+
+  const dicesSummary = shuffledChefs.map((chef,i)=>{
+    const r=chefRolls[i];
+    return `${chef.name}(${r.d1},${r.d2})`;
+  }).join('　');
+  logLine(dicesSummary,'dice-summary');
+  await logWait(500);
+
+  // 全員ぴょこぴょこ or シェイク
+  if(charWins){
+    [0,1,2].forEach(i=>{ setTimeout(()=>bounceChar(i), i*120); });
+  }
+
+  await logWait(400);
+
+  let resultLabel, resultCls, effectType;
+  if(charWins && hasDouble12){
+    resultLabel='✦ 大成功 ✦'; resultCls='result-great'; effectType='great';
+  } else if(charWins){
+    resultLabel='◎ 成功'; resultCls='result-ok'; effectType='ok';
+  } else if(!charWins && hasDouble1){
+    resultLabel='✕ 大失敗'; resultCls='result-bad'; effectType='bad';
+  } else {
+    resultLabel='△ 失敗'; resultCls='result-fail'; effectType='fail';
+  }
+
+  logLine(resultLabel, resultCls);
+  spawnParticles(effectType);
+  await logWait(600);
+
+  // 料理名生成（成功のみ）
+  if(charWins){
+    logLine('料理名を考えています…','generating');
+    const ingNames=ings.map(i=>i.name).join('・');
+    const isGreat=hasDouble12;
+    try{
+      const resp=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:120,
+          system:`あなたはファンタジーTRPGの料理名ジェネレーターです。
+使用した素材を元に、ファンタジーらしい料理名を1つだけ考えてください。
+料理名のみを返してください。説明文・句読点・括弧は不要です。
+素材名をそのまま使わず、料理っぽく変換してください。
+大成功の場合は特に豪華で印象的な名前にしてください。
+例：「龍草と野菜の黄金煮込み」「魔森の恵みスープ」「聖炎の祝宴ロースト」`,
+          messages:[{role:'user',content:`使用素材：${ingNames}\n結果：${isGreat?'大成功':'成功'}\nこの料理のファンタジーっぽい名前を1つ考えてください。`}]
+        })
+      });
+      const data=await resp.json();
+      const dishName=data.content?.[0]?.text?.trim()||'謎の料理';
+      const genEl=log.querySelector('.generating');
+      if(genEl) genEl.remove();
+      logLine(`🍽 ${dishName}`,'dish-name');
+    }catch(e){
+      const genEl=log.querySelector('.generating');
+      if(genEl) genEl.remove();
+      logLine(`🍽 ${ings.map(i=>i.name).join('と')}の一品`,'dish-name');
+    }
+  } else {
+    await logWait(300);
+    const failMsgs = hasDouble1
+      ? ['料理は見るも無残な姿になってしまった…','とても食べられるものではなさそうだ…']
+      : ['なんとか形にはなったが、いまひとつだ…','食べられないことはないが…'];
+    logLine(failMsgs[Math.floor(Math.random()*failMsgs.length)],'result-fail');
+  }
+
+  document.getElementById('cook-start-btn').disabled=false;
+}
+
 // 調理中テキスト生成（素材の種類に合わせて変える）
 function cookingActionText(charName, ingName){
   const name = ingName;
@@ -1310,127 +1680,6 @@ function cookingResultText(success){
   return arr[Math.floor(Math.random()*arr.length)];
 }
 
-async function startCooking(){
-  if(selIngredients.length<3||selChefs.length<3) return;
-
-  const log=document.getElementById('cook-log');
-  log.innerHTML='';
-  document.getElementById('cook-start-btn').disabled=true;
-
-  const ings = selIngredients.map(i=>ingredients[i]);
-  const chefs = selChefs.map(ci=>chars[ci]);
-
-  // シャッフルしてマッチング
-  const shuffledIngs = [...ings].sort(()=>Math.random()-.5);
-  const shuffledChefs = [...chefs].sort(()=>Math.random()-.5);
-
-  logLine('── 調理開始 ──','separator');
-  await logWait(400);
-
-  let charTotal=0, ingTotal=0;
-  const chefRolls=[], ingRolls=[];
-
-  for(let i=0;i<3;i++){
-    const chef=shuffledChefs[i];
-    const ing=shuffledIngs[i];
-
-    // ボーナス計算
-    const dex=+(chef.stats?.['器用']||chef.stats?.['器用度']||0);
-    const int_=+(chef.stats?.['知力']||0);
-    const bonus=Math.floor(dex/5)+Math.floor(int_/5);
-
-    // ロール
-    const chefRoll=rollDetail();
-    const ingRoll=rollDetail();
-    const chefScore=bonus+chefRoll.total;
-    const ingScore=ing.diff+ingRoll.total;
-
-    chefRolls.push(chefRoll);
-    ingRolls.push(ingRoll);
-    charTotal+=chefScore;
-    ingTotal+=ingScore;
-
-    const success=chefScore>=ingScore;
-
-    // ログ出力
-    logLine(cookingActionText(chef.name, ing.name));
-    await logWait(700);
-    logLine(`${chef.name}は${cookingResultText(success)}`);
-    await logWait(600);
-
-    if(i<2){
-      logLine('');
-      await logWait(300);
-    }
-  }
-
-  // 最終判定
-  await logWait(400);
-  logLine('');
-  logLine('── 最終判定 ──','separator');
-  await logWait(500);
-
-  const charWins = charTotal>=ingTotal;
-  // 大成功/大失敗判定（2d6がゾロ目12 or ゾロ目2）
-  const hasDouble12 = chefRolls.some(r=>r.d1===6&&r.d2===6);
-  const hasDouble1  = chefRolls.some(r=>r.d1===1&&r.d2===1);
-
-  let resultLabel, resultCls;
-  if(charWins && hasDouble12){
-    resultLabel='✦ 大成功 ✦'; resultCls='result-great';
-  } else if(charWins){
-    resultLabel='◎ 成功'; resultCls='result-ok';
-  } else if(!charWins && hasDouble1){
-    resultLabel='✕ 大失敗'; resultCls='result-bad';
-  } else {
-    resultLabel='△ 失敗'; resultCls='result-fail';
-  }
-
-  logLine(resultLabel, resultCls);
-  await logWait(600);
-
-  // 料理名をAPIで生成（成功・大成功のみ）
-  if(charWins){
-    logLine('料理名を考えています…','generating');
-    const ingNames=ings.map(i=>i.name).join('・');
-    const isGreat = hasDouble12;
-    try{
-      const resp=await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          model:'claude-sonnet-4-20250514',
-          max_tokens:120,
-          system:`あなたはファンタジーTRPGの料理名ジェネレーターです。
-使用した素材を元に、ファンタジーらしい料理名を1つだけ考えてください。
-料理名のみを返してください。説明文・句読点・括弧は不要です。
-素材名をそのまま使わず、料理っぽく変換してください。
-大成功の場合は特に豪華で印象的な名前にしてください。
-例：「龍草と野菜の黄金煮込み」「魔森の恵みスープ」「聖炎の祝宴ロースト」`,
-          messages:[{role:'user',content:`使用素材：${ingNames}\n結果：${isGreat?'大成功':'成功'}\nこの料理のファンタジーっぽい名前を1つ考えてください。`}]
-        })
-      });
-      const data=await resp.json();
-      const dishName=data.content?.[0]?.text?.trim()||'謎の料理';
-      const genEl=log.querySelector('.generating');
-      if(genEl) genEl.remove();
-      logLine(`🍽 ${dishName}`,'dish-name');
-    }catch(e){
-      const genEl=log.querySelector('.generating');
-      if(genEl) genEl.remove();
-      logLine(`🍽 ${ings.map(i=>i.name).join('と')}の一品`,'dish-name');
-    }
-  } else {
-    // 失敗・大失敗のログ
-    await logWait(300);
-    const failMsgs = hasDouble1
-      ? ['料理は見るも無残な姿になってしまった…','とても食べられるものではなさそうだ…']
-      : ['なんとか形にはなったが、いまひとつだ…','食べられないことはないが…'];
-    logLine(failMsgs[Math.floor(Math.random()*failMsgs.length)],'result-fail');
-  }
-
-  document.getElementById('cook-start-btn').disabled=false;
-}
 
 /* ━━━━━━ SAVE / LOAD (Firebase + localStorage fallback) ━━━━━━ */
 const SAVE_KEY='trpg_session_board_v1';
