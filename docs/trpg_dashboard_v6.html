@@ -236,6 +236,35 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
 .modal-ok:disabled{opacity:.35;cursor:not-allowed;}
 .load-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text4);min-height:22px;margin-top:6px;}
 
+/* ── COOKING ── */
+.cook-wrap{max-width:860px;margin:0 auto;}
+.cook-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.cook-panel{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;}
+.cook-panel-title{font-family:'Cinzel',serif;font-size:12px;color:var(--gold);letter-spacing:2px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border2);}
+.cook-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;transition:background .15s;border:1px solid transparent;margin-bottom:4px;font-size:13px;}
+.cook-item:hover{background:var(--bg3);}
+.cook-item.selected{background:var(--bg3);border-color:var(--gold);color:var(--gold);}
+.cook-item.disabled{opacity:.35;cursor:not-allowed;}
+.cook-sel-mark{font-size:11px;color:var(--gold);margin-left:auto;flex-shrink:0;}
+.cook-diff{font-size:10px;color:var(--text5);margin-left:auto;}
+.cook-add-row{display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border3);}
+.cook-add-row input{flex:1;background:var(--bg1);border:1px solid var(--border2);border-radius:3px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'Noto Serif JP',serif;}
+.cook-add-row input:focus{outline:none;border-color:var(--border);}
+.cook-add-row input[type=number]{width:60px;flex:none;}
+.cook-start{width:100%;padding:14px;font-family:'Cinzel',serif;font-size:14px;letter-spacing:3px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--gold);cursor:pointer;transition:all .2s;margin-bottom:20px;}
+.cook-start:hover:not(:disabled){background:#3a2810;border-color:var(--gold);box-shadow:0 0 12px rgba(212,168,64,.2);}
+.cook-start:disabled{opacity:.4;cursor:not-allowed;}
+.cook-log{background:var(--bg1);border:1px solid var(--border2);border-radius:8px;padding:16px;min-height:200px;font-size:13px;line-height:2.2;color:var(--text2);}
+.cook-log-line{display:block;padding:1px 0;}
+.cook-log-line.result-great{color:#ffd700;font-family:'Cinzel',serif;font-size:15px;letter-spacing:1px;margin-top:8px;}
+.cook-log-line.result-ok{color:var(--green);font-family:'Cinzel',serif;font-size:15px;margin-top:8px;}
+.cook-log-line.result-fail{color:var(--red);font-family:'Cinzel',serif;font-size:15px;margin-top:8px;}
+.cook-log-line.result-bad{color:#8a2020;font-family:'Cinzel',serif;font-size:15px;margin-top:8px;}
+.cook-log-line.dish-name{color:var(--gold);font-family:'Cinzel',serif;font-size:16px;letter-spacing:2px;margin-top:6px;}
+.cook-log-line.separator{color:var(--border);margin:4px 0;}
+.cook-log-line.generating{color:var(--text5);font-style:italic;}
+.cook-sel-count{font-size:11px;color:var(--text5);margin-bottom:8px;}
+
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
@@ -247,6 +276,7 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
   <div class="nav-title">✦ SESSION BOARD ✦</div>
   <button class="nb on" onclick="showPage('main',this)">Characters & Enemies</button>
   <button class="nb" onclick="showPage('memos',this)">Memo</button>
+  <button class="nb" onclick="showPage('cooking',this)">🍳 料理</button>
   <span class="save-indicator" id="save-indicator"></span>
   <button id="undo-btn" class="nb" onclick="undo()" title="元に戻す (Ctrl+Z)" style="opacity:.35;font-size:16px;padding:10px 10px;">↩</button>
   <button id="redo-btn" class="nb" onclick="redo()" title="やり直す (Ctrl+Y)" style="opacity:.35;font-size:16px;padding:10px 10px;">↪</button>
@@ -289,6 +319,36 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
   <div class="memo-page-wrap">
     <div id="memo-boards-wrap"></div>
     <div class="memo-add-board" onclick="addMemoBoard()">＋ ボードを追加</div>
+  </div>
+</div>
+
+<div id="page-cooking" class="page">
+  <div class="cook-wrap">
+    <div class="cook-grid">
+      <!-- 素材選択 -->
+      <div class="cook-panel">
+        <div class="cook-panel-title">🌿 素材を選ぶ（3つ）</div>
+        <div class="cook-sel-count" id="ing-count">0 / 3 選択中</div>
+        <div id="ing-list"></div>
+        <div class="cook-add-row">
+          <input id="new-ing-name" placeholder="素材名">
+          <input id="new-ing-diff" type="number" min="1" max="10" placeholder="難易度" value="3">
+          <button class="btn btn-sm" onclick="addIngredient()">追加</button>
+        </div>
+      </div>
+      <!-- キャラ選択 -->
+      <div class="cook-panel">
+        <div class="cook-panel-title">👨‍🍳 料理人を選ぶ（3人）</div>
+        <div class="cook-sel-count" id="chef-count">0 / 3 選択中</div>
+        <div id="chef-list"></div>
+      </div>
+    </div>
+    <button class="cook-start" id="cook-start-btn" onclick="startCooking()" disabled>
+      ✦ 料理開始 ✦
+    </button>
+    <div class="cook-log" id="cook-log">
+      <span style="color:var(--text5);font-style:italic;">素材と料理人を選んで料理を開始してください</span>
+    </div>
   </div>
 </div>
 
@@ -1071,6 +1131,305 @@ function deleteMemoBoard(bi){
   if(memoBoards.length<=1){alert('最後のボードは削除できません');return;}
   if(!confirm('このボードを削除しますか？'))return;
   memoBoards.splice(bi,1);renderMemoBoards();save();
+}
+
+/* ━━━━━━ COOKING GAME ━━━━━━ */
+let ingredients = [
+  {name:'魔物の肉',diff:2},{name:'野草',diff:2},{name:'魔香草',diff:5},
+  {name:'レーション',diff:6},{name:'トマト',diff:3},{name:'エッグプラント',diff:3},
+  {name:'にんじん',diff:4},{name:'りんご',diff:2},{name:'魔晶石',diff:8},
+  {name:'サハギン肉',diff:5},{name:'羊肉',diff:4},{name:'山羊乳',diff:4},
+  {name:'胡椒',diff:3},{name:'岩塩',diff:5},{name:'菜種油',diff:7},
+  {name:'ヘビ肉',diff:6},{name:'小麦',diff:2},{name:'カチカチパン',diff:6},
+  {name:'妖精ベリー',diff:3},
+];
+let selIngredients = []; // 選択中の素材インデックス
+let selChefs = [];       // 選択中のキャラインデックス
+
+function roll2d6(){ return Math.floor(Math.random()*6)+1 + Math.floor(Math.random()*6)+1; }
+function rollDetail(){ const a=Math.floor(Math.random()*6)+1, b=Math.floor(Math.random()*6)+1; return {total:a+b,d1:a,d2:b}; }
+
+function renderCookingPage(){
+  // 素材リスト
+  const ingList = document.getElementById('ing-list');
+  if(ingList){
+    ingList.innerHTML = ingredients.map((ing,i)=>{
+      const sel = selIngredients.includes(i);
+      const dis = !sel && selIngredients.length>=3;
+      return `<div class="cook-item${sel?' selected':''}${dis?' disabled':''}" onclick="toggleIng(${i})">
+        <span>${ing.name}</span>
+        ${sel?'<span class="cook-sel-mark">✓</span>':''}
+      </div>`;
+    }).join('');
+    document.getElementById('ing-count').textContent = `${selIngredients.length} / 3 選択中`;
+  }
+  // キャラリスト（登録済みキャラのみ）
+  const chefList = document.getElementById('chef-list');
+  if(chefList){
+    const visibleChars = chars.filter(c=>!c.hidden);
+    if(!visibleChars.length){
+      chefList.innerHTML='<div style="font-size:12px;color:var(--text5);padding:8px;">Charactersタブでキャラクターを登録してください</div>';
+    } else {
+      chefList.innerHTML = visibleChars.map((c,vi)=>{
+        const ci = chars.indexOf(c);
+        const sel = selChefs.includes(ci);
+        const dis = !sel && selChefs.length>=3;
+        const bonus = Math.floor((+(c.stats?.['器用']||c.stats?.['器用度']||0))/5)
+                    + Math.floor((+(c.stats?.['知力']||0))/5);
+        return `<div class="cook-item${sel?' selected':''}${dis?' disabled':''}" onclick="toggleChef(${ci})">
+          <span>${c.ava||'⚔️'} ${c.name}</span>
+          ${sel?'<span class="cook-sel-mark">✓</span>':'<span class="cook-diff">料理Bonus +${bonus}</span>'}
+        </div>`;
+      }).join('');
+    }
+    document.getElementById('chef-count').textContent = `${selChefs.length} / 3 選択中`;
+  }
+  // スタートボタン
+  const btn = document.getElementById('cook-start-btn');
+  if(btn) btn.disabled = selIngredients.length<3 || selChefs.length<3;
+}
+
+function toggleIng(i){
+  if(selIngredients.includes(i)) selIngredients=selIngredients.filter(x=>x!==i);
+  else if(selIngredients.length<3) selIngredients.push(i);
+  renderCookingPage();
+}
+function toggleChef(ci){
+  if(selChefs.includes(ci)) selChefs=selChefs.filter(x=>x!==ci);
+  else if(selChefs.length<3) selChefs.push(ci);
+  renderCookingPage();
+}
+
+function addIngredient(){
+  const name=document.getElementById('new-ing-name').value.trim();
+  const diff=parseInt(document.getElementById('new-ing-diff').value)||3;
+  if(!name) return;
+  ingredients.push({name,diff});
+  document.getElementById('new-ing-name').value='';
+  renderCookingPage();
+}
+
+// ログ表示ヘルパー
+function logLine(text, cls=''){
+  const log=document.getElementById('cook-log');
+  const span=document.createElement('span');
+  span.className='cook-log-line'+(cls?' '+cls:'');
+  span.textContent=text;
+  log.appendChild(span);
+  log.scrollTop=log.scrollHeight;
+}
+function logWait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+// 調理中テキスト生成（素材の種類に合わせて変える）
+function cookingActionText(charName, ingName){
+  const name = ingName;
+  // 素材カテゴリ判定
+  const isMeat = ['魔物の肉','サハギン肉','羊肉','ヘビ肉'].some(n=>name.includes(n.replace('の肉',''))||name===n);
+  const isHerb = ['野草','魔香草','胡椒','妖精ベリー'].some(n=>name===n||name.includes(n));
+  const isGrain = ['小麦','カチカチパン','レーション'].some(n=>name===n||name.includes(n));
+  const isLiquid = ['山羊乳','菜種油'].some(n=>name===n);
+  const isVeg = ['トマト','エッグプラント','にんじん','りんご'].some(n=>name===n);
+  const isSpecial = ['魔晶石','岩塩'].some(n=>name===n);
+
+  let pool;
+  if(isMeat){
+    pool=[
+      `${charName}は${name}を丁寧に切り分けている`,
+      `${charName}は${name}の血抜きをしている`,
+      `${charName}は${name}を慎重に火にかけている`,
+      `${charName}は${name}の筋を丁寧に取り除いている`,
+      `${charName}は${name}を強火で焼き始めた`,
+    ];
+  } else if(isHerb){
+    pool=[
+      `${charName}は${name}を細かく刻んでいる`,
+      `${charName}は${name}の香りを確かめている`,
+      `${charName}は${name}を丁寧に洗い始めた`,
+      `${charName}は${name}を乳鉢で丁寧に擦っている`,
+      `${charName}は${name}から丁寧に葉を摘んでいる`,
+    ];
+  } else if(isGrain){
+    pool=[
+      `${charName}は${name}を慎重に水で溶いている`,
+      `${charName}は${name}を丁寧にこねている`,
+      `${charName}は${name}の状態を確かめている`,
+      `${charName}は${name}を細かく砕いている`,
+      `${charName}は${name}を鍋に入れて火にかけている`,
+    ];
+  } else if(isLiquid){
+    pool=[
+      `${charName}は${name}を鍋に注いでいる`,
+      `${charName}は${name}の温度を慎重に確かめている`,
+      `${charName}は${name}をゆっくりかき混ぜている`,
+      `${charName}は${name}の量を丁寧に量っている`,
+    ];
+  } else if(isVeg){
+    pool=[
+      `${charName}は${name}を手際よく切り分けている`,
+      `${charName}は${name}の皮を丁寧に剥いている`,
+      `${charName}は${name}を丁寧に洗い始めた`,
+      `${charName}は${name}を鍋に加えている`,
+      `${charName}は${name}の火の通り具合を確かめている`,
+    ];
+  } else if(isSpecial){
+    pool=[
+      `${charName}は${name}を慎重に扱っている`,
+      `${charName}は${name}の状態を注意深く観察している`,
+      `${charName}は${name}をごく少量、慎重に加えている`,
+      `${charName}は${name}を丁寧に砕き始めた`,
+    ];
+  } else {
+    pool=[
+      `${charName}は${name}を丁寧に下処理している`,
+      `${charName}は${name}を手際よく切り分けている`,
+      `${charName}は${name}を慎重に火にかけている`,
+      `${charName}は${name}の状態を確認している`,
+      `${charName}は${name}を鍋に加えている`,
+      `${charName}は${name}の香りを確かめている`,
+    ];
+  }
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+function cookingResultText(success){
+  const ok=[
+    'うまくいったようだ！',
+    '手際が光っている…',
+    'なかなかいい仕上がりだ',
+    '自信ありげな様子だ',
+    'いい感じに仕上がってきた',
+  ];
+  const ng=[
+    '苦戦している…',
+    '少し焦がしてしまったようだ',
+    '難しそうな顔をしている',
+    'うまくいかなかったようだ…',
+    '手元が狂ってしまったらしい',
+  ];
+  const arr=success?ok:ng;
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+async function startCooking(){
+  if(selIngredients.length<3||selChefs.length<3) return;
+
+  const log=document.getElementById('cook-log');
+  log.innerHTML='';
+  document.getElementById('cook-start-btn').disabled=true;
+
+  const ings = selIngredients.map(i=>ingredients[i]);
+  const chefs = selChefs.map(ci=>chars[ci]);
+
+  // シャッフルしてマッチング
+  const shuffledIngs = [...ings].sort(()=>Math.random()-.5);
+  const shuffledChefs = [...chefs].sort(()=>Math.random()-.5);
+
+  logLine('── 調理開始 ──','separator');
+  await logWait(400);
+
+  let charTotal=0, ingTotal=0;
+  const chefRolls=[], ingRolls=[];
+
+  for(let i=0;i<3;i++){
+    const chef=shuffledChefs[i];
+    const ing=shuffledIngs[i];
+
+    // ボーナス計算
+    const dex=+(chef.stats?.['器用']||chef.stats?.['器用度']||0);
+    const int_=+(chef.stats?.['知力']||0);
+    const bonus=Math.floor(dex/5)+Math.floor(int_/5);
+
+    // ロール
+    const chefRoll=rollDetail();
+    const ingRoll=rollDetail();
+    const chefScore=bonus+chefRoll.total;
+    const ingScore=ing.diff+ingRoll.total;
+
+    chefRolls.push(chefRoll);
+    ingRolls.push(ingRoll);
+    charTotal+=chefScore;
+    ingTotal+=ingScore;
+
+    const success=chefScore>=ingScore;
+
+    // ログ出力
+    logLine(cookingActionText(chef.name, ing.name));
+    await logWait(700);
+    logLine(`${chef.name}は${cookingResultText(success)}`);
+    await logWait(600);
+
+    if(i<2){
+      logLine('');
+      await logWait(300);
+    }
+  }
+
+  // 最終判定
+  await logWait(400);
+  logLine('');
+  logLine('── 最終判定 ──','separator');
+  await logWait(500);
+
+  const charWins = charTotal>=ingTotal;
+  // 大成功/大失敗判定（2d6がゾロ目12 or ゾロ目2）
+  const hasDouble12 = chefRolls.some(r=>r.d1===6&&r.d2===6);
+  const hasDouble1  = chefRolls.some(r=>r.d1===1&&r.d2===1);
+
+  let resultLabel, resultCls;
+  if(charWins && hasDouble12){
+    resultLabel='✦ 大成功 ✦'; resultCls='result-great';
+  } else if(charWins){
+    resultLabel='◎ 成功'; resultCls='result-ok';
+  } else if(!charWins && hasDouble1){
+    resultLabel='✕ 大失敗'; resultCls='result-bad';
+  } else {
+    resultLabel='△ 失敗'; resultCls='result-fail';
+  }
+
+  logLine(resultLabel, resultCls);
+  await logWait(600);
+
+  // 料理名をAPIで生成（成功・大成功のみ）
+  if(charWins){
+    logLine('料理名を考えています…','generating');
+    const ingNames=ings.map(i=>i.name).join('・');
+    const isGreat = hasDouble12;
+    try{
+      const resp=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:120,
+          system:`あなたはファンタジーTRPGの料理名ジェネレーターです。
+使用した素材を元に、ファンタジーらしい料理名を1つだけ考えてください。
+料理名のみを返してください。説明文・句読点・括弧は不要です。
+素材名をそのまま使わず、料理っぽく変換してください。
+大成功の場合は特に豪華で印象的な名前にしてください。
+例：「龍草と野菜の黄金煮込み」「魔森の恵みスープ」「聖炎の祝宴ロースト」`,
+          messages:[{role:'user',content:`使用素材：${ingNames}\n結果：${isGreat?'大成功':'成功'}\nこの料理のファンタジーっぽい名前を1つ考えてください。`}]
+        })
+      });
+      const data=await resp.json();
+      const dishName=data.content?.[0]?.text?.trim()||'謎の料理';
+      const genEl=log.querySelector('.generating');
+      if(genEl) genEl.remove();
+      logLine(`🍽 ${dishName}`,'dish-name');
+    }catch(e){
+      const genEl=log.querySelector('.generating');
+      if(genEl) genEl.remove();
+      logLine(`🍽 ${ings.map(i=>i.name).join('と')}の一品`,'dish-name');
+    }
+  } else {
+    // 失敗・大失敗のログ
+    await logWait(300);
+    const failMsgs = hasDouble1
+      ? ['料理は見るも無残な姿になってしまった…','とても食べられるものではなさそうだ…']
+      : ['なんとか形にはなったが、いまひとつだ…','食べられないことはないが…'];
+    logLine(failMsgs[Math.floor(Math.random()*failMsgs.length)],'result-fail');
+  }
+
+  document.getElementById('cook-start-btn').disabled=false;
 }
 
 /* ━━━━━━ SAVE / LOAD (Firebase + localStorage fallback) ━━━━━━ */
