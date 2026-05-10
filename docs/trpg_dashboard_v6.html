@@ -125,7 +125,7 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
 .status-wrap{position:relative;display:inline-block;}
 .status-add{font-size:11px;color:var(--text5);cursor:pointer;padding:2px 6px;border:1px dashed var(--border3);border-radius:3px;}
 .status-add:hover{color:var(--gold);border-color:var(--gold3);}
-.status-popup{display:none;position:absolute;bottom:calc(100% + 4px);left:0;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px;z-index:100;width:220px;box-shadow:0 4px 20px rgba(0,0,0,.6);}
+.status-popup{display:none;position:fixed;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px;z-index:500;width:220px;box-shadow:0 4px 20px rgba(0,0,0,.7);}
 .status-popup.show{display:block;}
 .status-popup-title{font-family:'Cinzel',serif;font-size:9px;color:var(--text5);letter-spacing:1px;margin-bottom:6px;padding-bottom:3px;border-bottom:1px solid var(--border3);}
 .stpl-list{display:flex;flex-direction:column;gap:2px;margin-bottom:6px;}
@@ -248,6 +248,8 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
   <button class="nb on" onclick="showPage('main',this)">Characters & Enemies</button>
   <button class="nb" onclick="showPage('memos',this)">Memo</button>
   <span class="save-indicator" id="save-indicator"></span>
+  <button id="undo-btn" class="nb" onclick="undo()" title="元に戻す (Ctrl+Z)" style="opacity:.35;font-size:16px;padding:10px 10px;">↩</button>
+  <button id="redo-btn" class="nb" onclick="redo()" title="やり直す (Ctrl+Y)" style="opacity:.35;font-size:16px;padding:10px 10px;">↪</button>
   <button class="nb" onclick="clearAllData()" style="margin-left:auto;font-size:10px;color:var(--text5);">データリセット</button>
 </nav>
 
@@ -521,21 +523,37 @@ function toggleStatusPopup(ci, e){
   if(!pop) return;
   const wasShown = pop.classList.contains('show');
   document.querySelectorAll('.status-popup').forEach(p=>p.classList.remove('show'));
-  if(!wasShown) pop.classList.add('show');
+  if(!wasShown){
+    pop.classList.add('show');
+    // fixed座標をボタン位置から計算
+    const btn = e.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const popH = 220; // 推定高さ
+    const spaceAbove = rect.top;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    if(spaceAbove > popH || spaceAbove > spaceBelow){
+      // 上に表示
+      pop.style.top = Math.max(4, rect.top - popH - 4) + 'px';
+    } else {
+      // 下に表示
+      pop.style.top = (rect.bottom + 4) + 'px';
+    }
+    // 横位置：右に飛び出さないよう調整
+    let left = rect.left;
+    if(left + 220 > window.innerWidth - 8) left = window.innerWidth - 228;
+    pop.style.left = Math.max(4, left) + 'px';
+  }
 }
 
 function applyStatus(ci, ti){
   const tpl = statusTemplates[ti];
   if(!tpl) return;
-  // remove 正常 if adding something else
   if(tpl.c!=='ok') chars[ci].status = chars[ci].status.filter(s=>s.t!=='正常');
-  // toggle off if already active
   const exists = chars[ci].status.findIndex(s=>s.t===tpl.t);
   if(exists>=0) chars[ci].status.splice(exists,1);
   else chars[ci].status.push({...tpl});
-  // restore 正常 if empty
   if(!chars[ci].status.length) chars[ci].status.push({t:'正常',c:'ok'});
-  renderChars(); save();
+  pushHistory();renderChars();save();
 }
 
 function applyCustomStatus(ci){
@@ -547,7 +565,7 @@ function applyCustomStatus(ci){
   chars[ci].status.push({t,c});
   if(!statusTemplates.find(s=>s.t===t)) statusTemplates.push({t,c});
   inp.value='';
-  renderChars(); save();
+  pushHistory();renderChars();save();
 }
 
 function deleteTemplate(ti){
@@ -558,6 +576,67 @@ function deleteTemplate(ti){
 
 document.addEventListener('click',()=>{
   document.querySelectorAll('.status-popup').forEach(p=>p.classList.remove('show'));
+});
+
+/* ━━━━━━ UNDO / REDO ━━━━━━ */
+const HISTORY_MAX = 50;
+let history = [];
+let historyIdx = -1;
+let isUndoRedo = false;
+
+function snapshot(){
+  return JSON.parse(JSON.stringify({chars, enemies, memoBoards, statusTemplates}));
+}
+
+function pushHistory(){
+  if(isUndoRedo) return;
+  // 現在位置より先の履歴を削除
+  history = history.slice(0, historyIdx + 1);
+  history.push(snapshot());
+  if(history.length > HISTORY_MAX) history.shift();
+  historyIdx = history.length - 1;
+  updateUndoUI();
+}
+
+function undo(){
+  if(historyIdx <= 0) return;
+  historyIdx--;
+  isUndoRedo = true;
+  applySnapshot(history[historyIdx]);
+  isUndoRedo = false;
+  save();
+  updateUndoUI();
+}
+
+function redo(){
+  if(historyIdx >= history.length - 1) return;
+  historyIdx++;
+  isUndoRedo = true;
+  applySnapshot(history[historyIdx]);
+  isUndoRedo = false;
+  save();
+  updateUndoUI();
+}
+
+function applySnapshot(snap){
+  chars = JSON.parse(JSON.stringify(snap.chars));
+  enemies = JSON.parse(JSON.stringify(snap.enemies));
+  memoBoards = JSON.parse(JSON.stringify(snap.memoBoards));
+  statusTemplates = JSON.parse(JSON.stringify(snap.statusTemplates||statusTemplates));
+  renderChars(); renderEnemies(); renderMemoBoards();
+}
+
+function updateUndoUI(){
+  const u = document.getElementById('undo-btn');
+  const r = document.getElementById('redo-btn');
+  if(u) u.style.opacity = historyIdx > 0 ? '1' : '0.35';
+  if(r) r.style.opacity = historyIdx < history.length-1 ? '1' : '0.35';
+}
+
+// Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z
+document.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey) && e.key==='z' && !e.shiftKey){e.preventDefault();undo();}
+  if((e.ctrlKey||e.metaKey) && (e.key==='y' || (e.key==='z' && e.shiftKey))){e.preventDefault();redo();}
 });
 
 /* ━━━━━━ SKILL HELPERS ━━━━━━ */
@@ -622,8 +701,7 @@ function renderChars(){
       </div>`).join('') : '';
     const skillsHtml = buildSkillsHtml(c.skills,'char',ci);
     const statusHtml = (c.status||[]).map((s,si)=>`
-      <span class="sbadge s-${s.c}" title="クリックで削除"
-        onclick="chars[${ci}].status.splice(${si},1);if(!chars[${ci}].status.length)chars[${ci}].status=[{t:'正常',c:'ok'}];renderChars();save()">${s.t}</span>`).join('');
+      <span class="sbadge s-${s.c}" data-ci="${ci}" data-si="${si}" title="クリックで削除">${s.t}</span>`).join('');
     const avaInner = c.img?`<img src="${c.img}" alt="">`:(c.ava||'👤');
     return `
     <div class="card" id="ccard-${ci}">
@@ -682,6 +760,14 @@ function renderChars(){
       initCardDrag(card,'char',ci);
       const memoEl=card.querySelector('[data-field="charmemo"]');
       if(memoEl) memoEl.addEventListener('input',()=>{chars[ci].memo=memoEl.value;save();});
+      card.querySelectorAll('.sbadge[data-ci]').forEach(badge=>{
+        badge.addEventListener('click',()=>{
+          const si=+badge.dataset.si;
+          chars[ci].status.splice(si,1);
+          if(!chars[ci].status.length) chars[ci].status=[{t:'正常',c:'ok'}];
+          pushHistory();renderChars();save();
+        });
+      });
     }
     const ava = document.getElementById('cava-'+ci);
     if(ava) setupDrop(ava,src=>{chars[ci].img=src;renderChars();save();});
@@ -1129,6 +1215,8 @@ loadSave();
 renderChars();
 renderEnemies();
 renderMemoBoards();
+pushHistory(); // 初期状態をアンドゥ履歴に積む
+updateUndoUI();
 initFirebase();
 
 // onclickから呼べるようにwindowに公開
@@ -1140,7 +1228,7 @@ Object.assign(window,{
   openTagModal,submitTag,
   toggleStatusPopup,applyStatus,applyCustomStatus,deleteTemplate,rerenderColorOpts,
   addMemoBoard,addMemoCard,deleteMemoBoard,renderMemoBoards,
-  clearAllData,save,
+  clearAllData,save,undo,redo,pushHistory,
   // データ変数（oninputから直接アクセスするため）
   get chars(){return chars;},
   get enemies(){return enemies;},
