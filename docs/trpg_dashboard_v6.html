@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TRPG Session Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0c08;--bg1:#1a1208;--bg2:#221810;--bg3:#2e2010;
+  --border:#5a4020;--border2:#3a2810;--border3:#2a1e08;
+  --gold:#d4a840;--gold2:#a07828;--gold3:#6a5020;
+  --text:#e0d0a8;--text2:#c0a060;--text3:#a08040;--text4:#8a6a30;--text5:#6a5020;
+  --red:#c04030;--red2:#8a2020;--green:#4a9a4a;--blue:#4060c0;
+  --hp-hi:#4a9a4a;--hp-mid:#c09030;--hp-lo:#c04030;
+  --fsize:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Serif JP',serif;font-size:var(--fsize);min-height:100vh;}
+
+/* ── NAV ── */
+nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px solid var(--border);padding:0 20px;position:sticky;top:0;z-index:300;gap:0;}
+.nav-title{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);letter-spacing:3px;padding:13px 18px 13px 0;border-right:1px solid var(--border2);margin-right:10px;white-space:nowrap;}
+.nb{font-family:'Cinzel',serif;font-size:12px;padding:14px 16px;background:none;border:none;border-bottom:3px solid transparent;color:var(--text4);cursor:pointer;transition:all .2s;letter-spacing:1px;}
+.nb.on,.nb:hover{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* ── PAGE ── */
+.page{display:none;padding:16px 20px 60px;}
+.page.on{display:block;}
+
+/* ── SECTION ── */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border2);}
+.sec-title{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);letter-spacing:2px;}
+.sec-gap{margin-top:36px;}
+.sec-actions{display:flex;gap:6px;align-items:center;}
+
+/* ── BUTTONS ── */
+.btn{font-family:'Cinzel',serif;font-size:12px;padding:6px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--gold);cursor:pointer;transition:all .2s;letter-spacing:1px;}
+.btn:hover{background:#3a2810;border-color:var(--gold);}
+.btn-sm{font-size:11px;padding:4px 10px;}
+.btn-ghost{background:none;border-color:var(--border2);color:var(--text4);}
+.btn-ghost:hover{color:var(--gold);border-color:var(--gold);}
+.btn-danger{color:var(--red);border-color:var(--red2);background:none;}
+.btn-danger:hover{background:#2a0808;border-color:var(--red);}
+
+/* ── CARD GRID ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+
+/* ── CARD ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s;cursor:grab;}
+.card:active{cursor:grabbing;}
+.card:hover{border-color:var(--gold2);}
+.card.dragging{opacity:.35;border-style:dashed;transform:scale(.97);}
+.card.drag-over-card{border-color:var(--gold);border-style:dashed;}
+
+/* ── CARD HEAD ── */
+.card-head{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg1);border-bottom:1px solid var(--border2);}
+.head-info{flex:1;min-width:0;}
+
+/* ── DRAG HANDLE ── */
+.drag-handle{font-size:14px;color:var(--text5);cursor:grab;padding:2px 4px;flex-shrink:0;line-height:1;user-select:none;}
+.drag-handle:active{cursor:grabbing;}
+
+/* ── AVATAR ── */
+.ava{background:var(--bg3);border:1px solid var(--border);border-radius:5px;overflow:hidden;position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ava img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.ava .drop-hint{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.65);font-size:9px;color:var(--text5);text-align:center;padding:2px;opacity:0;transition:opacity .15s;}
+.ava:hover .drop-hint,.ava.drag-over .drop-hint{opacity:1;}
+.ava.drag-over{border-color:var(--gold);}
+
+/* ── EDITABLE ── */
+[contenteditable]{outline:none;border-radius:2px;transition:background .15s;}
+[contenteditable]:hover{background:rgba(212,168,64,.07);}
+[contenteditable]:focus{background:rgba(212,168,64,.12);box-shadow:0 0 0 1px var(--gold3);}
+.ed-name{font-family:'Cinzel',serif;font-size:14px;color:var(--gold);font-weight:600;display:block;}
+.ed-sub{font-size:12px;color:var(--text4);display:block;margin-top:2px;}
+
+/* ── CARD BODY ── */
+.card-body{padding:10px 12px;}
+
+/* ── BARS ── */
+.bar-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.bar-lbl{font-size:12px;color:var(--text4);width:24px;flex-shrink:0;}
+.bar-bg{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width .4s;}
+.bar-inputs{display:flex;gap:3px;align-items:center;flex-shrink:0;}
+.bar-in{width:42px;background:var(--bg1);border:1px solid var(--border2);border-radius:3px;color:var(--text);font-size:13px;padding:2px 5px;text-align:center;font-family:'Noto Serif JP',serif;}
+.bar-in:focus{outline:none;border-color:var(--border);}
+.bar-sep{font-size:11px;color:var(--text5);}
+
+/* ── SECTION LABELS ── */
+.slbl{font-family:'Cinzel',serif;font-size:10px;color:var(--text5);letter-spacing:1px;margin:8px 0 4px;padding-bottom:2px;border-bottom:1px solid var(--border3);}
+
+/* ── STATS ── */
+.stats-grid{display:flex;gap:4px;flex-wrap:wrap;}
+.stat-chip{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:3px 6px;text-align:center;min-width:44px;}
+.stat-key{font-size:10px;color:var(--text4);display:block;}
+.stat-num{font-size:13px;color:var(--text);font-weight:600;display:block;min-width:22px;}
+
+/* ── SKILLS ── */
+.skill-row{border-bottom:1px solid var(--border3);}
+.skill-row:last-child{border-bottom:none;}
+.skill-header{display:flex;align-items:center;gap:4px;padding:4px 0;cursor:pointer;user-select:none;}
+.skill-arrow{font-size:9px;color:var(--text5);flex-shrink:0;transition:transform .15s;width:12px;text-align:center;}
+.skill-row.open .skill-arrow{transform:rotate(90deg);}
+.skill-txt{font-size:13px;color:var(--text3);flex:1;line-height:1.5;}
+.skill-del{font-size:10px;color:var(--text5);cursor:pointer;flex-shrink:0;padding:1px 4px;border-radius:2px;opacity:0;}
+.skill-header:hover .skill-del{opacity:1;}
+.skill-del:hover{color:var(--red);}
+.skill-detail{display:none;padding:4px 6px 6px 16px;}
+.skill-row.open .skill-detail{display:block;}
+.skill-detail-area{width:100%;background:var(--bg1);border:1px solid var(--border3);border-radius:3px;color:var(--text4);font-family:'Noto Serif JP',serif;font-size:12px;padding:5px 7px;resize:none;line-height:1.7;min-height:52px;}
+.skill-detail-area:focus{outline:none;border-color:var(--border2);}
+.skill-add{font-size:11px;color:var(--text5);cursor:pointer;margin-top:4px;padding:2px 6px;border:1px dashed var(--border3);border-radius:3px;display:inline-block;}
+.skill-add:hover{color:var(--gold);border-color:var(--gold3);}
+
+/* ── STATUS ── */
+.status-row{display:flex;gap:3px;flex-wrap:wrap;align-items:center;}
+.sbadge{font-size:11px;padding:2px 7px;border-radius:3px;border:1px solid;cursor:pointer;}
+.sbadge:hover{opacity:.7;}
+.s-ok{background:#0a1e0a;border-color:#2a6020;color:#5a9040;}
+.s-bad{background:#2a0a0a;border-color:var(--red2);color:var(--red);}
+.s-warn{background:#2a1a06;border-color:#8a5010;color:#c08030;}
+/* status dropdown button */
+.status-wrap{position:relative;display:inline-block;}
+.status-add{font-size:11px;color:var(--text5);cursor:pointer;padding:2px 6px;border:1px dashed var(--border3);border-radius:3px;}
+.status-add:hover{color:var(--gold);border-color:var(--gold3);}
+.status-popup{display:none;position:fixed;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px;z-index:500;width:220px;box-shadow:0 4px 20px rgba(0,0,0,.7);}
+.status-popup.show{display:block;}
+.status-popup-title{font-family:'Cinzel',serif;font-size:9px;color:var(--text5);letter-spacing:1px;margin-bottom:6px;padding-bottom:3px;border-bottom:1px solid var(--border3);}
+.stpl-list{display:flex;flex-direction:column;gap:2px;margin-bottom:6px;}
+.stpl-item{display:flex;align-items:center;gap:6px;padding:3px 5px;border-radius:3px;cursor:pointer;transition:background .1s;}
+.stpl-item:hover{background:var(--bg3);}
+.stpl-badge{font-size:10px;padding:1px 7px;border-radius:3px;border:1px solid;white-space:nowrap;}
+.stpl-del{font-size:9px;color:var(--text5);margin-left:auto;padding:0 3px;cursor:pointer;opacity:0;flex-shrink:0;}
+.stpl-item:hover .stpl-del{opacity:1;}
+.stpl-del:hover{color:var(--red);}
+.stpl-custom{display:flex;flex-direction:column;gap:4px;padding-top:6px;border-top:1px solid var(--border3);}
+.stpl-custom-row1{display:flex;gap:4px;align-items:center;}
+.stpl-custom-row1 input{flex:1;min-width:0;background:var(--bg1);border:1px solid var(--border2);border-radius:3px;color:var(--text);font-size:11px;padding:4px 6px;font-family:'Noto Serif JP',serif;}
+.stpl-custom-row1 input:focus{outline:none;border-color:var(--border);}
+.stpl-color-row{display:flex;gap:5px;align-items:center;}
+.stpl-color-lbl{font-size:10px;color:var(--text5);}
+.stpl-color-opt{width:20px;height:20px;border-radius:3px;border:2px solid transparent;cursor:pointer;transition:border-color .15s;flex-shrink:0;}
+.stpl-color-opt.sel{border-color:var(--gold);}
+.stpl-color-ok{font-size:10px;padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;color:var(--gold);cursor:pointer;white-space:nowrap;margin-left:auto;}
+
+/* ── CARD FOOTER ── */
+.card-footer{display:flex;gap:6px;padding:8px 12px;background:var(--bg1);border-top:1px solid var(--border3);justify-content:flex-end;}
+.cfbtn{font-size:10px;padding:3px 9px;border-radius:3px;border:1px solid;cursor:pointer;transition:all .15s;background:none;}
+.cfbtn-hide{border-color:var(--border2);color:var(--text5);}
+.cfbtn-hide:hover{border-color:var(--gold3);color:var(--gold);}
+.cfbtn-del{border-color:var(--red2);color:#6a3020;}
+.cfbtn-del:hover{border-color:var(--red);color:var(--red);background:#2a0808;}
+
+/* ── MEMO textarea ── */
+.memo-area{width:100%;background:var(--bg1);border:1px solid var(--border2);border-radius:3px;color:var(--text2);font-family:'Noto Serif JP',serif;font-size:13px;padding:6px;resize:none;line-height:1.7;}
+.memo-area:focus{outline:none;border-color:var(--border);}
+
+/* ── ENEMY STATS ── */
+.en-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:4px;}
+.en-stats2{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:7px;}
+.estat{background:var(--bg3);border-radius:3px;padding:4px 5px;text-align:center;}
+.estat-lbl{font-size:10px;color:var(--text5);display:block;}
+.estat-val{font-size:13px;color:var(--text);font-weight:600;display:block;min-width:20px;}
+.weak-row{display:flex;gap:4px;flex-wrap:wrap;margin:3px 0 6px;align-items:center;}
+.wtag{font-size:11px;padding:2px 6px;border-radius:3px;cursor:pointer;}
+.weak{background:#2a0a0a;border:1px solid #7a2020;color:#c04040;}
+.resist{background:#0a1020;border:1px solid #204060;color:#4080c0;}
+.wtag:hover{opacity:.7;}
+.tag-add{font-size:11px;color:var(--text5);cursor:pointer;padding:2px 6px;border:1px dashed var(--border3);border-radius:3px;}
+.tag-add:hover{color:var(--gold);border-color:var(--gold3);}
+.note-area{width:100%;background:var(--bg1);border:1px solid var(--border2);border-radius:3px;color:var(--text4);font-family:'Noto Serif JP',serif;font-size:13px;padding:5px 6px;resize:none;line-height:1.7;}
+.note-area:focus{outline:none;border-color:var(--border);}
+
+/* ── WAITING ROOM ── */
+.waiting-room{background:var(--bg1);border:1px solid var(--border2);border-radius:8px;padding:12px;margin-top:10px;}
+.waiting-label{font-family:'Cinzel',serif;font-size:11px;color:var(--text5);letter-spacing:2px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.waiting-label::after{content:'';flex:1;height:1px;background:var(--border3);}
+.waiting-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;}
+.waiting-chip{background:var(--bg2);border:1px dashed var(--border2);border-radius:6px;padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .2s;}
+.waiting-chip:hover{border-color:var(--gold);background:var(--bg3);}
+.wchip-ava{width:32px;height:38px;background:var(--bg3);border:1px solid var(--border2);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden;position:relative;}
+.wchip-ava img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.wchip-name{font-size:12px;color:var(--text3);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wchip-show{font-size:10px;color:var(--text5);flex-shrink:0;}
+.waiting-empty{font-size:12px;color:var(--text5);text-align:center;padding:12px;font-style:italic;}
+
+/* ── MEMO PAGE ── */
+.memo-page-wrap{max-width:1100px;}
+.memo-board{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px;}
+.memo-board-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border2);}
+.memo-board-name{font-family:'Cinzel',serif;font-size:15px;background:none;border:none;border-bottom:1px solid transparent;color:var(--gold);padding:2px 6px;min-width:60px;max-width:300px;}
+.memo-board-name:hover{border-bottom-color:var(--border2);}
+.memo-board-name:focus{outline:none;border-bottom-color:var(--gold);}
+.memo-board-actions{display:flex;gap:6px;margin-left:auto;align-items:center;}
+.memo-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.memo-card{background:var(--bg1);border:1px solid var(--border2);border-radius:6px;overflow:hidden;position:relative;}
+.memo-card:hover .mcard-del{opacity:1;}
+.mcard-del{position:absolute;top:5px;right:5px;font-size:10px;padding:1px 5px;background:#2a0a08;border:1px solid var(--red2);border-radius:3px;color:#8a3020;cursor:pointer;opacity:0;transition:opacity .2s;}
+.mcard-del:hover{color:var(--red);border-color:var(--red);}
+.memo-card-title{width:100%;background:transparent;border:none;border-bottom:1px solid var(--border3);color:var(--gold2);font-family:'Cinzel',serif;font-size:13px;padding:8px 12px;letter-spacing:1px;}
+.memo-card-title:focus{outline:none;background:rgba(212,168,64,.04);}
+.memo-card-body{width:100%;background:transparent;border:none;color:var(--text2);font-family:'Noto Serif JP',serif;font-size:14px;padding:10px 12px;resize:vertical;line-height:1.9;min-height:140px;}
+.memo-card-body:focus{outline:none;}
+.memo-add-board{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px;background:var(--bg1);border:2px dashed var(--border2);border-radius:10px;cursor:pointer;transition:all .2s;color:var(--text5);font-family:'Cinzel',serif;font-size:12px;letter-spacing:1px;}
+.memo-add-board:hover{border-color:var(--gold3);color:var(--gold);}
+
+/* ── SAVE INDICATOR ── */
+.save-indicator{font-size:11px;color:var(--text5);padding:0 12px;transition:color .3s;}
+.save-indicator.saved{color:var(--green);}
+.save-indicator.saving{color:var(--gold);}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;align-items:center;justify-content:center;}
+.modal-bg.show{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:24px;width:500px;max-width:96vw;max-height:92vh;overflow-y:auto;}
+.modal-title{font-family:'Cinzel',serif;font-size:15px;color:var(--gold);margin-bottom:18px;letter-spacing:1px;}
+.modal-tabs{display:flex;gap:5px;margin-bottom:16px;}
+.modal-tab{font-size:12px;padding:6px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;color:var(--text4);cursor:pointer;}
+.modal-tab.on{color:var(--gold);border-color:var(--border);}
+.msec{display:none;}
+.msec.on{display:block;}
+.fl{font-size:12px;color:var(--text4);margin-bottom:5px;display:block;}
+.fi{width:100%;background:var(--bg1);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-family:'Noto Serif JP',serif;font-size:13px;padding:8px 10px;margin-bottom:12px;}
+.fi:focus{outline:none;border-color:var(--border);}
+.fi-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.fi-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.fi-grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;}
+.modal-hint{font-size:12px;color:var(--text5);line-height:1.8;margin-bottom:12px;padding:10px;background:var(--bg1);border-radius:4px;border:1px solid var(--border3);}
+.modal-hint b{color:var(--text3);}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:8px;}
+.modal-cancel{font-size:12px;padding:7px 16px;background:none;border:1px solid var(--border2);border-radius:4px;color:var(--text4);cursor:pointer;font-family:'Noto Serif JP',serif;}
+.modal-ok{font-family:'Cinzel',serif;font-size:12px;padding:7px 18px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--gold);cursor:pointer;letter-spacing:1px;}
+.modal-ok:hover{background:#3a2810;border-color:var(--gold);}
+.modal-ok:disabled{opacity:.35;cursor:not-allowed;}
+.load-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text4);min-height:22px;margin-top:6px;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-title">✦ SESSION BOARD ✦</div>
+  <button class="nb on" onclick="showPage('main',this)">Characters & Enemies</button>
+  <button class="nb" onclick="showPage('memos',this)">Memo</button>
+  <span class="save-indicator" id="save-indicator"></span>
+  <button id="undo-btn" class="nb" onclick="undo()" title="元に戻す (Ctrl+Z)" style="opacity:.35;font-size:16px;padding:10px 10px;">↩</button>
+  <button id="redo-btn" class="nb" onclick="redo()" title="やり直す (Ctrl+Y)" style="opacity:.35;font-size:16px;padding:10px 10px;">↪</button>
+  <button class="nb" onclick="clearAllData()" style="margin-left:auto;font-size:10px;color:var(--text5);">データリセット</button>
+</nav>
+
+<div id="page-main" class="page on">
+  <div class="sec-header">
+    <span class="sec-title">⚔ Characters</span>
+    <div class="sec-actions">
+      <button class="btn btn-sm btn-ghost" onclick="toggleWaitingRoom('char')">待合室</button>
+      <button class="btn btn-sm" onclick="openCharModal()">+ キャラ追加</button>
+    </div>
+  </div>
+  <div class="card-grid" id="char-grid"></div>
+  <div id="char-waiting-wrap" style="display:none;">
+    <div class="waiting-room">
+      <div class="waiting-label">待合室（非表示中）</div>
+      <div class="waiting-grid" id="char-waiting-grid"></div>
+    </div>
+  </div>
+
+  <div class="sec-header sec-gap">
+    <span class="sec-title">👾 Enemies</span>
+    <div class="sec-actions">
+      <button class="btn btn-sm btn-ghost" onclick="toggleWaitingRoom('enemy')">待合室</button>
+      <button class="btn btn-sm" onclick="openEnemyModal()">+ エネミー追加</button>
+    </div>
+  </div>
+  <div class="card-grid" id="enemy-grid"></div>
+  <div id="enemy-waiting-wrap" style="display:none;">
+    <div class="waiting-room">
+      <div class="waiting-label">待合室（非表示中）</div>
+      <div class="waiting-grid" id="enemy-waiting-grid"></div>
+    </div>
+  </div>
+</div>
+
+<div id="page-memos" class="page">
+  <div class="memo-page-wrap">
+    <div id="memo-boards-wrap"></div>
+    <div class="memo-add-board" onclick="addMemoBoard()">＋ ボードを追加</div>
+  </div>
+</div>
+
+<!-- CHAR MODAL -->
+<div class="modal-bg" id="char-modal">
+  <div class="modal">
+    <div class="modal-title">キャラクター追加</div>
+    <div class="modal-tabs">
+      <div class="modal-tab on" onclick="switchMTab(this,'ytsheet')">ゆとシートから</div>
+      <div class="modal-tab" onclick="switchMTab(this,'manual')">手動入力</div>
+    </div>
+    <div class="msec on" id="cm-ytsheet">
+      <div class="modal-hint">
+        <b>① ゆとシートをブラウザで開く</b><br>
+        <b>② Ctrl+S（Mac: ⌘+S）→「Webページ、完全」で保存</b><br>
+        <b>③ 保存した .html ファイルをここで選択</b>
+      </div>
+      <label class="fl">HTMLファイルを選択</label>
+      <input type="file" id="yt-file" accept=".html,.htm" class="fi" style="padding:6px;cursor:pointer;">
+      <div class="load-row" id="yt-loading"></div>
+    </div>
+    <div class="msec" id="cm-manual">
+      <label class="fl">キャラクター名</label>
+      <input class="fi" id="m-name" placeholder="名前">
+      <label class="fl">クラス / レベル</label>
+      <input class="fi" id="m-cls" placeholder="ライダー2/レンジャー1">
+      <div class="fi-grid4" style="margin-bottom:12px;">
+        <div><label class="fl">HP</label><input class="fi" id="m-hp" type="number" placeholder="24" style="margin:0;"></div>
+        <div><label class="fl">HP最大</label><input class="fi" id="m-hpmax" type="number" placeholder="24" style="margin:0;"></div>
+        <div><label class="fl">MP</label><input class="fi" id="m-mp" type="number" placeholder="8" style="margin:0;"></div>
+        <div><label class="fl">MP最大</label><input class="fi" id="m-mpmax" type="number" placeholder="8" style="margin:0;"></div>
+      </div>
+      <label class="fl">スキル（改行区切り）</label>
+      <textarea class="fi" id="m-skills" rows="3" placeholder="スキル1&#10;スキル2"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('char-modal')">キャンセル</button>
+      <button class="modal-ok" id="char-ok" onclick="submitChar()">読み込む</button>
+    </div>
+  </div>
+</div>
+
+<!-- ENEMY MODAL -->
+<div class="modal-bg" id="enemy-modal">
+  <div class="modal">
+    <div class="modal-title">エネミー追加</div>
+    <div class="fi-grid2" style="margin-bottom:0;">
+      <div><label class="fl">エネミー名</label><input class="fi" id="en-name" placeholder="ゴブリン兵"></div>
+      <div><label class="fl">種別</label><input class="fi" id="en-type" placeholder="雑魚モブ"></div>
+    </div>
+    <div class="fi-grid3" style="margin-bottom:12px;">
+      <div><label class="fl">HP</label><input class="fi" id="en-hp" type="number" placeholder="30" style="margin:0;"></div>
+      <div><label class="fl">攻撃力</label><input class="fi" id="en-atk" type="number" placeholder="10" style="margin:0;"></div>
+      <div><label class="fl">防護点</label><input class="fi" id="en-def" type="number" placeholder="5" style="margin:0;"></div>
+    </div>
+    <label class="fl">弱点（カンマ区切り）</label>
+    <input class="fi" id="en-weak" placeholder="火, 聖">
+    <label class="fl">耐性（カンマ区切り）</label>
+    <input class="fi" id="en-resist" placeholder="毒, 闇">
+    <label class="fl">スキル（改行区切り）</label>
+    <textarea class="fi" id="en-skills" rows="2" placeholder="強撃（ダメ×2）&#10;咆哮（周囲デバフ）"></textarea>
+    <label class="fl">備考</label>
+    <textarea class="fi" id="en-note" rows="2" placeholder="特記事項..."></textarea>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('enemy-modal')">キャンセル</button>
+      <button class="modal-ok" onclick="submitEnemy()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAG MODAL -->
+<div class="modal-bg" id="tag-modal">
+  <div class="modal" style="width:300px;">
+    <div class="modal-title" id="tag-modal-title">属性を追加</div>
+    <label class="fl">属性名</label>
+    <input class="fi" id="tag-input" placeholder="火, 聖, 雷...">
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('tag-modal')">キャンセル</button>
+      <button class="modal-ok" onclick="submitTag()">追加</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+/* ━━━━━━ STATE ━━━━━━ */
+let chars = [
+  {name:'Aldric',cls:'戦士 Lv.5',ava:'🧔',img:null,hp:85,hpmax:100,mp:20,mpmax:30,hidden:false,
+   stats:{STR:18,DEX:12,INT:10,VIT:16},skills:['斬撃（剣攻撃+4）','盾構え（被ダメ-3）','鼓舞（味方DEX+2）'],status:[{t:'正常',c:'ok'}],memo:''},
+  {name:'Seraphina',cls:'魔法使い Lv.5',ava:'👩‍🦰',img:null,hp:42,hpmax:80,mp:35,mpmax:60,hidden:false,
+   stats:{STR:8,DEX:14,INT:20,VIT:10},skills:['火球（範囲火ダメ×3）','魔力増幅（次の魔法+5）','障壁（被ダメ-2）'],status:[{t:'正常',c:'ok'}],memo:''},
+  {name:'Crow',cls:'盗賊 Lv.5',ava:'🧥',img:null,hp:90,hpmax:100,mp:10,mpmax:20,hidden:false,
+   stats:{STR:14,DEX:20,INT:13,VIT:13},skills:['急所突き（毒付与）','隠密移動（回避+3）','罠解除'],status:[{t:'正常',c:'ok'}],memo:''},
+  {name:'Mira',cls:'レンジャー Lv.4',ava:'🧝',img:null,hp:22,hpmax:78,mp:25,mpmax:40,hidden:false,
+   stats:{STR:13,DEX:18,INT:12,VIT:14},skills:['連射（2回攻撃）','索敵（先制+2）','自然回復（毎ターン+2）'],status:[{t:'負傷',c:'bad'}],memo:''},
+];
+let enemies = [
+  {name:'ゴブリン兵',type:'雑魚モブ',ava:'👺',img:null,hp:20,hpmax:20,mp:0,mpmax:0,atk:8,def:5,hit:6,evd:6,lif:8,mnd:6,hidden:false,
+   weak:['火'],resist:['毒'],skills:['通常攻撃','逃走（HP10以下）'],note:'3体で囲むと攻撃+2。経験値50'},
+  {name:'オーク隊長',type:'エリート敵',ava:'👹',img:null,hp:80,hpmax:80,mp:0,mpmax:0,atk:18,def:12,hit:10,evd:8,lif:14,mnd:8,hidden:false,
+   weak:['雷'],resist:['物理'],skills:['強撃（ダメ×2）','咆哮（周囲デバフ）','激怒（HP半分で+5）'],note:'撃破で蛮族士気-2。鎧剥がしで防御-4。'},
+];
+let memoBoards = [
+  {name:'Session Notes',cards:[
+    {title:'村長 トーマス',body:'協力的。娘が行方不明。\n報酬：金貨50枚'},
+    {title:'鍛冶屋 ハンス',body:'武器強化可能。蛮族に恨みあり。'},
+  ]},
+  {name:'伏線・謎',cards:[
+    {title:'未解決の謎',body:'・廃墟に残された紋章\n・行方不明の村人（3名）\n・蛮族のリーダーの正体？'},
+  ]},
+  {name:'アイテム管理',cards:[
+    {title:'現在の所持品',body:'回復薬×4 / 解毒薬×2\n魔法の石（用途不明）\n古い地図の断片'},
+  ]},
+];
+
+// Status templates: {t: label, c: class(ok/warn/bad)}
+let statusTemplates = [
+  {t:'正常',c:'ok'},
+  {t:'毒',c:'bad'},
+];
+
+let pendingTag = null;
+let currentCMTab = 'ytsheet';
+let charWaitingVisible = false;
+let enemyWaitingVisible = false;
+let dragSrcType = null, dragSrcIdx = null;
+
+/* ━━━━━━ HELPERS ━━━━━━ */
+const hpColor = p => p>60?'var(--hp-hi)':p>30?'var(--hp-mid)':'var(--hp-lo)';
+
+function setupDrop(el, cb){
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag-over');});
+  el.addEventListener('dragleave',()=>el.classList.remove('drag-over'));
+  el.addEventListener('drop',e=>{
+    e.preventDefault();el.classList.remove('drag-over');
+    const f=e.dataTransfer.files[0];
+    if(f&&f.type.startsWith('image/')){const r=new FileReader();r.onload=ev=>cb(ev.target.result);r.readAsDataURL(f);}
+  });
+  el.addEventListener('click',()=>{
+    const i=document.createElement('input');i.type='file';i.accept='image/*';
+    i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>cb(ev.target.result);r.readAsDataURL(f);};
+    i.click();
+  });
+}
+
+/* ━━━━━━ DRAG TO REORDER ━━━━━━ */
+function initCardDrag(el, type, idx){
+  el.setAttribute('draggable','true');
+  el.addEventListener('dragstart', e=>{
+    // only start drag from handle or card head
+    dragSrcType=type; dragSrcIdx=idx;
+    e.dataTransfer.effectAllowed='move';
+    setTimeout(()=>el.classList.add('dragging'),0);
+  });
+  el.addEventListener('dragend', ()=>{
+    el.classList.remove('dragging');
+    document.querySelectorAll('.drag-over-card').forEach(c=>c.classList.remove('drag-over-card'));
+  });
+  el.addEventListener('dragover', e=>{
+    e.preventDefault();
+    if(dragSrcType===type && dragSrcIdx!==idx) el.classList.add('drag-over-card');
+  });
+  el.addEventListener('dragleave', ()=>el.classList.remove('drag-over-card'));
+  el.addEventListener('drop', e=>{
+    e.preventDefault();
+    el.classList.remove('drag-over-card');
+    if(dragSrcType!==type || dragSrcIdx===idx || dragSrcIdx===null) return;
+    const arr = type==='char'?chars:enemies;
+    const moved = arr.splice(dragSrcIdx,1)[0];
+    arr.splice(idx,0,moved);
+    dragSrcIdx=null;
+    if(type==='char'){renderChars();save();}
+    else{renderEnemies();save();}
+  });
+}
+
+/* ━━━━━━ STATUS POPUP ━━━━━━ */
+// color options: ok=green, warn=yellow, bad=red
+const STATUS_COLORS = [
+  {c:'ok',  bg:'#0a1e0a', bc:'#2a6020', tc:'#5a9040', label:'緑'},
+  {c:'warn',bg:'#2a1a06', bc:'#8a5010', tc:'#c08030', label:'黄'},
+  {c:'bad', bg:'#2a0a0a', bc:'#8a2020', tc:'#c04040', label:'赤'},
+];
+let customColorSel = {}; // ci -> 'ok'|'warn'|'bad'
+
+function buildStatusPopup(ci){
+  const col = customColorSel[ci]||'bad';
+  const colorOpts = STATUS_COLORS.map(sc=>`
+    <div class="stpl-color-opt${col===sc.c?' sel':''}"
+      style="background:${sc.bg};border-color:${col===sc.c?'var(--gold)':sc.bc};"
+      onclick="customColorSel[${ci}]='${sc.c}';rerenderColorOpts(${ci});event.stopPropagation()"
+      title="${sc.label}"></div>`).join('');
+  const tplHtml = statusTemplates.map((tpl,ti)=>`
+    <div class="stpl-item" onclick="applyStatus(${ci},${ti});event.stopPropagation()">
+      <span class="stpl-badge s-${tpl.c}">${tpl.t}</span>
+      <span class="stpl-del" onclick="deleteTemplate(${ti});event.stopPropagation()">✕</span>
+    </div>`).join('');
+  return `
+    <div class="status-popup" id="spop-${ci}">
+      <div class="status-popup-title">Status Template</div>
+      <div class="stpl-list">${tplHtml}</div>
+      <div class="stpl-custom">
+        <div class="stpl-custom-row1">
+          <input id="scustom-${ci}" placeholder="カスタム入力..."
+            onclick="event.stopPropagation()"
+            onkeydown="if(event.key==='Enter'){applyCustomStatus(${ci});event.stopPropagation();}">
+        </div>
+        <div class="stpl-color-row" id="scol-${ci}">
+          <span class="stpl-color-lbl">色：</span>
+          ${colorOpts}
+          <button class="stpl-color-ok" onclick="applyCustomStatus(${ci});event.stopPropagation()">追加</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function rerenderColorOpts(ci){
+  const col = customColorSel[ci]||'bad';
+  const row = document.getElementById('scol-'+ci);
+  if(!row) return;
+  const opts = row.querySelectorAll('.stpl-color-opt');
+  STATUS_COLORS.forEach((sc,i)=>{
+    if(opts[i]){
+      opts[i].classList.toggle('sel', col===sc.c);
+      opts[i].style.borderColor = col===sc.c?'var(--gold)':sc.bc;
+    }
+  });
+}
+
+function toggleStatusPopup(ci, e){
+  e.stopPropagation();
+  const pop = document.getElementById('spop-'+ci);
+  if(!pop) return;
+  const wasShown = pop.classList.contains('show');
+  document.querySelectorAll('.status-popup').forEach(p=>p.classList.remove('show'));
+  if(!wasShown){
+    pop.classList.add('show');
+    // fixed座標をボタン位置から計算
+    const btn = e.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const popH = 220; // 推定高さ
+    const spaceAbove = rect.top;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    if(spaceAbove > popH || spaceAbove > spaceBelow){
+      // 上に表示
+      pop.style.top = Math.max(4, rect.top - popH - 4) + 'px';
+    } else {
+      // 下に表示
+      pop.style.top = (rect.bottom + 4) + 'px';
+    }
+    // 横位置：右に飛び出さないよう調整
+    let left = rect.left;
+    if(left + 220 > window.innerWidth - 8) left = window.innerWidth - 228;
+    pop.style.left = Math.max(4, left) + 'px';
+  }
+}
+
+function applyStatus(ci, ti){
+  const tpl = statusTemplates[ti];
+  if(!tpl) return;
+  if(tpl.c!=='ok') chars[ci].status = chars[ci].status.filter(s=>s.t!=='正常');
+  const exists = chars[ci].status.findIndex(s=>s.t===tpl.t);
+  if(exists>=0) chars[ci].status.splice(exists,1);
+  else chars[ci].status.push({...tpl});
+  if(!chars[ci].status.length) chars[ci].status.push({t:'正常',c:'ok'});
+  pushHistory();renderChars();save();
+}
+
+function applyCustomStatus(ci){
+  const inp = document.getElementById('scustom-'+ci);
+  const t = inp.value.trim();
+  if(!t) return;
+  const c = customColorSel[ci]||'bad';
+  chars[ci].status = chars[ci].status.filter(s=>s.t!=='正常');
+  chars[ci].status.push({t,c});
+  if(!statusTemplates.find(s=>s.t===t)) statusTemplates.push({t,c});
+  inp.value='';
+  pushHistory();renderChars();save();
+}
+
+function deleteTemplate(ti){
+  statusTemplates.splice(ti,1);
+  save();
+  renderChars();
+}
+
+document.addEventListener('click',()=>{
+  document.querySelectorAll('.status-popup').forEach(p=>p.classList.remove('show'));
+});
+
+/* ━━━━━━ UNDO / REDO ━━━━━━ */
+const HISTORY_MAX = 50;
+let history = [];
+let historyIdx = -1;
+let isUndoRedo = false;
+
+function snapshot(){
+  return JSON.parse(JSON.stringify({chars, enemies, memoBoards, statusTemplates}));
+}
+
+function pushHistory(){
+  if(isUndoRedo) return;
+  // 現在位置より先の履歴を削除
+  history = history.slice(0, historyIdx + 1);
+  history.push(snapshot());
+  if(history.length > HISTORY_MAX) history.shift();
+  historyIdx = history.length - 1;
+  updateUndoUI();
+}
+
+function undo(){
+  if(historyIdx <= 0) return;
+  historyIdx--;
+  isUndoRedo = true;
+  applySnapshot(history[historyIdx]);
+  isUndoRedo = false;
+  save();
+  updateUndoUI();
+}
+
+function redo(){
+  if(historyIdx >= history.length - 1) return;
+  historyIdx++;
+  isUndoRedo = true;
+  applySnapshot(history[historyIdx]);
+  isUndoRedo = false;
+  save();
+  updateUndoUI();
+}
+
+function applySnapshot(snap){
+  chars = JSON.parse(JSON.stringify(snap.chars));
+  enemies = JSON.parse(JSON.stringify(snap.enemies));
+  memoBoards = JSON.parse(JSON.stringify(snap.memoBoards));
+  statusTemplates = JSON.parse(JSON.stringify(snap.statusTemplates||statusTemplates));
+  renderChars(); renderEnemies(); renderMemoBoards();
+}
+
+function updateUndoUI(){
+  const u = document.getElementById('undo-btn');
+  const r = document.getElementById('redo-btn');
+  if(u) u.style.opacity = historyIdx > 0 ? '1' : '0.35';
+  if(r) r.style.opacity = historyIdx < history.length-1 ? '1' : '0.35';
+}
+
+// Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z
+document.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey) && e.key==='z' && !e.shiftKey){e.preventDefault();undo();}
+  if((e.ctrlKey||e.metaKey) && (e.key==='y' || (e.key==='z' && e.shiftKey))){e.preventDefault();redo();}
+});
+
+/* ━━━━━━ SKILL HELPERS ━━━━━━ */
+// スキルは文字列 or {name, detail} のどちらでも受け付ける
+function skillName(s){ return typeof s==='string'?s:(s.name||''); }
+function skillDetail(s){ return typeof s==='string'?'':(s.detail||''); }
+function skillObj(s){ return typeof s==='string'?{name:s,detail:''}:{name:s.name||'',detail:s.detail||''}; }
+
+function buildSkillsHtml(skills, type, idx){
+  return (skills||[]).map((s,si)=>{
+    const nm = skillName(s);
+    const dt = skillDetail(s);
+    const domId = `skrow-${type}-${idx}-${si}`;
+    return `
+      <div class="skill-row" id="${domId}">
+        <div class="skill-header" onclick="toggleSkill('${domId}')">
+          <span class="skill-arrow">▶</span>
+          <span class="skill-txt" contenteditable="true"
+            onblur="setSkillName('${type}',${idx},${si},this.textContent.trim())"
+            onclick="event.stopPropagation()">${nm}</span>
+          <span class="skill-del" onclick="event.stopPropagation();delSkill('${type}',${idx},${si})">✕</span>
+        </div>
+        <div class="skill-detail">
+          <textarea class="skill-detail-area" rows="2"
+            placeholder="詳細・効果を入力..."
+            oninput="setSkillDetail('${type}',${idx},${si},this.value)">${dt}</textarea>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleSkill(id){
+  document.getElementById(id)?.classList.toggle('open');
+}
+
+function setSkillName(type,idx,si,val){
+  const arr = type==='char'?chars:enemies;
+  arr[idx].skills[si] = {...skillObj(arr[idx].skills[si]), name:val};
+  save();
+}
+function setSkillDetail(type,idx,si,val){
+  const arr = type==='char'?chars:enemies;
+  arr[idx].skills[si] = {...skillObj(arr[idx].skills[si]), detail:val};
+  save();
+}
+function delSkill(type,idx,si){
+  if(type==='char'){chars[idx].skills.splice(si,1);renderChars();}
+  else{enemies[idx].skills.splice(si,1);renderEnemies();}
+  save();
+}
+
+/* ━━━━━━ RENDER CHARS ━━━━━━ */
+function renderChars(){
+  document.getElementById('char-grid').innerHTML = chars.map((c,ci)=>{
+    if(c.hidden) return '';
+    const hpp=Math.round((c.hp/c.hpmax)*100||0), mpp=Math.round((c.mp/c.mpmax)*100||0);
+    const statsHtml = c.stats ? Object.entries(c.stats).map(([k,v])=>`
+      <div class="stat-chip">
+        <span class="stat-key">${k}</span>
+        <span class="stat-num" contenteditable="true"
+          onblur="chars[${ci}].stats['${k}']=parseInt(this.textContent)||0;save()">${v}</span>
+      </div>`).join('') : '';
+    const skillsHtml = buildSkillsHtml(c.skills,'char',ci);
+    const statusHtml = (c.status||[]).map((s,si)=>`
+      <span class="sbadge s-${s.c}" data-ci="${ci}" data-si="${si}" title="クリックで削除">${s.t}</span>`).join('');
+    const avaInner = c.img?`<img src="${c.img}" alt="">`:(c.ava||'👤');
+    return `
+    <div class="card" id="ccard-${ci}">
+      <div class="card-head">
+        <span class="drag-handle" title="ドラッグで並び替え">⠿</span>
+        <div class="ava" id="cava-${ci}" style="width:48px;height:58px;font-size:26px;">${avaInner}<div class="drop-hint">画像変更</div></div>
+        <div class="head-info">
+          <span class="ed-name" contenteditable="true" onblur="chars[${ci}].name=this.textContent.trim();save()">${c.name}</span>
+          <span class="ed-sub" contenteditable="true" onblur="chars[${ci}].cls=this.textContent.trim();save()">${c.cls}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="bar-row">
+          <span class="bar-lbl">HP</span>
+          <div class="bar-bg"><div class="bar-fill" id="chpbar-${ci}" style="width:${hpp}%;background:${hpColor(hpp)};"></div></div>
+          <div class="bar-inputs">
+            <input class="bar-in" type="number" value="${c.hp}" oninput="chars[${ci}].hp=+this.value;updateCharBar(${ci});save()">
+            <span class="bar-sep">/</span>
+            <input class="bar-in" type="number" value="${c.hpmax}" oninput="chars[${ci}].hpmax=+this.value;updateCharBar(${ci});save()">
+          </div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-lbl">MP</span>
+          <div class="bar-bg"><div class="bar-fill" id="cmpbar-${ci}" style="width:${mpp}%;background:var(--blue);"></div></div>
+          <div class="bar-inputs">
+            <input class="bar-in" type="number" value="${c.mp}" oninput="chars[${ci}].mp=+this.value;updateCharBar(${ci});save()">
+            <span class="bar-sep">/</span>
+            <input class="bar-in" type="number" value="${c.mpmax}" oninput="chars[${ci}].mpmax=+this.value;updateCharBar(${ci});save()">
+          </div>
+        </div>
+        ${statsHtml?`<div class="slbl">Ability</div><div class="stats-grid">${statsHtml}</div>`:''}
+        <div class="slbl">Skills</div>
+        <div class="skill-list">${skillsHtml}</div>
+        <span class="skill-add" onclick="addSkill('char',${ci})">+ スキル追加</span>
+        <div class="slbl">Status</div>
+        <div class="status-row">
+          ${statusHtml}
+          <div class="status-wrap">
+            <span class="status-add" onclick="toggleStatusPopup(${ci},event)">＋</span>
+            ${buildStatusPopup(ci)}
+          </div>
+        </div>
+        <div class="slbl">Memo</div>
+        <textarea class="memo-area" rows="2" placeholder="メモ..." data-ci="${ci}" data-field="charmemo">${c.memo||''}</textarea>
+      </div>
+      <div class="card-footer">
+        <button class="cfbtn cfbtn-hide" onclick="toggleHide('char',${ci})">待合室へ</button>
+        <button class="cfbtn cfbtn-del" onclick="if(confirm('削除しますか？')){chars.splice(${ci},1);renderChars();save();}">削除</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  chars.forEach((_,ci)=>{
+    const card = document.getElementById('ccard-'+ci);
+    if(card){
+      initCardDrag(card,'char',ci);
+      const memoEl=card.querySelector('[data-field="charmemo"]');
+      if(memoEl) memoEl.addEventListener('input',()=>{chars[ci].memo=memoEl.value;save();});
+      card.querySelectorAll('.sbadge[data-ci]').forEach(badge=>{
+        badge.addEventListener('click',()=>{
+          const si=+badge.dataset.si;
+          chars[ci].status.splice(si,1);
+          if(!chars[ci].status.length) chars[ci].status=[{t:'正常',c:'ok'}];
+          pushHistory();renderChars();save();
+        });
+      });
+    }
+    const ava = document.getElementById('cava-'+ci);
+    if(ava) setupDrop(ava,src=>{chars[ci].img=src;renderChars();save();});
+  });
+  renderCharWaiting();
+}
+
+function updateCharBar(ci){
+  const c=chars[ci];
+  const hpp=Math.round((c.hp/c.hpmax)*100||0);
+  const mpp=Math.round((c.mp/c.mpmax)*100||0);
+  const hb=document.getElementById('chpbar-'+ci);
+  const mb=document.getElementById('cmpbar-'+ci);
+  if(hb){hb.style.width=hpp+'%';hb.style.background=hpColor(hpp);}
+  if(mb) mb.style.width=mpp+'%';
+}
+
+function renderCharWaiting(){
+  const hidden=chars.map((c,i)=>({...c,_i:i})).filter(c=>c.hidden);
+  const wrap=document.getElementById('char-waiting-wrap');
+  if(!charWaitingVisible){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  const grid=document.getElementById('char-waiting-grid');
+  if(!hidden.length){grid.innerHTML='<div class="waiting-empty">待合室は空です</div>';return;}
+  grid.innerHTML=hidden.map(c=>`
+    <div class="waiting-chip" onclick="toggleHide('char',${c._i})">
+      <div class="wchip-ava">${c.img?`<img src="${c.img}" alt="">`:c.ava||'👤'}</div>
+      <span class="wchip-name">${c.name}</span>
+      <span class="wchip-show">表示 ▶</span>
+    </div>`).join('');
+}
+
+/* ━━━━━━ RENDER ENEMIES ━━━━━━ */
+function renderEnemies(){
+  document.getElementById('enemy-grid').innerHTML = enemies.map((e,ei)=>{
+    if(e.hidden) return '';
+    const hpp=Math.round((e.hp/(e.hpmax||1))*100||0);
+    const mpp=Math.round((e.mp/(e.mpmax||1))*100||0);
+    const avaInner=e.img?`<img src="${e.img}" alt="">`:(e.ava||'👾');
+    const weakHtml=(e.weak||[]).map((w,wi)=>`
+      <span class="wtag weak" title="クリックで削除"
+        onclick="enemies[${ei}].weak.splice(${wi},1);renderEnemies();save()">${w}</span>`).join('');
+    const resistHtml=(e.resist||[]).map((r,ri)=>`
+      <span class="wtag resist" title="クリックで削除"
+        onclick="enemies[${ei}].resist.splice(${ri},1);renderEnemies();save()">${r}</span>`).join('');
+    const skillsHtml = buildSkillsHtml(e.skills,'enemy',ei);
+    const mpBar = `
+      <div class="bar-row">
+        <span class="bar-lbl">MP</span>
+        <div class="bar-bg"><div class="bar-fill" style="width:${mpp}%;background:var(--blue);"></div></div>
+        <div class="bar-inputs">
+          <input class="bar-in" type="number" value="${e.mp||0}" oninput="enemies[${ei}].mp=+this.value;renderEnemies();save()">
+          <span class="bar-sep">/</span>
+          <input class="bar-in" type="number" value="${e.mpmax||0}" oninput="enemies[${ei}].mpmax=+this.value;renderEnemies();save()">
+        </div>
+      </div>`;
+    return `
+    <div class="card" id="ecard-${ei}">
+      <div class="card-head">
+        <span class="drag-handle" title="ドラッグで並び替え">⠿</span>
+        <div class="ava" id="eava-${ei}" style="width:52px;height:62px;font-size:28px;">${avaInner}<div class="drop-hint">画像変更</div></div>
+        <div class="head-info">
+          <span class="ed-name" style="color:var(--red);" contenteditable="true" onblur="enemies[${ei}].name=this.textContent.trim();save()">${e.name}</span>
+          <span class="ed-sub" contenteditable="true" onblur="enemies[${ei}].type=this.textContent.trim();save()">${e.type}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="bar-row">
+          <span class="bar-lbl">HP</span>
+          <div class="bar-bg"><div class="bar-fill" style="width:${hpp}%;background:${hpColor(hpp)};"></div></div>
+          <div class="bar-inputs">
+            <input class="bar-in" type="number" value="${e.hp}" oninput="enemies[${ei}].hp=+this.value;renderEnemies();save()">
+            <span class="bar-sep">/</span>
+            <input class="bar-in" type="number" value="${e.hpmax||e.hp}" oninput="enemies[${ei}].hpmax=+this.value;renderEnemies();save()">
+          </div>
+        </div>
+        ${mpBar}
+        <div class="en-stats">
+          <div class="estat"><span class="estat-lbl">攻撃力</span>
+            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].atk=parseInt(this.textContent)||0;save()">${e.atk}</span></div>
+          <div class="estat"><span class="estat-lbl">防護点</span>
+            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].def=parseInt(this.textContent)||0;save()">${e.def}</span></div>
+          <div class="estat"><span class="estat-lbl">命中</span>
+            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].hit=parseInt(this.textContent)||0;save()">${e.hit||0}</span></div>
+        </div>
+        <div class="en-stats2">
+          <div class="estat"><span class="estat-lbl">回避</span>
+            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].evd=parseInt(this.textContent)||0;save()">${e.evd||0}</span></div>
+          <div class="estat"><span class="estat-lbl">生命抵抗</span>
+            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].lif=parseInt(this.textContent)||0;save()">${e.lif||0}</span></div>
+          <div class="estat"><span class="estat-lbl">精神抵抗</span>
+            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].mnd=parseInt(this.textContent)||0;save()">${e.mnd||0}</span></div>
+          <div class="estat"><span class="estat-lbl">MP</span>
+            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].mpmax=parseInt(this.textContent)||0;enemies[${ei}].mp=enemies[${ei}].mpmax;renderEnemies();save()">${e.mpmax||0}</span></div>
+        </div>
+        <div class="slbl">弱点・耐性</div>
+        <div class="weak-row">
+          ${weakHtml}
+          <span class="tag-add" onclick="openTagModal(${ei},'weak')">＋弱点</span>
+          ${resistHtml}
+          <span class="tag-add" onclick="openTagModal(${ei},'resist')">＋耐性</span>
+        </div>
+        <div class="slbl">スキル</div>
+        <div class="skill-list">${skillsHtml}</div>
+        <span class="skill-add" onclick="addSkill('enemy',${ei})">+ スキル追加</span>
+        <div class="slbl">備考</div>
+        <textarea class="note-area" rows="2" data-ei="${ei}" data-field="enemynote">${e.note||''}</textarea>
+      </div>
+      <div class="card-footer">
+        <button class="cfbtn cfbtn-hide" onclick="toggleHide('enemy',${ei})">待合室へ</button>
+        <button class="cfbtn cfbtn-del" onclick="if(confirm('削除しますか？')){enemies.splice(${ei},1);renderEnemies();save();}">削除</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  enemies.forEach((_,ei)=>{
+    const card=document.getElementById('ecard-'+ei);
+    if(card){
+      initCardDrag(card,'enemy',ei);
+      const noteEl=card.querySelector('[data-field="enemynote"]');
+      if(noteEl) noteEl.addEventListener('input',()=>{enemies[ei].note=noteEl.value;save();});
+    }
+    const ava=document.getElementById('eava-'+ei);
+    if(ava) setupDrop(ava,src=>{enemies[ei].img=src;renderEnemies();save();});
+  });
+  renderEnemyWaiting();
+}
+
+function renderEnemyWaiting(){
+  const hidden=enemies.map((e,i)=>({...e,_i:i})).filter(e=>e.hidden);
+  const wrap=document.getElementById('enemy-waiting-wrap');
+  if(!enemyWaitingVisible){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  const grid=document.getElementById('enemy-waiting-grid');
+  if(!hidden.length){grid.innerHTML='<div class="waiting-empty">待合室は空です</div>';return;}
+  grid.innerHTML=hidden.map(e=>`
+    <div class="waiting-chip" onclick="toggleHide('enemy',${e._i})">
+      <div class="wchip-ava">${e.img?`<img src="${e.img}" alt="">`:e.ava||'👾'}</div>
+      <span class="wchip-name">${e.name}</span>
+      <span class="wchip-show">表示 ▶</span>
+    </div>`).join('');
+}
+
+/* ━━━━━━ HIDE / WAITING ━━━━━━ */
+function toggleHide(type,idx){
+  if(type==='char'){chars[idx].hidden=!chars[idx].hidden;renderChars();save();}
+  else{enemies[idx].hidden=!enemies[idx].hidden;renderEnemies();save();}
+}
+function toggleWaitingRoom(type){
+  if(type==='char'){charWaitingVisible=!charWaitingVisible;renderCharWaiting();}
+  else{enemyWaitingVisible=!enemyWaitingVisible;renderEnemyWaiting();}
+}
+
+/* ━━━━━━ SKILLS / TAGS ━━━━━━ */
+function addSkill(type,idx){
+  const t=prompt('スキルを入力');
+  if(!t||!t.trim()) return;
+  const obj={name:t.trim(),detail:''};
+  if(type==='char'){chars[idx].skills.push(obj);renderChars();save();}
+  else{enemies[idx].skills.push(obj);renderEnemies();save();}
+}
+function openTagModal(idx,kind){
+  pendingTag={idx,kind};
+  document.getElementById('tag-modal-title').textContent=kind==='weak'?'弱点を追加':'耐性を追加';
+  document.getElementById('tag-input').value='';
+  document.getElementById('tag-modal').classList.add('show');
+}
+function submitTag(){
+  const v=document.getElementById('tag-input').value.trim();
+  if(!v||!pendingTag) return;
+  enemies[pendingTag.idx][pendingTag.kind].push(v);
+  renderEnemies();save();
+  closeModal('tag-modal');
+}
+
+/* ━━━━━━ YTSHEET PARSER ━━━━━━ */
+function parseYtsheet(html){
+  const doc=new DOMParser().parseFromString(html,'text/html');
+  const allText=doc.body?doc.body.innerText:'';
+  let name='';
+  const titleEl=doc.querySelector('title');
+  if(titleEl) name=titleEl.textContent.split(' - ')[0].trim();
+  let clsStr='';
+  const meta=doc.querySelector('meta[property="og:description"]')||doc.querySelector('meta[name="description"]');
+  if(meta){const d=meta.getAttribute('content')||'';const m=d.match(/技能:([^\s　]+)/);if(m)clsStr=m[1].replace(/,/g,'／');}
+  const hpM=allText.match(/ＨＰ\s*\*?\*?(\d+)\*?\*?/);
+  const mpM=allText.match(/ＭＰ\s*\*?\*?(\d+)\*?\*?/);
+  const hp=hpM?parseInt(hpM[1]):20, mp=mpM?parseInt(mpM[1]):10;
+  const stats={};
+  [['器用度','器用'],['敏捷度','敏捷'],['筋力','筋力'],['生命力','生命'],['知力','知力'],['精神力','精神']].forEach(([l,s])=>{
+    const m=allText.match(new RegExp(l+'\\s*\\n?\\s*(\\d+)'));if(m)stats[s]=parseInt(m[1]);
+  });
+  const skills=[];
+  for(const m of allText.matchAll(/《([^》]+)》/g)) skills.push(`《${m[1]}》`);
+  for(const m of allText.matchAll(/【([^】]+)】/g)) skills.push(`【${m[1]}】`);
+  return {name:name||'キャラクター',cls:clsStr||'',ava:'⚔️',img:null,memo:'',
+    hp,hpmax:hp,mp,mpmax:mp,stats,
+    skills:skills.length?skills:['（自動取得できませんでした）'],
+    status:[{t:'正常',c:'ok'}],hidden:false};
+}
+
+/* ━━━━━━ CHAR MODAL ━━━━━━ */
+function openCharModal(){
+  document.getElementById('yt-file').value='';
+  document.getElementById('yt-loading').innerHTML='';
+  document.getElementById('char-modal').classList.add('show');
+}
+function switchMTab(btn,tab){
+  currentCMTab=tab;
+  document.querySelectorAll('.modal-tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.msec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('cm-'+tab).classList.add('on');
+  document.getElementById('char-ok').textContent=tab==='ytsheet'?'読み込む':'追加';
+}
+async function submitChar(){
+  if(currentCMTab==='manual'){addManualChar();return;}
+  const file=document.getElementById('yt-file').files[0];
+  if(!file){alert('HTMLファイルを選択してください');return;}
+  const loadEl=document.getElementById('yt-loading');
+  loadEl.innerHTML='<span style="color:var(--text4);">解析中...</span>';
+  try{
+    const data=parseYtsheet(await file.text());
+    chars.push(data);renderChars();save();
+    closeModal('char-modal');loadEl.innerHTML='';
+  }catch(err){
+    loadEl.innerHTML='<span style="color:var(--red);">読み込みに失敗しました。手動入力をお試しください。</span>';
+    console.error(err);
+  }
+}
+function addManualChar(){
+  const name=document.getElementById('m-name').value.trim();
+  if(!name){alert('名前を入力してください');return;}
+  chars.push({name,cls:document.getElementById('m-cls').value||'',ava:'⚔️',img:null,hidden:false,
+    hp:+document.getElementById('m-hp').value||20,hpmax:+document.getElementById('m-hpmax').value||20,
+    mp:+document.getElementById('m-mp').value||10,mpmax:+document.getElementById('m-mpmax').value||10,
+    stats:{},memo:'',status:[{t:'正常',c:'ok'}],
+    skills:document.getElementById('m-skills').value.split('\n').filter(s=>s.trim())});
+  renderChars();save();closeModal('char-modal');
+}
+
+/* ━━━━━━ ENEMY MODAL ━━━━━━ */
+function openEnemyModal(){
+  ['en-name','en-type','en-weak','en-resist','en-skills','en-note'].forEach(id=>document.getElementById(id).value='');
+  ['en-hp','en-atk','en-def'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('enemy-modal').classList.add('show');
+}
+function submitEnemy(){
+  const name=document.getElementById('en-name').value.trim();
+  if(!name){alert('エネミー名を入力してください');return;}
+  const hp=+document.getElementById('en-hp').value||0;
+  enemies.push({name,type:document.getElementById('en-type').value||'',ava:'👾',img:null,hidden:false,
+    hp,hpmax:hp,mp:0,mpmax:0,atk:+document.getElementById('en-atk').value||0,
+    def:+document.getElementById('en-def').value||0,hit:0,evd:0,lif:0,mnd:0,
+    weak:document.getElementById('en-weak').value.split(',').map(s=>s.trim()).filter(Boolean),
+    resist:document.getElementById('en-resist').value.split(',').map(s=>s.trim()).filter(Boolean),
+    skills:document.getElementById('en-skills').value.split('\n').filter(s=>s.trim()),
+    note:document.getElementById('en-note').value});
+  renderEnemies();save();closeModal('enemy-modal');
+}
+
+/* ━━━━━━ MEMO ━━━━━━ */
+function renderMemoBoards(){
+  document.getElementById('memo-boards-wrap').innerHTML=memoBoards.map((board,bi)=>`
+    <div class="memo-board">
+      <div class="memo-board-header">
+        <input class="memo-board-name" value="${board.name.replace(/"/g,'&quot;')}"
+          data-bi="${bi}" data-field="boardname" placeholder="ボード名">
+        <div class="memo-board-actions">
+          <button class="btn btn-sm" onclick="addMemoCard(${bi})">＋ メモ追加</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteMemoBoard(${bi})">ボード削除</button>
+        </div>
+      </div>
+      <div class="memo-cards">
+        ${board.cards.map((card,ci)=>`
+          <div class="memo-card">
+            <button class="mcard-del" onclick="memoBoards[${bi}].cards.splice(${ci},1);renderMemoBoards();save()">✕</button>
+            <input class="memo-card-title" value="${card.title.replace(/"/g,'&quot;')}"
+              data-bi="${bi}" data-ci="${ci}" data-field="title" placeholder="タイトル">
+            <textarea class="memo-card-body" rows="6"
+              data-bi="${bi}" data-ci="${ci}" data-field="body"
+              placeholder="メモを入力...">${card.body}</textarea>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  // イベントリスナーで入力を拾う
+  document.getElementById('memo-boards-wrap').querySelectorAll('[data-field]').forEach(el=>{
+    el.addEventListener('input', ()=>{
+      const bi=+el.dataset.bi, ci=+el.dataset.ci, field=el.dataset.field;
+      if(field==='boardname') memoBoards[bi].name=el.value;
+      else if(field==='title') memoBoards[bi].cards[ci].title=el.value;
+      else if(field==='body')  memoBoards[bi].cards[ci].body=el.value;
+      save();
+    });
+  });
+}
+function addMemoBoard(){memoBoards.push({name:'新規ボード',cards:[{title:'メモ1',body:''}]});renderMemoBoards();save();}
+function addMemoCard(bi){memoBoards[bi].cards.push({title:'新規メモ',body:''});renderMemoBoards();save();}
+function deleteMemoBoard(bi){
+  if(memoBoards.length<=1){alert('最後のボードは削除できません');return;}
+  if(!confirm('このボードを削除しますか？'))return;
+  memoBoards.splice(bi,1);renderMemoBoards();save();
+}
+
+/* ━━━━━━ SAVE / LOAD (Firebase + localStorage fallback) ━━━━━━ */
+const SAVE_KEY='trpg_session_board_v1';
+let saveTimer=null;
+let fbDb=null; // Firebase database reference
+let isSyncing=false;
+
+function getPayload(){
+  const imgMap={};
+  const charsNoImg=chars.map((c,i)=>{if(c.img)imgMap['c'+i]=c.img;return{...c,img:null};});
+  const enemiesNoImg=enemies.map((e,i)=>{if(e.img)imgMap['e'+i]=e.img;return{...e,img:null};});
+  return {chars:charsNoImg,enemies:enemiesNoImg,memoBoards,statusTemplates,imgMap};
+}
+
+function applyPayload(data){
+  const imgMap=data.imgMap||{};
+  chars=(data.chars||[]).map((c,i)=>({...c,img:imgMap['c'+i]||null}));
+  enemies=(data.enemies||[]).map((e,i)=>({...e,img:imgMap['e'+i]||null,hpmax:e.hpmax||e.hp,hit:e.hit||0,evd:e.evd||0,lif:e.lif||0,mnd:e.mnd||0,mp:e.mp||0,mpmax:e.mpmax||0}));
+  memoBoards=data.memoBoards||memoBoards;
+  if(data.statusTemplates) statusTemplates=data.statusTemplates;
+}
+
+function setIndicator(msg, cls){
+  const ind=document.getElementById('save-indicator');
+  ind.textContent=msg; ind.className='save-indicator'+(cls?' '+cls:'');
+}
+
+function save(){
+  setIndicator('保存中...','saving');
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    try{
+      const payload=getPayload();
+      // localStorage (常に保存)
+      localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+      // Firebase
+      if(fbDb){
+        await fbDb.ref('sessionboard').set(payload);
+      }
+      setIndicator('✓ 保存済み','saved');
+      setTimeout(()=>setIndicator(''),2500);
+    }catch(e){
+      setIndicator('保存失敗','');
+      console.error(e);
+    }
+  },600);
+}
+
+function loadSave(){
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(!raw) return false;
+    applyPayload(JSON.parse(raw));
+    return true;
+  }catch(e){console.error('Load failed:',e);return false;}
+}
+
+function clearAllData(){
+  if(!confirm('全データをリセットしますか？\nこの操作は元に戻せません。'))return;
+  localStorage.removeItem(SAVE_KEY);
+  if(fbDb) fbDb.ref('sessionboard').remove();
+  location.reload();
+}
+
+/* ━━━━━━ FIREBASE INIT ━━━━━━ */
+async function initFirebase(){
+  try{
+    setIndicator('接続中...','saving');
+    // Firebase SDKをダイナミックにロード
+    const {initializeApp} = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const {getDatabase, ref, set, onValue, get} = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
+
+    const firebaseConfig={
+      apiKey:"AIzaSyBiETeAAq6kLoKcMSVnjUPOGJ00qYDPNFM",
+      authDomain:"trpg-session-board.firebaseapp.com",
+      databaseURL:"https://trpg-session-board-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId:"trpg-session-board",
+      storageBucket:"trpg-session-board.firebasestorage.app",
+      messagingSenderId:"728363287201",
+      appId:"1:728363287201:web:2c7da1addd73a97f81e6e0"
+    };
+
+    const app=initializeApp(firebaseConfig);
+    const db=getDatabase(app);
+
+    // まずFirebaseの最新データを取得してローカルに適用
+    const snapshot=await get(ref(db,'sessionboard'));
+    if(snapshot.exists()){
+      applyPayload(snapshot.val());
+      localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot.val()));
+      renderChars(); renderEnemies(); renderMemoBoards();
+    }
+
+    // リアルタイム監視：他のデバイスの変更を受け取る
+    onValue(ref(db,'sessionboard'), (snap)=>{
+      if(isSyncing) return; // 自分の書き込みは無視
+      if(!snap.exists()) return;
+      const data=snap.val();
+      applyPayload(data);
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+      renderChars(); renderEnemies(); renderMemoBoards();
+      setIndicator('↓ 同期済み','saved');
+      setTimeout(()=>setIndicator(''),2000);
+    });
+
+    // save()からFirebaseに書き込めるようにdbを保持
+    fbDb={
+      ref:(path)=>({
+        set: async(val)=>{
+          isSyncing=true;
+          await set(ref(db,path),val);
+          setTimeout(()=>isSyncing=false,1000);
+        },
+        remove: ()=>set(ref(db,'sessionboard'),null)
+      })
+    };
+
+    setIndicator('✓ Firebase接続済み','saved');
+    setTimeout(()=>setIndicator(''),3000);
+
+  }catch(e){
+    console.error('Firebase init failed:',e);
+    setIndicator('⚠ オフライン（ローカル保存）','');
+    setTimeout(()=>setIndicator(''),4000);
+  }
+}
+
+/* ━━━━━━ PAGE / MODAL ━━━━━━ */
+function showPage(id,btn){
+  ['main','memos'].forEach(p=>document.getElementById('page-'+p).classList.toggle('on',p===id));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('show');});
+});
+
+/* ━━━━━━ INIT ━━━━━━ */
+loadSave();
+renderChars();
+renderEnemies();
+renderMemoBoards();
+pushHistory(); // 初期状態をアンドゥ履歴に積む
+updateUndoUI();
+initFirebase();
+
+// onclickから呼べるようにwindowに公開
+Object.assign(window,{
+  // 関数
+  showPage,closeModal,openCharModal,openEnemyModal,submitChar,submitEnemy,
+  switchMTab,addManualChar,addSkill,delSkill,setSkillName,setSkillDetail,
+  toggleSkill,toggleHide,toggleWaitingRoom,
+  openTagModal,submitTag,
+  toggleStatusPopup,applyStatus,applyCustomStatus,deleteTemplate,rerenderColorOpts,
+  addMemoBoard,addMemoCard,deleteMemoBoard,renderMemoBoards,
+  clearAllData,save,undo,redo,pushHistory,
+  // データ変数（oninputから直接アクセスするため）
+  get chars(){return chars;},
+  get enemies(){return enemies;},
+  get memoBoards(){return memoBoards;},
+  get statusTemplates(){return statusTemplates;},
+  get customColorSel(){return customColorSel;},
+});
+</script>
+</body>
+</html>
