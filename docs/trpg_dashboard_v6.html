@@ -1560,9 +1560,10 @@ async function initFirebase(){
 
 /* ━━━━━━ PAGE / MODAL ━━━━━━ */
 function showPage(id,btn){
-  ['main','memos'].forEach(p=>document.getElementById('page-'+p).classList.toggle('on',p===id));
+  ['main','memos','cooking'].forEach(p=>document.getElementById('page-'+p).classList.toggle('on',p===id));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
+  if(id==='cooking') renderCookingPage();
 }
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 document.querySelectorAll('.modal-bg').forEach(bg=>{
@@ -1574,7 +1575,8 @@ loadSave();
 renderChars();
 renderEnemies();
 renderMemoBoards();
-pushHistory(); // 初期状態をアンドゥ履歴に積む
+renderCookingPage();
+pushHistory();
 updateUndoUI();
 initFirebase();
 
@@ -1588,6 +1590,7 @@ Object.assign(window,{
   toggleStatusPopup,applyStatus,applyCustomStatus,deleteTemplate,rerenderColorOpts,
   addMemoBoard,addMemoCard,deleteMemoBoard,renderMemoBoards,
   clearAllData,save,undo,redo,pushHistory,
+  renderCookingPage,toggleIng,toggleChef,addIngredient,startCooking,
   // データ変数（oninputから直接アクセスするため）
   get chars(){return chars;},
   get enemies(){return enemies;},
