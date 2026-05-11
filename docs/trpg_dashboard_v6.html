@@ -1568,14 +1568,22 @@ ${baseInstruction}
         })
       });
       const data=await resp.json();
-      const dishName=data.content?.[0]?.text?.trim()||'謎の一品';
+      let dishName=data.content?.[0]?.text?.trim()||'';
+      // APIがbaseTypeを無視した場合は末尾に追記
+      if(baseType && dishName && !dishName.includes(baseType)){
+        dishName = dishName.replace(/の一品|一品$/,'') + 'の' + baseType;
+      }
+      if(!dishName) dishName = buildFallbackDishName(ings, baseType);
       const genEl=log.querySelector('.generating');
       if(genEl) genEl.remove();
       logLine(`🍽 ${dishName}`,'dish-name');
     }catch(e){
+      console.error('料理名API失敗:', e);
       const genEl=log.querySelector('.generating');
       if(genEl) genEl.remove();
-      logLine(`🍽 ${ings.map(i=>i.name).join('と')}の一品`,'dish-name');
+      // APIが失敗してもベース素材は反映する
+      const fallbackName = buildFallbackDishName(ings, baseType);
+      logLine(`🍽 ${fallbackName}`,'dish-name');
     }
   } else {
     await logWait(300);
@@ -1586,6 +1594,15 @@ ${baseInstruction}
   }
 
   document.getElementById('cook-start-btn').disabled=false;
+}
+
+/* フォールバック料理名（API失敗時・ベース素材考慮） */
+function buildFallbackDishName(ings, baseType){
+  const noBase = ['魔物の肉','サハギン肉','山羊乳','トマト','野草','りんご','妖精ベリー'];
+  const subIngs = ings.filter(i=>!noBase.some(n=>i.name===n||i.name.includes(n)));
+  const mainIng = subIngs.length ? subIngs[0].name : ings[0].name;
+  const cookType = baseType || ['鍋','串焼き','シチュー','カレー','丼'][Math.floor(Math.random()*5)];
+  return `${mainIng}の${cookType}`;
 }
 
 /* ベース素材判定 → 料理種別を返す */
