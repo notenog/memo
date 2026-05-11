@@ -110,6 +110,9 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
     <input type="text" id="searchInput" placeholder="名前・カテゴリで検索...">
   </div>
   <button class="add-btn" onclick="openAddForm()">＋ オリジナル追加</button>
+  <button class="add-btn" onclick="exportJSON()" style="border-color:#4a8a6a;color:#7acca8;">⬇ エクスポート</button>
+  <button class="add-btn" onclick="document.getElementById('importInput').click()" style="border-color:#4a6a8a;color:#7aa8cc;">⬆ インポート</button>
+  <input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(event)">
 </header>
 
 <div class="filter-bar">
@@ -572,6 +575,54 @@ function saveOriginal() {
    'f_weakness','f_know','f_knowval','f_attacks','f_abilities','f_loot','f_tags']
     .forEach(id => document.getElementById(id).value = '');
   renderGrid();
+}
+
+// ── JSON エクスポート ──
+function exportJSON() {
+  const originals = monsters.filter(m => m.isOriginal);
+  if (!originals.length) {
+    alert('エクスポートするオリジナルモンスターがまだいません。');
+    return;
+  }
+  const json = JSON.stringify(originals, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `monster_originals_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── JSON インポート ──
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) throw new Error('配列ではありません');
+      let added = 0, skipped = 0;
+      data.forEach(m => {
+        if (!m.name) { skipped++; return; }
+        // 同名が既に存在する場合はスキップ
+        if (monsters.some(existing => existing.name === m.name && existing.isOriginal)) {
+          skipped++;
+          return;
+        }
+        m.isOriginal = true;
+        monsters.push(m);
+        added++;
+      });
+      renderGrid();
+      alert(`インポート完了：${added}体追加、${skipped}体スキップ（同名重複）`);
+    } catch (err) {
+      alert('JSONの読み込みに失敗しました。\n' + err.message);
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file, 'utf-8');
 }
 </script>
 </body>
