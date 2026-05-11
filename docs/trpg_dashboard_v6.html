@@ -1445,11 +1445,9 @@ async function startCooking(){
   const ings = selIngredients.map(i=>ingredients[i]);
   const chefs = selChefs.map(ci=>chars[ci]);
 
-  // シャッフルしてマッチング
   const shuffledIngs = [...ings].sort(()=>Math.random()-.5);
   const shuffledChefs = [...chefs].sort(()=>Math.random()-.5);
 
-  // ステージ表示
   const stage = document.getElementById('cook-stage');
   stage.style.display='flex';
   document.getElementById('cook-dice-area').innerHTML='';
@@ -1465,16 +1463,13 @@ async function startCooking(){
     const chef=shuffledChefs[i];
     const ing=shuffledIngs[i];
 
-    // アクティブキャラ更新
     renderStage(shuffledChefs, i);
     await logWait(300);
 
-    // ボーナス計算
     const dex=+(chef.stats?.['器用']||chef.stats?.['器用度']||0);
     const int_=+(chef.stats?.['知力']||0);
     const bonus=Math.floor(dex/5)+Math.floor(int_/5);
 
-    // ロール
     const chefRoll=rollDetail();
     const ingRoll=rollDetail();
     const chefScore=bonus+chefRoll.total;
@@ -1487,49 +1482,48 @@ async function startCooking(){
 
     const success=chefScore>=ingScore;
 
-    // ログ
     logLine(cookingActionText(chef.name, ing.name));
-
-    // ぴょこぴょこ開始
     bounceChar(i);
     await logWait(300);
 
-    // ダイスアニメ
+    // ダイスアニメ（キャラ側）
     await animateDice(chefRoll, success);
     await logWait(200);
 
+    // キャラ側・食材側のダイス結果を両方表示
+    const charDiceStr = `🎲2d6…(${chefRoll.d1},${chefRoll.d2}) = ${chefRoll.total}`;
+    const ingDiceStr  = `🎲2d6…(${ingRoll.d1},${ingRoll.d2}) = ${ingRoll.total}`;
+    logLine(`${chef.name}: ${charDiceStr}`, 'dice-summary');
+    logLine(`${ing.name}: ${ingDiceStr}`, 'dice-summary');
+
+    // 結果テキスト
     logLine(`${chef.name}は${cookingResultText(success)}`);
-    const diceInfo = success ? `  ✓ (${chefRoll.d1},${chefRoll.d2})` : `  ✗ (${chefRoll.d1},${chefRoll.d2})`;
-    logLine(diceInfo, success?'dice-ok':'dice-ng');
+    logLine(success ? '  ✓ 成功' : '  ✗ 失敗', success?'dice-ok':'dice-ng');
     await logWait(700);
 
     if(i<2){logLine('');await logWait(300);}
   }
 
-  // 最終判定
+  // 調理結果
   await logWait(400);
-  // 全員アクティブ表示
   renderStage(shuffledChefs, 99);
   document.getElementById('cook-dice-area').innerHTML='';
   logLine('');
-  logLine('── 最終判定 ──','separator');
+  logLine('── 調理結果 ──','separator');
   await logWait(500);
 
   const charWins = charTotal>=ingTotal;
   const hasDouble12 = chefRolls.some(r=>r.d1===6&&r.d2===6);
   const hasDouble1  = chefRolls.some(r=>r.d1===1&&r.d2===1);
 
-  const dicesSummary = shuffledChefs.map((chef,i)=>{
+  const dicesSummary = shuffledChefs.map((c,i)=>{
     const r=chefRolls[i];
-    return `${chef.name}(${r.d1},${r.d2})`;
+    return `${c.name}(${r.d1},${r.d2})`;
   }).join('　');
   logLine(dicesSummary,'dice-summary');
   await logWait(500);
 
-  // 全員ぴょこぴょこ or シェイク
-  if(charWins){
-    [0,1,2].forEach(i=>{ setTimeout(()=>bounceChar(i), i*120); });
-  }
+  if(charWins) [0,1,2].forEach(i=>setTimeout(()=>bounceChar(i), i*120));
 
   await logWait(400);
 
@@ -1551,26 +1545,30 @@ async function startCooking(){
   // 料理名生成（成功のみ）
   if(charWins){
     logLine('料理名を考えています…','generating');
-    const ingNames=ings.map(i=>i.name).join('・');
-    const isGreat=hasDouble12;
+    const ingNames = ings.map(i=>i.name).join('・');
+    const baseType = getBaseType(ings);
+    const isGreat = hasDouble12;
     try{
+      const baseInstruction = baseType
+        ? `この料理のベース調理法は「${baseType}」です。料理名に必ず「${baseType}」という単語を含めてください。`
+        : `ベース素材がないため、カレー・串焼き・鍋・シチュー・丼・キッシュ・パイなどの中からランダムに選んでファンタジーっぽい名前をつけてください。`;
       const resp=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
           model:'claude-sonnet-4-20250514',
-          max_tokens:120,
+          max_tokens:80,
           system:`あなたはファンタジーTRPGの料理名ジェネレーターです。
-使用した素材を元に、ファンタジーらしい料理名を1つだけ考えてください。
-料理名のみを返してください。説明文・句読点・括弧は不要です。
-素材名をそのまま使わず、料理っぽく変換してください。
+料理名を1つだけ返してください。説明文・句読点・括弧は不要です。
+素材名をそのまま使わず料理っぽく変換してください。
+${baseInstruction}
 大成功の場合は特に豪華で印象的な名前にしてください。
-例：「龍草と野菜の黄金煮込み」「魔森の恵みスープ」「聖炎の祝宴ロースト」`,
-          messages:[{role:'user',content:`使用素材：${ingNames}\n結果：${isGreat?'大成功':'成功'}\nこの料理のファンタジーっぽい名前を1つ考えてください。`}]
+記載例：「魔物肉と魔香草の唐揚げ」「龍草のスープ」「妖精ベリーのパイ」`,
+          messages:[{role:'user',content:`使用素材：${ingNames}\n結果：${isGreat?'大成功':'成功'}`}]
         })
       });
       const data=await resp.json();
-      const dishName=data.content?.[0]?.text?.trim()||'謎の料理';
+      const dishName=data.content?.[0]?.text?.trim()||'謎の一品';
       const genEl=log.querySelector('.generating');
       if(genEl) genEl.remove();
       logLine(`🍽 ${dishName}`,'dish-name');
@@ -1590,7 +1588,63 @@ async function startCooking(){
   document.getElementById('cook-start-btn').disabled=false;
 }
 
-// 調理中テキスト生成（素材の種類に合わせて変える）
+/* ベース素材判定 → 料理種別を返す */
+function getBaseType(ings){
+  // ベース素材マップ（複数ある場合はランダム選択）
+  const baseMap = [
+    {names:['魔物の肉','魔物肉'],  types:['唐揚げ']},
+    {names:['サハギン肉'],         types:['煮つけ']},
+    {names:['山羊乳'],             types:['スープ']},
+    {names:['トマト'],             types:['スープ','サラダ']},
+    {names:['野草'],               types:['サラダ']},
+  ];
+  const candidates=[];
+  for(const ing of ings){
+    for(const bm of baseMap){
+      if(bm.names.some(n=>ing.name===n||ing.name.includes(n))){
+        // この素材に対応するtypeをランダムに1つ選んでcandidatesに追加
+        candidates.push(bm.types[Math.floor(Math.random()*bm.types.length)]);
+        break;
+      }
+    }
+  }
+  if(!candidates.length) return null;
+  return candidates[Math.floor(Math.random()*candidates.length)];
+}
+
+// 調理結果テキスト（バリエーション豊富に）
+function cookingResultText(success){
+  const ok=[
+    'うまくいったようだ！',
+    '手際が光っている',
+    'なかなかいい仕上がりだ',
+    '自信ありげな様子だ',
+    'いい感じに仕上がってきた',
+    'リズムよく作業を進めている',
+    '鮮やかな手さばきだ',
+    '集中して取り組んでいる',
+    '落ち着いた様子で仕上げている',
+    '余裕すら感じさせる',
+    '見事な手腕だ',
+    '息もつかせぬ速さだ',
+  ];
+  const ng=[
+    '苦戦している…',
+    '少し焦がしてしまったようだ',
+    '難しそうな顔をしている',
+    'うまくいかなかったようだ…',
+    '手元が狂ってしまったらしい',
+    'なかなか思うようにいかない',
+    '汗だくになっている',
+    '手つきがぎこちない',
+    '首をかしげながら作業している',
+    '鍋の中身を不安そうに見つめている',
+    '火加減に手こずっているようだ',
+    '素材が言うことを聞かないようだ',
+  ];
+  const arr=success?ok:ng;
+  return arr[Math.floor(Math.random()*arr.length)];
+}
 function cookingActionText(charName, ingName){
   const name = ingName;
   // 素材カテゴリ判定
@@ -1661,24 +1715,6 @@ function cookingActionText(charName, ingName){
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
-function cookingResultText(success){
-  const ok=[
-    'うまくいったようだ！',
-    '手際が光っている…',
-    'なかなかいい仕上がりだ',
-    '自信ありげな様子だ',
-    'いい感じに仕上がってきた',
-  ];
-  const ng=[
-    '苦戦している…',
-    '少し焦がしてしまったようだ',
-    '難しそうな顔をしている',
-    'うまくいかなかったようだ…',
-    '手元が狂ってしまったらしい',
-  ];
-  const arr=success?ok:ng;
-  return arr[Math.floor(Math.random()*arr.length)];
-}
 
 
 /* ━━━━━━ SAVE / LOAD (Firebase + localStorage fallback) ━━━━━━ */
