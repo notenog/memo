@@ -38,7 +38,8 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
 .fbtn:hover { border-color: var(--gold); color: var(--gold); }
 .fbtn.active { background: var(--accent); color: var(--gold2); border-color: var(--gold); }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 10px; padding: 16px 20px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; padding: 20px 48px; }
+@media (max-width: 600px) { .grid { padding: 12px 16px; } }
 .no-results { grid-column: 1/-1; text-align: center; padding: 48px; color: var(--text3); font-size: 14px; }
 
 .card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); cursor: pointer; overflow: hidden; transition: border-color 0.15s, transform 0.1s; }
@@ -76,6 +77,27 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
 .copy-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .copied-msg { font-size: 12px; color: #72c472; opacity: 0; transition: opacity 0.3s; }
 .copied-msg.show { opacity: 1; }
+.add-btn { font-family: 'Noto Sans JP', sans-serif; font-size: 12px; padding: 5px 14px; border-radius: var(--radius-sm); border: 0.5px solid var(--gold); background: transparent; color: var(--gold2); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+.add-btn:hover { background: var(--accent); }
+.add-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 40; align-items: center; justify-content: center; padding: 16px; }
+.add-overlay.open { display: flex; }
+.add-panel { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius); width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; scrollbar-width: thin; }
+.add-head { padding: 14px 18px 12px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 10px; position: sticky; top: 0; background: var(--bg2); z-index: 1; }
+.add-title { font-size: 15px; font-weight: 500; color: var(--gold2); margin-right: auto; }
+.add-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.frow3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.fgroup { display: flex; flex-direction: column; gap: 4px; }
+.fgroup label { font-size: 11px; color: var(--text2); }
+.fgroup input, .fgroup select, .fgroup textarea { background: var(--bg3); border: 0.5px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: 'Noto Sans JP', sans-serif; padding: 6px 10px; outline: none; width: 100%; transition: border-color 0.15s; }
+.fgroup input:focus, .fgroup select:focus, .fgroup textarea:focus { border-color: var(--gold); }
+.fgroup select option { background: var(--bg3); }
+.fgroup textarea { resize: vertical; min-height: 70px; line-height: 1.6; }
+.fsep { font-size: 11px; color: var(--text3); border-bottom: 0.5px solid var(--border); padding-bottom: 4px; margin-top: 4px; }
+.add-foot { padding: 12px 18px; border-top: 0.5px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+.btn-save { font-family: 'Noto Sans JP', sans-serif; font-size: 13px; padding: 6px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--gold); background: var(--accent); color: var(--gold2); cursor: pointer; }
+.btn-cancel { font-family: 'Noto Sans JP', sans-serif; font-size: 13px; padding: 6px 16px; border-radius: var(--radius-sm); border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; }
+.badge-orig { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 8px; background: #2a2010; color: var(--gold); border: 0.5px solid var(--gold); margin-left: 4px; vertical-align: middle; }
 </style>
 </head>
 <body>
@@ -87,6 +109,7 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input type="text" id="searchInput" placeholder="名前・カテゴリで検索...">
   </div>
+  <button class="add-btn" onclick="openAddForm()">＋ オリジナル追加</button>
 </header>
 
 <div class="filter-bar">
@@ -123,6 +146,68 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
         このデータをコピー
       </button>
       <span class="copied-msg" id="copiedMsg">コピーしました！</span>
+    </div>
+  </div>
+</div>
+
+<!-- オリジナル追加フォーム -->
+<div class="add-overlay" id="addOverlay">
+  <div class="add-panel">
+    <div class="add-head">
+      <span class="add-title">✨ オリジナルモンスターを追加</span>
+      <button class="close-btn" onclick="closeAddForm()">✕</button>
+    </div>
+    <div class="add-body">
+      <div class="frow">
+        <div class="fgroup"><label>種族名 *</label><input id="f_name" placeholder="例：ダークゴブリン"></div>
+        <div class="fgroup"><label>魔物Lv *</label><input id="f_rank" type="number" min="1" max="15" placeholder="例：3"></div>
+      </div>
+      <div class="frow">
+        <div class="fgroup"><label>カテゴリ</label>
+          <select id="f_cat">
+            <option>蛮族</option><option>動物</option><option>植物</option>
+            <option>アンデッド</option><option>魔法生物</option><option>魔動機</option>
+            <option>幻獣</option><option>魔神</option><option>人族</option><option>オリジナル</option>
+          </select>
+        </div>
+        <div class="fgroup"><label>生息地</label><input id="f_habitat" placeholder="例：森・洞窟"></div>
+      </div>
+      <div class="fsep">基本ステータス</div>
+      <div class="frow3">
+        <div class="fgroup"><label>HP</label><input id="f_hp" type="number" placeholder="20"></div>
+        <div class="fgroup"><label>MP</label><input id="f_mp" placeholder="10"></div>
+        <div class="fgroup"><label>先制値</label><input id="f_init" type="number" placeholder="10"></div>
+      </div>
+      <div class="frow3">
+        <div class="fgroup"><label>移動速度</label><input id="f_move" placeholder="12/―"></div>
+        <div class="fgroup"><label>生命抵抗力</label><input id="f_vit" placeholder="4(11)"></div>
+        <div class="fgroup"><label>精神抵抗力</label><input id="f_mres" placeholder="4(11)"></div>
+      </div>
+      <div class="frow">
+        <div class="fgroup"><label>知名度</label><input id="f_know" placeholder="8"></div>
+        <div class="fgroup"><label>弱点値</label><input id="f_knowval" placeholder="12"></div>
+      </div>
+      <div class="fgroup"><label>弱点</label><input id="f_weakness" placeholder="例：炎属性ダメージ+3点"></div>
+      <div class="fsep">攻撃（1行1攻撃、カンマ区切り：部位,命中力,打撃点,回避力,防護点）</div>
+      <div class="fgroup"><label>攻撃データ</label>
+        <textarea id="f_attacks" placeholder="武器,5(12),2d+4,4(11),3
+爪,4(11),2d+2,4(11),2"></textarea>
+      </div>
+      <div class="fsep">特殊能力（1行1能力、「能力名 — 説明」形式）</div>
+      <div class="fgroup"><label>特殊能力</label>
+        <textarea id="f_abilities" placeholder="痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに+4点する。
+なし"></textarea>
+      </div>
+      <div class="fsep">戦利品（1行1アイテム）</div>
+      <div class="fgroup"><label>戦利品</label>
+        <textarea id="f_loot" placeholder="2〜6：なし
+7〜：黒曜石の欠片(80G/黒B)"></textarea>
+      </div>
+      <div class="fgroup"><label>タグ（カンマ区切り）</label><input id="f_tags" placeholder="例：飛行,魔法,痛恨"></div>
+    </div>
+    <div class="add-foot">
+      <button class="btn-cancel" onclick="closeAddForm()">キャンセル</button>
+      <button class="btn-save" onclick="saveOriginal()">追加する</button>
     </div>
   </div>
 </div>
@@ -207,13 +292,36 @@ const monsters = [
   { cat:"蛮族", name:"ローレライ", rank:4, habitat:"河川", hp:26, mp:18, init:13, move:"14/14(水中)", vit:"4(11)", mres:"6(13)", weakness:"物理ダメージ+2点", know:"―", knowval:"―", attacks:[{part:"武器",hit:"4(11)",dmg:"2d+2",evd:"4(11)",def:"2"}], abilities:["水中適性","基本呪歌1レベル／7(14)／全エリア（半径40m）","ラブソング — 旋律【ラブソング】(⇒221頁)を使用します。この能力は敵対する障害に発生が存在し、かつ、直前の手番に「基本呪歌」を使用していたときにのみ使用できます。","後継：春の猫瞰／7(14)／精神抵抗力／半減 — 「射程：2(40m)」で【後継：春の猫瞰】を使用して、対象1体に「2d+4」点の風属性の魔法ダメージを与えます。この能力は、直前の手番に「基本呪歌」または「後継呪歌【ラブソング】」を使用していたときにのみ使用できます。"], loot:["2〜5：なし","6〜8：木綿の羽衣(100G/白A)","9〜12：美しい羽衣(300G/白A)","13〜：光り輝く羽衣(1000G/白S)"], tags:"人族,水中,魔法" },
 ];
 
+function formatAbility(raw) {
+  // "名前 — 説明文" を【名前】\n説明文 の形に変換
+  const sep = raw.indexOf(' — ');
+  if (sep === -1) {
+    // セパレータなし → そのままブロックタイトルとして
+    return `【${raw}】`;
+  }
+  const title = raw.slice(0, sep).trim();
+  const desc  = raw.slice(sep + 3).trim();
+  // 説明文を約30文字で折り返す
+  const words = desc.split('');
+  let line = '', lines = [];
+  for (const ch of words) {
+    line += ch;
+    if (line.length >= 30 && '。、．，！？」』）]】'.includes(ch)) {
+      lines.push(line); line = '';
+    }
+  }
+  if (line) lines.push(line);
+  return `【${title}】\n${lines.join('\n')}`;
+}
+
 function formatMonster(m) {
   const atkLines = m.attacks.map(a =>
     `${a.part}｜命中力 ${a.hit}　打撃点 ${a.dmg}　回避力 ${a.evd}　防護点 ${a.def}`
   ).join('\n');
-  const abilityLines = m.abilities.length ? m.abilities.map(a => `・${a}`).join('\n') : '・なし';
+  const abilityLines = m.abilities.length
+    ? m.abilities.map(formatAbility).join('\n')
+    : '【なし】';
   const lootLines = m.loot.length ? m.loot.map(l => `　${l}`).join('\n') : '　なし';
-  const rankStr = String(m.rank);
   return `💠種族：${m.name}　　　🦋魔物Lv：${m.rank}　　🏷️参照：
 📖知名度／弱点値：${m.know}／${m.knowval}　　🌀弱点：${m.weakness}
 ⚜️先制値：${m.init}　　　　　　　　👟移動速度：${m.move}
@@ -253,7 +361,7 @@ function renderGrid() {
       <div class="card-head">
         <div class="rbadge r${String(m.rank).replace('〜','').charAt(0)}">${m.rank}</div>
         <div>
-          <div class="card-name">${m.name}</div>
+          <div class="card-name">${m.name}${m.isOriginal ? '<span class="badge-orig">オリジナル</span>' : ''}</div>
           <div class="card-cat">${m.cat}</div>
           <div class="card-sub">${m.habitat}　HP ${m.hp} / MP ${m.mp}</div>
         </div>
@@ -311,6 +419,61 @@ document.getElementById('searchInput').addEventListener('input', e => {
 });
 
 renderGrid();
+
+// ── オリジナル追加フォーム ──
+function openAddForm() {
+  document.getElementById('addOverlay').classList.add('open');
+}
+function closeAddForm() {
+  document.getElementById('addOverlay').classList.remove('open');
+}
+
+function saveOriginal() {
+  const name = document.getElementById('f_name').value.trim();
+  const rank = parseInt(document.getElementById('f_rank').value) || 1;
+  if (!name) { alert('種族名を入力してください。'); return; }
+
+  // 攻撃パース（部位,命中力,打撃点,回避力,防護点）
+  const atkRaw = document.getElementById('f_attacks').value.trim();
+  const attacks = atkRaw ? atkRaw.split('\n').map(line => {
+    const p = line.split(',').map(s => s.trim());
+    return { part: p[0]||'武器', hit: p[1]||'―', dmg: p[2]||'―', evd: p[3]||'―', def: p[4]||'―' };
+  }) : [{part:'武器', hit:'―', dmg:'―', evd:'―', def:'―'}];
+
+  // 特殊能力パース
+  const abRaw = document.getElementById('f_abilities').value.trim();
+  const abilities = abRaw ? abRaw.split('\n').map(s => s.trim()).filter(Boolean) : ['なし'];
+
+  // 戦利品パース
+  const lootRaw = document.getElementById('f_loot').value.trim();
+  const loot = lootRaw ? lootRaw.split('\n').map(s => s.trim()).filter(Boolean) : [];
+
+  const m = {
+    cat:      document.getElementById('f_cat').value,
+    name,
+    rank,
+    habitat:  document.getElementById('f_habitat').value.trim() || '―',
+    hp:       parseInt(document.getElementById('f_hp').value) || 0,
+    mp:       document.getElementById('f_mp').value.trim() || '―',
+    init:     parseInt(document.getElementById('f_init').value) || 0,
+    move:     document.getElementById('f_move').value.trim() || '―',
+    vit:      document.getElementById('f_vit').value.trim() || '―',
+    mres:     document.getElementById('f_mres').value.trim() || '―',
+    weakness: document.getElementById('f_weakness').value.trim() || '―',
+    know:     document.getElementById('f_know').value.trim() || '―',
+    knowval:  document.getElementById('f_knowval').value.trim() || '―',
+    attacks, abilities, loot,
+    tags:     (document.getElementById('f_tags').value.trim() || '') + ',オリジナル',
+    isOriginal: true,
+  };
+  monsters.push(m);
+  closeAddForm();
+  // フォームをリセット
+  ['f_name','f_rank','f_habitat','f_hp','f_mp','f_init','f_move','f_vit','f_mres',
+   'f_weakness','f_know','f_knowval','f_attacks','f_abilities','f_loot','f_tags']
+    .forEach(id => document.getElementById(id).value = '');
+  renderGrid();
+}
 </script>
 </body>
 </html>
