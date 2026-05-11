@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>モンスター図鑑</title>
+<title>魔物データ図鑑</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -103,13 +103,13 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
 <body>
 
 <header class="site-header">
-  <span class="site-title">📖 モンスター図鑑</span>
+  <span class="site-title">📖 魔物データ図鑑</span>
   <span class="site-count" id="siteCount"></span>
   <div class="search-wrap">
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input type="text" id="searchInput" placeholder="名前・カテゴリで検索...">
   </div>
-  <button class="add-btn" onclick="openAddForm()">＋ オリジナル追加</button>
+  <button class="add-btn" onclick="openAddForm()" title="⚠️ 追加したオリジナルデータはブラウザを閉じると削除されます。&#10;必ずエクスポートでJSONに保存してください。">＋ オリジナル追加</button>
   <button class="add-btn" onclick="exportJSON()" style="border-color:#4a8a6a;color:#7acca8;">⬇ エクスポート</button>
   <button class="add-btn" onclick="document.getElementById('importInput').click()" style="border-color:#4a6a8a;color:#7aa8cc;">⬆ インポート</button>
   <input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(event)">
@@ -326,7 +326,7 @@ function formatMonster(m) {
     `${a.part}｜命中力 ${a.hit}　打撃点 ${a.dmg}　回避力 ${a.evd}　防護点 ${a.def}`
   ).join('\n');
   const abilityLines = m.abilities.length
-    ? m.abilities.map(formatAbility).join('\n')
+    ? m.abilities.map(formatAbility).join('\n\n')
     : '【なし】';
   const lootLines = m.loot.length ? m.loot.map(l => `　${l}`).join('\n') : '　なし';
   return `💠種族：${m.name}　　　🦋魔物Lv：${m.rank}　　🏷️参照：
