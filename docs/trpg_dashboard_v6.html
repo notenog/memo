@@ -1446,8 +1446,7 @@ async function startCooking(){
   const log=document.getElementById('cook-log');
   log.innerHTML='';
   document.getElementById('cook-start-btn').disabled=true;
-  const copyBtn = document.getElementById('copy-log-btn');
-  if(copyBtn) copyBtn.style.display='none';
+  document.getElementById('copy-log-btn')?.style.setProperty('display','none');
 
   const ings = selIngredients.map(i=>ingredients[i]);
   const chefs = selChefs.map(ci=>chars[ci]);
