@@ -145,6 +145,10 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
         <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
         このデータをコピー
       </button>
+      <button class="copy-btn" onclick="copyPalette()" style="border-color:#7c6a9a;color:#c4a8e8;">
+        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        チャットパレットをコピー
+      </button>
       <span class="copied-msg" id="copiedMsg">コピーしました！</span>
     </div>
   </div>
@@ -225,10 +229,10 @@ const monsters = [
   { cat:"蛮族", name:"ボルグヘビーアーム", rank:5, habitat:"森・山・洞窟", hp:36, mp:17, init:10, move:"12/―", vit:"7(14)", mres:"6(13)", weakness:"物理ダメージ+2点", know:"10", knowval:"15", attacks:[{part:"武器",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"8"}], abilities:["全力攻撃I — 打撃点を+4点する。リスクとして回避判定に-2のペナルティ修正を受ける。","痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに+6点する。"], loot:["2〜7：意匠を凝らした武器(150G/黒白A)","8〜：豪華な武器(500G/黒白A)"], tags:"蛮族,痛恨,重装" },
   { cat:"蛮族", name:"ディアボロカデット(人間形態)", rank:5, habitat:"荒野・魔域", hp:42, mp:23, init:13, move:"20/20(飛行)", vit:"8(15)", mres:"8(15)", weakness:"純エネルギー属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"武器",hit:"7(14)",dmg:"2d+7",evd:"7(14)",def:"4"}], abilities:["強靭な皮膚 — 斬空属性または衝撃属性の物理・魔法ダメージを受けるとき、それを-3点する。","飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。","掃き払いI — 近接攻撃可能なキャラクターを任意に3体まで選び、それらに近接攻撃を行う。","魔人の視光／必中 — 鋭い視光で、周囲の者を眩惑させ、わずかなダメージを与える。","魔人化 — 魔人形態に変化する。魔人形態のデータは《ディアボロカデット(魔人形態)》を参照。"], loot:["自動：アビスシャード(200G/―)","2〜6：黒の宝玉(300G/金A)","7〜10：黒の宝玉(300G/金A)×2","11〜：黒の宝玉(300G/金A)×1d"], tags:"蛮族,飛行,変身,魔人" },
   { cat:"蛮族", name:"ディアボロカデット(魔人形態)", rank:6, habitat:"荒野・魔域", hp:44, mp:26, init:14, move:"20/20(飛行)", vit:"9(16)", mres:"9(16)", weakness:"純エネルギー属性ダメージ+3点", know:"14", knowval:"17", attacks:[{part:"牙(頭部)",hit:"7(14)",dmg:"2d+7",evd:"7(14)",def:"4"},{part:"武器(胴体)",hit:"8(15)",dmg:"2d+9",evd:"6(13)",def:"6"}], abilities:["強靭な皮膚 — 斬空属性または衝撃属性の物理・魔法ダメージを-3点する。","胴体/飛翔 — すべての部位で近接攻撃における命中力・回避力判定に+1のボーナス修正。「部位：胴体」のHPが0以下になった場合この能力は失われる。","頭部/魔神の視光／必中 — 鋭い視光で周囲の者を眩惑させ、わずかなダメージを与える。","掃き払いI — 近接攻撃可能なキャラクターを任意に3体まで選び近接攻撃。","人間化 — 人間形態に変化する。"], loot:["自動：アビスシャード(200G/―)×1d","2〜5：黒の宝玉(300G/金A)","6〜9：黒の宝玉(300G/金A)×2","10〜：黒の宝玉(300G/金A)×1d"], tags:"蛮族,飛行,変身,魔人,多部位" },
-  { cat:"蛮族", name:"ケパラウラ", rank:6, habitat:"森・洞窟・湿地・魔域", hp:48, mp:41, init:13, move:"15/―", vit:"7(14)", mres:"9(16)", weakness:"炎属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"牙",hit:"8(15)",dmg:"2d+7",evd:"6(13)",def:"4"}], abilities:["毒無効 — 毒属性のダメージや効果を受けない。","真語魔法・操盤魔法6レベル／魔力8(15)","毒／命中時 — 牙の攻撃が命中した場合、対象に6点の毒属性の魔法ダメージを与える。","魔法連性 — 戦闘特技《ターゲッティング》《魔法拡大／数》《マルチアクション》を習得している。"], loot:["2〜4：なし","5〜8：魔法文明の本(170G/白A)","9〜12：魔法書(500G/白A)","13〜：秘を記した魔法書(1500G/白S)"], tags:"蛮族,魔法,毒" },
+  { cat:"蛮族", name:"ケパラウラ", rank:6, habitat:"森・洞窟・湿地・魔域", hp:48, mp:41, init:13, move:"15/―", vit:"7(14)", mres:"9(16)", weakness:"炎属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"牙",hit:"8(15)",dmg:"2d+7",evd:"6(13)",def:"4"}], abilities:["毒無効 — 毒属性のダメージや効果を受けない。","真語魔法・操霊魔法6レベル／魔力8(15)","毒／命中時 — 牙の攻撃が命中した場合、対象に6点の毒属性の魔法ダメージを与える。","魔法連性 — 戦闘特技《ターゲッティング》《魔法拡大／数》《マルチアクション》を習得している。"], loot:["2〜4：なし","5〜8：魔法文明の本(170G/白A)","9〜12：魔法書(500G/白A)","13〜：秘を記した魔法書(1500G/白S)"], tags:"蛮族,魔法,毒" },
   { cat:"蛮族", name:"トロール", rank:6, habitat:"洞窟", hp:50, mp:26, init:14, move:"18/―", vit:"9(16)", mres:"8(15)", weakness:"魔法ダメージ+2点", know:"11", knowval:"16", attacks:[{part:"武器",hit:"9(16)",dmg:"2d+10",evd:"7(14)",def:"5"}], abilities:["神聖魔法5レベル／魔力7(14)","全力攻撃I — 打撃点を+4点する。リスクとして回避判定に-2のペナルティ修正を受ける。","弱体化(日光) — 太陽の下にいる限り、命中力・回避力判定に-2のペナルティ修正を受ける。"], loot:["自動：トロールの血(100G/赤A)","2〜8：大きな武器(300G/黒白A)","9〜：宝石(150G/金A)×1d"], tags:"蛮族,魔法,巨人" },
-  { cat:"蛮族", name:"ドレイク(人間形態)", rank:6, habitat:"さまざま", hp:58, mp:36, init:16, move:"20/40(飛行)", vit:"9(16)", mres:"10(17)", weakness:"魔法ダメージ+2点", know:"10", knowval:"17", attacks:[{part:"剣",hit:"9(16)",dmg:"2d+8",evd:"7(14)",def:"4"}], abilities:["探盤魔法5レベル／魔力8(15)","魔力撃＝+8ダメージ — 打撃点を+8点する。リスクとして、目身の生命・精神抵抗力判定に-2のペナルティ修正を受ける。","飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。","電化 — 竜形態に変化する。竜形態のデータは《ドレイク(竜形態)》を参照。"], loot:["自動：剣のかけら(200G/―)"], tags:"蛮族,飛行,魔法,変身,竜" },
-  { cat:"蛮族", name:"ドレイク(竜形態)", rank:7, habitat:"さまざま", hp:62, mp:46, init:18, move:"20/40(飛行)", vit:"10(17)", mres:"11(18)", weakness:"魔法ダメージ+2点", know:"12", knowval:"18", attacks:[{part:"牙(胴体)",hit:"9(16)",dmg:"2d+12",evd:"9(16)",def:"7"},{part:"翼",hit:"11(18)",dmg:"2d+9",evd:"7(14)",def:"4"},{part:"翼",hit:"11(18)",dmg:"2d+9",evd:"7(14)",def:"4"}], abilities:["探盤魔法5レベル／魔力9(16)","光のブレス — 射程：形状2(50m)／射撃で、対象1体にエネルギー属性の魔法ダメージを与える。この能力は連続した手番には使用不可。","瞬時人間化 — 瞬時に人間形態へ変化する。人間形態のデータは《ドレイク(人間形態)》を参照。","飛翔 — 全部位の近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。"], loot:["2〜6：剣のかけら(200G/―)","7〜10：剣のかけら(200G/―)×2","11：剣のかけら(200G/―)×3","12〜：竜の魔剣(4000G/金黒白S)"], tags:"蛮族,飛行,魔法,変身,竜,多部位" },
+  { cat:"蛮族", name:"ドレイク(人間形態)", rank:6, habitat:"さまざま", hp:58, mp:36, init:16, move:"20/40(飛行)", vit:"9(16)", mres:"10(17)", weakness:"魔法ダメージ+2点", know:"10", knowval:"17", attacks:[{part:"剣",hit:"9(16)",dmg:"2d+8",evd:"7(14)",def:"4"}], abilities:["操霊魔法5レベル／魔力8(15)","魔力撃＝+8ダメージ — 打撃点を+8点する。リスクとして、目身の生命・精神抵抗力判定に-2のペナルティ修正を受ける。","飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。","電化 — 竜形態に変化する。竜形態のデータは《ドレイク(竜形態)》を参照。"], loot:["自動：剣のかけら(200G/―)"], tags:"蛮族,飛行,魔法,変身,竜" },
+  { cat:"蛮族", name:"ドレイク(竜形態)", rank:7, habitat:"さまざま", hp:62, mp:46, init:18, move:"20/40(飛行)", vit:"10(17)", mres:"11(18)", weakness:"魔法ダメージ+2点", know:"12", knowval:"18", attacks:[{part:"牙(胴体)",hit:"9(16)",dmg:"2d+12",evd:"9(16)",def:"7"},{part:"翼",hit:"11(18)",dmg:"2d+9",evd:"7(14)",def:"4"},{part:"翼",hit:"11(18)",dmg:"2d+9",evd:"7(14)",def:"4"}], abilities:["操霊魔法5レベル／魔力9(16)","光のブレス — 射程：形状2(50m)／射撃で、対象1体にエネルギー属性の魔法ダメージを与える。この能力は連続した手番には使用不可。","瞬時人間化 — 瞬時に人間形態へ変化する。人間形態のデータは《ドレイク(人間形態)》を参照。","飛翔 — 全部位の近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。"], loot:["2〜6：剣のかけら(200G/―)","7〜10：剣のかけら(200G/―)×2","11：剣のかけら(200G/―)×3","12〜：竜の魔剣(4000G/金黒白S)"], tags:"蛮族,飛行,魔法,変身,竜,多部位" },
 
   // ── 動物 ──
   { cat:"動物", name:"ウルフ", rank:1, habitat:"森・草原・洞窟", hp:12, mp:8, init:11, move:"15/―", vit:"3(10)", mres:"1(8)", weakness:"物理ダメージ+2点", know:"5", knowval:"10", attacks:[{part:"牙",hit:"2(9)",dmg:"2d",evd:"2(9)",def:"1"}], abilities:["なし"], loot:["2〜3：なし","4〜8：狼の皮(20G/赤B)","9〜10：上質な狼の皮(50G/赤B)","11〜：きれいな狼の皮(100G/金赤A)"], tags:"動物" },
@@ -260,7 +264,7 @@ const monsters = [
   { cat:"魔法生物", name:"ガーゴイル", rank:3, habitat:"遺跡", hp:26, mp:"―", init:12, move:"15/30(飛行)", vit:"4(11)", mres:"4(11)", weakness:"衝撃属性ダメージ+3点", know:"9", knowval:"14", attacks:[{part:"爪",hit:"5(12)",dmg:"2d+4",evd:"4(11)",def:"3"}], abilities:["擬態／12／危険感知／消滅 — 石像に擬態します。擬態中は、この魔物に対し、魔物知識判定を行うことはできません。本用意に接近した場合、目標値12の危険感知判定を行い、失敗したら不意打ちを受けます。動を開始したら、擬態は自動的に解除されます。【センス・マジック】などの魔法に反応します。","飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。"], loot:["2〜7：鋭利な石(20G/黒B)","8〜：魔力を帯びた石(250G/金A)"], tags:"魔法生物,飛行" },
   { cat:"魔法生物", name:"ドアイミテイター", rank:3, habitat:"遺跡", hp:22, mp:"―", init:10, move:"―/5(浮遊)", vit:"5(12)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"9", knowval:"12", attacks:[{part:"体当たり",hit:"5(12)",dmg:"2d+7",evd:"3(10)",def:"5"}], abilities:["擬態／11／危険感知／消滅 — 扉に擬態します。擬態中は、この魔物に対し、魔物知識判定を行うことはできません。本用意に接近した場合、目標値11の危険感知判定を行い、失敗したら不意打ちを受けます。動を開始したら、擬態は自動的に解除されます。【センス・マジック】などの魔法に反応します。","叩きつける — 体当たりの攻撃が命中した場合、対象を地面に叩きつけ、その場に転倒させます。"], loot:["2〜6：なし","7〜11：廃材(200G/金緑A)","12〜：上質な廃材(500G/金緑A)"], tags:"魔法生物,浮遊" },
   { cat:"魔法生物", name:"ガストナイト", rank:4, habitat:"遺跡", hp:32, mp:"―", init:11, move:"8/―", vit:"7(14)", mres:"4(11)", weakness:"物理ダメージ+2点", know:"7", knowval:"13", attacks:[{part:"武器",hit:"6(13)",dmg:"2d+8",evd:"5(12)",def:"2"}], abilities:["なし"], loot:["2〜6：なし","7〜11：魔力を帯びた石(250G/金A)","12〜：高密度の魔石(700G/金A)"], tags:"魔法生物" },
-  { cat:"魔法生物", name:"ホムンクルス", rank:5, habitat:"さまざま", hp:39, mp:37, init:14, move:"16/―", vit:"7(14)", mres:"8(15)", weakness:"物理ダメージ+2点", know:"10", knowval:"15", attacks:[{part:"武器",hit:"7(14)",dmg:"2d+4",evd:"6(13)",def:"6"}], abilities:["真語魔法・探盤魔法3レベル／魔力6(13)","魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《魔法拡大／数》《ワードブレイク》を習得している。"], loot:[], tags:"魔法生物,魔法" },
+  { cat:"魔法生物", name:"ホムンクルス", rank:5, habitat:"さまざま", hp:39, mp:37, init:14, move:"16/―", vit:"7(14)", mres:"8(15)", weakness:"物理ダメージ+2点", know:"10", knowval:"15", attacks:[{part:"武器",hit:"7(14)",dmg:"2d+4",evd:"6(13)",def:"6"}], abilities:["真語魔法・操霊魔法3レベル／魔力6(13)","魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《魔法拡大／数》《ワードブレイク》を習得している。"], loot:[], tags:"魔法生物,魔法" },
 
   // ── 魔動機 ──
   { cat:"魔動機", name:"ドルン", rank:2, habitat:"遺跡・人里", hp:18, mp:"―", init:8, move:"13(車輪)/―", vit:"3(10)", mres:"3(10)", weakness:"霊属性ダメージ+3点", know:"9", knowval:"12", attacks:[{part:"ハンマー",hit:"3(10)",dmg:"2d+4",evd:"3(10)",def:"2"}], abilities:["機械の身体 — 刃武器から、クリティカルを受けません。"], loot:["自動：鉄(20G/黒B)","2〜10：なし","11〜：粗悪な魔動部品(100G/黒白A)"], tags:"魔動機" },
@@ -420,7 +424,102 @@ document.getElementById('searchInput').addEventListener('input', e => {
 
 renderGrid();
 
-// ── オリジナル追加フォーム ──
+// ()の前の数値だけ取り出す: "4(11)" → "4"、"―" → "―"
+function statNum(s) {
+  const m = String(s).match(/^(\d+)\(/);
+  return m ? m[1] : String(s);
+}
+
+// 命中力の数値部分: "5(12)" → "5"
+function hitNum(s) { return statNum(s); }
+
+// 打撃点の数値部分: "2d+4" → そのまま、"―" → "―"
+function dmgStr(s) { return String(s); }
+
+// チャットパレットフォーマット生成
+function formatPalette(m) {
+  // 抵抗値
+  const vitN  = statNum(m.vit);
+  const mresN = statNum(m.mres);
+
+  // 攻撃ブロック（部位ごと、ブロック間に空行）
+  const atkBlocks = m.attacks.map(a => {
+    const evdN = statNum(a.evd);
+    const hitN = statNum(a.hit);
+    const hitMod = hitN === '―' ? '0' : hitN;
+    const dmg = a.dmg === '―' ? '0' : a.dmg;
+    const dmgLine = dmg.startsWith('2d') ? `2d6${dmg.slice(2)}` : dmg;
+    return `▼⚔️${a.part}
+2d6+${evdN}>=　【回避】
+2d6+${hitMod}>2　【${a.part}／命中】
+${dmgLine}　【打撃点】`;
+  }).join('\n\n');
+
+  // 特殊能力ブロック（能力間に空行）
+  const abilityLines = m.abilities.map(raw => {
+    if (raw === 'なし') return '❤️‍🔥【なし】';
+    const sep = raw.indexOf(' — ');
+    if (sep === -1) return `❤️‍🔥【${raw}】`;
+    const title = raw.slice(0, sep).trim();
+    const desc  = raw.slice(sep + 3).trim();
+    const chars = desc.split('');
+    let line = '', lines = [];
+    for (const ch of chars) {
+      line += ch;
+      if (line.length >= 25 && '。、．，！？」』）]】'.includes(ch)) {
+        lines.push(line); line = '';
+      }
+    }
+    if (line) lines.push(line);
+    return `❤️‍🔥【${title}】\n${lines.join('\n')}`;
+  }).join('\n\n');
+
+  return ` [${m.name}]
+###宣言・コマンド
+:HP-
+:HP+
+:MP-
+:MP+
+[宣言]前線配置
+[宣言]後方配置
+⋯⋯⋯⋯⋯⋯⋯⋯
+▼行動冒頭
+[宣言]戦闘準備なし
+⋯⋯⋯⋯⋯⋯⋯⋯
+≫行動希望宣言
+≫ディレイ
+≫行動終了
+:行動=1@#4D4D4D
+###
+###■戦闘判定
+${atkBlocks}
+
+
+▼❤️‍🔥特殊能力
+${abilityLines}
+
+
+▼🌓抵抗判定
+2d6+${vitN}>=　【🌕️生命抵抗】
+2d6+${mresN}>=　【🌑精神抵抗】
+###`;
+}
+
+function copyPalette() {
+  if (!currentMonster) return;
+  const txt = formatPalette(currentMonster);
+  navigator.clipboard.writeText(txt).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+  const msg = document.getElementById('copiedMsg');
+  msg.textContent = 'パレットをコピー！';
+  msg.classList.add('show');
+  setTimeout(() => { msg.classList.remove('show'); msg.textContent = 'コピーしました！'; }, 2000);
+}
+
 function openAddForm() {
   document.getElementById('addOverlay').classList.add('open');
 }
