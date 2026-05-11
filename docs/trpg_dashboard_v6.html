@@ -305,6 +305,7 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
 .cook-start{width:100%;padding:14px;font-family:'Cinzel',serif;font-size:14px;letter-spacing:3px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--gold);cursor:pointer;transition:all .2s;margin-bottom:20px;}
 .cook-start:hover:not(:disabled){background:#3a2810;border-color:var(--gold);box-shadow:0 0 12px rgba(212,168,64,.2);}
 .cook-start:disabled{opacity:.4;cursor:not-allowed;}
+.cook-log-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
 .cook-log{background:var(--bg1);border:1px solid var(--border2);border-radius:8px;padding:16px;min-height:200px;font-size:13px;line-height:2.2;color:var(--text2);}
 .cook-log-line{display:block;padding:1px 0;}
 .cook-log-line.result-great{color:#ffd700;font-family:'Cinzel',serif;font-size:15px;letter-spacing:1px;margin-top:8px;}
@@ -407,6 +408,10 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
       <div class="cook-dice-area" id="cook-dice-area"></div>
     </div>
 
+    <div class="cook-log-header">
+      <span style="font-family:'Cinzel',serif;font-size:11px;color:var(--text5);letter-spacing:1px;">調理ログ</span>
+      <button class="btn btn-sm btn-ghost" id="copy-log-btn" onclick="copyLog()" style="display:none;">📋 テキストコピー</button>
+    </div>
     <div class="cook-log" id="cook-log">
       <span style="color:var(--text5);font-style:italic;">素材と料理人を選んで料理を開始してください</span>
     </div>
@@ -1441,6 +1446,8 @@ async function startCooking(){
   const log=document.getElementById('cook-log');
   log.innerHTML='';
   document.getElementById('cook-start-btn').disabled=true;
+  const copyBtn = document.getElementById('copy-log-btn');
+  if(copyBtn) copyBtn.style.display='none';
 
   const ings = selIngredients.map(i=>ingredients[i]);
   const chefs = selChefs.map(ci=>chars[ci]);
@@ -1490,9 +1497,9 @@ async function startCooking(){
     await animateDice(chefRoll, success);
     await logWait(200);
 
-    // キャラ側・食材側のダイス結果を両方表示
-    const charDiceStr = `🎲2d6…(${chefRoll.d1},${chefRoll.d2}) = ${chefRoll.total}`;
-    const ingDiceStr  = `🎲2d6…(${ingRoll.d1},${ingRoll.d2}) = ${ingRoll.total}`;
+    // キャラ側・食材側のダイス結果を両方表示（ボーナス・難易度込み）
+    const charDiceStr = `🎲 2d6(${chefRoll.d1},${chefRoll.d2})＋調理ボーナス${bonus} = ${chefScore}`;
+    const ingDiceStr  = `🎲 2d6(${ingRoll.d1},${ingRoll.d2})＋調理難易度${ing.diff} = ${ingScore}`;
     logLine(`${chef.name}: ${charDiceStr}`, 'dice-summary');
     logLine(`${ing.name}: ${ingDiceStr}`, 'dice-summary');
 
@@ -1594,6 +1601,31 @@ ${baseInstruction}
   }
 
   document.getElementById('cook-start-btn').disabled=false;
+  // コピーボタンを表示
+  const copyBtn = document.getElementById('copy-log-btn');
+  if(copyBtn) copyBtn.style.display='';
+}
+
+function copyLog(){
+  const log = document.getElementById('cook-log');
+  const lines = [...log.querySelectorAll('.cook-log-line')].map(el=>el.textContent).join('\n');
+  navigator.clipboard.writeText(lines).then(()=>{
+    const btn = document.getElementById('copy-log-btn');
+    const orig = btn.textContent;
+    btn.textContent='✓ コピーしました';
+    setTimeout(()=>btn.textContent=orig, 2000);
+  }).catch(()=>{
+    // clipboard APIが使えない場合はtextareaで代替
+    const ta = document.createElement('textarea');
+    ta.value = lines;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.getElementById('copy-log-btn');
+    btn.textContent='✓ コピーしました';
+    setTimeout(()=>btn.textContent='📋 テキストコピー', 2000);
+  });
 }
 
 /* フォールバック料理名（API失敗時・ベース素材考慮） */
@@ -1892,7 +1924,7 @@ Object.assign(window,{
   toggleStatusPopup,applyStatus,applyCustomStatus,deleteTemplate,rerenderColorOpts,
   addMemoBoard,addMemoCard,deleteMemoBoard,renderMemoBoards,
   clearAllData,save,undo,redo,pushHistory,
-  renderCookingPage,toggleIng,toggleChef,addIngredient,startCooking,
+  renderCookingPage,toggleIng,toggleChef,addIngredient,startCooking,copyLog,
   // データ変数（oninputから直接アクセスするため）
   get chars(){return chars;},
   get enemies(){return enemies;},
