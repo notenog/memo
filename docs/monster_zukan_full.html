@@ -110,10 +110,15 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
     <input type="text" id="searchInput" placeholder="名前・カテゴリで検索...">
   </div>
   <button class="add-btn" onclick="openAddForm()" title="⚠️ 追加したオリジナルデータはブラウザを閉じると削除されます。&#10;必ずエクスポートでJSONに保存してください。">＋ オリジナル追加</button>
-  <button class="add-btn" onclick="exportJSON('all')" style="border-color:#4a8a6a;color:#7acca8;" id="btnExportAll">⬇ 全体(0体)</button>
-  <button class="add-btn" onclick="exportJSON('original')" style="border-color:#4a8a6a;color:#5aaa78;" id="btnExportOrig">⬇ オリジナルのみ(0体)</button>
-  <button class="add-btn" onclick="document.getElementById('importInput').click()" style="border-color:#4a6a8a;color:#7aa8cc;">⬆ インポート</button>
+  <div style="position:relative;display:inline-block;" id="exportWrap">
+    <button class="add-btn" onclick="toggleExportMenu()" style="border-color:#4a8a6a;color:#7acca8;" id="btnExport">⬇ エクスポート</button>
+    <div id="exportMenu" style="display:none;position:absolute;top:100%;left:0;margin-top:4px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);z-index:100;min-width:160px;">
+      <button onclick="exportJSON('all');closeExportMenu()" style="display:block;width:100%;text-align:left;padding:8px 14px;background:transparent;border:none;color:#7acca8;cursor:pointer;font-size:13px;" id="btnExportAll">全体(0体)</button>
+      <button onclick="exportJSON('original');closeExportMenu()" style="display:block;width:100%;text-align:left;padding:8px 14px;background:transparent;border:none;color:#7acca8;cursor:pointer;font-size:13px;border-top:0.5px solid var(--border);" id="btnExportOrig">オリジナルのみ(0体)</button>
+    </div>
+  </div>
   <input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(event)">
+  <button class="add-btn" onclick="document.getElementById('importInput').click()" style="border-color:#4a6a8a;color:#7aa8cc;">⬆ インポート</button>
   <button class="add-btn" onclick="openTekeySettings()" style="border-color:#8a6a2a;color:#e8b84a;">⚙ Tekey設定</button>
 </header>
 
@@ -167,22 +172,11 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
       <button class="close-btn" onclick="closeTekeySettings()">✕</button>
     </div>
     <div class="add-body">
-      <div class="fgroup"><label>Functions エンドポイントURL（Firebase）</label>
-        <input id="ts_endpoint" placeholder="https://us-central1-xxxx.cloudfunctions.net/tekeyProxy">
-      </div>
       <div class="frow">
         <div class="fgroup"><label>ルームID</label><input id="ts_room" placeholder="ルームID"></div>
         <div class="fgroup"><label>ルームパスワード</label><input id="ts_pass" type="password" placeholder="パスワード"></div>
       </div>
-      <div class="fsep">Firebase Storage設定（画像アップロード用）</div>
-      <div class="fgroup"><label>StorageバケットURL</label>
-        <input id="ts_bucket" placeholder="https://firebasestorage.googleapis.com/v0/b/trpgnog.appspot.com">
-      </div>
-      <div class="fgroup"><label>Firebase APIキー</label>
-        <input id="ts_fbkey" placeholder="AIza...">
-      </div>
       <div style="font-size:11px;color:var(--text3);line-height:1.7;margin-top:4px;">
-        ※ Tekey APIキーはFirebase Functions側に設定します。<br>
         ※ 設定はブラウザに保存されます（localStorage）。
       </div>
     </div>
@@ -197,19 +191,13 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
 <div class="add-overlay" id="tekeyAddOverlay">
   <div class="add-panel">
     <div class="add-head">
-      <span class="add-title" id="tekeyAddTitle">🎲 Tekeyへ追加</span>
+      <span class="add-title" id="tekeyAddTitle">コマ生成</span>
       <button class="close-btn" onclick="closeTekeyAdd()">✕</button>
     </div>
     <div class="add-body">
       <div class="frow">
         <div class="fgroup"><label>群れ数</label>
           <input id="tk_count" type="number" min="1" max="26" value="1">
-        </div>
-        <div class="fgroup"><label>コマ幅 width（省略可）</label>
-          <input id="tk_width" type="number" placeholder="1" min="1">
-        </div>
-        <div class="fgroup"><label>コマ高 height（省略可）</label>
-          <input id="tk_height" type="number" placeholder="1" min="1">
         </div>
       </div>
       <div class="fgroup"><label>コマ画像（ローカルファイル）</label>
@@ -445,7 +433,7 @@ function renderGrid() {
           <div class="card-cat">${m.cat}</div>
           <div class="card-sub">${m.habitat}　HP ${m.hp} / MP ${m.mp}</div>
         </div>
-        <button onclick="event.stopPropagation();openTekeyAdd(${monsters.indexOf(m)})" style="font-size:10px;padding:3px 7px;border-radius:4px;border:0.5px solid #8a6a2a;background:transparent;color:#e8b84a;cursor:pointer;white-space:nowrap;flex-shrink:0;" title="Tekeyへ追加">🎲</button>
+        <button onclick="event.stopPropagation();openTekeyAdd(${monsters.indexOf(m)})" style="font-size:10px;padding:3px 7px;border-radius:4px;border:0.5px solid #8a6a2a;background:transparent;color:#e8b84a;cursor:pointer;white-space:nowrap;flex-shrink:0;" title="Tekeyへ追加">コマ生成</button>
       </div>
       <div class="card-stats">
         <div class="cs"><div class="cs-l">先制値</div><div class="cs-v">${m.init}</div></div>
@@ -673,28 +661,32 @@ function exportJSON(mode) {
 function updateExportBtns() {
   const allCount  = monsters.length;
   const origCount = monsters.filter(m => m.isOriginal).length;
-  document.getElementById('btnExportAll').textContent  = `⬇ 全体(${allCount}体)`;
-  document.getElementById('btnExportOrig').textContent = `⬇ オリジナルのみ(${origCount}体)`;
+  document.getElementById('btnExportAll').textContent  = `全体(${allCount}体)`;
+  document.getElementById('btnExportOrig').textContent = `オリジナルのみ(${origCount}体)`;
 }
+function toggleExportMenu() {
+  const menu = document.getElementById('exportMenu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+function closeExportMenu() {
+  document.getElementById('exportMenu').style.display = 'none';
+}
+document.addEventListener('click', e => {
+  if (!document.getElementById('exportWrap').contains(e.target)) closeExportMenu();
+});
 
 // ── Tekey設定 ──
 function openTekeySettings() {
-  document.getElementById('ts_endpoint').value = localStorage.getItem('tekey_endpoint') || '';
   document.getElementById('ts_room').value      = localStorage.getItem('tekey_room') || '';
   document.getElementById('ts_pass').value      = localStorage.getItem('tekey_pass') || '';
-  document.getElementById('ts_bucket').value    = localStorage.getItem('tekey_bucket') || '';
-  document.getElementById('ts_fbkey').value     = localStorage.getItem('tekey_fbkey') || '';
   document.getElementById('tekeySettingsOverlay').classList.add('open');
 }
 function closeTekeySettings() {
   document.getElementById('tekeySettingsOverlay').classList.remove('open');
 }
 function saveTekeySettings() {
-  localStorage.setItem('tekey_endpoint', document.getElementById('ts_endpoint').value.trim());
   localStorage.setItem('tekey_room',     document.getElementById('ts_room').value.trim());
   localStorage.setItem('tekey_pass',     document.getElementById('ts_pass').value.trim());
-  localStorage.setItem('tekey_bucket',   document.getElementById('ts_bucket').value.trim());
-  localStorage.setItem('tekey_fbkey',    document.getElementById('ts_fbkey').value.trim());
   closeTekeySettings();
   alert('Tekey設定を保存しました。');
 }
@@ -706,10 +698,8 @@ let tekeyImageURL = '';
 function openTekeyAdd(idx) {
   tekeyTarget = monsters[idx];
   tekeyImageURL = tekeyTarget.image || '';
-  document.getElementById('tekeyAddTitle').textContent = `🎲 Tekeyへ追加 ― ${tekeyTarget.name}`;
+  document.getElementById('tekeyAddTitle').textContent = `コマ生成 ― ${tekeyTarget.name}`;
   document.getElementById('tk_count').value  = 1;
-  document.getElementById('tk_width').value  = '';
-  document.getElementById('tk_height').value = '';
   document.getElementById('tk_image_file').value = '';
   document.getElementById('tk_image_preview').style.display = 'none';
   updateTekeyPreview();
@@ -747,9 +737,9 @@ document.addEventListener('change', e => {
 
 // Firebase Storageへ画像アップロード
 async function uploadImageToStorage(file) {
-  const bucket = localStorage.getItem('tekey_bucket') || '';
-  const fbkey  = localStorage.getItem('tekey_fbkey') || '';
-  if (!bucket || !fbkey) return '';
+  const bucket = 'https://firebasestorage.googleapis.com/v0/b/trpgnog.firebasestorage.app';
+  const fbkey  = 'AIzaSyDToH4ftmStWuAec1oiieNTgDDZvfkyyCs';
+  if (!bucket) return '';
 
   const filename = `monster_images/${Date.now()}_${file.name}`;
   const uploadUrl = `${bucket}/o?uploadType=media&name=${encodeURIComponent(filename)}&key=${fbkey}`;
@@ -773,11 +763,11 @@ function tekeyStatNum(s) {
 }
 
 async function sendToTekey() {
-  const endpoint = localStorage.getItem('tekey_endpoint') || '';
+  const endpoint = 'https://us-central1-trpgnog.cloudfunctions.net/tekeyProxy2';
   const room     = localStorage.getItem('tekey_room') || '';
   const pass     = localStorage.getItem('tekey_pass') || '';
-  if (!endpoint || !room) {
-    alert('先にTekey設定でエンドポイントとルームIDを設定してください。');
+  if (!room) {
+    alert('先にTekey設定でルームIDを設定してください。');
     return;
   }
   if (!tekeyTarget) return;
@@ -788,8 +778,6 @@ async function sendToTekey() {
 
   const m      = tekeyTarget;
   const count  = parseInt(document.getElementById('tk_count').value) || 1;
-  const width  = document.getElementById('tk_width').value.trim();
-  const height = document.getElementById('tk_height').value.trim();
 
   // 画像アップロード
   let imageUrl = tekeyImageURL;
@@ -832,8 +820,6 @@ async function sendToTekey() {
   for (const name of names) {
     const body = { command:'addCharacter', room, password:pass, name, values, initiative: init, info };
     if (imageUrl) body.image  = imageUrl;
-    if (width)    body.width  = parseInt(width);
-    if (height)   body.height = parseInt(height);
 
     try {
       const res = await fetch(endpoint, {
