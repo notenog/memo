@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ Tekey 拡張パレット</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Antique+Soft&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:      #0c0b09;
+  --bg2:     #161410;
+  --bg3:     #1e1b16;
+  --bg4:     #252118;
+  --border:  rgba(201,168,76,0.12);
+  --border2: rgba(201,168,76,0.25);
+  --text:    #e2ddd4;
+  --text2:   #948b7a;
+  --text3:   #524b3e;
+  --gold:    #c9a84c;
+  --gold2:   #e8c97a;
+  --gold3:   #f5dfa0;
+  --red:     #c44a4a;
+  --red2:    #e06060;
+  --blue:    #4a7cc4;
+  --blue2:   #6a9ae0;
+  --green:   #4a9c5a;
+  --green2:  #6ab870;
+  --purple:  #8a5ab8;
+  --purple2: #aa78d8;
+  --accent:  #7c6a3a;
+  --radius:  8px;
+  --radius-sm: 5px;
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── ノイズテクスチャ背景 ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── トップバー ─── */
+.topbar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border2);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+}
+.topbar-title {
+  font-family: 'Zen Antique Soft', serif;
+  font-size: 16px;
+  color: var(--gold2);
+  letter-spacing: 0.15em;
+  margin-right: auto;
+  white-space: nowrap;
+}
+
+/* ─── ラウンド管理バー ─── */
+.round-bar {
+  background: linear-gradient(135deg, #1a1508 0%, #0f0d08 100%);
+  border-bottom: 1px solid var(--border2);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+.round-display {
+  font-family: 'Zen Antique Soft', serif;
+  font-size: 22px;
+  color: var(--gold2);
+  letter-spacing: 0.1em;
+  min-width: 80px;
+}
+.round-sub {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+
+.btn {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.05);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.btn:hover::after { opacity: 1; }
+.btn:active { transform: scale(0.97); }
+
+.btn-round {
+  background: linear-gradient(135deg, #3a2a08, #2a1e06);
+  border-color: var(--gold);
+  color: var(--gold2);
+  font-size: 13px;
+  padding: 7px 18px;
+}
+.btn-round:hover { border-color: var(--gold3); box-shadow: 0 0 12px rgba(201,168,76,0.25); }
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border2);
+  color: var(--text2);
+}
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+.btn-setting {
+  background: transparent;
+  border-color: rgba(148,139,122,0.3);
+  color: var(--text2);
+  font-size: 11px;
+}
+.btn-setting:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ─── レイアウト ─── */
+.layout {
+  display: grid;
+  grid-template-columns: 240px 210px 1fr;
+  height: calc(100vh - 106px);
+  position: relative;
+  z-index: 1;
+  transition: grid-template-columns 0.22s ease;
+}
+.layout.db-hidden {
+  grid-template-columns: 0px 210px 1fr;
+}
+.pane-left {
+  transition: opacity 0.18s ease;
+}
+.layout.db-hidden .pane-left {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ─── 中央ペイン：エネミーリスト ─── */
+.pane-center {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.pane-center-head {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.pane-center-title { font-size: 9px; color: var(--text3); letter-spacing: .08em; flex: 1; }
+.enemy-scroll { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+
+/* エネミーカード */
+.enemy-card {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.enemy-card:hover { background: var(--bg3); }
+.enemy-card.active { background: var(--bg4); border-left: 2px solid var(--gold); }
+.ec-info { flex: 1; min-width: 0; }
+.ec-name { font-size: 12px; color: var(--gold2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ec-sub  { font-size: 9px; color: var(--text3); margin-top: 1px; }
+.ec-del  {
+  font-size: 10px; padding: 2px 5px; border-radius: 3px;
+  border: 1px solid rgba(196,74,74,.3); background: transparent;
+  color: var(--red2); cursor: pointer; flex-shrink: 0; opacity: .5;
+  transition: opacity .12s; font-family: 'Noto Sans JP', sans-serif;
+}
+.ec-del:hover { opacity: 1; border-color: var(--red2); }
+.enemy-empty-msg {
+  padding: 20px 10px; text-align: center;
+  font-size: 11px; color: var(--text3); line-height: 2;
+}
+
+/* 追加ポップアップ */
+.add-popup {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.65); z-index: 200;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.add-popup.open { display: flex; }
+.popup-box {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--radius); width: 100%; max-width: 320px; overflow: hidden;
+}
+.popup-head {
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.popup-title { font-size: 13px; color: var(--gold2); flex: 1; }
+.popup-body  { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.popup-foot  { padding: 10px 14px; border-top: 1px solid var(--border); display: flex; gap: 6px; justify-content: flex-end; }
+.fgroup-p { display: flex; flex-direction: column; gap: 4px; }
+.fgroup-p label { font-size: 10px; color: var(--text2); }
+.fgroup-p input {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-size: 13px; font-family: 'Noto Sans JP', sans-serif;
+  padding: 6px 8px; outline: none; transition: border-color .15s; width: 100%;
+}
+.fgroup-p input:focus { border-color: var(--gold); }
+.popup-preview {
+  font-size: 11px; color: var(--gold2);
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 6px 8px; min-height: 22px;
+  line-height: 1.7;
+}
+
+/* ─── 左ペイン：モンスター選択 ─── */
+.pane-left {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.pane-left-head {
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.search-box {
+  position: relative;
+}
+.search-box input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+  padding: 6px 10px 6px 28px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search-box input:focus { border-color: var(--gold); }
+.search-box input::placeholder { color: var(--text3); }
+.search-box svg {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  stroke: var(--text3);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.filter-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.chip {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.chip:hover { border-color: var(--gold); color: var(--gold); }
+.chip.active { background: var(--accent); border-color: var(--gold); color: var(--gold2); }
+
+.monster-list {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.monster-item {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.monster-item:hover { background: var(--bg3); }
+.monster-item.active { background: var(--bg4); border-left: 2px solid var(--gold); }
+.mi-rank {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.mi-info { flex: 1; min-width: 0; }
+.mi-name { font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mi-cat  { font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+/* rankバッジ色（図鑑と同じ） */
+.r1 { background:#1a2a1a; color:#5ab85a; }
+.r2 { background:#1a2a3a; color:#6aabdd; }
+.r3 { background:#1a2e1a; color:#72c472; }
+.r4 { background:#2e2412; color:#d4a340; }
+.r5 { background:#2e1a1a; color:#d46060; }
+.r6 { background:#2a1a2a; color:#c472c4; }
+.r7 { background:#1e1a32; color:#8878e8; }
+
+/* ─── 右ペイン：コントロール ─── */
+.pane-right {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* モンスターが未選択 */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text3);
+}
+.empty-state .icon { font-size: 40px; opacity: 0.4; }
+.empty-state p { font-size: 13px; }
+
+/* モンスター詳細ヘッダー */
+.monster-header {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.mh-name {
+  font-family: 'Zen Antique Soft', serif;
+  font-size: 20px;
+  color: var(--gold2);
+  letter-spacing: 0.08em;
+}
+.mh-meta { font-size: 11px; color: var(--text3); margin-top: 4px; display: flex; gap: 10px; flex-wrap: wrap; }
+.mh-meta span { display: flex; align-items: center; gap: 3px; }
+.mh-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); }
+
+/* タブ */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 0 18px;
+}
+.tab {
+  font-size: 12px;
+  padding: 8px 14px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  color: var(--text3);
+  transition: all 0.15s;
+  white-space: nowrap;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.tab:hover { color: var(--text2); }
+.tab.active { color: var(--gold2); border-bottom-color: var(--gold); }
+
+/* コンテンツエリア */
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+  padding: 16px 18px;
+  display: none;
+}
+.tab-content.active { display: block; }
+
+/* ─── 判定ボタン群 ─── */
+.section-label {
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  margin-top: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+.section-label:first-child { margin-top: 0; }
+
+.attack-section { margin-bottom: 16px; }
+.attack-name {
+  font-size: 11px;
+  color: var(--gold);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.attack-stats {
+  font-size: 10px;
+  color: var(--text3);
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
+}
+
+.action-btn {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.action-btn:active { transform: scale(0.97); }
+.action-btn .btn-label { font-size: 11px; opacity: 0.7; }
+.action-btn .btn-val   { font-size: 13px; font-weight: 500; }
+
+.btn-hit    { background: linear-gradient(135deg,#1e1206,#140d04); border-color: #c47a30; color: #e0a060; }
+.btn-hit:hover    { border-color: #e09040; box-shadow: 0 0 8px rgba(196,122,48,0.3); }
+.btn-dmg    { background: linear-gradient(135deg,#1e0606,#140404); border-color: #c44040; color: #e07070; }
+.btn-dmg:hover    { border-color: #e05050; box-shadow: 0 0 8px rgba(196,64,64,0.3); }
+.btn-evd    { background: linear-gradient(135deg,#06121e,#040c14); border-color: #3070c4; color: #60a0e0; }
+.btn-evd:hover    { border-color: #4090e0; box-shadow: 0 0 8px rgba(48,112,196,0.3); }
+.btn-vit    { background: linear-gradient(135deg,#0e1a0e,#080d08); border-color: #3a8a4a; color: #60b870; }
+.btn-vit:hover    { border-color: #4aaa5a; box-shadow: 0 0 8px rgba(58,138,74,0.3); }
+.btn-mres   { background: linear-gradient(135deg,#14081e,#0d0514); border-color: #7040b0; color: #a070d0; }
+.btn-mres:hover   { border-color: #9050d0; box-shadow: 0 0 8px rgba(112,64,176,0.3); }
+.btn-init   { background: linear-gradient(135deg,#1a1406,#100c04); border-color: #a08020; color: #d0b040; }
+.btn-init:hover   { border-color: #c0a030; box-shadow: 0 0 8px rgba(160,128,32,0.3); }
+
+/* ─── キャラ管理タブ ─── */
+.char-list { display: flex; flex-direction: column; gap: 6px; }
+.char-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.char-name { flex: 1; font-size: 13px; }
+.char-del {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: all 0.12s;
+}
+.char-del:hover { border-color: var(--red); color: var(--red2); }
+
+.char-add-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.char-add-row input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+  padding: 6px 10px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.char-add-row input:focus { border-color: var(--gold); }
+.char-add-row input::placeholder { color: var(--text3); }
+
+.import-area {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px dashed var(--border2);
+  border-radius: var(--radius);
+  text-align: center;
+  font-size: 11px;
+  color: var(--text3);
+}
+.import-area label {
+  color: var(--gold);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ─── ログ ─── */
+.log-area {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-size: 11px;
+  color: var(--text2);
+  max-height: 160px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  line-height: 1.7;
+  font-family: monospace;
+}
+.log-entry { display: flex; gap: 6px; }
+.log-time { color: var(--text3); flex-shrink: 0; }
+.log-ok  { color: var(--green2); }
+.log-err { color: var(--red2); }
+.log-info { color: var(--blue2); }
+
+/* ─── モーダル ─── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+}
+.modal-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.modal-title { font-size: 14px; color: var(--gold2); flex: 1; }
+.modal-body  { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.modal-foot  { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+.fgroup { display: flex; flex-direction: column; gap: 4px; }
+.fgroup label { font-size: 11px; color: var(--text2); }
+.fgroup input {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 13px;
+  font-family: 'Noto Sans JP', sans-serif;
+  padding: 7px 10px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.fgroup input:focus { border-color: var(--gold); }
+.fgroup input::placeholder { color: var(--text3); }
+
+.note { font-size: 10px; color: var(--text3); line-height: 1.7; }
+
+.btn-save {
+  background: var(--accent);
+  border-color: var(--gold);
+  color: var(--gold2);
+  padding: 6px 20px;
+}
+.btn-save:hover { box-shadow: 0 0 10px rgba(201,168,76,0.2); }
+
+/* ─── トースト通知 ─── */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--text);
+  z-index: 300;
+  transform: translateY(60px);
+  opacity: 0;
+  transition: all 0.25s;
+  max-width: 280px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.ok   { border-color: var(--green); }
+.toast.err  { border-color: var(--red); }
+
+/* ─── レスポンシブ ─── */
+@media (max-width: 640px) {
+  .layout { grid-template-columns: 1fr; }
+  .pane-left { height: 200px; }
+}
+
+/* スクロールバー */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- トップバー -->
+<header class="topbar">
+  <span class="topbar-title">⚔️ Tekey 拡張パレット</span>
+  <button class="btn btn-setting" onclick="openSettings()">⚙ 接続設定</button>
+  <span id="connStatus" style="font-size:10px;color:var(--text3);">未設定</span>
+</header>
+
+<!-- ラウンド管理バー -->
+<div class="round-bar">
+  <div>
+    <div class="round-display" id="roundDisp">― R</div>
+    <div class="round-sub">現在ラウンド</div>
+  </div>
+  <button class="btn btn-round" onclick="startRound()">▶ ラウンド開始</button>
+  <button class="btn btn-ghost" onclick="resetRound()" title="ラウンドを0に戻す">↺ リセット</button>
+  <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+    <span id="pcBadge" style="font-size:10px;color:var(--text3);">PC <b style="color:var(--gold2);">0</b> 人</span>
+    <button class="btn btn-ghost" style="font-size:11px;" id="pcToggleBtn" onclick="togglePCPanel()">👥 PC登録 ▾</button>
+  </div>
+</div>
+
+<!-- PC登録アコーディオン -->
+<div id="pcPanel" style="
+  display:none;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border2);
+  padding:10px 16px 12px;
+  position:relative;
+  z-index:1;
+">
+  <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
+    <!-- PC一覧 -->
+    <div style="flex:1;min-width:200px;">
+      <div style="font-size:9px;color:var(--text3);letter-spacing:.08em;margin-bottom:6px;">登録PC（ラウンド開始時に全員 :行動=0 を送信）</div>
+      <div id="pcInlineList" style="display:flex;flex-wrap:wrap;gap:5px;min-height:24px;margin-bottom:8px;"></div>
+      <div style="display:flex;gap:6px;">
+        <input type="text" id="pcInlineInput" placeholder="PC名を入力..." onkeydown="if(event.key==='Enter')addPCInline()"
+          style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:11px;font-family:'Noto Sans JP',sans-serif;padding:5px 8px;outline:none;">
+        <button class="btn btn-ghost" style="font-size:11px;" onclick="addPCInline()">追加</button>
+      </div>
+    </div>
+    <!-- 補足 -->
+    <div style="font-size:10px;color:var(--text3);line-height:1.9;border-left:1px solid var(--border);padding-left:16px;min-width:200px;max-width:340px;">
+      ▶ ラウンド開始時の動作<br>
+      1. <code style="color:var(--gold);">--- NR 開始 ---</code> をチャット送信<br>
+      2. 登録PC全員 ＋ エネミー全員に<br>
+      　　<code style="color:var(--gold);">:行動=0</code> を送信して行動解除<br>
+      ※ PC名はTekeyの駒名と一致させること
+    </div>
+  </div>
+</div>
+
+<!-- メインレイアウト -->
+<div class="layout">
+
+  <!-- 左ペイン：モンスターDB -->
+  <div class="pane-left">
+    <div class="pane-left-head">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:9px;color:var(--text3);letter-spacing:.08em;">📖 MONSTER DB</div>
+        <button onclick="toggleDB()" title="DBを隠す"
+          style="font-size:11px;padding:1px 7px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all .15s;line-height:1.6;"
+          onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'"
+          onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">《</button>
+      </div>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="monsterSearch" placeholder="名前・カテゴリで検索..." oninput="renderMonsterList()">
+      </div>
+      <div class="filter-chips" id="filterChips">
+        <button class="chip active" onclick="setFilter('all',this)">全</button>
+        <button class="chip" onclick="setFilter('蛮族',this)">蛮族</button>
+        <button class="chip" onclick="setFilter('動物',this)">動物</button>
+        <button class="chip" onclick="setFilter('植物',this)">植物</button>
+        <button class="chip" onclick="setFilter('アンデッド',this)">屍</button>
+        <button class="chip" onclick="setFilter('魔法生物',this)">魔法</button>
+        <button class="chip" onclick="setFilter('幻獣',this)">幻獣</button>
+        <button class="chip" onclick="setFilter('魔神',this)">魔神</button>
+        <button class="chip" onclick="setFilter('人族',this)">人族</button>
+      </div>
+    </div>
+    <div class="monster-list" id="monsterList"></div>
+  </div>
+
+  <!-- 中央ペイン：エネミーリスト -->
+  <div class="pane-center">
+    <div class="pane-center-head">
+      <button id="dbShowBtn" onclick="toggleDB()" title="DBを表示"
+        style="display:none;font-size:11px;padding:1px 7px;border-radius:3px;border:1px solid var(--border2);background:transparent;color:var(--gold);cursor:pointer;transition:all .15s;line-height:1.6;flex-shrink:0;"
+        onmouseover="this.style.borderColor='var(--gold)'"
+        onmouseout="this.style.borderColor='var(--border2)'">》</button>
+      <span class="pane-center-title">⚔️ ENEMY LIST</span>
+      <span id="enemyCountBadge" style="font-size:9px;color:var(--gold);">0体</span>
+      <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;" onclick="clearAllEnemies()" title="全解除">✕全</button>
+    </div>
+    <div class="enemy-scroll" id="enemyList">
+      <div class="enemy-empty-msg">←DBから＋ボタンで<br>エネミーを追加</div>
+    </div>
+  </div>
+
+  <!-- 右ペイン：コントロール -->
+  <div class="pane-right" id="paneRight">
+    <div class="empty-state" id="emptyState">
+      <div class="icon">🐉</div>
+      <p>左のリストからモンスターを選択</p>
+    </div>
+
+    <div id="monsterPanel" style="display:none;flex:1;overflow:hidden;display:none;flex-direction:column;">
+      <!-- モンスターヘッダー -->
+      <div class="monster-header" id="monsterHeader"></div>
+
+      <!-- タブ -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('action',this)">⚔️ 判定</button>
+        <button class="tab" onclick="switchTab('log',this)">📋 送信ログ</button>
+      </div>
+
+      <!-- 判定タブ -->
+      <div class="tab-content active" id="tab-action"></div>
+
+      <!-- ログタブ -->
+      <div class="tab-content" id="tab-log">
+        <div class="section-label">送信ログ</div>
+        <div class="log-area" id="logArea">
+          <div class="log-entry"><span class="log-info">-- ログがここに表示されます --</span></div>
+        </div>
+        <div style="margin-top:8px;text-align:right;">
+          <button class="btn btn-ghost" style="font-size:11px;" onclick="document.getElementById('logArea').innerHTML='<div class=\'log-entry\'><span class=\'log-info\'>-- クリア済み --</span></div>'">ログクリア</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- エネミー追加ポップアップ -->
+<div class="add-popup" id="addPopup" onclick="if(event.target===this)closeAddPopup()">
+  <div class="popup-box">
+    <div class="popup-head">
+      <span class="popup-title" id="popupMonsterName">エネミー追加</span>
+      <button class="btn btn-ghost" style="padding:2px 7px;font-size:11px;" onclick="closeAddPopup()">✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="fgroup-p">
+        <label>群れ数（1〜26体）</label>
+        <input type="number" id="popCount" min="1" max="26" value="1" oninput="updatePopupPreview()">
+      </div>
+      <div class="fgroup-p">
+        <label>追加プレビュー</label>
+        <div class="popup-preview" id="popPreview"></div>
+      </div>
+    </div>
+    <div class="popup-foot">
+      <button class="btn btn-ghost" style="font-size:11px;" onclick="closeAddPopup()">キャンセル</button>
+      <button class="btn btn-round" style="font-size:11px;padding:5px 16px;" onclick="confirmAddEnemy()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- 設定モーダル -->
+<div class="modal-overlay" id="settingsModal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">⚙ 接続設定</span>
+      <button class="btn btn-ghost" style="padding:3px 8px;font-size:12px;" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fgroup">
+        <label>APIキー</label>
+        <input type="password" id="s_apikey" placeholder="APIキーを入力">
+      </div>
+      <div class="fgroup">
+        <label>ルームID</label>
+        <input type="text" id="s_room" placeholder="ルームID">
+      </div>
+      <div class="fgroup">
+        <label>ルームパスワード</label>
+        <input type="password" id="s_pass" placeholder="パスワード">
+      </div>
+      <div class="fgroup">
+        <label>チャット送信先タブ名（省略可）</label>
+        <input type="text" id="s_tab" placeholder="省略すると最左端タブに送信">
+      </div>
+      <div class="fgroup">
+        <label>送信者名（省略可）</label>
+        <input type="text" id="s_name" placeholder="例：GM">
+      </div>
+      <div class="note">
+        ※ すべての設定はこのブラウザのlocalStorageに保存されます。<br>
+        ※ APIキーは他者と共有しないでください。
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeSettings()">キャンセル</button>
+      <button class="btn btn-save btn" onclick="saveSettings()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- トースト -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ────────────────────────────────────────────
+//  モンスターデータ（図鑑から転載）
+// ────────────────────────────────────────────
+const monsters = [
+  { cat:"蛮族", name:"シールドフッド", rank:2, habitat:"さまざま", hp:19, mp:12, init:11, move:"12/―", vit:"4(11)", mres:"5(12)", weakness:"属性ダメージ+2点", know:"8", knowval:"12", attacks:[{part:"大盾",hit:"5(12)",dmg:"2d+2",evd:"3(10)",def:"5"}], abilities:["かばうI — 戦闘特技《かばうI》と同じ効果。"], loot:[], tags:"蛮族" },
+  { cat:"蛮族", name:"フーグル", rank:2, habitat:"砂漠・山岳", hp:12, mp:7, init:11, move:"10/15(飛行)", vit:"3(10)", mres:"3(10)", weakness:"風属性ダメージ+3点", know:"9", knowval:"12", attacks:[{part:"爪",hit:"3(10)",dmg:"2d+1",evd:"3(10)",def:"3"}], abilities:["機動飛行 — 翼で素早く飛行。近接攻撃の命中・回避判定に+1のボーナス修正。","翼での追撃 — 爪で攻撃した対象に、翼での近接攻撃を追加で1回実行可能。"], loot:[], tags:"蛮族,飛行" },
+  { cat:"蛮族", name:"フーグルマンサー", rank:3, habitat:"砂漠・山岳", hp:17, mp:18, init:11, move:"10/15(飛行)", vit:"4(11)", mres:"5(12)", weakness:"風属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"杖",hit:"4(11)",dmg:"2d+2",evd:"3(10)",def:"3"}], abilities:["真語魔法3レベル／魔力4(11)","ターゲッティング — 乱戦中に魔法を放っても誤射しない。","機動飛行 — 翼で素早く飛行。"], loot:[], tags:"蛮族,飛行,魔法" },
+  { cat:"蛮族", name:"ボルグ", rank:3, habitat:"森・山・洞窟", hp:23, mp:10, init:11, move:"14/―", vit:"4(11)", mres:"4(11)", weakness:"物理ダメージ+2点", know:"7", knowval:"13", attacks:[{part:"武器",hit:"4(11)",dmg:"2d+4",evd:"4(11)",def:"3"}], abilities:["痛恨撃 — 打撃点決定の2dが10以上で+4点。"], loot:[], tags:"蛮族,痛恨" },
+  { cat:"蛮族", name:"ボルグハイランダー", rank:4, habitat:"森・山・洞窟", hp:29, mp:14, init:11, move:"16/―", vit:"5(12)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"9", knowval:"14", attacks:[{part:"武器",hit:"5(12)",dmg:"2d+5",evd:"5(12)",def:"3"}], abilities:["斬り返しI","痛恨撃 — 打撃点決定の2dが10以上で+6点。"], loot:[], tags:"蛮族,痛恨" },
+  { cat:"蛮族", name:"レッサーオーガ", rank:4, habitat:"さまざま", hp:36, mp:20, init:13, move:"14/―", vit:"5(12)", mres:"6(13)", weakness:"命中力+1", know:"9", knowval:"14", attacks:[{part:"武器",hit:"5(12)",dmg:"2d+4",evd:"5(12)",def:"2"}], abilities:["真語魔法3レベル／魔力5(12)","人化 — 人族の姿に変化。"], loot:[], tags:"蛮族,魔法,変身" },
+  { cat:"蛮族", name:"フーグルアサルター", rank:5, habitat:"砂漠・山岳", hp:38, mp:16, init:14, move:"15/20(飛行)", vit:"7(14)", mres:"7(14)", weakness:"風属性ダメージ+3点", know:"12", knowval:"15", attacks:[{part:"爪",hit:"7(14)",dmg:"2d+6",evd:"7(14)",def:"5"}], abilities:["機動飛行","翼での追撃","2回攻撃＆双撃","全力攻撃I"], loot:[], tags:"蛮族,飛行" },
+  { cat:"蛮族", name:"ボルグヘビーアーム", rank:5, habitat:"森・山・洞窟", hp:36, mp:17, init:10, move:"12/―", vit:"7(14)", mres:"6(13)", weakness:"物理ダメージ+2点", know:"10", knowval:"15", attacks:[{part:"武器",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"8"}], abilities:["全力攻撃I","痛恨撃"], loot:[], tags:"蛮族,痛恨" },
+  { cat:"蛮族", name:"ディアボロカデット(人間形態)", rank:5, habitat:"荒野・魔域", hp:42, mp:23, init:13, move:"20/20(飛行)", vit:"8(15)", mres:"8(15)", weakness:"純エネルギー属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"武器",hit:"7(14)",dmg:"2d+7",evd:"7(14)",def:"4"}], abilities:["強靭な皮膚","飛行","掃き払いI","魔人化"], loot:[], tags:"蛮族,飛行,魔人" },
+  { cat:"蛮族", name:"ディアボロカデット(魔人形態)", rank:6, habitat:"荒野・魔域", hp:44, mp:26, init:14, move:"20/20(飛行)", vit:"9(16)", mres:"9(16)", weakness:"純エネルギー属性ダメージ+3点", know:"14", knowval:"17", attacks:[{part:"牙(頭部)",hit:"7(14)",dmg:"2d+7",evd:"7(14)",def:"4"},{part:"武器(胴体)",hit:"8(15)",dmg:"2d+9",evd:"6(13)",def:"6"}], abilities:["強靭な皮膚","胴体/飛翔","掃き払いI","人間化"], loot:[], tags:"蛮族,飛行,魔人,多部位" },
+  { cat:"蛮族", name:"ケパラウラ", rank:6, habitat:"森・洞窟・湿地・魔域", hp:48, mp:41, init:13, move:"15/―", vit:"7(14)", mres:"9(16)", weakness:"炎属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"牙",hit:"8(15)",dmg:"2d+7",evd:"6(13)",def:"4"}], abilities:["毒無効","真語魔法・操霊魔法6レベル／魔力8(15)","毒／命中時","魔法連性"], loot:[], tags:"蛮族,魔法,毒" },
+  { cat:"蛮族", name:"トロール", rank:6, habitat:"洞窟", hp:50, mp:26, init:14, move:"18/―", vit:"9(16)", mres:"8(15)", weakness:"魔法ダメージ+2点", know:"11", knowval:"16", attacks:[{part:"武器",hit:"9(16)",dmg:"2d+10",evd:"7(14)",def:"5"}], abilities:["神聖魔法5レベル／魔力7(14)","全力攻撃I","弱体化(日光)"], loot:[], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"ドレイク(人間形態)", rank:6, habitat:"さまざま", hp:58, mp:36, init:16, move:"20/40(飛行)", vit:"9(16)", mres:"10(17)", weakness:"魔法ダメージ+2点", know:"10", knowval:"17", attacks:[{part:"剣",hit:"9(16)",dmg:"2d+8",evd:"7(14)",def:"4"}], abilities:["操霊魔法5レベル／魔力8(15)","魔力撃＝+8ダメージ","飛行","竜化"], loot:[], tags:"蛮族,飛行,魔法,竜" },
+  { cat:"蛮族", name:"ドレイク(竜形態)", rank:7, habitat:"さまざま", hp:62, mp:46, init:18, move:"20/40(飛行)", vit:"10(17)", mres:"11(18)", weakness:"魔法ダメージ+2点", know:"12", knowval:"18", attacks:[{part:"牙(胴体)",hit:"9(16)",dmg:"2d+12",evd:"9(16)",def:"7"},{part:"翼",hit:"11(18)",dmg:"2d+9",evd:"7(14)",def:"4"},{part:"翼",hit:"11(18)",dmg:"2d+9",evd:"7(14)",def:"4"}], abilities:["操霊魔法5レベル／魔力9(16)","光のブレス","瞬時人間化","飛翔"], loot:[], tags:"蛮族,飛行,魔法,竜,多部位" },
+  { cat:"動物", name:"ウルフ", rank:1, habitat:"森・草原・洞窟", hp:12, mp:8, init:11, move:"15/―", vit:"3(10)", mres:"1(8)", weakness:"物理ダメージ+2点", know:"5", knowval:"10", attacks:[{part:"牙",hit:"2(9)",dmg:"2d",evd:"2(9)",def:"1"}], abilities:["なし"], loot:[], tags:"動物" },
+  { cat:"動物", name:"ジャイアントギャドフライ", rank:1, habitat:"森・草原・湿地", hp:8, mp:5, init:9, move:"3(六足)/15(飛行)", vit:"2(9)", mres:"2(9)", weakness:"物理ダメージ+2点", know:"6", knowval:"9", attacks:[{part:"口吻",hit:"2(9)",dmg:"2d-1",evd:"2(9)",def:"1"}], abilities:["飛行","白眼中撃 — 回避された攻撃の次の命中に+1。"], loot:[], tags:"動物,飛行" },
+  { cat:"動物", name:"ジャイアントリザード", rank:2, habitat:"さまざま", hp:20, mp:8, init:10, move:"12(四足)/―", vit:"5(12)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"7", knowval:"11", attacks:[{part:"牙",hit:"3(10)",dmg:"2d+2",evd:"2(9)",def:"2"}], abilities:["なし"], loot:[], tags:"動物" },
+  { cat:"動物", name:"バープルアント", rank:2, habitat:"森・山・洞窟・草原", hp:14, mp:8, init:10, move:"12(六足)/―", vit:"4(11)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"8", knowval:"11", attacks:[{part:"顎",hit:"4(11)",dmg:"2d+1",evd:"3(10)",def:"4"}], abilities:["毒脚／4(11)／生命抵抗力／消滅"], loot:[], tags:"動物,毒" },
+  { cat:"動物", name:"グレイリンクス", rank:3, habitat:"森・山", hp:19, mp:10, init:12, move:"16(四足)/―", vit:"5(12)", mres:"3(10)", weakness:"魔法ダメージ+2点", know:"12", knowval:"15", attacks:[{part:"牙",hit:"4(11)",dmg:"2d+3",evd:"5(12)",def:"2"}], abilities:["連続攻撃 — 命中後もう1回攻撃。"], loot:[], tags:"動物" },
+  { cat:"動物", name:"バックリーダー", rank:3, habitat:"森・草原", hp:23, mp:11, init:13, move:"16(四足)/―", vit:"5(12)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"8", knowval:"11", attacks:[{part:"牙",hit:"5(12)",dmg:"2d+3",evd:"5(12)",def:"2"}], abilities:["群れの統率","手早い斬撃"], loot:[], tags:"動物" },
+  { cat:"動物", name:"ディノス", rank:4, habitat:"寒冷地", hp:26, mp:9, init:10, move:"13/―", vit:"7(14)", mres:"5(12)", weakness:"衝撃属性ダメージ+3点", know:"9", knowval:"12", attacks:[{part:"牙(頭部)",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"3"},{part:"尾(胴体)",hit:"7(14)",dmg:"2d+5",evd:"5(12)",def:"4"}], abilities:["頭部/冷気のブレス","胴体/攻撃障害＝+4"], loot:[], tags:"動物,多部位,ブレス" },
+  { cat:"動物", name:"サンドウォーム", rank:5, habitat:"砂漠", hp:46, mp:11, init:11, move:"20(蠕動)/20(地中)", vit:"9(16)", mres:"6(13)", weakness:"水・氷属性ダメージ+3点", know:"10", knowval:"15", attacks:[{part:"口",hit:"8(15)",dmg:"2d+10",evd:"7(14)",def:"3"}], abilities:["なし"], loot:[], tags:"動物" },
+  { cat:"植物", name:"スチームポッド", rank:2, habitat:"森", hp:18, mp:3, init:7, move:"5(陶芸)/―", vit:"4(11)", mres:"3(10)", weakness:"霊属性ダメージ+3点", know:"7", knowval:"11", attacks:[{part:"つる",hit:"3(10)",dmg:"2d+3",evd:"1(8)",def:"2"}], abilities:["不快な蒸気／必中 — 範囲内の命中・回避に-1。"], loot:[], tags:"植物" },
+  { cat:"植物", name:"ダンシングゾーン", rank:3, habitat:"草原・荒野", hp:23, mp:4, init:11, move:"10(回転)/―", vit:"5(12)", mres:"4(11)", weakness:"炎属性ダメージ+3点", know:"10", knowval:"12", attacks:[{part:"体当たり",hit:"5(12)",dmg:"2d+4",evd:"4(11)",def:"2"}], abilities:["痛恨撃 — 打撃点決定の2dが10以上で+3点。"], loot:[], tags:"植物,痛恨" },
+  { cat:"植物", name:"ブラッディーペタル", rank:5, habitat:"森", hp:58, mp:20, init:10, move:"5(多足)/―", vit:"11(18)", mres:"9(16)", weakness:"炎属性ダメージ+3点", know:"11", knowval:"14", attacks:[{part:"なし(胴体)",hit:"―",dmg:"―",evd:"5(12)",def:"2"},{part:"花(花)",hit:"7(14)",dmg:"2d+8",evd:"6(13)",def:"1"}], abilities:["胴体/再生＝5点","花/麻痺の毒"], loot:[], tags:"植物,毒,多部位" },
+  { cat:"アンデッド", name:"スケルトン", rank:1, habitat:"遺跡・墓地", hp:15, mp:"―", init:10, move:"8/―", vit:"2(9)", mres:"4(11)", weakness:"回復効果ダメージ+3点", know:"6", knowval:"11", attacks:[{part:"武器",hit:"2(9)",dmg:"2d",evd:"2(9)",def:"3"}], abilities:["精神効果無効","骨の身体 — 刃武器からクリティカルを受けない。"], loot:[], tags:"アンデッド" },
+  { cat:"アンデッド", name:"ゾンビ", rank:2, habitat:"遺跡・墓地", hp:25, mp:"―", init:7, move:"10/―", vit:"4(11)", mres:"4(11)", weakness:"回復効果ダメージ+3点", know:"7", knowval:"12", attacks:[{part:"爪",hit:"3(10)",dmg:"2d+3",evd:"3(10)",def:"1"}], abilities:["精神効果無効","全力攻撃I"], loot:[], tags:"アンデッド" },
+  { cat:"アンデッド", name:"ゴースト", rank:2, habitat:"さまざま", hp:20, mp:20, init:11, move:"―/10(浮遊)", vit:"5(12)", mres:"4(11)", weakness:"魔法ダメージ+2点", know:"10", knowval:"13", attacks:[{part:"腕",hit:"3(10)",dmg:"2d",evd:"3(10)",def:"0"}], abilities:["通常武器無効","誘惑／精神抵抗力"], loot:[], tags:"アンデッド,浮遊" },
+  { cat:"アンデッド", name:"レブナント", rank:"1〜", habitat:"さまざま", hp:"＊+10", mp:"―", init:"＊-2", move:"＊", vit:"＊", mres:"＊", weakness:"回復効果ダメージ+3点", know:"8", knowval:"14", attacks:[{part:"武器等",hit:"＊+2",dmg:"＊+2",evd:"＊-2",def:"＊"}], abilities:["精神効果無効","生前による","再生＝3点"], loot:[], tags:"アンデッド" },
+  { cat:"アンデッド", name:"ドライコープス", rank:3, habitat:"遺跡・墓地", hp:25, mp:"―", init:13, move:"16/―", vit:"5(12)", mres:"5(12)", weakness:"炎属性ダメージ+3点", know:"8", knowval:"13", attacks:[{part:"爪",hit:"5(12)",dmg:"2d+2",evd:"5(12)",def:"2"}], abilities:["精神効果無効","連続攻撃"], loot:[], tags:"アンデッド" },
+  { cat:"アンデッド", name:"ファントム", rank:5, habitat:"さまざま", hp:42, mp:16, init:13, move:"―/11(浮遊)", vit:"6(13)", mres:"8(15)", weakness:"回復効果ダメージ+3点", know:"10", knowval:"16", attacks:[{part:"鎌",hit:"6(13)",dmg:"2d+4",evd:"7(14)",def:"0"}], abilities:["通常武器無効","死者への祝福","怨念の呼び声"], loot:[], tags:"アンデッド,浮遊" },
+  { cat:"アンデッド", name:"デュラハン", rank:7, habitat:"不明", hp:53, mp:44, init:16, move:"25(四足&車輪)/―", vit:"10(17)", mres:"10(17)", weakness:"回復効果ダメージ+3点", know:"11", knowval:"18", attacks:[{part:"剣(本体)",hit:"10(17)",dmg:"2d+12",evd:"9(16)",def:"5"},{part:"突進(戦車)",hit:"8(15)",dmg:"2d+14",evd:"7(14)",def:"7"},{part:"蹄(馬)",hit:"9(16)",dmg:"2d+8",evd:"8(15)",def:"3"}], abilities:["本体/通常武器無効","真語魔法・神聖魔法5レベル","戦車/機械の身体","馬/全力攻撃I"], loot:[], tags:"アンデッド,多部位,魔法" },
+  { cat:"魔法生物", name:"ガスト", rank:1, habitat:"森・洞窟・遺跡", hp:14, mp:"―", init:9, move:"15/―", vit:"2(9)", mres:"2(9)", weakness:"物理ダメージ+2点", know:"5", knowval:"10", attacks:[{part:"爪",hit:"3(10)",dmg:"2d+2",evd:"2(9)",def:"0"}], abilities:["なし"], loot:[], tags:"魔法生物" },
+  { cat:"魔法生物", name:"チープストーン", rank:2, habitat:"洞窟・遺跡", hp:13, mp:"―", init:8, move:"8(回転)/―", vit:"3(10)", mres:"3(10)", weakness:"純エネルギー属性ダメージ+3点", know:"7", knowval:"10", attacks:[{part:"体当たり",hit:"3(10)",dmg:"2d+1",evd:"4(11)",def:"3"}], abilities:["もぐりこむ — 足下にもぐりこみ転倒。"], loot:[], tags:"魔法生物" },
+  { cat:"魔法生物", name:"ガーゴイル", rank:3, habitat:"遺跡", hp:26, mp:"―", init:12, move:"15/30(飛行)", vit:"4(11)", mres:"4(11)", weakness:"衝撃属性ダメージ+3点", know:"9", knowval:"14", attacks:[{part:"爪",hit:"5(12)",dmg:"2d+4",evd:"4(11)",def:"3"}], abilities:["擬態（石像）","飛行"], loot:[], tags:"魔法生物,飛行" },
+  { cat:"魔法生物", name:"ドアイミテイター", rank:3, habitat:"遺跡", hp:22, mp:"―", init:10, move:"―/5(浮遊)", vit:"5(12)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"9", knowval:"12", attacks:[{part:"体当たり",hit:"5(12)",dmg:"2d+7",evd:"3(10)",def:"5"}], abilities:["擬態（扉）","叩きつける — 命中で転倒。"], loot:[], tags:"魔法生物,浮遊" },
+  { cat:"魔法生物", name:"ガストナイト", rank:4, habitat:"遺跡", hp:32, mp:"―", init:11, move:"8/―", vit:"7(14)", mres:"4(11)", weakness:"物理ダメージ+2点", know:"7", knowval:"13", attacks:[{part:"武器",hit:"6(13)",dmg:"2d+8",evd:"5(12)",def:"2"}], abilities:["なし"], loot:[], tags:"魔法生物" },
+  { cat:"魔法生物", name:"ホムンクルス", rank:5, habitat:"さまざま", hp:39, mp:37, init:14, move:"16/―", vit:"7(14)", mres:"8(15)", weakness:"物理ダメージ+2点", know:"10", knowval:"15", attacks:[{part:"武器",hit:"7(14)",dmg:"2d+4",evd:"6(13)",def:"6"}], abilities:["真語魔法・操霊魔法3レベル／魔力6(13)","魔法適性"], loot:[], tags:"魔法生物,魔法" },
+  { cat:"魔動機", name:"ドルン", rank:2, habitat:"遺跡・人里", hp:18, mp:"―", init:8, move:"13(車輪)/―", vit:"3(10)", mres:"3(10)", weakness:"霊属性ダメージ+3点", know:"9", knowval:"12", attacks:[{part:"ハンマー",hit:"3(10)",dmg:"2d+4",evd:"3(10)",def:"2"}], abilities:["機械の身体 — 刃武器からクリティカルを受けない。"], loot:[], tags:"魔動機" },
+  { cat:"魔動機", name:"ザーレィ", rank:3, habitat:"遺跡", hp:25, mp:"―", init:9, move:"10/―", vit:"5(12)", mres:"5(12)", weakness:"衝撃属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"体当たり",hit:"4(11)",dmg:"2d+3",evd:"4(11)",def:"3"}], abilities:["マナコーティング(1)","光弾","ターゲッティング"], loot:[], tags:"魔動機" },
+  { cat:"魔動機", name:"ブルドルン", rank:4, habitat:"遺跡", hp:32, mp:"―", init:10, move:"14(車輪)/―", vit:"6(13)", mres:"6(13)", weakness:"霊属性ダメージ+3点", know:"11", knowval:"14", attacks:[{part:"ハンマー(右半身)",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"4"},{part:"ハンマー(左半身)",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"4"}], abilities:["機械の身体","ハンマースロー＆引き戻し"], loot:[], tags:"魔動機,多部位" },
+  { cat:"幻獣", name:"ディーラ", rank:3, habitat:"森・山", hp:24, mp:21, init:11, move:"13/26(飛行)", vit:"5(12)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"8", knowval:"14", attacks:[{part:"爪",hit:"4(11)",dmg:"2d",evd:"5(12)",def:"2"}], abilities:["魅了の歌／精神抵抗力"], loot:[], tags:"幻獣,飛行" },
+  { cat:"幻獣", name:"ヘルハウンド", rank:4, habitat:"遺跡", hp:38, mp:20, init:16, move:"18(四足)/―", vit:"6(13)", mres:"7(14)", weakness:"水・氷属性ダメージ+3点", know:"9", knowval:"15", attacks:[{part:"牙",hit:"7(14)",dmg:"2d+4",evd:"6(13)",def:"2"}], abilities:["炎無効","炎の吐息"], loot:[], tags:"幻獣,炎" },
+  { cat:"幻獣", name:"サンダーバード", rank:5, habitat:"山岳", hp:37, mp:22, init:14, move:"―/50(飛行)", vit:"8(15)", mres:"8(15)", weakness:"魔法ダメージ+2点", know:"10", knowval:"16", attacks:[{part:"嘴(胴体)",hit:"7(14)",dmg:"2d+8",evd:"7(14)",def:"5"},{part:"翼(翼)",hit:"8(15)",dmg:"2d+6",evd:"6(13)",def:"3"}], abilities:["全身/雷無効","胴体/雷撃","翼/飛翔"], loot:[], tags:"幻獣,飛行,多部位" },
+  { cat:"幻獣", name:"グリフォン", rank:7, habitat:"山岳", hp:58, mp:26, init:18, move:"20(四足)/40(飛行)", vit:"12(19)", mres:"9(16)", weakness:"霊属性ダメージ+3点", know:"12", knowval:"18", attacks:[{part:"嘴(胴体)",hit:"9(16)",dmg:"2d+11",evd:"11(18)",def:"5"},{part:"翼(翼)",hit:"10(17)",dmg:"2d+8",evd:"9(16)",def:"4"}], abilities:["連続攻撃","飛翔"], loot:[], tags:"幻獣,飛行,多部位" },
+  { cat:"魔神", name:"エルビレア", rank:3, habitat:"魔域", hp:24, mp:9, init:8, move:"8/―", vit:"4(11)", mres:"5(12)", weakness:"魔法ダメージ+2点", know:"9", knowval:"13", attacks:[{part:"爪",hit:"5(12)",dmg:"2d+6",evd:"4(11)",def:"3"}], abilities:["マナ阻害の毒／生命抵抗力"], loot:[], tags:"魔神,毒" },
+  { cat:"魔神", name:"アザービースト", rank:4, habitat:"地下深遠", hp:32, mp:15, init:12, move:"14(四足)/―", vit:"5(12)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"12", knowval:"15", attacks:[{part:"牙",hit:"6(13)",dmg:"2d+5",evd:"5(12)",def:"3"}], abilities:["なし"], loot:[], tags:"魔神" },
+  { cat:"魔神", name:"ナズラック", rank:5, habitat:"魔域", hp:26, mp:16, init:12, move:"5/―", vit:"7(14)", mres:"7(14)", weakness:"魔法ダメージ+2点", know:"13", knowval:"16", attacks:[{part:"なし(頭部)",hit:"―",dmg:"―",evd:"6(13)",def:"4"},{part:"触手(触手)",hit:"7(14)",dmg:"2d+6",evd:"5(12)",def:"6"},{part:"触手(触手)",hit:"7(14)",dmg:"2d+6",evd:"5(12)",def:"6"}], abilities:["頭部/圧迫の視線","頭部/任熱の視線","触手/テイルスイープ"], loot:[], tags:"魔神,多部位" },
+  { cat:"人族", name:"庭鉄の雑兵", rank:2, habitat:"さまざま", hp:20, mp:10, init:9, move:"14/―", vit:"4(11)", mres:"3(10)", weakness:"なし", know:"5", knowval:"―", attacks:[{part:"武器",hit:"4(11)",dmg:"2d+2",evd:"3(10)",def:"3"}], abilities:["剣の加護／運命変転"], loot:[], tags:"人族" },
+  { cat:"人族", name:"腕利きの傭兵", rank:5, habitat:"さまざま", hp:52, mp:12, init:14, move:"20/―", vit:"8(15)", mres:"7(14)", weakness:"なし", know:"8", knowval:"―", attacks:[{part:"剣",hit:"8(15)",dmg:"2d+10",evd:"8(15)",def:"5"}], abilities:["手早い斬撃","剣の加護／運命変転","全力攻撃I"], loot:[], tags:"人族" },
+  { cat:"蛮族", name:"サハギン", rank:2, habitat:"海岸・河口付近", hp:20, mp:10, init:10, move:"12/16(水中)", vit:"4(11)", mres:"3(10)", weakness:"土属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"武器",hit:"3(10)",dmg:"2d+2",evd:"3(10)",def:"2"}], abilities:["水中適性"], loot:[], tags:"人族,水中" },
+  { cat:"蛮族", name:"ケンタウロス", rank:3, habitat:"草原", hp:25, mp:18, init:12, move:"22(四足)/―", vit:"5(12)", mres:"4(11)", weakness:"土属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"武器",hit:"5(12)",dmg:"2d+2",evd:"3(10)",def:"2"}], abilities:["妖精魔法2レベル／魔力4(11)","突撃"], loot:[], tags:"人族,魔法" },
+  { cat:"蛮族", name:"ハンガーフッド", rank:3, habitat:"さまざま", hp:18, mp:12, init:10, move:"12/―", vit:"4(11)", mres:"5(12)", weakness:"魔法ダメージ+2点", know:"8", knowval:"12", attacks:[{part:"鉤縄",hit:"5(12)",dmg:"2d+5",evd:"5(12)",def:"3"}], abilities:["鉤縄","鉤縄ぶら下がり"], loot:[], tags:"人族" },
+  { cat:"蛮族", name:"メデューサ", rank:4, habitat:"地下深遠", hp:26, mp:22, init:13, move:"14/―", vit:"4(11)", mres:"6(13)", weakness:"物理ダメージ+2点", know:"10", knowval:"15", attacks:[{part:"髪の蛇",hit:"6(13)",dmg:"2d+2",evd:"4(11)",def:"2"}], abilities:["瞬時攻撃","毒","石化する視線"], loot:[], tags:"人族,毒" },
+  { cat:"蛮族", name:"リザードマン", rank:4, habitat:"沼・湿地", hp:32, mp:15, init:10, move:"13/13(水中)", vit:"6(13)", mres:"5(12)", weakness:"土属性ダメージ+3点", know:"11", knowval:"14", attacks:[{part:"武器",hit:"6(13)",dmg:"2d+4",evd:"4(11)",def:"5"}], abilities:["水中適性","テイルスイープ"], loot:[], tags:"人族,水中" },
+  { cat:"蛮族", name:"ローレライ", rank:4, habitat:"河川", hp:26, mp:18, init:13, move:"14/14(水中)", vit:"4(11)", mres:"6(13)", weakness:"物理ダメージ+2点", know:"―", knowval:"―", attacks:[{part:"武器",hit:"4(11)",dmg:"2d+2",evd:"4(11)",def:"2"}], abilities:["水中適性","基本呪歌1レベル","ラブソング"], loot:[], tags:"人族,水中,魔法" },
+];
+
+// ────────────────────────────────────────────
+//  状態
+// ────────────────────────────────────────────
+let currentFilter    = 'all';
+let currentMonster   = null;
+let currentEnemyName = null; // 選択中のエネミー駒名（群れ対応：「ボルグA」など）
+let currentTab       = 'action';
+let roundNum         = 0;
+let characters       = []; // PC名リスト（行動解除対象）
+let enemies          = []; // エネミー駒リスト [{displayName, monster}]
+
+// ────────────────────────────────────────────
+//  ユーティリティ
+// ────────────────────────────────────────────
+const ENDPOINT = 'https://us-central1-trpgnog.cloudfunctions.net/tekeyProxy2';
+
+function cfg(key) { return localStorage.getItem(key) || ''; }
+
+function statBase(s) {
+  // "4(11)" → "4"、"11(18)" → "11"
+  const m = String(s).match(/^(\S+?)\(/);
+  return m ? m[1] : String(s);
+}
+function dmgToBCDice(s) {
+  // "2d+4" → "2d6+4"、"2d" → "2d6"、"2d-1" → "2d6-1"
+  return String(s).replace(/^2d(\+|-)/, '2d6$1').replace(/^2d$/, '2d6');
+}
+
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.className = 'toast', 2800);
+}
+
+function addLog(msg, type='info') {
+  const area = document.getElementById('logArea');
+  const now  = new Date().toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const el   = document.createElement('div');
+  el.className = 'log-entry';
+  el.innerHTML = `<span class="log-time">${now}</span><span class="log-${type}">${msg}</span>`;
+  area.appendChild(el);
+  area.scrollTop = area.scrollHeight;
+}
+
+// ────────────────────────────────────────────
+//  API 送信
+// ────────────────────────────────────────────
+async function sendChat(message, { name, color, bot } = {}) {
+  const apikey   = cfg('apikey');
+  const room     = cfg('room');
+  const password = cfg('pass');
+  const tab      = cfg('tab');
+  const senderName = name || cfg('senderName') || undefined;
+
+  if (!apikey || !room) {
+    showToast('⚙ 接続設定を先に行ってください', 'err');
+    addLog('接続設定未完了', 'err');
+    return false;
+  }
+
+  const body = { command:'sendChat', apikey, room, password, message };
+  if (senderName) body.name = senderName;
+  if (tab)        body.tab  = tab;
+  if (color)      body.color = color;
+  if (bot)        body.bot   = bot;
+
+  try {
+    const res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    addLog(`✓ ${message}`, 'ok');
+    return true;
+  } catch (e) {
+    addLog(`✗ ${message} → ${e.message}`, 'err');
+    showToast(`送信失敗: ${e.message}`, 'err');
+    return false;
+  }
+}
+
+// ────────────────────────────────────────────
+//  ラウンド管理
+// ────────────────────────────────────────────
+async function startRound() {
+  roundNum++;
+  document.getElementById('roundDisp').textContent = `${roundNum} R`;
+
+  // 1. ラウンド開始メッセージ
+  await sendChat(`--- ${roundNum}R 開始 ---`, { color: 'c9a84c' });
+
+  // 2. PC＋エネミー全員の行動を解除（:行動=0）
+  // PC名リスト
+  const pcNames = [...characters];
+  // エネミー駒名リスト（群れはA/B/C付きの表示名）
+  const enemyNames = enemies.map(e => e.displayName);
+  const allTargets = [...pcNames, ...enemyNames];
+
+  if (allTargets.length === 0) {
+    showToast(`${roundNum}R 開始（対象なし）`, 'ok');
+    return;
+  }
+  let ok = 0;
+  for (const name of allTargets) {
+    const success = await sendChat(`:行動=0@[name]:${name}`);
+    if (success) ok++;
+  }
+  showToast(`${roundNum}R 開始 ／ 行動解除 ${ok}/${allTargets.length}体`, 'ok');
+}
+
+function resetRound() {
+  roundNum = 0;
+  document.getElementById('roundDisp').textContent = '― R';
+  showToast('ラウンドをリセットしました', 'ok');
+}
+
+// ────────────────────────────────────────────
+//  モンスターリスト
+// ────────────────────────────────────────────
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderMonsterList();
+}
+
+function renderMonsterList() {
+  const q   = document.getElementById('monsterSearch').value;
+  const list = document.getElementById('monsterList');
+  const filtered = monsters.filter(m => {
+    const matchF = currentFilter === 'all' || m.cat === currentFilter || m.tags.includes(currentFilter);
+    const matchQ = !q || m.name.includes(q) || m.cat.includes(q) || (m.tags||'').includes(q);
+    return matchF && matchQ;
+  }).sort((a,b) => {
+    const ra = parseInt(String(a.rank)) || 0;
+    const rb = parseInt(String(b.rank)) || 0;
+    return ra - rb;
+  });
+
+  list.innerHTML = filtered.map((m,i) => {
+    const rk = String(m.rank).charAt(0);
+    const idx = monsters.indexOf(m);
+    return `<div class="monster-item" onclick="openAddPopup(${idx})">
+      <div class="mi-rank r${rk}">${m.rank}</div>
+      <div class="mi-info">
+        <div class="mi-name">${m.name}</div>
+        <div class="mi-cat">${m.cat}　HP${m.hp}</div>
+      </div>
+      <button onclick="event.stopPropagation();openAddPopup(${idx})"
+        style="font-size:10px;padding:2px 7px;border-radius:3px;border:1px solid var(--border2);background:transparent;color:var(--gold);cursor:pointer;flex-shrink:0;transition:all .12s;"
+        onmouseover="this.style.borderColor='var(--gold)';this.style.background='var(--accent)'"
+        onmouseout="this.style.borderColor='var(--border2)';this.style.background='transparent'">＋</button>
+    </div>`;
+  }).join('');
+}
+
+// ────────────────────────────────────────────
+//  エネミー追加ポップアップ
+// ────────────────────────────────────────────
+let popupTargetIdx = null;
+
+function openAddPopup(idx) {
+  popupTargetIdx = idx;
+  document.getElementById('popupMonsterName').textContent = `＋ ${monsters[idx].name}`;
+  document.getElementById('popCount').value = 1;
+  updatePopupPreview();
+  document.getElementById('addPopup').classList.add('open');
+}
+function closeAddPopup() {
+  document.getElementById('addPopup').classList.remove('open');
+  popupTargetIdx = null;
+}
+function updatePopupPreview() {
+  if (popupTargetIdx === null) return;
+  const m     = monsters[popupTargetIdx];
+  const count = parseInt(document.getElementById('popCount').value) || 1;
+  const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const names = count === 1
+    ? [m.name]
+    : Array.from({length: count}, (_, i) => `${m.name}${ALPHA[i]}`);
+  document.getElementById('popPreview').textContent = names.join('、');
+}
+function confirmAddEnemy() {
+  if (popupTargetIdx === null) return;
+  const m     = monsters[popupTargetIdx];
+  const count = parseInt(document.getElementById('popCount').value) || 1;
+  const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const names = count === 1
+    ? [m.name]
+    : Array.from({length: count}, (_, i) => `${m.name}${ALPHA[i]}`);
+  names.forEach(name => {
+    enemies.push({ displayName: name, monster: m });
+  });
+  renderEnemyList();
+  closeAddPopup();
+  showToast(`${names.join('、')} を追加`, 'ok');
+}
+
+// ────────────────────────────────────────────
+//  エネミーリスト描画・管理
+// ────────────────────────────────────────────
+function renderEnemyList() {
+  const el = document.getElementById('enemyList');
+  document.getElementById('enemyCountBadge').textContent = `${enemies.length}体`;
+  if (enemies.length === 0) {
+    el.innerHTML = '<div class="enemy-empty-msg">←DBから＋ボタンで<br>エネミーを追加</div>';
+    return;
+  }
+  el.innerHTML = enemies.map((e, i) => {
+    const rk = String(e.monster.rank).charAt(0);
+    const active = currentEnemyName === e.displayName ? ' active' : '';
+    return `<div class="enemy-card${active}" onclick="selectEnemy(${i})">
+      <div class="mi-rank r${rk}" style="width:20px;height:20px;font-size:9px;">${e.monster.rank}</div>
+      <div class="ec-info">
+        <div class="ec-name">${e.displayName}</div>
+        <div class="ec-sub">HP${e.monster.hp} / 先制${e.monster.init}</div>
+      </div>
+      <button class="ec-del" onclick="event.stopPropagation();removeEnemy(${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function removeEnemy(i) {
+  const removed = enemies[i].displayName;
+  enemies.splice(i, 1);
+  if (currentEnemyName === removed) {
+    currentEnemyName = null;
+    currentMonster   = null;
+    document.getElementById('emptyState').style.display = 'flex';
+    document.getElementById('monsterPanel').style.display = 'none';
+  }
+  renderEnemyList();
+}
+
+function clearAllEnemies() {
+  if (enemies.length === 0) return;
+  if (!confirm(`エネミー ${enemies.length}体 を全解除しますか？`)) return;
+  enemies = [];
+  currentEnemyName = null;
+  currentMonster   = null;
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('monsterPanel').style.display = 'none';
+  renderEnemyList();
+}
+
+// ────────────────────────────────────────────
+//  エネミー選択・パネル描画
+// ────────────────────────────────────────────
+function selectEnemy(i) {
+  const e = enemies[i];
+  currentMonster   = e.monster;
+  currentEnemyName = e.displayName;
+
+  // パネル表示
+  document.getElementById('emptyState').style.display = 'none';
+  const panel = document.getElementById('monsterPanel');
+  panel.style.display = 'flex';
+
+  // ヘッダー
+  const rk = String(currentMonster.rank).charAt(0);
+  document.getElementById('monsterHeader').innerHTML = `
+    <div class="mi-rank r${rk}" style="width:32px;height:32px;font-size:13px;">${currentMonster.rank}</div>
+    <div style="flex:1">
+      <div class="mh-name">${e.displayName}</div>
+      <div style="font-size:10px;color:var(--gold);margin-top:1px;">${currentMonster.name}</div>
+      <div class="mh-meta">
+        <span>🏷 ${currentMonster.cat}</span>
+        <span>❤️ HP ${currentMonster.hp}</span>
+        <span>💙 MP ${currentMonster.mp}</span>
+        <span>⚡ 先制 ${currentMonster.init}</span>
+        <span>🥾 ${currentMonster.move}</span>
+      </div>
+    </div>
+    <span class="mh-badge">⚠️ ${currentMonster.weakness}</span>
+  `;
+
+  renderActionTab();
+  renderEnemyList(); // active状態更新
+}
+
+function renderActionTab() {
+  const m   = currentMonster;
+  const tab = document.getElementById('tab-action');
+
+  // stat解析
+  const vitBase  = statBase(m.vit);
+  const mresBase = statBase(m.mres);
+  const init     = parseInt(m.init) || 0;
+
+  // 攻撃部位ごとのブロック
+  const attackBlocks = m.attacks.map(a => {
+    const hitBase = statBase(a.hit);
+    const evdBase = statBase(a.evd);
+    const dmgBc   = dmgToBCDice(a.dmg);
+    const hitCmd  = hitBase === '―' ? null : `2d6+${hitBase} 【${a.part}：命中】`;
+    const dmgCmd  = a.dmg === '―'  ? null : `${dmgBc} 【${a.part}：打撃点】`;
+    const evdCmd  = `2d6+${evdBase} 【${a.part}：回避】`;
+
+    return `
+      <div class="attack-section">
+        <div class="attack-name">⚔️ ${a.part}</div>
+        <div class="attack-stats">
+          <span>命中 ${a.hit}</span>
+          <span>打撃 ${a.dmg}</span>
+          <span>回避 ${a.evd}</span>
+          <span>防護 ${a.def}</span>
+        </div>
+        <div class="btn-grid">
+          ${hitCmd ? `<button class="action-btn btn-hit" onclick="roll(${JSON.stringify(hitCmd)})"><span class="btn-label">命中判定</span><span class="btn-val">2d6+${hitBase}</span></button>` : ''}
+          ${dmgCmd ? `<button class="action-btn btn-dmg" onclick="roll(${JSON.stringify(dmgCmd)})"><span class="btn-label">打撃点</span><span class="btn-val">${a.dmg}</span></button>` : ''}
+          <button class="action-btn btn-evd" onclick="roll(${JSON.stringify(evdCmd)})"><span class="btn-label">回避判定</span><span class="btn-val">2d6+${evdBase}</span></button>
+        </div>
+      </div>`;
+  }).join('');
+
+  tab.innerHTML = `
+    <div class="section-label">攻撃</div>
+    ${attackBlocks}
+
+    <div class="section-label" style="margin-top:16px;">抵抗・その他</div>
+    <div class="btn-grid">
+      <button class="action-btn btn-vit"  onclick="roll('2d6+${vitBase} 【生命抵抗】')">
+        <span class="btn-label">生命抵抗</span><span class="btn-val">2d6+${vitBase}</span>
+      </button>
+      <button class="action-btn btn-mres" onclick="roll('2d6+${mresBase} 【精神抵抗】')">
+        <span class="btn-label">精神抵抗</span><span class="btn-val">2d6+${mresBase}</span>
+      </button>
+      <button class="action-btn btn-init" onclick="roll('2d6+${init} 【先制値】')">
+        <span class="btn-label">先制値</span><span class="btn-val">2d6+${init}</span>
+      </button>
+    </div>
+
+    <div class="section-label" style="margin-top:16px;">行動管理</div>
+    <div class="btn-grid">
+      <button class="action-btn" style="background:linear-gradient(135deg,#0a1a0a,#060d06);border-color:#3a7a3a;color:#70c070;" onclick="markActed()">
+        <span class="btn-label">行動完了を送信</span><span class="btn-val">✔ 行動済</span>
+      </button>
+    </div>
+
+    <div class="section-label" style="margin-top:16px;">特殊能力メモ</div>
+    <div style="font-size:11px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;line-height:2;">
+      ${m.abilities.map(a => `• ${a}`).join('<br>')}
+    </div>
+  `;
+}
+
+async function roll(cmd) {
+  const name = currentMonster ? currentMonster.name : undefined;
+  await sendChat(cmd, { bot: 'SwordWorld2_5', name });
+  showToast(`送信: ${cmd}`, 'ok');
+}
+
+async function markActed() {
+  if (!currentEnemyName) return;
+  const msg = `:行動=-1@[name]:${currentEnemyName}`;
+  await sendChat(msg);
+  showToast(`✔ 行動済: ${currentEnemyName}`, 'ok');
+}
+
+// ────────────────────────────────────────────
+//  タブ切替
+// ────────────────────────────────────────────
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+}
+
+// ────────────────────────────────────────────
+//  PC登録アコーディオン
+// ────────────────────────────────────────────
+let pcPanelOpen = false;
+
+function togglePCPanel() {
+  pcPanelOpen = !pcPanelOpen;
+  const panel = document.getElementById('pcPanel');
+  const btn   = document.getElementById('pcToggleBtn');
+  panel.style.display = pcPanelOpen ? 'block' : 'none';
+  btn.textContent = pcPanelOpen ? '👥 PC登録 ▴' : '👥 PC登録 ▾';
+  if (pcPanelOpen) renderPCInlineList();
+}
+
+function renderPCInlineList() {
+  const el = document.getElementById('pcInlineList');
+  if (characters.length === 0) {
+    el.innerHTML = '<span style="font-size:10px;color:var(--text3);">登録なし</span>';
+    return;
+  }
+  el.innerHTML = characters.map((n,i) => `
+    <span style="display:inline-flex;align-items:center;gap:4px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:2px 8px 2px 10px;font-size:11px;color:var(--gold2);">
+      ${n}
+      <button onclick="removePC(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:0;line-height:1;" title="削除">✕</button>
+    </span>
+  `).join('');
+  // バッジ更新
+  document.getElementById('pcBadge').innerHTML = `PC <b style="color:var(--gold2);">${characters.length}</b> 人`;
+}
+
+function addPCInline() {
+  const input = document.getElementById('pcInlineInput');
+  const name  = input.value.trim();
+  if (!name) return;
+  if (!characters.includes(name)) {
+    characters.push(name);
+    renderPCInlineList();
+  }
+  input.value = '';
+  input.focus();
+}
+
+function removePC(i) {
+  characters.splice(i, 1);
+  renderPCInlineList();
+}
+
+// 旧関数（後方互換のため残す）
+function addChar()        { addPCInline(); }
+function renderCharList() { renderPCInlineList(); }
+function removeChar(i)    { removePC(i); }
+
+// ────────────────────────────────────────────
+//  設定モーダル
+// ────────────────────────────────────────────
+function openSettings() {
+  document.getElementById('s_apikey').value = cfg('apikey');
+  document.getElementById('s_room').value   = cfg('room');
+  document.getElementById('s_pass').value   = cfg('pass');
+  document.getElementById('s_tab').value    = cfg('tab');
+  document.getElementById('s_name').value   = cfg('senderName');
+  document.getElementById('settingsModal').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('open');
+}
+function saveSettings() {
+  localStorage.setItem('apikey',      document.getElementById('s_apikey').value.trim());
+  localStorage.setItem('room',        document.getElementById('s_room').value.trim());
+  localStorage.setItem('pass',        document.getElementById('s_pass').value.trim());
+  localStorage.setItem('tab',         document.getElementById('s_tab').value.trim());
+  localStorage.setItem('senderName',  document.getElementById('s_name').value.trim());
+  closeSettings();
+  updateConnStatus();
+  showToast('設定を保存しました', 'ok');
+}
+function updateConnStatus() {
+  const el = document.getElementById('connStatus');
+  if (cfg('apikey') && cfg('room')) {
+    el.textContent = `✅ ルーム: ${cfg('room')}`;
+    el.style.color = 'var(--green2)';
+  } else {
+    el.textContent = '⚠ 未設定';
+    el.style.color = 'var(--text3)';
+  }
+}
+
+// ────────────────────────────────────────────
+//  DB開閉
+// ────────────────────────────────────────────
+let dbVisible = true;
+
+function toggleDB() {
+  dbVisible = !dbVisible;
+  const layout    = document.querySelector('.layout');
+  const showBtn   = document.getElementById('dbShowBtn');
+  if (dbVisible) {
+    layout.classList.remove('db-hidden');
+    showBtn.style.display = 'none';
+  } else {
+    layout.classList.add('db-hidden');
+    showBtn.style.display = 'block';
+  }
+}
+
+// ────────────────────────────────────────────
+//  初期化
+// ────────────────────────────────────────────
+renderMonsterList();
+updateConnStatus();
+</script>
+</body>
+</html>
