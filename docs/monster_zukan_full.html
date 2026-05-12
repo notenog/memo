@@ -174,8 +174,15 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
         <div class="fgroup"><label>ルームID</label><input id="ts_room" placeholder="ルームID"></div>
         <div class="fgroup"><label>ルームパスワード</label><input id="ts_pass" type="password" placeholder="パスワード"></div>
       </div>
+      <div class="fsep">Firebase Storage設定（画像アップロード用）</div>
+      <div class="fgroup"><label>StorageバケットURL</label>
+        <input id="ts_bucket" placeholder="https://firebasestorage.googleapis.com/v0/b/trpgnog.appspot.com">
+      </div>
+      <div class="fgroup"><label>Firebase APIキー</label>
+        <input id="ts_fbkey" placeholder="AIza...">
+      </div>
       <div style="font-size:11px;color:var(--text3);line-height:1.7;margin-top:4px;">
-        ※ APIキーはFirebase Functions側に設定します。<br>
+        ※ Tekey APIキーはFirebase Functions側に設定します。<br>
         ※ 設定はブラウザに保存されます（localStorage）。
       </div>
     </div>
@@ -198,14 +205,20 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
         <div class="fgroup"><label>群れ数</label>
           <input id="tk_count" type="number" min="1" max="26" value="1">
         </div>
-        <div class="fgroup"><label>コマ画像URL（省略可）</label>
-          <input id="tk_image" placeholder="https://...">
+        <div class="fgroup"><label>コマ幅 width（省略可）</label>
+          <input id="tk_width" type="number" placeholder="1" min="1">
+        </div>
+        <div class="fgroup"><label>コマ高 height（省略可）</label>
+          <input id="tk_height" type="number" placeholder="1" min="1">
         </div>
       </div>
-      <div class="frow3">
-        <div class="fgroup"><label>x座標（省略可）</label><input id="tk_x" type="number" placeholder="0"></div>
-        <div class="fgroup"><label>y座標（省略可）</label><input id="tk_y" type="number" placeholder="0"></div>
-        <div class="fgroup"><label>コマサイズ（省略可）</label><input id="tk_size" type="number" placeholder="1"></div>
+      <div class="fgroup"><label>コマ画像（ローカルファイル）</label>
+        <input type="file" id="tk_image_file" accept="image/*" style="color:var(--text2);font-size:12px;">
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">Firebase Storageにアップロードします。設定済みの場合のみ有効。</div>
+      </div>
+      <div id="tk_image_preview" style="margin-top:4px;display:none;">
+        <img id="tk_image_thumb" style="max-height:60px;border-radius:4px;border:0.5px solid var(--border2);">
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;" id="tk_image_url_display"></div>
       </div>
       <div style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.8;" id="tk_preview"></div>
     </div>
@@ -666,10 +679,11 @@ function updateExportBtns() {
 
 // ── Tekey設定 ──
 function openTekeySettings() {
-  // localStorageから復元
   document.getElementById('ts_endpoint').value = localStorage.getItem('tekey_endpoint') || '';
   document.getElementById('ts_room').value      = localStorage.getItem('tekey_room') || '';
   document.getElementById('ts_pass').value      = localStorage.getItem('tekey_pass') || '';
+  document.getElementById('ts_bucket').value    = localStorage.getItem('tekey_bucket') || '';
+  document.getElementById('ts_fbkey').value     = localStorage.getItem('tekey_fbkey') || '';
   document.getElementById('tekeySettingsOverlay').classList.add('open');
 }
 function closeTekeySettings() {
@@ -679,21 +693,25 @@ function saveTekeySettings() {
   localStorage.setItem('tekey_endpoint', document.getElementById('ts_endpoint').value.trim());
   localStorage.setItem('tekey_room',     document.getElementById('ts_room').value.trim());
   localStorage.setItem('tekey_pass',     document.getElementById('ts_pass').value.trim());
+  localStorage.setItem('tekey_bucket',   document.getElementById('ts_bucket').value.trim());
+  localStorage.setItem('tekey_fbkey',    document.getElementById('ts_fbkey').value.trim());
   closeTekeySettings();
   alert('Tekey設定を保存しました。');
 }
 
 // ── Tekey追加モーダル ──
 let tekeyTarget = null;
+let tekeyImageURL = '';
 
 function openTekeyAdd(idx) {
   tekeyTarget = monsters[idx];
+  tekeyImageURL = tekeyTarget.image || '';
   document.getElementById('tekeyAddTitle').textContent = `🎲 Tekeyへ追加 ― ${tekeyTarget.name}`;
-  document.getElementById('tk_count').value = 1;
-  document.getElementById('tk_image').value = tekeyTarget.image || '';
-  document.getElementById('tk_x').value = '';
-  document.getElementById('tk_y').value = '';
-  document.getElementById('tk_size').value = '';
+  document.getElementById('tk_count').value  = 1;
+  document.getElementById('tk_width').value  = '';
+  document.getElementById('tk_height').value = '';
+  document.getElementById('tk_image_file').value = '';
+  document.getElementById('tk_image_preview').style.display = 'none';
   updateTekeyPreview();
   document.getElementById('tekeyAddOverlay').classList.add('open');
 }
@@ -713,7 +731,42 @@ document.addEventListener('input', e => {
   if (e.target.id === 'tk_count') updateTekeyPreview();
 });
 
-// statNum: "4(11)" → "11"、"4(11)" の()内を優先、なければそのまま
+// 画像ファイル選択時にプレビュー表示
+document.addEventListener('change', e => {
+  if (e.target.id !== 'tk_image_file') return;
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('tk_image_thumb').src = ev.target.result;
+    document.getElementById('tk_image_preview').style.display = 'block';
+    document.getElementById('tk_image_url_display').textContent = 'アップロード待機中...';
+  };
+  reader.readAsDataURL(file);
+});
+
+// Firebase Storageへ画像アップロード
+async function uploadImageToStorage(file) {
+  const bucket = localStorage.getItem('tekey_bucket') || '';
+  const fbkey  = localStorage.getItem('tekey_fbkey') || '';
+  if (!bucket || !fbkey) return '';
+
+  const filename = `monster_images/${Date.now()}_${file.name}`;
+  const uploadUrl = `${bucket}/o?uploadType=media&name=${encodeURIComponent(filename)}&key=${fbkey}`;
+
+  const res = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': file.type },
+    body: file,
+  });
+  if (!res.ok) throw new Error('画像アップロード失敗: ' + await res.text());
+  const data = await res.json();
+  // 公開URLを組み立て
+  const publicUrl = `${bucket}/o/${encodeURIComponent(filename)}?alt=media`;
+  return publicUrl;
+}
+
+// statNum: "4(11)" → ()内を優先
 function tekeyStatNum(s) {
   const m = String(s).match(/\((\d+)\)/);
   return m ? m[1] : String(s).match(/^(\d+)/) ? String(s).match(/^(\d+)/)[1] : '0';
@@ -729,14 +782,32 @@ async function sendToTekey() {
   }
   if (!tekeyTarget) return;
 
-  const m       = tekeyTarget;
-  const count   = parseInt(document.getElementById('tk_count').value) || 1;
-  const image   = document.getElementById('tk_image').value.trim();
-  const x       = document.getElementById('tk_x').value.trim();
-  const y       = document.getElementById('tk_y').value.trim();
-  const size    = document.getElementById('tk_size').value.trim();
+  const btn = document.getElementById('tk_sendBtn');
+  btn.disabled = true;
+  btn.textContent = '準備中...';
 
-  // ステータス文字列を組み立て
+  const m      = tekeyTarget;
+  const count  = parseInt(document.getElementById('tk_count').value) || 1;
+  const width  = document.getElementById('tk_width').value.trim();
+  const height = document.getElementById('tk_height').value.trim();
+
+  // 画像アップロード
+  let imageUrl = tekeyImageURL;
+  const imageFile = document.getElementById('tk_image_file').files[0];
+  if (imageFile) {
+    try {
+      btn.textContent = '画像アップロード中...';
+      imageUrl = await uploadImageToStorage(imageFile);
+      document.getElementById('tk_image_url_display').textContent = imageUrl;
+    } catch (err) {
+      alert('画像アップロードに失敗しました。\n' + err.message);
+      btn.disabled = false;
+      btn.textContent = '送信';
+      return;
+    }
+  }
+
+  // ステータス（生命/精神 表記に合わせる）
   const hp   = parseInt(m.hp) || 0;
   const mp   = String(m.mp) === '―' ? 0 : (parseInt(m.mp) || 0);
   const def  = m.attacks[0] ? (parseInt(m.attacks[0].def) || 0) : 0;
@@ -745,24 +816,24 @@ async function sendToTekey() {
   const vit  = tekeyStatNum(m.vit);
   const mres = tekeyStatNum(m.mres);
   const init = parseInt(m.init) || 0;
-  const values = `HP:${hp}:${hp},MP:${mp}:${mp},防護点:${def},命中:${hit},回避:${evd},生命抵抗:${vit},精神抵抗:${mres}`;
+  const values = `HP:${hp}:${hp},MP:${mp}:${mp},防護点:${def},命中:${hit},回避:${evd},生命:${vit},精神:${mres}`;
+
+  // infoにコピーデータと同内容を設定
+  const info = formatMonster(m);
 
   const suffix = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const names  = count === 1
     ? [m.name]
     : Array.from({length: count}, (_, i) => `${m.name}${suffix[i]}`);
 
-  const btn = document.getElementById('tk_sendBtn');
-  btn.disabled = true;
   btn.textContent = '送信中...';
-
   let successCount = 0, failCount = 0;
+
   for (const name of names) {
-    const body = { command:'addCharacter', room, password:pass, name, values, initiative: init };
-    if (image)  body.image = image;
-    if (x)      body.x = parseInt(x);
-    if (y)      body.y = parseInt(y);
-    if (size)   body.size = parseInt(size);
+    const body = { command:'addCharacter', room, password:pass, name, values, initiative: init, info };
+    if (imageUrl) body.image  = imageUrl;
+    if (width)    body.width  = parseInt(width);
+    if (height)   body.height = parseInt(height);
 
     try {
       const res = await fetch(endpoint, {
