@@ -1222,19 +1222,23 @@ function renderActionTab() {
   const m   = currentMonster;
   const tab = document.getElementById('tab-action');
 
-  // stat解析
   const vitBase  = statBase(m.vit);
   const mresBase = statBase(m.mres);
   const init     = parseInt(m.init) || 0;
 
-  // 攻撃部位ごとのブロック
+  // コマンドをdata属性で持たせる方式（日本語・特殊文字をonclick内に書かない）
+  const makeBtn = (cls, label, val, cmd) =>
+    `<button class="action-btn ${cls}" data-cmd="${encodeURIComponent(cmd)}">
+      <span class="btn-label">${label}</span><span class="btn-val">${val}</span>
+    </button>`;
+
   const attackBlocks = m.attacks.map(a => {
     const hitBase = statBase(a.hit);
     const evdBase = statBase(a.evd);
     const dmgBc   = dmgToBCDice(a.dmg);
-    const hitCmd  = hitBase === '―' ? null : `2d6+${hitBase} 【${a.part}：命中】`;
-    const dmgCmd  = a.dmg === '―'  ? null : `${dmgBc} 【${a.part}：打撃点】`;
-    const evdCmd  = `2d6+${evdBase} 【${a.part}：回避】`;
+    const hitCmd  = hitBase === '―' ? null : `2d6+${hitBase} [${a.part}:命中]`;
+    const dmgCmd  = a.dmg === '―'  ? null : `${dmgBc} [${a.part}:打撃点]`;
+    const evdCmd  = `2d6+${evdBase} [${a.part}:回避]`;
 
     return `
       <div class="attack-section">
@@ -1246,9 +1250,9 @@ function renderActionTab() {
           <span>防護 ${a.def}</span>
         </div>
         <div class="btn-grid">
-          ${hitCmd ? `<button class="action-btn btn-hit" onclick="roll(${JSON.stringify(hitCmd)})"><span class="btn-label">命中判定</span><span class="btn-val">2d6+${hitBase}</span></button>` : ''}
-          ${dmgCmd ? `<button class="action-btn btn-dmg" onclick="roll(${JSON.stringify(dmgCmd)})"><span class="btn-label">打撃点</span><span class="btn-val">${a.dmg}</span></button>` : ''}
-          <button class="action-btn btn-evd" onclick="roll(${JSON.stringify(evdCmd)})"><span class="btn-label">回避判定</span><span class="btn-val">2d6+${evdBase}</span></button>
+          ${hitCmd ? makeBtn('btn-hit', '命中判定', `2d6+${hitBase}`, hitCmd) : ''}
+          ${dmgCmd ? makeBtn('btn-dmg', '打撃点',   a.dmg,            dmgCmd) : ''}
+          ${makeBtn('btn-evd', '回避判定', `2d6+${evdBase}`, evdCmd)}
         </div>
       </div>`;
   }).join('');
@@ -1256,32 +1260,39 @@ function renderActionTab() {
   tab.innerHTML = `
     <div class="section-label">攻撃</div>
     ${attackBlocks}
-
     <div class="section-label" style="margin-top:16px;">抵抗・その他</div>
     <div class="btn-grid">
-      <button class="action-btn btn-vit"  onclick="roll('2d6+${vitBase} 【生命抵抗】')">
-        <span class="btn-label">生命抵抗</span><span class="btn-val">2d6+${vitBase}</span>
-      </button>
-      <button class="action-btn btn-mres" onclick="roll('2d6+${mresBase} 【精神抵抗】')">
-        <span class="btn-label">精神抵抗</span><span class="btn-val">2d6+${mresBase}</span>
-      </button>
-      <button class="action-btn btn-init" onclick="roll('2d6+${init} 【先制値】')">
-        <span class="btn-label">先制値</span><span class="btn-val">2d6+${init}</span>
-      </button>
+      ${makeBtn('btn-vit',  '生命抵抗', `2d6+${vitBase}`,  `2d6+${vitBase} [生命抵抗]`)}
+      ${makeBtn('btn-mres', '精神抵抗', `2d6+${mresBase}`, `2d6+${mresBase} [精神抵抗]`)}
+      ${makeBtn('btn-init', '先制値',   `2d6+${init}`,     `2d6+${init} [先制値]`)}
     </div>
-
     <div class="section-label" style="margin-top:16px;">行動管理</div>
     <div class="btn-grid">
-      <button class="action-btn" style="background:linear-gradient(135deg,#0a1a0a,#060d06);border-color:#3a7a3a;color:#70c070;" onclick="markActed()">
+      <button class="action-btn" style="background:linear-gradient(135deg,#0a1a0a,#060d06);border-color:#3a7a3a;color:#70c070;" id="btnMarkActed">
         <span class="btn-label">行動完了を送信</span><span class="btn-val">✔ 行動済</span>
       </button>
     </div>
-
     <div class="section-label" style="margin-top:16px;">特殊能力メモ</div>
     <div style="font-size:11px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;line-height:2;">
-      ${m.abilities.map(a => `• ${a}`).join('<br>')}
+      ${m.abilities.map(a => {
+        const sep = a.indexOf(' — ');
+        const title = sep !== -1 ? a.slice(0, sep) : a;
+        const desc  = sep !== -1 ? a.slice(sep + 3) : '';
+        return `<span style="color:var(--gold2);">◆${title}</span>${desc ? ' — ' + desc : ''}`;
+      }).join('<br>')}
     </div>
   `;
+
+  // data-cmd ボタンにイベントを委譲
+  tab.querySelectorAll('[data-cmd]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cmd = decodeURIComponent(btn.dataset.cmd);
+      roll(cmd);
+    });
+  });
+  // 行動済ボタン
+  const actBtn = tab.querySelector('#btnMarkActed');
+  if (actBtn) actBtn.addEventListener('click', markActed);
 }
 
 async function roll(cmd) {
