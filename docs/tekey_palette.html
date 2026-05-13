@@ -1042,8 +1042,8 @@ async function startRound() {
   }
   let ok = 0;
   for (const name of allTargets) {
-    // :行動=0 を対象キャラ名指定で送信（末尾発動形式）
-    const success = await sendChat(`:行動=0@[name]:${name}`, { name: cfg('senderName') || null });
+    // 送信者名をキャラ名にして :行動=0 を送信
+    const success = await sendChat(`:行動=0`, { name });
     if (success) ok++;
   }
   showToast(`${roundNum}R 開始 ／ 行動解除 ${ok}/${allTargets.length}体`, 'ok');
@@ -1304,8 +1304,7 @@ async function roll(cmd) {
 
 async function markActed() {
   if (!currentEnemyName) return;
-  const msg = `:行動=-1@[name]:${currentEnemyName}`;
-  await sendChat(msg, { name: cfg('senderName') || null });
+  await sendChat(`:行動=-1`, { name: currentEnemyName });
   showToast(`✔ 行動済: ${currentEnemyName}`, 'ok');
 }
 
