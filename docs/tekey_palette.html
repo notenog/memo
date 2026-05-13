@@ -837,7 +837,7 @@ body::before {
       <button class="btn btn-ghost" style="padding:3px 8px;font-size:12px;" onclick="closeSettings()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="fgroup">
+      <div class="fgroup" style="display:none;">
         <label>APIキー</label>
         <input type="password" id="s_apikey" placeholder="APIキーを入力">
       </div>
@@ -858,8 +858,7 @@ body::before {
         <input type="text" id="s_name" placeholder="例：GM">
       </div>
       <div class="note">
-        ※ すべての設定はこのブラウザのlocalStorageに保存されます。<br>
-        ※ APIキーは他者と共有しないでください。
+        ※ すべての設定はこのブラウザのlocalStorageに保存されます。
       </div>
     </div>
     <div class="modal-foot">
@@ -949,7 +948,7 @@ let enemies          = []; // エネミー駒リスト [{displayName, monster}]
 // ────────────────────────────────────────────
 //  ユーティリティ
 // ────────────────────────────────────────────
-const ENDPOINT = 'https://tekey.jp/api';
+const ENDPOINT = 'https://us-central1-trpgnog.cloudfunctions.net/tekeyProxy2';
 
 function cfg(key) { return localStorage.getItem(key) || ''; }
 
@@ -985,21 +984,20 @@ function addLog(msg, type='info') {
 //  API 送信
 // ────────────────────────────────────────────
 async function sendChat(message, { name, color, bot } = {}) {
-  const apikey   = cfg('apikey');
   const room     = cfg('room');
   const password = cfg('pass');
   const tab      = cfg('tab');
   const senderName = name || cfg('senderName') || undefined;
 
-  if (!apikey || !room) {
-    showToast('⚙ 接続設定を先に行ってください', 'err');
+  if (!room) {
+    showToast('⚙ 接続設定（ルームID）を先に行ってください', 'err');
     addLog('接続設定未完了', 'err');
     return false;
   }
 
-  const body = { command:'sendChat', apikey, room, password, message };
-  if (senderName) body.name = senderName;
-  if (tab)        body.tab  = tab;
+  const body = { command:'sendChat', room, password, message };
+  if (senderName) body.name  = senderName;
+  if (tab)        body.tab   = tab;
   if (color)      body.color = color;
   if (bot)        body.bot   = bot;
 
@@ -1397,7 +1395,7 @@ function saveSettings() {
 }
 function updateConnStatus() {
   const el = document.getElementById('connStatus');
-  if (cfg('apikey') && cfg('room')) {
+  if (cfg('room')) {
     el.textContent = `✅ ルーム: ${cfg('room')}`;
     el.style.color = 'var(--green2)';
   } else {
