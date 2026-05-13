@@ -689,6 +689,7 @@ body::before {
   <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
     <span id="pcBadge" style="font-size:10px;color:var(--text3);">PC <b style="color:var(--gold2);">0</b> 人</span>
     <button class="btn btn-ghost" style="font-size:11px;" id="pcToggleBtn" onclick="togglePCPanel()">👥 PC登録 ▾</button>
+    <button class="btn btn-ghost" style="font-size:11px;border-color:rgba(100,160,255,.4);color:#80b0e0;" onclick="setupColumns()" title="全駒に行動カラムを追加">⚙ カラム設定</button>
   </div>
 </div>
 
@@ -1405,8 +1406,49 @@ function updateConnStatus() {
 }
 
 // ────────────────────────────────────────────
-//  DB開閉
+//  カラム設定（setColumns）
 // ────────────────────────────────────────────
+async function setupColumns() {
+  const room     = cfg('room');
+  const password = cfg('pass');
+  if (!room) {
+    showToast('⚙ 接続設定を先に行ってください', 'err');
+    return;
+  }
+
+  // 全対象（PC＋エネミー）に setColumns を送信
+  const pcNames    = [...characters];
+  const enemyNames = enemies.map(e => e.displayName);
+  const allTargets = [...pcNames, ...enemyNames];
+
+  if (allTargets.length === 0) {
+    showToast('PCまたはエネミーを登録してください', 'err');
+    return;
+  }
+
+  // columns: HP・MP・行動（チェックボックス）
+  const columns = 'HP:false:false,MP:false:false,行動:true:false';
+
+  let ok = 0;
+  for (const name of allTargets) {
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: 'setColumns', room, password, name, columns }),
+      });
+      if (res.ok) {
+        ok++;
+        addLog(`✓ カラム設定: ${name}`, 'ok');
+      } else {
+        addLog(`✗ カラム設定失敗: ${name}`, 'err');
+      }
+    } catch (e) {
+      addLog(`✗ カラム設定エラー: ${name} → ${e.message}`, 'err');
+    }
+  }
+  showToast(`カラム設定完了 ${ok}/${allTargets.length}体`, 'ok');
+}
 let dbVisible = true;
 
 function toggleDB() {
