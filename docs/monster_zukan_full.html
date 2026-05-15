@@ -199,7 +199,11 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
         <div class="fgroup"><label>群れ数</label>
           <input id="tk_count" type="number" min="1" max="26" value="1">
         </div>
+        <div class="fgroup"><label>⚔️ 剣のかけら（個数）</label>
+          <input id="tk_shard" type="number" min="0" value="0" style="accent-color:#e8b84a;">
+        </div>
       </div>
+      <div id="tk_shard_preview" style="display:none;font-size:11px;color:#e8b84a;margin-top:-6px;margin-bottom:4px;padding:4px 8px;background:rgba(232,184,74,0.08);border-radius:4px;border:0.5px solid rgba(232,184,74,0.3);"></div>
       <div class="fgroup"><label>コマ画像（ローカルファイル）</label>
         <input type="file" id="tk_image_file" accept="image/*" style="color:var(--text2);font-size:12px;">
         <div style="font-size:11px;color:var(--text3);margin-top:4px;">Firebase Storageにアップロードします。設定済みの場合のみ有効。</div>
@@ -717,6 +721,7 @@ function openTekeyAdd(idx) {
   tekeyImageURL = tekeyTarget.image || '';
   document.getElementById('tekeyAddTitle').textContent = `コマ生成 ― ${tekeyTarget.name}`;
   document.getElementById('tk_count').value  = 1;
+  document.getElementById('tk_shard').value  = 0;
   document.getElementById('tk_image_file').value = '';
   document.getElementById('tk_image_preview').style.display = 'none';
   updateTekeyPreview();
@@ -728,14 +733,32 @@ function closeTekeyAdd() {
 function updateTekeyPreview() {
   if (!tekeyTarget) return;
   const count = parseInt(document.getElementById('tk_count').value) || 1;
+  const shard = parseInt(document.getElementById('tk_shard').value) || 0;
+  const prefix = shard > 0 ? '*' : '';
   const names = count === 1
-    ? [tekeyTarget.name]
-    : Array.from({length: count}, (_, i) => `${tekeyTarget.name}${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i]}`);
+    ? [prefix + tekeyTarget.name]
+    : Array.from({length: count}, (_, i) => `${prefix}${tekeyTarget.name}${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i]}`);
   document.getElementById('tk_preview').innerHTML =
     `<span style="color:var(--text3)">送信するコマ：</span> ${names.join('、')}`;
+
+  // かけらプレビュー
+  const shardDiv = document.getElementById('tk_shard_preview');
+  if (shard > 0) {
+    const m = tekeyTarget;
+    const resBonus = shardResBonus(shard);
+    const newHp  = (parseInt(m.hp) || 0) + shard * 5;
+    const rawMp  = String(m.mp) === '―' ? null : (parseInt(m.mp) || 0);
+    const newMp  = rawMp !== null ? rawMp + shard * 1 : '―';
+    const newVit  = addToStat(m.vit,  resBonus);
+    const newMres = addToStat(m.mres, resBonus);
+    shardDiv.style.display = 'block';
+    shardDiv.innerHTML = `⚔️ かけら×${shard}強化後：HP <b>${newHp}</b>　MP <b>${newMp}</b>　生命 <b>${newVit}</b>　精神 <b>${newMres}</b>　（抵抗+${resBonus}）`;
+  } else {
+    shardDiv.style.display = 'none';
+  }
 }
 document.addEventListener('input', e => {
-  if (e.target.id === 'tk_count') updateTekeyPreview();
+  if (e.target.id === 'tk_count' || e.target.id === 'tk_shard') updateTekeyPreview();
 });
 
 // 画像ファイル選択時にプレビュー表示
@@ -771,6 +794,24 @@ async function uploadImageToStorage(file) {
   // 公開URLを組み立て
   const publicUrl = `${bucket}/o/${encodeURIComponent(filename)}?alt=media`;
   return publicUrl;
+}
+
+// ── 剣のかけら計算 ──
+function shardResBonus(n) {
+  if (n <= 0)  return 0;
+  if (n <= 5)  return 1;
+  if (n <= 10) return 2;
+  if (n <= 15) return 3;
+  return 4;
+}
+// "4(11)" や "4" に+nした文字列を返す
+function addToStat(s, n) {
+  if (n === 0) return String(s);
+  const both = String(s).match(/^(\d+)\((\d+)\)$/);
+  if (both) return `${parseInt(both[1])+n}(${parseInt(both[2])+n})`;
+  const single = String(s).match(/^(\d+)$/);
+  if (single) return String(parseInt(single[1])+n);
+  return String(s);
 }
 
 // statNum: "4(11)" → ()内を優先
@@ -813,13 +854,15 @@ async function sendToTekey() {
   }
 
   // ステータス（生命/精神 表記に合わせる）
-  const hp   = parseInt(m.hp) || 0;
-  const mp   = String(m.mp) === '―' ? 0 : (parseInt(m.mp) || 0);
+  const shard = parseInt(document.getElementById('tk_shard').value) || 0;
+  const resBonus = shardResBonus(shard);
+  const hp   = (parseInt(m.hp) || 0) + shard * 5;
+  const mp   = String(m.mp) === '―' ? 0 : ((parseInt(m.mp) || 0) + shard * 1);
   const def  = m.attacks[0] ? (parseInt(m.attacks[0].def) || 0) : 0;
   const hit  = m.attacks[0] ? tekeyStatNum(m.attacks[0].hit) : '0';
   const evd  = m.attacks[0] ? tekeyStatNum(m.attacks[0].evd) : '0';
-  const vit  = tekeyStatNum(m.vit);
-  const mres = tekeyStatNum(m.mres);
+  const vit  = tekeyStatNum(addToStat(m.vit,  resBonus));
+  const mres = tekeyStatNum(addToStat(m.mres, resBonus));
   const init = parseInt(m.init) || 0;
   const values = `HP:${hp}:${hp},MP:${mp}:${mp},防護点:${def},命中:${hit},回避:${evd},生命:${vit},精神:${mres}`;
 
@@ -827,9 +870,10 @@ async function sendToTekey() {
   const info = formatMonster(m);
 
   const suffix = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const shardPrefix = shard > 0 ? '*' : '';
   const names  = count === 1
-    ? [m.name]
-    : Array.from({length: count}, (_, i) => `${m.name}${suffix[i]}`);
+    ? [shardPrefix + m.name]
+    : Array.from({length: count}, (_, i) => `${shardPrefix}${m.name}${suffix[i]}`);
 
   btn.textContent = '送信中...';
   let successCount = 0, failCount = 0;
