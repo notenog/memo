@@ -205,7 +205,7 @@ body::before {
   gap: 6px;
   flex-shrink: 0;
 }
-.pane-center-title { font-size: 9px; color: var(--text3); letter-spacing: .08em; flex: 1; }
+.pane-center-title { font-size: 11px; color: var(--text3); letter-spacing: .08em; flex: 1; }
 .enemy-scroll { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
 
 /* エネミーカード */
@@ -221,8 +221,8 @@ body::before {
 .enemy-card:hover { background: var(--bg3); }
 .enemy-card.active { background: var(--bg4); border-left: 2px solid var(--gold); }
 .ec-info { flex: 1; min-width: 0; }
-.ec-name { font-size: 12px; color: var(--gold2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ec-sub  { font-size: 9px; color: var(--text3); margin-top: 1px; }
+.ec-name { font-size: 13px; color: var(--gold2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ec-sub  { font-size: 11px; color: var(--text3); margin-top: 1px; }
 .ec-del  {
   font-size: 10px; padding: 2px 5px; border-radius: 3px;
   border: 1px solid rgba(196,74,74,.3); background: transparent;
@@ -232,7 +232,7 @@ body::before {
 .ec-del:hover { opacity: 1; border-color: var(--red2); }
 .enemy-empty-msg {
   padding: 20px 10px; text-align: center;
-  font-size: 11px; color: var(--text3); line-height: 2;
+  font-size: 13px; color: var(--text3); line-height: 2;
 }
 
 /* 追加ポップアップ */
@@ -451,7 +451,7 @@ body::before {
 
 /* ─── 判定ボタン群 ─── */
 .section-label {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text3);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -728,7 +728,7 @@ body::before {
   <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
     <!-- PC一覧 -->
     <div style="flex:1;min-width:200px;">
-      <div style="font-size:9px;color:var(--text3);letter-spacing:.08em;margin-bottom:6px;">登録PC（ラウンド開始時に全員 :行動=0 を送信）</div>
+      <div style="font-size:11px;color:var(--text3);letter-spacing:.08em;margin-bottom:6px;">登録PC（ラウンド開始時に全員 :行動=0 を送信）</div>
       <div id="pcInlineList" style="display:flex;flex-wrap:wrap;gap:5px;min-height:24px;margin-bottom:8px;"></div>
       <div style="display:flex;gap:6px;">
         <input type="text" id="pcInlineInput" placeholder="PC名を入力..." onkeydown="if(event.key==='Enter')addPCInline()"
@@ -754,7 +754,7 @@ body::before {
   <div class="pane-left">
     <div class="pane-left-head">
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:9px;color:var(--text3);letter-spacing:.08em;">📖 MONSTER DB</div>
+        <div style="font-size:11px;color:var(--text3);letter-spacing:.08em;">📖 MONSTER DB</div>
         <button onclick="toggleDB()" title="DBを隠す"
           style="font-size:11px;padding:1px 7px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all .15s;line-height:1.6;"
           onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'"
@@ -787,7 +787,7 @@ body::before {
         onmouseover="this.style.borderColor='var(--gold)'"
         onmouseout="this.style.borderColor='var(--border2)'">》</button>
       <span class="pane-center-title">⚔️ ENEMY LIST</span>
-      <span id="enemyCountBadge" style="font-size:9px;color:var(--gold);">0体</span>
+      <span id="enemyCountBadge" style="font-size:11px;color:var(--gold);">0体</span>
       <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;" onclick="clearAllEnemies()" title="全解除">✕全</button>
     </div>
     <div class="enemy-scroll" id="enemyList">
@@ -973,6 +973,9 @@ let enemies          = []; // エネミー駒リスト [{displayName, monster}]
 //  ユーティリティ
 // ────────────────────────────────────────────
 const ENDPOINT = 'https://us-central1-trpgnog.cloudfunctions.net/tekeyProxy2';
+
+// ── 戦利品データ ──────────────────────────────
+const LOOT_DATA = {"シールドフッド": ["自動：粗雑な毒(50G/緑白B)", "5〜10：汚いフード(20G/白B)", "11〜：着慣れたフード(80G/白B)"], "フーグル": ["2〜9：土色の鱗(30G/赤B)", "10〜：琥珀色の鱗(90G/赤B)"], "フーグルマンサー": ["2〜7：土色の鱗(30G/赤B)", "8〜：琥珀色の鱗(90G/赤B)"], "ボルグ": ["2〜6：武器(30G/黒白B)", "7〜：意匠を凝らした武器(150G/黒白A)"], "ボルグハイランダー": ["2〜5：鋭い武器(100G/黒白A)", "6〜9：意匠を凝らした武器(150G/黒白A)", "10〜：豪華な武器(500G/黒白A)"], "レッサーオーガ": ["2〜3：なし", "4〜8：銀貨袋(30G/―)×1d", "9〜10：銀貨袋(100G/―)×1d", "11〜：宝石(150G/金A)×1d"], "フーグルアサルター": ["2〜4：土色の鱗(30G/赤B)", "5〜8：琥珀色の鱗(90G/赤B)", "9〜：七色の鱗(220G/金赤A)"], "ボルグヘビーアーム": ["2〜7：意匠を凝らした武器(150G/黒白A)", "8〜：豪華な武器(500G/黒白A)"], "ディアボロカデット(人間形態)": ["自動：アビスシャード(200G/―)", "2〜6：黒の宝玉(300G/金A)", "7〜10：黒の宝玉(300G/金A)×2", "11〜：黒の宝玉(300G/金A)×1d"], "ディアボロカデット(魔人形態)": ["自動：アビスシャード(200G/―)×1d", "2〜5：黒の宝玉(300G/金A)", "6〜9：黒の宝玉(300G/金A)×2", "10〜：黒の宝玉(300G/金A)×1d"], "ケパラウラ": ["2〜4：なし", "5〜8：魔法文明の本(170G/白A)", "9〜12：魔法書(500G/白A)", "13〜：秘を記した魔法書(1500G/白S)"], "トロール": ["自動：トロールの血(100G/赤A)", "2〜8：大きな武器(300G/黒白A)", "9〜：宝石(150G/金A)×1d"], "ドレイク(人間形態)": ["自動：剣のかけら(200G/―)"], "ドレイク(竜形態)": ["2〜6：剣のかけら(200G/―)", "7〜10：剣のかけら(200G/―)×2", "11：剣のかけら(200G/―)×3", "12〜：竜の魔剣(4000G/金黒白S)"], "ウルフ": ["2〜3：なし", "4〜8：狼の皮(20G/赤B)", "9〜10：上質な狼の皮(50G/赤B)", "11〜：きれいな狼の皮(100G/金赤A)"], "ジャイアントギャドフライ": ["2〜7：なし", "8〜11：黒ずんだ複眼(30G/赤B)", "12〜：光沢のある複眼(150G/赤A)"], "ジャイアントリザード": ["2〜7：なし", "8〜：上質な鱗(140G/赤A)"], "バープルアント": ["2〜9：甲虫の殻(30G/赤B)", "10〜11：紫色の石(120G/金A)", "12〜：アビスシャード(200G/―)"], "グレイリンクス": ["自動：グレイリンクスの毛皮(80G/赤B)", "2〜9：なし", "10〜：鎌の様(100G/赤緑A)"], "バックリーダー": ["2〜3：なし", "4〜5：狼の皮(20G/赤B)", "6〜8：上質な狼の皮(50G/赤B)", "9〜：きれいな狼の皮(100G/金赤A)"], "ディノス": ["自動：凍った肉(90G/赤B)", "2〜7：なし", "8〜12：亜竜鱗(350G/赤A)", "13〜：水の結晶(1600G/金S)"], "サンドウォーム": ["2〜5：なし", "6〜9：砂虫石(150G/金赤A)", "10〜：緑色鉱虫石(200G/金赤A)×1d"], "スチームポッド": ["自動：蒸気草(30G/緑B)", "2〜10：なし", "11〜：蒸気草の種(120G/緑A)"], "ダンシングゾーン": ["2〜8：なし", "9〜：血色の花びら(120G/緑A)"], "ブラッディーペタル": ["自動：血色の花びら(120G/緑A)", "2〜8：なし", "9〜：赤い果実(300G/緑A)"], "スケルトン": ["2〜5：なし", "6〜10：頑丈な骨(30G/赤B)", "11〜：魔力を帯びた骨(250G/金赤A)"], "レブナント": ["2〜5：なし", "6〜10：砕れた骨(50G/赤B)", "11〜：壊れた頭蓋骨(300G/赤A)"], "ゴースト": ["2〜11：なし", "12〜：悩みの涙の結晶(500G/白A)"], "ゾンビ": ["2：なし", "3〜4：ゾンビの眼球(30G/赤B)", "5〜：ゾンビの眼球(30G/赤B)×2"], "ドライコープス": ["2〜10：砕れた骨(50G/赤B)", "11〜：壊れた頭蓋骨(300G/赤A)"], "ファントム": ["2〜6：なし", "7〜10：古びた外套(200G/白A)", "11〜：年経たマント(800G/白A)"], "デュラハン": ["2〜4：なし", "5〜7：廃材(200G/金緑A)", "8〜12：上質な廃材(500G/金緑A)", "13〜：ミスリル(2600G/金S)"], "ガスト": ["2〜9：なし", "10〜：魔力を帯びた石(250G/金赤A)"], "チープストーン": ["2〜9：なし", "10〜11：魔晶石(1点)(50G/―)", "12〜：魔晶石(2点)(100G/―)"], "ガーゴイル": ["2〜7：鋭利な石(20G/黒B)", "8〜：魔力を帯びた石(250G/金A)"], "ドアイミテイター": ["2〜6：なし", "7〜11：廃材(200G/金緑A)", "12〜：上質な廃材(500G/金緑A)"], "ガストナイト": ["2〜6：なし", "7〜11：魔力を帯びた石(250G/金A)", "12〜：高密度の魔石(700G/金A)"], "ホムンクルス": ["自動：ゼロ年以前の物品(100G/赤A)", "2〜12：なし", "13〜：古代文字の小石(2,000G/白S)"], "ドルン": ["自動：鉄(20G/黒B)", "2〜10：なし", "11〜：粗悪な魔動部品(100G/黒白A)"], "ザーレィ": ["自動：耐魔素材(40G/金黒B)", "2〜8：なし", "9〜：粗悪な魔動部品(100G/黒白A)"], "ブルドルン": ["自動：鉄(20G/黒B)", "2〜5：なし", "6〜9：粗悪な魔動部品(100G/黒白A)", "10〜：魔動部品(300G/黒白A)"], "シャザーレィ": ["自動：耐魔素材(40G/金黒B)", "2〜5：なし", "6〜8：粗悪な魔動部品(100G/黒白A)", "9〜：魔動部品(300G/黒白A)"], "ディーラ": ["2〜9：なし", "10〜：魔法文明の本(170G/白A)×1d"], "ヘルハウンド": ["2〜3：なし", "4〜11：幻獣の皮(140G/赤A)", "12〜：炎の結晶(1600G/金S)"], "サンダーバード": ["2〜7：なし", "8〜10：幻獣の翼(350G/赤A)", "11〜：雷の結晶(1600G/金S)"], "グリフォン": ["2〜5：なし", "6〜12：宝石(150G/金A)×1d", "13〜：ミスリル(2600G/金S)"], "エルビレア": ["自動：悪魔の血(100G/赤A)", "2〜10：なし", "11〜：アビスシャード(200G/―)"], "アザービースト": ["自動：悪魔の血(100G/赤A)", "2〜9：なし", "10〜：悪魔の牙(300G/赤A)"], "ナズラック": ["自動：悪魔の血(100G/赤A)", "2〜8：なし", "9〜：アビスシャード(200G/―)"], "匪賊の雑兵": ["2〜6：なし", "7〜10：銀貨袋(50G/―)×1d", "11〜：銀貨袋(50G/―)×1d"], "腕利きの傭兵": ["2〜3：なし", "4〜7：銀貨袋(30G/―)×1d", "8〜9：銀貨袋(100G/―)×1d", "10〜：宝石(150G/金A)×1d"], "サハギン": ["2〜7：なし", "8〜10：サハギンの三つ又槍(30G/黒白B)", "11〜：装飾された三つ又槍(120G/黒白A)"], "ケンタウロス": ["2〜7：なし", "8〜10：戦いの装束(30G/白B)", "11〜：上質な装束(120G/白A)"], "ハンガーフッド": ["自動：鉤縄(50G/黒白B)×2", "2〜5：なし", "6〜10：汚いフード(20G/白B)", "11〜：着慣れたフード(80G/白B)"], "ホッグフッド": ["自動：汚いフード(20G/白B)", "2〜6：なし", "7〜11：柔い肉(100G/赤A)", "12〜：上質の肉(200G/赤A)"], "メデューサ": ["自動：メデューサの毒牙(50G/赤B)", "2〜9：なし", "10〜12：宝石(150G/金A)×1d", "13〜：石化の瞳(1200G/金黒白S)"], "リザードマン": ["2〜9：なし", "10〜：七色の鱗(220G/金赤A)"], "リザードマンベアラー": ["自動：リザードマンの旗(100G/緑黒A)", "2〜10：なし", "11〜：七色の鱗(220G/金赤A)"], "ローレライ": ["2〜5：なし", "6〜8：木綿の羽衣(100G/白A)", "9〜12：美しい羽衣(300G/白A)", "13〜：光り輝く羽衣(1000G/白S)"]};
 
 function cfg(key) { return localStorage.getItem(key) || ''; }
 
@@ -1183,7 +1186,7 @@ function renderEnemyList() {
       ? `HP${e.monster.hp}+${sfBonus.hp} / 先制${e.monster.init} / 🗡${sf}`
       : `HP${e.monster.hp} / 先制${e.monster.init}`;
     return `<div class="enemy-card${active}" onclick="selectEnemy(${i})">
-      <div class="mi-rank r${rk}" style="width:20px;height:20px;font-size:9px;">${e.monster.rank}</div>
+      <div class="mi-rank r${rk}" style="width:20px;height:20px;font-size:11px;">${e.monster.rank}</div>
       <div class="ec-info">
         <div class="ec-name" style="display:flex;align-items:center;">${colorDot}<span>${starred}${e.displayName}</span></div>
         <div class="ec-sub">${subText}</div>
@@ -1265,153 +1268,170 @@ function renderActionTab() {
       <span class="btn-label">${label}</span><span class="btn-val">${val}</span>
     </button>`;
 
-  const attackBlocks = m.attacks.map(a => {
-    const hitBase = statBase(a.hit);
-    const evdBase = statBase(a.evd);
-    const dmgBc   = dmgToBCDice(a.dmg);
-    const hitCmd  = hitBase === '―' ? null : `2d6+${hitBase} [${a.part}:命中]`;
-    const dmgCmd  = a.dmg === '―'  ? null : `${dmgBc} [${a.part}:打撃点]`;
-    const evdCmd  = `2d6+${evdBase} [${a.part}:回避]`;
-
-    return `
-      <div class="attack-section">
-        <div class="attack-name">⚔️ ${a.part}</div>
-        <div class="attack-stats">
-          <span>命中 ${a.hit}</span>
-          <span>打撃 ${a.dmg}</span>
-          <span>回避 ${a.evd}</span>
-          <span>防護 ${a.def}</span>
-        </div>
-        <div class="btn-grid">
-          ${hitCmd ? makeBtn('btn-hit', '命中判定', `2d6+${hitBase}`, hitCmd) : ''}
-          ${dmgCmd ? makeBtn('btn-dmg', '打撃点',   a.dmg,            dmgCmd) : ''}
-          ${makeBtn('btn-evd', '回避判定', `2d6+${evdBase}`, evdCmd)}
-        </div>
-      </div>`;
-  }).join('');
-
   // 現在のエネミー情報
-  const enemyObj  = enemies.find(e => e.displayName === currentEnemyName);
-  const sf        = enemyObj ? (enemyObj.swordFragments || 0) : 0;
-  const enemyColor= enemyObj ? (enemyObj.color || '') : '';
+  const enemyObj   = enemies.find(e => e.displayName === currentEnemyName);
+  const sf         = enemyObj ? (enemyObj.swordFragments || 0) : 0;
+  const sfBonus    = sf > 0 ? calcSwordBonus(sf) : null;
+  const enemyColor = enemyObj ? (enemyObj.color || '') : '';
 
   // 知名度・弱点値
   const knowVal  = m.know    || '―';
   const knowBase = m.knowval || '―';
   const weakText = m.weakness || '―';
-
-  // 先制目標値
   const initTarget = parseInt(m.init) || 0;
 
-  tab.innerHTML = `
-    <div class="section-label">攻撃</div>
-    ${attackBlocks}
+  // 剣のかけらで強化された抵抗値
+  const vitBonused  = sfBonus ? (parseInt(vitBase)  + sfBonus.res) : parseInt(vitBase);
+  const mresBonused = sfBonus ? (parseInt(mresBase) + sfBonus.res) : parseInt(mresBase);
 
-    <div class="section-label" style="margin-top:16px;">抵抗・その他</div>
-    <div class="btn-grid">
-      ${makeBtn('btn-vit',  '生命抵抗', '2d6+'+vitBase,  '2d6+'+vitBase+' [生命抵抗]')}
-      ${makeBtn('btn-mres', '精神抵抗', '2d6+'+mresBase, '2d6+'+mresBase+' [精神抵抗]')}
-      ${makeBtn('btn-init', '先制値',   '2d6+'+init,     '2d6+'+init+' [先制値]')}
-    </div>
+  // 攻撃ブロック
+  const attackBlocks = m.attacks.map(a => {
+    const hitBase = statBase(a.hit);
+    const evdBase = statBase(a.evd);
+    const dmgBc   = dmgToBCDice(a.dmg);
+    const hitCmd  = hitBase === '―' ? null : '2d6+' + hitBase + ' [' + a.part + ':命中]';
+    const dmgCmd  = a.dmg === '―'  ? null : dmgBc + ' [' + a.part + ':打撃点]';
+    const evdCmd  = '2d6+' + evdBase + ' [' + a.part + ':回避]';
+    return '<div class="attack-section">' +
+      '<div class="attack-name">⚔️ ' + a.part + '</div>' +
+      '<div class="attack-stats">' +
+        '<span>命中 ' + a.hit + '</span>' +
+        '<span>打撃 ' + a.dmg + '</span>' +
+        '<span>回避 ' + a.evd + '</span>' +
+        '<span>防護 ' + a.def + '</span>' +
+      '</div>' +
+      '<div class="btn-grid">' +
+        (hitCmd ? makeBtn('btn-hit', '命中判定', '2d6+' + hitBase, hitCmd) : '') +
+        (dmgCmd ? makeBtn('btn-dmg', '打撃点', a.dmg, dmgCmd) : '') +
+        makeBtn('btn-evd', '回避判定', '2d6+' + evdBase, evdCmd) +
+      '</div></div>';
+  }).join('');
 
-    <div class="section-label" style="margin-top:16px;">チャット送信</div>
-    <div style="display:flex;flex-direction:column;gap:5px;">
-      <button class="action-btn" style="background:linear-gradient(135deg,#101218,#080a10);border-color:#607090;color:#90aac0;width:100%;" data-chat-cmd="knowledge">
-        <span class="btn-label">魔物知識判定</span>
-        <span class="btn-val" style="font-size:11px;">▶${m.name}　目標値《${knowVal}／${knowBase}》</span>
-      </button>
-      <button class="action-btn" style="background:linear-gradient(135deg,#081418,#040c10);border-color:#0080b0;color:#40c0f0;width:100%;" data-chat-cmd="seethrough1">
-        <span class="btn-label">👻看破（弱点なし）</span>
-        <span class="btn-val" style="font-size:11px;">✔${m.name}</span>
-      </button>
-      <button class="action-btn" style="background:linear-gradient(135deg,#081418,#040c10);border-color:#0080b0;color:#40c0f0;width:100%;" data-chat-cmd="seethrough2">
-        <span class="btn-label">👻看破（弱点あり）</span>
-        <span class="btn-val" style="font-size:11px;">✔${m.name}《${weakText}》</span>
-      </button>
-      <button class="action-btn" style="background:linear-gradient(135deg,#141808,#0c1004);border-color:#90b020;color:#c8e040;width:100%;" data-chat-cmd="initiative">
-        <span class="btn-label">👟先制判定</span>
-        <span class="btn-val" style="font-size:11px;">--- 先制判定 ---　目標値《${initTarget}》</span>
-      </button>
-    </div>
+  // 戦利品
+  const lootItems = (LOOT_DATA[m.name] || []);
+  const lootHTML = lootItems.length > 0
+    ? lootItems.map((item, li) =>
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">' +
+        '<span style="flex:1;font-size:12px;color:var(--text2);">' + item + '</span>' +
+        '<button class="btn btn-ghost" style="font-size:11px;padding:2px 8px;flex-shrink:0;" data-loot-idx="' + li + '">送信</button>' +
+        '</div>'
+      ).join('')
+    : '<span style="font-size:12px;color:var(--text3);">データなし</span>';
 
-    <div class="section-label" style="margin-top:16px;">行動管理</div>
-    <div class="btn-grid">
-      <button class="action-btn" style="background:linear-gradient(135deg,#0a1a0a,#060d06);border-color:#3a7a3a;color:#70c070;" id="btnMarkActed">
-        <span class="btn-label">行動完了を送信</span><span class="btn-val">✔ 行動済</span>
-      </button>
-    </div>
+  // sf強化メモ
+  const sfBonusHTML = sfBonus
+    ? '<span style="font-size:12px;color:var(--gold2);margin-left:8px;">HP+' + sfBonus.hp + ' MP+' + sfBonus.mp + ' 抵抗+' + sfBonus.res + '</span>'
+    : '';
 
-    <div class="section-label" style="margin-top:16px;">エネミー設定</div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;">
-      <span style="font-size:10px;color:var(--text3);">チャットカラー</span>
-      <input type="color" id="enemyColorPicker" value="${enemyColor ? '#'+enemyColor : '#c9a84c'}"
-        style="width:28px;height:22px;border:none;border-radius:3px;cursor:pointer;background:none;padding:0;">
-      <button class="btn btn-ghost" style="font-size:10px;padding:2px 8px;" id="btnSetColor">設定</button>
-      <span style="font-size:10px;color:var(--text3);margin-left:8px;">🗡 剣のかけら</span>
-      <input type="number" id="sfInput" min="0" value="${sf}"
-        style="width:48px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;color:var(--text);font-size:11px;padding:2px 4px;text-align:center;">
-      <button class="btn btn-ghost" style="font-size:10px;padding:2px 8px;" id="btnSetSF">適用</button>
-      ${sf > 0 ? ('<span style="font-size:10px;color:var(--gold2);">HP+' + calcSwordBonus(sf).hp + ' MP+' + calcSwordBonus(sf).mp + ' 抵抗+' + calcSwordBonus(sf).res + '</span>') : ''}
-    </div>
-
-    <div class="section-label" style="margin-top:16px;">特殊能力</div>
-    <div style="font-size:11px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;line-height:2;">
-      ${m.abilities.map(a => {
+  tab.innerHTML =
+    // ─ エネミー設定（最上部）─
+    '<div class="section-label">エネミー設定</div>' +
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:4px;">' +
+      '<span style="font-size:12px;color:var(--text3);">カラー</span>' +
+      '<input type="color" id="enemyColorPicker" value="' + (enemyColor ? '#' + enemyColor : '#c9a84c') + '" style="width:28px;height:22px;border:none;border-radius:3px;cursor:pointer;background:none;padding:0;">' +
+      '<button class="btn btn-ghost" style="font-size:11px;padding:2px 8px;" id="btnSetColor">設定</button>' +
+      '<span style="font-size:12px;color:var(--text3);margin-left:8px;">🗡 剣のかけら</span>' +
+      '<input type="number" id="sfInput" min="0" value="' + sf + '" style="width:48px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;color:var(--text);font-size:12px;padding:2px 4px;text-align:center;">' +
+      '<button class="btn btn-ghost" style="font-size:11px;padding:2px 8px;" id="btnSetSF">適用</button>' +
+      sfBonusHTML +
+    '</div>' +
+    // ─ 攻撃 ─
+    '<div class="section-label" style="margin-top:12px;">攻撃</div>' +
+    attackBlocks +
+    // ─ 抵抗 ─
+    '<div class="section-label" style="margin-top:12px;">抵抗・その他</div>' +
+    '<div class="btn-grid">' +
+      makeBtn('btn-vit',  '生命抵抗', '2d6+' + vitBonused,  '2d6+' + vitBonused  + ' [生命抵抗]') +
+      makeBtn('btn-mres', '精神抵抗', '2d6+' + mresBonused, '2d6+' + mresBonused + ' [精神抵抗]') +
+      makeBtn('btn-init', '先制値',   '2d6+' + init,        '2d6+' + init        + ' [先制値]') +
+    '</div>' +
+    // ─ チャット送信 ─
+    '<div class="section-label" style="margin-top:12px;">チャット送信</div>' +
+    '<div style="display:flex;flex-direction:column;gap:5px;">' +
+      '<button class="action-btn" style="background:linear-gradient(135deg,#101218,#080a10);border-color:#607090;color:#90aac0;width:100%;" data-chat-cmd="knowledge">' +
+        '<span class="btn-label">魔物知識判定</span>' +
+        '<span class="btn-val" style="font-size:12px;">▶' + m.name + '　目標値《' + knowVal + '／' + knowBase + '》</span>' +
+      '</button>' +
+      '<button class="action-btn" style="background:linear-gradient(135deg,#081418,#040c10);border-color:#0080b0;color:#40c0f0;width:100%;" data-chat-cmd="seethrough1">' +
+        '<span class="btn-label">👻看破（弱点なし）</span>' +
+        '<span class="btn-val" style="font-size:12px;">✔' + m.name + '</span>' +
+      '</button>' +
+      '<button class="action-btn" style="background:linear-gradient(135deg,#081418,#040c10);border-color:#0080b0;color:#40c0f0;width:100%;" data-chat-cmd="seethrough2">' +
+        '<span class="btn-label">👻看破（弱点あり）</span>' +
+        '<span class="btn-val" style="font-size:12px;">✔' + m.name + '《' + weakText + '》</span>' +
+      '</button>' +
+      '<button class="action-btn" style="background:linear-gradient(135deg,#141808,#0c1004);border-color:#90b020;color:#c8e040;width:100%;" data-chat-cmd="initiative">' +
+        '<span class="btn-label">👟先制判定</span>' +
+        '<span class="btn-val" style="font-size:12px;">--- 先制判定 ---　目標値《' + initTarget + '》</span>' +
+      '</button>' +
+    '</div>' +
+    // ─ 行動管理 ─
+    '<div class="section-label" style="margin-top:12px;">行動管理</div>' +
+    '<div class="btn-grid">' +
+      '<button class="action-btn" style="background:linear-gradient(135deg,#0a1a0a,#060d06);border-color:#3a7a3a;color:#70c070;" id="btnMarkActed">' +
+        '<span class="btn-label">行動完了を送信</span><span class="btn-val">✔ 行動済</span>' +
+      '</button>' +
+    '</div>' +
+    // ─ 戦利品 ─
+    '<div class="section-label" style="margin-top:12px;">戦利品</div>' +
+    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;">' +
+      lootHTML +
+    '</div>' +
+    // ─ 特殊能力 ─
+    '<div class="section-label" style="margin-top:12px;">特殊能力</div>' +
+    '<div style="font-size:12px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;line-height:2;">' +
+      m.abilities.map(a => {
         const sep = a.indexOf(' — ');
         const title = sep !== -1 ? a.slice(0, sep) : a;
         const desc  = sep !== -1 ? a.slice(sep + 3) : '';
-        return `<span style="color:var(--gold2);">◆${title}</span>${desc ? ' — ' + desc : ''}`;
-      }).join('<br>')}
-    </div>
-  `;
+        return '<span style="color:var(--gold2);">◆' + title + '</span>' + (desc ? ' — ' + desc : '');
+      }).join('<br>') +
+    '</div>';
 
-  // data-cmd ダイスボタン
+  // ─ イベント設定 ─
   tab.querySelectorAll('[data-cmd]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const cmd = decodeURIComponent(btn.dataset.cmd);
-      roll(cmd);
-    });
+    btn.addEventListener('click', () => roll(decodeURIComponent(btn.dataset.cmd)));
   });
-
-  // チャット送信ボタン
-  const ec = enemyObj ? (enemyObj.color || null) : null;
   tab.querySelector('[data-chat-cmd="knowledge"]')?.addEventListener('click', () => {
-    sendChat(`▶${m.name}　目標値《${knowVal}／${knowBase}》`, { color: '999999', name: cfg('senderName') || undefined });
+    sendChat('▶' + m.name + '　目標値《' + knowVal + '／' + knowBase + '》', { color: '999999', name: cfg('senderName') || undefined });
     showToast('魔物知識判定を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="seethrough1"]')?.addEventListener('click', () => {
-    sendChat(`--- 👻${m.name} 看破 --- ✔${m.name}`, { color: '009CE0', name: cfg('senderName') || undefined });
+    sendChat('✔' + m.name, { color: '009CE0', name: cfg('senderName') || undefined });
     showToast('看破（弱点なし）を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="seethrough2"]')?.addEventListener('click', () => {
-    sendChat(`--- 👻${m.name} 看破 --- ✔${m.name}《${weakText}》`, { color: '009CE0', name: cfg('senderName') || undefined });
+    sendChat('✔' + m.name + '《' + weakText + '》', { color: '009CE0', name: cfg('senderName') || undefined });
     showToast('看破（弱点あり）を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="initiative"]')?.addEventListener('click', () => {
-    sendChat(`--- 👟先制判定 ---　目標値《${initTarget}》`, { color: 'CEE331', name: cfg('senderName') || undefined });
+    sendChat('--- 👟先制判定 ---　目標値《' + initTarget + '》', { color: 'CEE331', name: cfg('senderName') || undefined });
     showToast('先制判定を送信', 'ok');
   });
-
-  // 行動済ボタン
   tab.querySelector('#btnMarkActed')?.addEventListener('click', markActed);
-
-  // カラー設定ボタン
   tab.querySelector('#btnSetColor')?.addEventListener('click', () => {
     if (!enemyObj) return;
     const hex = tab.querySelector('#enemyColorPicker').value.replace('#','');
     enemyObj.color = hex;
     renderEnemyList();
-    showToast(`カラーを #${hex} に設定`, 'ok');
+    showToast('カラーを #' + hex + ' に設定', 'ok');
   });
-
-  // 剣のかけら適用ボタン
   tab.querySelector('#btnSetSF')?.addEventListener('click', () => {
     if (!enemyObj) return;
     const n = parseInt(tab.querySelector('#sfInput').value) || 0;
     enemyObj.swordFragments = n;
     renderEnemyList();
-    renderActionTab(); // ボーナス再描画
-    showToast(`🗡 剣のかけら ${n}個 を適用`, 'ok');
+    renderActionTab();
+    showToast('🗡 剣のかけら ' + n + '個 を適用', 'ok');
+  });
+  // 戦利品送信ボタン
+  tab.querySelectorAll('[data-loot-idx]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.lootIdx);
+      const item = lootItems[idx];
+      sendChat(item, { name: cfg('senderName') || undefined });
+      showToast('戦利品を送信: ' + item, 'ok');
+    });
   });
 }
 
