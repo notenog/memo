@@ -878,47 +878,15 @@ body::before {
         <input type="text" id="s_tab" placeholder="省略すると最左端タブに送信">
       </div>
       <div class="fgroup">
-        <label>送信者名（省略可）</label>
-        <input type="text" id="s_name" placeholder="例：GM">
-      </div>
-      <div class="fgroup">
-        <label>BCDice BotID（ダイス用）</label>
-        <input type="text" id="s_botid" placeholder="SwordWorld2_5">
+        <label>送信者名（空欄不可・要望対応待ち）</label>
+        <input type="text" id="s_name" placeholder="例：GM（必ず何か入力してください）">
       </div>
       <div class="note">
-        ※ すべての設定はこのブラウザのlocalStorageに保存されます。
+        ※ すべての設定はこのブラウザのlocalStorageに保存されます。<br>
+        ※ 送信者名が空欄だとTekey APIが500エラーになります。必ず名前を設定してください。
       </div>
 
-      <!-- APIテストパネル -->
-      <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px;">
-        <div style="font-size:11px;color:var(--text3);letter-spacing:.08em;margin-bottom:8px;">🧪 APIテスト送信</div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div class="fgroup">
-            <label>メッセージ</label>
-            <input type="text" id="test_msg" placeholder="テスト送信するメッセージ" value="テスト送信">
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-            <div class="fgroup">
-              <label>name（省略可）</label>
-              <input type="text" id="test_name" placeholder="例：GM">
-            </div>
-            <div class="fgroup">
-              <label>color（省略可）</label>
-              <input type="text" id="test_color" placeholder="例：999999">
-            </div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-            <div class="fgroup">
-              <label>bot（省略可）</label>
-              <input type="text" id="test_bot" placeholder="例：SwordWorld2_5">
-            </div>
-            <div style="display:flex;align-items:flex-end;">
-              <button class="btn btn-ghost" style="font-size:11px;width:100%;" onclick="runApiTest()">▶ 送信テスト</button>
-            </div>
-          </div>
-          <div id="testResult" style="display:none;font-size:11px;font-family:monospace;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 8px;line-height:1.7;"></div>
-        </div>
-      </div>
+
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeSettings()">キャンセル</button>
@@ -1505,56 +1473,6 @@ function toggleLightMode() {
   localStorage.setItem('lightMode', isLight ? '1' : '0');
 }
 
-// ────────────────────────────────────────────
-//  APIテスト送信
-// ────────────────────────────────────────────
-async function runApiTest() {
-  const msg   = document.getElementById('test_msg').value;
-  const name  = document.getElementById('test_name').value.trim()  || undefined;
-  const color = document.getElementById('test_color').value.trim() || undefined;
-  const bot   = document.getElementById('test_bot').value.trim()   || undefined;
-
-  const room     = cfg('room');
-  const password = cfg('pass');
-  const tab      = cfg('tab');
-
-  if (!room) {
-    showTestResult('err', '⚠ ルームIDが未設定です');
-    return;
-  }
-
-  const body = { command:'sendChat', room, password, message: msg };
-  if (name)  body.name  = name;
-  if (tab)   body.tab   = tab;
-  if (color) body.color = color;
-  if (bot)   body.bot   = bot;
-
-  showTestResult('info', `送信中...\n${JSON.stringify(body, null, 2)}`);
-
-  try {
-    const res  = await fetch(ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const text = await res.text();
-    if (res.ok) {
-      showTestResult('ok', `✅ ${res.status} OK\n${text}`);
-    } else {
-      showTestResult('err', `❌ ${res.status} Error\n${text}`);
-    }
-  } catch (e) {
-    showTestResult('err', `❌ 通信エラー: ${e.message}`);
-  }
-}
-
-function showTestResult(type, text) {
-  const el = document.getElementById('testResult');
-  el.style.display = 'block';
-  el.style.color = type === 'ok' ? 'var(--green2)' : type === 'err' ? 'var(--red2)' : 'var(--text2)';
-  el.textContent = text;
-}
-
 // Tekey APIで問題になる記号を変換
 function tekeyMsg(s) {
   return s.replace(/《/g, '[').replace(/》/g, ']').replace(/／/g, '/');
@@ -1564,7 +1482,7 @@ async function roll(cmd) {
   const enemyObj  = enemies.find(e => e.displayName === currentEnemyName);
   const color     = enemyObj ? (enemyObj.color || undefined) : undefined;
   const name      = currentEnemyName || (currentMonster ? currentMonster.name : undefined);
-  await sendChat(cmd, { bot: cfg('botId') || 'SwordWorld2_5', name, color });
+  await sendChat(cmd, { bot: 'SwordWorld2_5', name, color });
   showToast(`送信: ${cmd}`, 'ok');
 }
 
@@ -1646,7 +1564,6 @@ function openSettings() {
   document.getElementById('s_pass').value   = cfg('pass');
   document.getElementById('s_tab').value    = cfg('tab');
   document.getElementById('s_name').value   = cfg('senderName');
-  document.getElementById('s_botid').value  = cfg('botId') || 'SwordWorld2_5';
   document.getElementById('settingsModal').classList.add('open');
 }
 function closeSettings() {
@@ -1657,8 +1574,7 @@ function saveSettings() {
   localStorage.setItem('room',        document.getElementById('s_room').value.trim());
   localStorage.setItem('pass',        document.getElementById('s_pass').value.trim());
   localStorage.setItem('tab',         document.getElementById('s_tab').value.trim());
-  localStorage.setItem('senderName',  document.getElementById('s_name').value); // trimしない（空白保持）
-  localStorage.setItem('botId',       document.getElementById('s_botid').value.trim() || 'SwordWorld2_5');
+  localStorage.setItem('senderName',  document.getElementById('s_name').value.trim());
   closeSettings();
   updateConnStatus();
   showToast('設定を保存しました', 'ok');
