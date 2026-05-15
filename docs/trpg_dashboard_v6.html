@@ -974,124 +974,14 @@ function renderCharWaiting(){
 }
 
 /* ━━━━━━ RENDER ENEMIES ━━━━━━ */
-function renderEnemies(){
-  document.getElementById('enemy-grid').innerHTML = enemies.map((e,ei)=>{
-    if(e.hidden) return '';
-    const hpp=Math.round((e.hp/(e.hpmax||1))*100||0);
-    const mpp=Math.round((e.mp/(e.mpmax||1))*100||0);
-    const avaInner=e.img?`<img src="${e.img}" alt="">`:(e.ava||'👾');
-    const weakHtml=(e.weak||[]).map((w,wi)=>`
-      <span class="wtag weak" title="クリックで削除"
-        onclick="enemies[${ei}].weak.splice(${wi},1);renderEnemies();save()">${w}</span>`).join('');
-    const resistHtml=(e.resist||[]).map((r,ri)=>`
-      <span class="wtag resist" title="クリックで削除"
-        onclick="enemies[${ei}].resist.splice(${ri},1);renderEnemies();save()">${r}</span>`).join('');
-    const skillsHtml = buildSkillsHtml(e.skills,'enemy',ei);
-    const mpBar = `
-      <div class="bar-row">
-        <span class="bar-lbl">MP</span>
-        <div class="bar-bg"><div class="bar-fill" style="width:${mpp}%;background:var(--blue);"></div></div>
-        <div class="bar-inputs">
-          <input class="bar-in" type="number" value="${e.mp||0}" oninput="enemies[${ei}].mp=+this.value;renderEnemies();save()">
-          <span class="bar-sep">/</span>
-          <input class="bar-in" type="number" value="${e.mpmax||0}" oninput="enemies[${ei}].mpmax=+this.value;renderEnemies();save()">
-        </div>
-      </div>`;
-    return `
-    <div class="card" id="ecard-${ei}">
-      <div class="card-head">
-        <span class="drag-handle" title="ドラッグで並び替え">⠿</span>
-        <div class="ava" id="eava-${ei}" style="width:52px;height:62px;font-size:28px;">${avaInner}<div class="drop-hint">画像変更</div></div>
-        <div class="head-info">
-          <span class="ed-name" style="color:var(--red);" contenteditable="true" onblur="enemies[${ei}].name=this.textContent.trim();save()">${e.name}</span>
-          <span class="ed-sub" contenteditable="true" onblur="enemies[${ei}].type=this.textContent.trim();save()">${e.type}</span>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="bar-row">
-          <span class="bar-lbl">HP</span>
-          <div class="bar-bg"><div class="bar-fill" style="width:${hpp}%;background:${hpColor(hpp)};"></div></div>
-          <div class="bar-inputs">
-            <input class="bar-in" type="number" value="${e.hp}" oninput="enemies[${ei}].hp=+this.value;renderEnemies();save()">
-            <span class="bar-sep">/</span>
-            <input class="bar-in" type="number" value="${e.hpmax||e.hp}" oninput="enemies[${ei}].hpmax=+this.value;renderEnemies();save()">
-          </div>
-        </div>
-        ${mpBar}
-        <div class="en-stats">
-          <div class="estat"><span class="estat-lbl">攻撃力</span>
-            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].atk=parseInt(this.textContent)||0;save()">${e.atk}</span></div>
-          <div class="estat"><span class="estat-lbl">防護点</span>
-            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].def=parseInt(this.textContent)||0;save()">${e.def}</span></div>
-          <div class="estat"><span class="estat-lbl">命中</span>
-            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].hit=parseInt(this.textContent)||0;save()">${e.hit||0}</span></div>
-        </div>
-        <div class="en-stats2">
-          <div class="estat"><span class="estat-lbl">回避</span>
-            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].evd=parseInt(this.textContent)||0;save()">${e.evd||0}</span></div>
-          <div class="estat"><span class="estat-lbl">生命抵抗</span>
-            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].lif=parseInt(this.textContent)||0;save()">${e.lif||0}</span></div>
-          <div class="estat"><span class="estat-lbl">精神抵抗</span>
-            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].mnd=parseInt(this.textContent)||0;save()">${e.mnd||0}</span></div>
-          <div class="estat"><span class="estat-lbl">MP</span>
-            <span class="estat-val" contenteditable="true" onblur="enemies[${ei}].mpmax=parseInt(this.textContent)||0;enemies[${ei}].mp=enemies[${ei}].mpmax;renderEnemies();save()">${e.mpmax||0}</span></div>
-        </div>
-        <div class="slbl">弱点・耐性</div>
-        <div class="weak-row">
-          ${weakHtml}
-          <span class="tag-add" onclick="openTagModal(${ei},'weak')">＋弱点</span>
-          ${resistHtml}
-          <span class="tag-add" onclick="openTagModal(${ei},'resist')">＋耐性</span>
-        </div>
-        <div class="slbl">スキル</div>
-        <div class="skill-list">${skillsHtml}</div>
-        <span class="skill-add" onclick="addSkill('enemy',${ei})">+ スキル追加</span>
-        <div class="slbl">備考</div>
-        <textarea class="note-area" rows="2" data-ei="${ei}" data-field="enemynote">${e.note||''}</textarea>
-      </div>
-      <div class="card-footer">
-        <button class="cfbtn cfbtn-hide" onclick="toggleHide('enemy',${ei})">待合室へ</button>
-        <button class="cfbtn cfbtn-del" onclick="if(confirm('削除しますか？')){enemies.splice(${ei},1);renderEnemies();save();}">削除</button>
-      </div>
-    </div>`;
-  }).join('');
-
-  enemies.forEach((_,ei)=>{
-    const card=document.getElementById('ecard-'+ei);
-    if(card){
-      initCardDrag(card,'enemy',ei);
-      const noteEl=card.querySelector('[data-field="enemynote"]');
-      if(noteEl) noteEl.addEventListener('input',()=>{enemies[ei].note=noteEl.value;save();});
-    }
-    const ava=document.getElementById('eava-'+ei);
-    if(ava) setupDrop(ava,src=>{enemies[ei].img=src;renderEnemies();save();});
-  });
-  renderEnemyWaiting();
-}
-
-function renderEnemyWaiting(){
-  const hidden=enemies.map((e,i)=>({...e,_i:i})).filter(e=>e.hidden);
-  const wrap=document.getElementById('enemy-waiting-wrap');
-  if(!enemyWaitingVisible){wrap.style.display='none';return;}
-  wrap.style.display='block';
-  const grid=document.getElementById('enemy-waiting-grid');
-  if(!hidden.length){grid.innerHTML='<div class="waiting-empty">待合室は空です</div>';return;}
-  grid.innerHTML=hidden.map(e=>`
-    <div class="waiting-chip" onclick="toggleHide('enemy',${e._i})">
-      <div class="wchip-ava">${e.img?`<img src="${e.img}" alt="">`:e.ava||'👾'}</div>
-      <span class="wchip-name">${e.name}</span>
-      <span class="wchip-show">表示 ▶</span>
-    </div>`).join('');
-}
-
+function renderEnemies(){ /* エネミー欄は削除済み */ }
+function renderEnemyWaiting(){ /* エネミー欄は削除済み */ }
 /* ━━━━━━ HIDE / WAITING ━━━━━━ */
 function toggleHide(type,idx){
   if(type==='char'){chars[idx].hidden=!chars[idx].hidden;renderChars();save();}
-  else{enemies[idx].hidden=!enemies[idx].hidden;renderEnemies();save();}
 }
 function toggleWaitingRoom(type){
   if(type==='char'){charWaitingVisible=!charWaitingVisible;renderCharWaiting();}
-  else{enemyWaitingVisible=!enemyWaitingVisible;renderEnemyWaiting();}
 }
 
 /* ━━━━━━ SKILLS / TAGS ━━━━━━ */
