@@ -1018,9 +1018,13 @@ async function sendChat(message, { name, color, bot } = {}) {
   const room     = cfg('room');
   const password = cfg('pass');
   const tab      = cfg('tab');
-  // senderName：全角/半角スペースのみは空扱い
-  const _rawName = name || cfg('senderName') || '';
-  const senderName = _rawName.replace(/[\s\u3000]/g, '').length > 0 ? _rawName.trim() : null;
+  // senderName：全角/半角スペースのみは名前なし扱い
+  const _nameArg  = (name || '').replace(/[\s\u3000]/g, '');
+  const _nameCfg  = (cfg('senderName') || '').replace(/[\s\u3000]/g, '');
+  const _rawName  = _nameArg.length > 0 ? (name || '').trim()
+                  : _nameCfg.length > 0 ? (cfg('senderName') || '').trim()
+                  : null;
+  const senderName = _rawName || null;
 
   if (!room) {
     showToast('⚙ 接続設定（ルームID）を先に行ってください', 'err');
