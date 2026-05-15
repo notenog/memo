@@ -1406,19 +1406,19 @@ function renderActionTab() {
     btn.addEventListener('click', () => roll(decodeURIComponent(btn.dataset.cmd)));
   });
   tab.querySelector('[data-chat-cmd="knowledge"]')?.addEventListener('click', () => {
-    sendChat('▶' + m.name + '　目標値《' + knowVal + '／' + knowBase + '》', { color: '999999', name: cfg('senderName') || undefined });
+    sendChat('▶' + m.name + '　目標値《' + knowVal + '／' + knowBase + '》', { color: '999999' });
     showToast('魔物知識判定を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="seethrough1"]')?.addEventListener('click', () => {
-    sendChat('✔' + m.name, { color: '009CE0', name: cfg('senderName') || undefined });
+    sendChat('✔' + m.name, { color: '009CE0' });
     showToast('看破（弱点なし）を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="seethrough2"]')?.addEventListener('click', () => {
-    sendChat('✔' + m.name + '《' + weakText + '》', { color: '009CE0', name: cfg('senderName') || undefined });
+    sendChat('✔' + m.name + '《' + weakText + '》', { color: '009CE0' });
     showToast('看破（弱点あり）を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="initiative"]')?.addEventListener('click', () => {
-    sendChat('--- 👟先制判定 ---　目標値《' + initTarget + '》', { color: 'CEE331', name: cfg('senderName') || undefined });
+    sendChat('--- 👟先制判定 ---　目標値《' + initTarget + '》', { color: 'CEE331' });
     showToast('先制判定を送信', 'ok');
   });
   tab.querySelector('#btnMarkActed')?.addEventListener('click', markActed);
@@ -1444,7 +1444,7 @@ function renderActionTab() {
     btn.addEventListener('click', () => {
       const idx = parseInt(btn.dataset.lootIdx);
       const item = lootItems[idx];
-      sendChat(item, { name: cfg('senderName') || undefined });
+      sendChat(item);
       showToast('戦利品を送信: ' + item, 'ok');
     });
   });
