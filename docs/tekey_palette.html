@@ -888,6 +888,37 @@ body::before {
       <div class="note">
         ※ すべての設定はこのブラウザのlocalStorageに保存されます。
       </div>
+
+      <!-- APIテストパネル -->
+      <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px;">
+        <div style="font-size:11px;color:var(--text3);letter-spacing:.08em;margin-bottom:8px;">🧪 APIテスト送信</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="fgroup">
+            <label>メッセージ</label>
+            <input type="text" id="test_msg" placeholder="テスト送信するメッセージ" value="テスト送信">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div class="fgroup">
+              <label>name（省略可）</label>
+              <input type="text" id="test_name" placeholder="例：GM">
+            </div>
+            <div class="fgroup">
+              <label>color（省略可）</label>
+              <input type="text" id="test_color" placeholder="例：999999">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div class="fgroup">
+              <label>bot（省略可）</label>
+              <input type="text" id="test_bot" placeholder="例：SwordWorld2_5">
+            </div>
+            <div style="display:flex;align-items:flex-end;">
+              <button class="btn btn-ghost" style="font-size:11px;width:100%;" onclick="runApiTest()">▶ 送信テスト</button>
+            </div>
+          </div>
+          <div id="testResult" style="display:none;font-size:11px;font-family:monospace;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 8px;line-height:1.7;"></div>
+        </div>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeSettings()">キャンセル</button>
@@ -1472,6 +1503,56 @@ function toggleLightMode() {
   const btn = document.getElementById('lightToggleBtn');
   btn.textContent = isLight ? '☀️' : '🌙';
   localStorage.setItem('lightMode', isLight ? '1' : '0');
+}
+
+// ────────────────────────────────────────────
+//  APIテスト送信
+// ────────────────────────────────────────────
+async function runApiTest() {
+  const msg   = document.getElementById('test_msg').value;
+  const name  = document.getElementById('test_name').value.trim()  || undefined;
+  const color = document.getElementById('test_color').value.trim() || undefined;
+  const bot   = document.getElementById('test_bot').value.trim()   || undefined;
+
+  const room     = cfg('room');
+  const password = cfg('pass');
+  const tab      = cfg('tab');
+
+  if (!room) {
+    showTestResult('err', '⚠ ルームIDが未設定です');
+    return;
+  }
+
+  const body = { command:'sendChat', room, password, message: msg };
+  if (name)  body.name  = name;
+  if (tab)   body.tab   = tab;
+  if (color) body.color = color;
+  if (bot)   body.bot   = bot;
+
+  showTestResult('info', `送信中...\n${JSON.stringify(body, null, 2)}`);
+
+  try {
+    const res  = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const text = await res.text();
+    if (res.ok) {
+      showTestResult('ok', `✅ ${res.status} OK\n${text}`);
+    } else {
+      showTestResult('err', `❌ ${res.status} Error\n${text}`);
+    }
+  } catch (e) {
+    showTestResult('err', `❌ 通信エラー: ${e.message}`);
+  }
+}
+
+function showTestResult(type, text) {
+  const el = document.getElementById('testResult');
+  el.style.display = 'block';
+  el.style.color = type === 'ok' ? 'var(--green2)' : type === 'err' ? 'var(--red2)' : 'var(--text2)';
+  el.textContent = text;
 }
 
 // Tekey APIで問題になる記号を変換
