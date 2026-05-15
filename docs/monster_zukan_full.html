@@ -426,15 +426,53 @@ const monsters = [
   { cat:"蛮族", name:"ローレライ", rank:4, intel:"人間並み", percep:"五感", habitat:"河川", hp:26, mp:18, init:13, move:"14/14(水中)", vit:"4(11)", mres:"6(13)", weakness:"物理ダメージ+2点", know:"―", knowval:"―", attacks:[{part:"武器",hit:"4(11)",dmg:"2d+2",evd:"4(11)",def:"2"}], abilities:["○水中適性","▶基本呪歌1レベル／7(14)／全エリア（半径40m）","▶ラブソング — 旋律【ラブソング】(⇒221頁)を使用します。この能力は敵対する障害に発生が存在し、かつ、直前の手番に「基本呪歌」を使用していたときにのみ使用できます。","▶後継：春の猫瞰／7(14)／精神抵抗力／半減 — 「射程：2(40m)」で【後継：春の猫瞰】を使用して、対象1体に「2d+4」点の風属性の魔法ダメージを与えます。この能力は、直前の手番に「基本呪歌」または「後継呪歌【ラブソング】」を使用していたときにのみ使用できます。"], loot:["2〜5：なし","6〜8：木綿の羽衣(100G/白A)","9〜12：美しい羽衣(300G/白A)","13〜：光り輝く羽衣(1000G/白S)"], tags:"蛮族,水中,魔法" },
 ];
 
-function formatAbility(raw) {
-  // "名前 — 説明文" を【名前】\n説明文 の形に変換
-  const sep = raw.indexOf(' — ');
-  if (sep === -1) {
-    // セパレータなし → そのままブロックタイトルとして
-    return `【${raw}】`;
+// 記号→ラベル・クラスの対応表
+const MARK_MAP = [
+  { mark:'▶▶', label:'補助動作', cls:'mark-補助動作' },
+  { mark:'▶',  label:'主動作',   cls:'mark-主動作'   },
+  { mark:'○',  label:'常時',     cls:'mark-常時'     },
+  { mark:'△',  label:'戦闘準備', cls:'mark-戦闘準備' },
+  { mark:'💬', label:'宣言',     cls:'mark-宣言'     },
+];
+
+// テキスト用：記号→[ラベル]に変換
+function abilityMarkToText(raw) {
+  for (const {mark, label} of MARK_MAP) {
+    if (raw.startsWith(mark)) return '[' + label + '] ' + raw.slice(mark.length).trim();
   }
-  const title = raw.slice(0, sep).trim();
-  const desc  = raw.slice(sep + 3).trim();
+  return raw;
+}
+
+// HTML用：記号→クリッカブルバッジに変換
+function abilityMarkToHTML(raw) {
+  for (const {mark, label, cls} of MARK_MAP) {
+    if (raw.startsWith(mark)) {
+      const rest = raw.slice(mark.length).trim();
+      return `<span class="mark-label ${cls}" onclick="openMarkPopover(this,'${label}')">[${label}]</span>${rest}`;
+    }
+  }
+  return raw;
+}
+
+function formatAbility(raw, forHTML) {
+  const processed = forHTML ? abilityMarkToHTML(raw) : abilityMarkToText(raw);
+  // セパレータ検索は記号除去後のテキストで
+  // 先頭の記号を除去（▶▶は▶より先にチェック）
+  let plainRaw = raw;
+  for (const {mark} of MARK_MAP) {
+    if (plainRaw.startsWith(mark)) { plainRaw = plainRaw.slice(mark.length).trim(); break; }
+  }
+  const sep = plainRaw.indexOf(' — ');
+  if (sep === -1) {
+    if (forHTML) {
+      return `<b>【${processed}】</b>`;
+    }
+    return `【${processed}】`;
+  }
+  // タイトル部分（記号含む）
+  const titleEnd = processed.indexOf(' — ');
+  const titlePart = titleEnd !== -1 ? processed.slice(0, titleEnd).trim() : processed;
+  const desc = plainRaw.slice(sep + 3).trim();
   // 説明文を約30文字で折り返す
   const words = desc.split('');
   let line = '', lines = [];
@@ -445,7 +483,10 @@ function formatAbility(raw) {
     }
   }
   if (line) lines.push(line);
-  return `【${title}】\n${lines.join('\n')}`;
+  if (forHTML) {
+    return `<b>【${titlePart}】</b>\n${lines.join('\n')}`;
+  }
+  return `【${titlePart}】\n${lines.join('\n')}`;
 }
 
 // 文字幅カウント（日本語・絵文字=2、英数字=1）
@@ -571,15 +612,29 @@ document.addEventListener('click', e => {
 
 // fmt-blockのテキストをHTML化（特殊能力のラベルをクリッカブルに）
 function renderFmtBlock(m) {
-  const raw = formatMonster(m);
-  // ラベル部分を <span class="mark-label ..."> に置換
-  const labelMap = { '常時':'mark-常時','主動作':'mark-主動作','補助動作':'mark-補助動作','戦闘準備':'mark-戦闘準備','宣言':'mark-宣言' };
-  let html = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  html = html.replace(/\[([常時主動作補助動作戦闘準備宣言]+)\]/g, (match, label) => {
-    const cls = labelMap[label] || '';
-    return `<span class="mark-label ${cls}" onclick="openMarkPopover(this,'${label}')">[${label}]</span>`;
-  });
-  return '<pre style="white-space:pre-wrap;font-family:inherit;">' + html + '</pre>';
+  // 特殊能力だけHTML化、それ以外はプレーンテキスト
+  const atkLines = m.attacks.map(a =>
+    `${a.part}｜命中力 ${a.hit}　打撃点 ${a.dmg}　回避力 ${a.evd}　防護点 ${a.def}`
+  ).join('\n');
+  const abilityLinesHTML = m.abilities.length
+    ? m.abilities.map(ab => formatAbility(ab, true)).join('\n\n')
+    : '【なし】';
+  const lootLines = m.loot.length ? m.loot.map(l => `　${l}`).join('\n') : '　なし';
+
+  const textPart = formatMonster(m);
+  // テキスト部分をエスケープしてpreに入れ、特殊能力ブロックだけ置き換える
+  const abilityTextPlain = m.abilities.length
+    ? m.abilities.map(ab => formatAbility(ab, false)).join('\n\n')
+    : '【なし】';
+
+  const escaped = textPart
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const escapedAbility = abilityTextPlain
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  const htmlAbility = abilityLinesHTML;
+  const final = escaped.replace(escapedAbility, htmlAbility);
+  return '<pre style="white-space:pre-wrap;font-family:inherit;line-height:1.7;">' + final + '</pre>';
 }
 
 function openPanel(idx) {
