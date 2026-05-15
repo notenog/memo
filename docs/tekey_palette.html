@@ -1309,9 +1309,9 @@ function renderActionTab() {
 
     <div class="section-label" style="margin-top:16px;">抵抗・その他</div>
     <div class="btn-grid">
-      ${makeBtn('btn-vit',  '生命抵抗', \`2d6+\${vitBase}\`,  \`2d6+\${vitBase} [生命抵抗]\`)}
-      ${makeBtn('btn-mres', '精神抵抗', \`2d6+\${mresBase}\`, \`2d6+\${mresBase} [精神抵抗]\`)}
-      ${makeBtn('btn-init', '先制値',   \`2d6+\${init}\`,     \`2d6+\${init} [先制値]\`)}
+      ${makeBtn('btn-vit',  '生命抵抗', '2d6+'+vitBase,  '2d6+'+vitBase+' [生命抵抗]')}
+      ${makeBtn('btn-mres', '精神抵抗', '2d6+'+mresBase, '2d6+'+mresBase+' [精神抵抗]')}
+      ${makeBtn('btn-init', '先制値',   '2d6+'+init,     '2d6+'+init+' [先制値]')}
     </div>
 
     <div class="section-label" style="margin-top:16px;">チャット送信</div>
@@ -1351,7 +1351,7 @@ function renderActionTab() {
       <input type="number" id="sfInput" min="0" value="${sf}"
         style="width:48px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;color:var(--text);font-size:11px;padding:2px 4px;text-align:center;">
       <button class="btn btn-ghost" style="font-size:10px;padding:2px 8px;" id="btnSetSF">適用</button>
-      ${sf > 0 ? (() => { const b = calcSwordBonus(sf); return \`<span style="font-size:10px;color:var(--gold2);">HP+\${b.hp} MP+\${b.mp} 抵抗+\${b.res}</span>\`; })() : ''}
+      ${sf > 0 ? ('<span style="font-size:10px;color:var(--gold2);">HP+' + calcSwordBonus(sf).hp + ' MP+' + calcSwordBonus(sf).mp + ' 抵抗+' + calcSwordBonus(sf).res + '</span>') : ''}
     </div>
 
     <div class="section-label" style="margin-top:16px;">特殊能力</div>
@@ -1380,13 +1380,11 @@ function renderActionTab() {
     showToast('魔物知識判定を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="seethrough1"]')?.addEventListener('click', () => {
-    sendChat(`--- 👻${m.name} 看破 ---
-✔${m.name}`, { color: '009CE0', name: cfg('senderName') || undefined });
+    sendChat(`--- 👻${m.name} 看破 --- ✔${m.name}`, { color: '009CE0', name: cfg('senderName') || undefined });
     showToast('看破（弱点なし）を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="seethrough2"]')?.addEventListener('click', () => {
-    sendChat(`--- 👻${m.name} 看破 ---
-✔${m.name}《${weakText}》`, { color: '009CE0', name: cfg('senderName') || undefined });
+    sendChat(`--- 👻${m.name} 看破 --- ✔${m.name}《${weakText}》`, { color: '009CE0', name: cfg('senderName') || undefined });
     showToast('看破（弱点あり）を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="initiative"]')?.addEventListener('click', () => {
