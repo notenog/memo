@@ -34,6 +34,28 @@
   --radius-sm: 5px;
 }
 
+/* ライトモード */
+body.light-mode {
+  --bg:      #f5f2ec;
+  --bg2:     #ede8de;
+  --bg3:     #e4ddd0;
+  --bg4:     #d8d0c0;
+  --border:  rgba(140,100,40,0.15);
+  --border2: rgba(140,100,40,0.3);
+  --text:    #2a2318;
+  --text2:   #5a4e38;
+  --text3:   #8a7a60;
+  --gold:    #9a6e1a;
+  --gold2:   #7a5410;
+  --gold3:   #5a3c08;
+  --red:     #c02020;
+  --red2:    #a01010;
+  --green:   #2a7a3a;
+  --green2:  #1a5a28;
+  --accent:  #c8a860;
+}
+body.light-mode::before { opacity: 0.015; }
+
 body {
   font-family: 'Noto Sans JP', sans-serif;
   background: var(--bg);
@@ -674,6 +696,7 @@ body::before {
 <!-- トップバー -->
 <header class="topbar">
   <span class="topbar-title">⚔️ Tekey 拡張パレット</span>
+  <button class="btn btn-setting" id="lightToggleBtn" onclick="toggleLightMode()" title="ライト/ダーク切替" style="font-size:14px;">🌙</button>
   <button class="btn btn-setting" onclick="openSettings()">⚙ 接続設定</button>
   <span id="connStatus" style="font-size:10px;color:var(--text3);">未設定</span>
 </header>
@@ -1130,7 +1153,7 @@ function confirmAddEnemy() {
     ? [m.name]
     : Array.from({length: count}, (_, i) => `${m.name}${ALPHA[i]}`);
   names.forEach(name => {
-    enemies.push({ displayName: name, monster: m });
+    enemies.push({ displayName: name, monster: m, color: null, swordFragments: 0 });
   });
   renderEnemyList();
   closeAddPopup();
@@ -1148,13 +1171,22 @@ function renderEnemyList() {
     return;
   }
   el.innerHTML = enemies.map((e, i) => {
-    const rk = String(e.monster.rank).charAt(0);
+    const rk     = String(e.monster.rank).charAt(0);
     const active = currentEnemyName === e.displayName ? ' active' : '';
+    const sf      = e.swordFragments || 0;
+    const sfBonus = sf > 0 ? calcSwordBonus(sf) : null;
+    const starred = sf > 0 ? '✦ ' : '';
+    const colorDot = e.color
+      ? `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#${e.color};margin-right:4px;flex-shrink:0;border:1px solid rgba(0,0,0,.2);"></span>`
+      : '';
+    const subText = sfBonus
+      ? `HP${e.monster.hp}+${sfBonus.hp} / 先制${e.monster.init} / 🗡${sf}`
+      : `HP${e.monster.hp} / 先制${e.monster.init}`;
     return `<div class="enemy-card${active}" onclick="selectEnemy(${i})">
       <div class="mi-rank r${rk}" style="width:20px;height:20px;font-size:9px;">${e.monster.rank}</div>
       <div class="ec-info">
-        <div class="ec-name">${e.displayName}</div>
-        <div class="ec-sub">HP${e.monster.hp} / 先制${e.monster.init}</div>
+        <div class="ec-name" style="display:flex;align-items:center;">${colorDot}<span>${starred}${e.displayName}</span></div>
+        <div class="ec-sub">${subText}</div>
       </div>
       <button class="ec-del" onclick="event.stopPropagation();removeEnemy(${i})">✕</button>
     </div>`;
@@ -1258,22 +1290,71 @@ function renderActionTab() {
       </div>`;
   }).join('');
 
+  // 現在のエネミー情報
+  const enemyObj  = enemies.find(e => e.displayName === currentEnemyName);
+  const sf        = enemyObj ? (enemyObj.swordFragments || 0) : 0;
+  const enemyColor= enemyObj ? (enemyObj.color || '') : '';
+
+  // 知名度・弱点値
+  const knowVal  = m.know    || '―';
+  const knowBase = m.knowval || '―';
+  const weakText = m.weakness || '―';
+
+  // 先制目標値
+  const initTarget = parseInt(m.init) || 0;
+
   tab.innerHTML = `
     <div class="section-label">攻撃</div>
     ${attackBlocks}
+
     <div class="section-label" style="margin-top:16px;">抵抗・その他</div>
     <div class="btn-grid">
-      ${makeBtn('btn-vit',  '生命抵抗', `2d6+${vitBase}`,  `2d6+${vitBase} [生命抵抗]`)}
-      ${makeBtn('btn-mres', '精神抵抗', `2d6+${mresBase}`, `2d6+${mresBase} [精神抵抗]`)}
-      ${makeBtn('btn-init', '先制値',   `2d6+${init}`,     `2d6+${init} [先制値]`)}
+      ${makeBtn('btn-vit',  '生命抵抗', \`2d6+\${vitBase}\`,  \`2d6+\${vitBase} [生命抵抗]\`)}
+      ${makeBtn('btn-mres', '精神抵抗', \`2d6+\${mresBase}\`, \`2d6+\${mresBase} [精神抵抗]\`)}
+      ${makeBtn('btn-init', '先制値',   \`2d6+\${init}\`,     \`2d6+\${init} [先制値]\`)}
     </div>
+
+    <div class="section-label" style="margin-top:16px;">チャット送信</div>
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <button class="action-btn" style="background:linear-gradient(135deg,#101218,#080a10);border-color:#607090;color:#90aac0;width:100%;" data-chat-cmd="knowledge">
+        <span class="btn-label">魔物知識判定</span>
+        <span class="btn-val" style="font-size:11px;">▶${m.name}　目標値《${knowVal}／${knowBase}》</span>
+      </button>
+      <button class="action-btn" style="background:linear-gradient(135deg,#081418,#040c10);border-color:#0080b0;color:#40c0f0;width:100%;" data-chat-cmd="seethrough1">
+        <span class="btn-label">👻看破（弱点なし）</span>
+        <span class="btn-val" style="font-size:11px;">✔${m.name}</span>
+      </button>
+      <button class="action-btn" style="background:linear-gradient(135deg,#081418,#040c10);border-color:#0080b0;color:#40c0f0;width:100%;" data-chat-cmd="seethrough2">
+        <span class="btn-label">👻看破（弱点あり）</span>
+        <span class="btn-val" style="font-size:11px;">✔${m.name}《${weakText}》</span>
+      </button>
+      <button class="action-btn" style="background:linear-gradient(135deg,#141808,#0c1004);border-color:#90b020;color:#c8e040;width:100%;" data-chat-cmd="initiative">
+        <span class="btn-label">👟先制判定</span>
+        <span class="btn-val" style="font-size:11px;">--- 先制判定 ---　目標値《${initTarget}》</span>
+      </button>
+    </div>
+
     <div class="section-label" style="margin-top:16px;">行動管理</div>
     <div class="btn-grid">
       <button class="action-btn" style="background:linear-gradient(135deg,#0a1a0a,#060d06);border-color:#3a7a3a;color:#70c070;" id="btnMarkActed">
         <span class="btn-label">行動完了を送信</span><span class="btn-val">✔ 行動済</span>
       </button>
     </div>
-    <div class="section-label" style="margin-top:16px;">特殊能力メモ</div>
+
+    <div class="section-label" style="margin-top:16px;">エネミー設定</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;">
+      <span style="font-size:10px;color:var(--text3);">チャットカラー</span>
+      <input type="color" id="enemyColorPicker" value="${enemyColor ? '#'+enemyColor : '#c9a84c'}"
+        style="width:28px;height:22px;border:none;border-radius:3px;cursor:pointer;background:none;padding:0;">
+      <button class="btn btn-ghost" style="font-size:10px;padding:2px 8px;" id="btnSetColor">設定</button>
+      <span style="font-size:10px;color:var(--text3);margin-left:8px;">🗡 剣のかけら</span>
+      <input type="number" id="sfInput" min="0" value="${sf}"
+        style="width:48px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;color:var(--text);font-size:11px;padding:2px 4px;text-align:center;">
+      <button class="btn btn-ghost" style="font-size:10px;padding:2px 8px;" id="btnSetSF">適用</button>
+      ${sf > 0 ? (() => { const b = calcSwordBonus(sf); return \`<span style="font-size:10px;color:var(--gold2);">HP+\${b.hp} MP+\${b.mp} 抵抗+\${b.res}</span>\`; })() : ''}
+    </div>
+
+    <div class="section-label" style="margin-top:16px;">特殊能力</div>
     <div style="font-size:11px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;line-height:2;">
       ${m.abilities.map(a => {
         const sep = a.indexOf(' — ');
@@ -1284,21 +1365,87 @@ function renderActionTab() {
     </div>
   `;
 
-  // data-cmd ボタンにイベントを委譲
+  // data-cmd ダイスボタン
   tab.querySelectorAll('[data-cmd]').forEach(btn => {
     btn.addEventListener('click', () => {
       const cmd = decodeURIComponent(btn.dataset.cmd);
       roll(cmd);
     });
   });
+
+  // チャット送信ボタン
+  const ec = enemyObj ? (enemyObj.color || null) : null;
+  tab.querySelector('[data-chat-cmd="knowledge"]')?.addEventListener('click', () => {
+    sendChat(`▶${m.name}　目標値《${knowVal}／${knowBase}》`, { color: '999999', name: cfg('senderName') || undefined });
+    showToast('魔物知識判定を送信', 'ok');
+  });
+  tab.querySelector('[data-chat-cmd="seethrough1"]')?.addEventListener('click', () => {
+    sendChat(`--- 👻${m.name} 看破 ---
+✔${m.name}`, { color: '009CE0', name: cfg('senderName') || undefined });
+    showToast('看破（弱点なし）を送信', 'ok');
+  });
+  tab.querySelector('[data-chat-cmd="seethrough2"]')?.addEventListener('click', () => {
+    sendChat(`--- 👻${m.name} 看破 ---
+✔${m.name}《${weakText}》`, { color: '009CE0', name: cfg('senderName') || undefined });
+    showToast('看破（弱点あり）を送信', 'ok');
+  });
+  tab.querySelector('[data-chat-cmd="initiative"]')?.addEventListener('click', () => {
+    sendChat(`--- 👟先制判定 ---　目標値《${initTarget}》`, { color: 'CEE331', name: cfg('senderName') || undefined });
+    showToast('先制判定を送信', 'ok');
+  });
+
   // 行動済ボタン
-  const actBtn = tab.querySelector('#btnMarkActed');
-  if (actBtn) actBtn.addEventListener('click', markActed);
+  tab.querySelector('#btnMarkActed')?.addEventListener('click', markActed);
+
+  // カラー設定ボタン
+  tab.querySelector('#btnSetColor')?.addEventListener('click', () => {
+    if (!enemyObj) return;
+    const hex = tab.querySelector('#enemyColorPicker').value.replace('#','');
+    enemyObj.color = hex;
+    renderEnemyList();
+    showToast(`カラーを #${hex} に設定`, 'ok');
+  });
+
+  // 剣のかけら適用ボタン
+  tab.querySelector('#btnSetSF')?.addEventListener('click', () => {
+    if (!enemyObj) return;
+    const n = parseInt(tab.querySelector('#sfInput').value) || 0;
+    enemyObj.swordFragments = n;
+    renderEnemyList();
+    renderActionTab(); // ボーナス再描画
+    showToast(`🗡 剣のかけら ${n}個 を適用`, 'ok');
+  });
+}
+
+// ────────────────────────────────────────────
+//  剣のかけらボーナス計算
+// ────────────────────────────────────────────
+function calcSwordBonus(n) {
+  const hp  = n * 5;
+  const mp  = n * 1;
+  let res = 1;
+  if      (n >= 16) res = 4;
+  else if (n >= 11) res = 3;
+  else if (n >= 6)  res = 2;
+  else              res = 1;
+  return { hp, mp, res };
+}
+
+// ────────────────────────────────────────────
+//  ライトモード切替
+// ────────────────────────────────────────────
+function toggleLightMode() {
+  const isLight = document.body.classList.toggle('light-mode');
+  const btn = document.getElementById('lightToggleBtn');
+  btn.textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('lightMode', isLight ? '1' : '0');
 }
 
 async function roll(cmd) {
-  const name = currentMonster ? currentMonster.name : undefined;
-  await sendChat(cmd, { bot: 'SwordWorld2_5', name });
+  const enemyObj  = enemies.find(e => e.displayName === currentEnemyName);
+  const color     = enemyObj ? (enemyObj.color || undefined) : undefined;
+  const name      = currentEnemyName || (currentMonster ? currentMonster.name : undefined);
+  await sendChat(cmd, { bot: 'SwordWorld2_5', name, color });
   showToast(`送信: ${cmd}`, 'ok');
 }
 
@@ -1470,6 +1617,11 @@ function toggleDB() {
 // ────────────────────────────────────────────
 renderMonsterList();
 updateConnStatus();
+// ライトモード復元
+if (localStorage.getItem('lightMode') === '1') {
+  document.body.classList.add('light-mode');
+  document.getElementById('lightToggleBtn').textContent = '☀️';
+}
 </script>
 </body>
 </html>
