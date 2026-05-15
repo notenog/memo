@@ -881,6 +881,10 @@ body::before {
         <label>送信者名（省略可）</label>
         <input type="text" id="s_name" placeholder="例：GM">
       </div>
+      <div class="fgroup">
+        <label>BCDice BotID（ダイス用）</label>
+        <input type="text" id="s_botid" placeholder="SwordWorld2_5">
+      </div>
       <div class="note">
         ※ すべての設定はこのブラウザのlocalStorageに保存されます。
       </div>
@@ -1425,8 +1429,10 @@ function renderActionTab() {
     if (!enemyObj) return;
     const n = parseInt(tab.querySelector('#sfInput').value) || 0;
     enemyObj.swordFragments = n;
+    // ヘッダー再描画のためselectEnemyを再実行
+    const idx = enemies.indexOf(enemyObj);
     renderEnemyList();
-    renderActionTab();
+    if (idx !== -1) selectEnemy(idx);
     showToast('🗡 剣のかけら ' + n + '個 を適用', 'ok');
   });
   // 戦利品送信ボタン
@@ -1468,7 +1474,7 @@ async function roll(cmd) {
   const enemyObj  = enemies.find(e => e.displayName === currentEnemyName);
   const color     = enemyObj ? (enemyObj.color || undefined) : undefined;
   const name      = currentEnemyName || (currentMonster ? currentMonster.name : undefined);
-  await sendChat(cmd, { bot: 'SwordWorld2_5', name, color });
+  await sendChat(cmd, { bot: cfg('botId') || 'SwordWorld2_5', name, color });
   showToast(`送信: ${cmd}`, 'ok');
 }
 
@@ -1550,6 +1556,7 @@ function openSettings() {
   document.getElementById('s_pass').value   = cfg('pass');
   document.getElementById('s_tab').value    = cfg('tab');
   document.getElementById('s_name').value   = cfg('senderName');
+  document.getElementById('s_botid').value  = cfg('botId') || 'SwordWorld2_5';
   document.getElementById('settingsModal').classList.add('open');
 }
 function closeSettings() {
@@ -1560,7 +1567,8 @@ function saveSettings() {
   localStorage.setItem('room',        document.getElementById('s_room').value.trim());
   localStorage.setItem('pass',        document.getElementById('s_pass').value.trim());
   localStorage.setItem('tab',         document.getElementById('s_tab').value.trim());
-  localStorage.setItem('senderName',  document.getElementById('s_name').value.trim());
+  localStorage.setItem('senderName',  document.getElementById('s_name').value); // trimしない（空白保持）
+  localStorage.setItem('botId',       document.getElementById('s_botid').value.trim() || 'SwordWorld2_5');
   closeSettings();
   updateConnStatus();
   showToast('設定を保存しました', 'ok');
