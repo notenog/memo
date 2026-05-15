@@ -1406,7 +1406,7 @@ function renderActionTab() {
     btn.addEventListener('click', () => roll(decodeURIComponent(btn.dataset.cmd)));
   });
   tab.querySelector('[data-chat-cmd="knowledge"]')?.addEventListener('click', () => {
-    sendChat('▶' + m.name + '　目標値《' + knowVal + '／' + knowBase + '》', { color: '999999' });
+    sendChat(tekeyMsg('▶' + m.name + '　目標値《' + knowVal + '／' + knowBase + '》'), { color: '999999' });
     showToast('魔物知識判定を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="seethrough1"]')?.addEventListener('click', () => {
@@ -1414,11 +1414,11 @@ function renderActionTab() {
     showToast('看破（弱点なし）を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="seethrough2"]')?.addEventListener('click', () => {
-    sendChat('✔' + m.name + '《' + weakText + '》', { color: '009CE0' });
+    sendChat(tekeyMsg('✔' + m.name + '《' + weakText + '》'), { color: '009CE0' });
     showToast('看破（弱点あり）を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="initiative"]')?.addEventListener('click', () => {
-    sendChat('--- 👟先制判定 ---　目標値《' + initTarget + '》', { color: 'CEE331' });
+    sendChat(tekeyMsg('--- 👟先制判定 ---　目標値《' + initTarget + '》'), { color: 'CEE331' });
     showToast('先制判定を送信', 'ok');
   });
   tab.querySelector('#btnMarkActed')?.addEventListener('click', markActed);
@@ -1472,6 +1472,11 @@ function toggleLightMode() {
   const btn = document.getElementById('lightToggleBtn');
   btn.textContent = isLight ? '☀️' : '🌙';
   localStorage.setItem('lightMode', isLight ? '1' : '0');
+}
+
+// Tekey APIで問題になる記号を変換
+function tekeyMsg(s) {
+  return s.replace(/《/g, '[').replace(/》/g, ']').replace(/／/g, '/');
 }
 
 async function roll(cmd) {
