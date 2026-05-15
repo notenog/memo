@@ -610,31 +610,57 @@ document.addEventListener('click', e => {
   }
 });
 
-// fmt-blockのテキストをHTML化（特殊能力のラベルをクリッカブルに）
+// fmt-blockをブロックごとに組み立てる
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 function renderFmtBlock(m) {
-  // 特殊能力だけHTML化、それ以外はプレーンテキスト
+  // ヘッダ部分（プレーンテキストをエスケープ）
   const atkLines = m.attacks.map(a =>
-    `${a.part}｜命中力 ${a.hit}　打撃点 ${a.dmg}　回避力 ${a.evd}　防護点 ${a.def}`
+    esc(`${a.part}｜命中力 ${a.hit}　打撃点 ${a.dmg}　回避力 ${a.evd}　防護点 ${a.def}`)
   ).join('\n');
-  const abilityLinesHTML = m.abilities.length
-    ? m.abilities.map(ab => formatAbility(ab, true)).join('\n\n')
+  const lootLines = m.loot.length ? m.loot.map(l => esc(`　${l}`)).join('\n') : '　なし';
+
+  // 特殊能力：ラベルだけHTML、それ以外はエスケープ
+  const abilityLines = m.abilities.length
+    ? m.abilities.map(ab => {
+        // 記号を取り出してバッジHTML化、残りはエスケープ
+        for (const {mark, label, cls} of MARK_MAP) {
+          if (ab.startsWith(mark)) {
+            const rest = ab.slice(mark.length).trim();
+            const badge = `<span class="mark-label ${cls}" onclick="openMarkPopover(this,'${label}')">[${label}]</span>`;
+            // rest を formatAbility 同様に整形（エスケープ済み）
+            const sep = rest.indexOf(' — ');
+            if (sep === -1) return badge + esc(rest);
+            const title = esc(rest.slice(0, sep).trim());
+            const desc  = esc(rest.slice(sep + 3).trim());
+            return `${badge}【${title}】\n${desc}`;
+          }
+        }
+        // 記号なし
+        const sep = ab.indexOf(' — ');
+        if (sep === -1) return esc(ab);
+        return esc(`【${ab.slice(0,sep).trim()}】`) + '\n' + esc(ab.slice(sep+3).trim());
+      }).join('\n\n')
     : '【なし】';
-  const lootLines = m.loot.length ? m.loot.map(l => `　${l}`).join('\n') : '　なし';
 
-  const textPart = formatMonster(m);
-  // テキスト部分をエスケープしてpreに入れ、特殊能力ブロックだけ置き換える
-  const abilityTextPlain = m.abilities.length
-    ? m.abilities.map(ab => formatAbility(ab, false)).join('\n\n')
-    : '【なし】';
+  const headerLine = `💠${esc(m.cat)}｜📛${padR(m.name,14)}🦋Lv：${padR(m.rank,6)}🏷️参照：
+📖知名度／弱点値：${padR(m.know+'/'+m.knowval,10)}🌀弱点：${esc(m.weakness)}
+🧠知能：${padR(m.intel||'―',18)}👁️知覚：${esc(m.percep||'―')}
+⚜️先制：${padR(m.init,8)}👟移動：${padR(m.move,14)}🌗生命：${padR(m.vit,10)}🌓精神：${esc(m.mres)}`;
 
-  const escaped = textPart
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const escapedAbility = abilityTextPlain
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const html = `${headerLine}
 
-  const htmlAbility = abilityLinesHTML;
-  const final = escaped.replace(escapedAbility, htmlAbility);
-  return '<pre style="white-space:pre-wrap;font-family:inherit;line-height:1.7;">' + final + '</pre>';
+⚔️【武器】
+${atkLines}
+
+❤️‍🔥【特殊能力】
+${abilityLines}
+
+💰️【戦利品】
+${lootLines}`;
+
+  return '<pre style="white-space:pre-wrap;font-family:inherit;line-height:1.7;">' + html + '</pre>';
 }
 
 function openPanel(idx) {
