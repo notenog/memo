@@ -236,6 +236,22 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
 .modal-ok:disabled{opacity:.35;cursor:not-allowed;}
 .load-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text4);min-height:22px;margin-top:6px;}
 
+/* ── RUBY ── */
+.ruby-wrap{position:relative;display:inline-flex;flex-direction:column-reverse;align-items:center;line-height:1;vertical-align:bottom;}
+.ruby-text{font-size:8px;letter-spacing:0.5px;color:var(--gold2);line-height:1;margin-bottom:2px;white-space:nowrap;}
+.ruby-base{line-height:1;}
+
+/* ── NPC CARD ── */
+.npc-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s;}
+.npc-card:hover{border-color:var(--gold2);}
+.npc-head{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg1);border-bottom:1px solid var(--border2);}
+.npc-ava{width:52px;height:62px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;overflow:hidden;position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+.npc-ava img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.npc-ava .drop-hint{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.65);font-size:9px;color:var(--text5);text-align:center;padding:2px;opacity:0;transition:opacity .15s;}
+.npc-ava:hover .drop-hint,.npc-ava.drag-over .drop-hint{opacity:1;}
+.npc-ava.drag-over{border-color:var(--gold);}
+.npc-body{padding:10px 12px;}
+
 /* ── COOKING STAGE ── */
 .cook-stage{background:var(--bg1);border:1px solid var(--border2);border-radius:8px;padding:16px 20px;margin-bottom:14px;display:flex;flex-direction:column;align-items:center;gap:12px;min-height:140px;position:relative;overflow:hidden;}
 .cook-stage-chars{display:flex;gap:24px;align-items:flex-end;justify-content:center;}
@@ -328,8 +344,8 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
 <body>
 
 <nav>
-  <div class="nav-title">✦ SESSION BOARD ✦</div>
-  <button class="nb on" onclick="showPage('main',this)">Characters & Enemies</button>
+  <div class="nav-title">✦ <span class="ruby-wrap"><span class="ruby-base">まっすぐ港亭</span><span class="ruby-text">ストレートポート</span></span> ✦</div>
+  <button class="nb on" onclick="showPage('main',this)">Characters & NPC</button>
   <button class="nb" onclick="showPage('memos',this)">Memo</button>
   <button class="nb" onclick="showPage('cooking',this)">🍳 料理</button>
   <span class="save-indicator" id="save-indicator"></span>
@@ -355,19 +371,12 @@ nav{display:flex;align-items:center;background:var(--bg1);border-bottom:2px soli
   </div>
 
   <div class="sec-header sec-gap">
-    <span class="sec-title">👾 Enemies</span>
+    <span class="sec-title">👤 NPC</span>
     <div class="sec-actions">
-      <button class="btn btn-sm btn-ghost" onclick="toggleWaitingRoom('enemy')">待合室</button>
-      <button class="btn btn-sm" onclick="openEnemyModal()">+ エネミー追加</button>
+      <button class="btn btn-sm" onclick="addNpc()">+ NPC追加</button>
     </div>
   </div>
-  <div class="card-grid" id="enemy-grid"></div>
-  <div id="enemy-waiting-wrap" style="display:none;">
-    <div class="waiting-room">
-      <div class="waiting-label">待合室（非表示中）</div>
-      <div class="waiting-grid" id="enemy-waiting-grid"></div>
-    </div>
-  </div>
+  <div class="card-grid" id="npc-grid"></div>
 </div>
 
 <div id="page-memos" class="page">
@@ -516,7 +525,7 @@ let enemies = [
   {name:'オーク隊長',type:'エリート敵',ava:'👹',img:null,hp:80,hpmax:80,mp:0,mpmax:0,atk:18,def:12,hit:10,evd:8,lif:14,mnd:8,hidden:false,
    weak:['雷'],resist:['物理'],skills:['強撃（ダメ×2）','咆哮（周囲デバフ）','激怒（HP半分で+5）'],note:'撃破で蛮族士気-2。鎧剥がしで防御-4。'},
 ];
-let memoBoards = [
+let npcs = [];
   {name:'Session Notes',cards:[
     {title:'村長 トーマス',body:'協力的。娘が行方不明。\n報酬：金貨50枚'},
     {title:'鍛冶屋 ハンス',body:'武器強化可能。蛮族に恨みあり。'},
@@ -703,6 +712,43 @@ function deleteTemplate(ti){
 document.addEventListener('click',()=>{
   document.querySelectorAll('.status-popup').forEach(p=>p.classList.remove('show'));
 });
+
+/* ━━━━━━ RENDER NPC ━━━━━━ */
+function renderNpcs(){
+  document.getElementById('npc-grid').innerHTML = npcs.map((n,ni)=>`
+    <div class="npc-card">
+      <div class="npc-head">
+        <div class="npc-ava" id="nava-${ni}">
+          ${n.img?`<img src="${n.img}" alt="">`:(n.ava||'👤')}
+          <div class="drop-hint">画像変更</div>
+        </div>
+        <div class="head-info">
+          <span class="ed-name" contenteditable="true"
+            onblur="npcs[${ni}].name=this.textContent.trim();save()">${n.name}</span>
+        </div>
+      </div>
+      <div class="npc-body">
+        <textarea class="memo-area" rows="4" placeholder="メモ..."
+          data-ni="${ni}" data-field="npcmemo">${n.memo||''}</textarea>
+      </div>
+      <div class="card-footer">
+        <button class="cfbtn cfbtn-del"
+          onclick="if(confirm('削除しますか？')){npcs.splice(${ni},1);renderNpcs();save();}">削除</button>
+      </div>
+    </div>`).join('');
+
+  npcs.forEach((_,ni)=>{
+    const ava=document.getElementById('nava-'+ni);
+    if(ava) setupDrop(ava,src=>{npcs[ni].img=src;renderNpcs();save();});
+    const memoEl=document.querySelector(`[data-field="npcmemo"][data-ni="${ni}"]`);
+    if(memoEl) memoEl.addEventListener('input',()=>{npcs[ni].memo=memoEl.value;save();});
+  });
+}
+
+function addNpc(){
+  npcs.push({name:'新規NPC',img:null,ava:'👤',memo:''});
+  renderNpcs();save();
+}
 
 /* ━━━━━━ UNDO / REDO ━━━━━━ */
 const HISTORY_MAX = 50;
@@ -1775,13 +1821,15 @@ function getPayload(){
   const imgMap={};
   const charsNoImg=chars.map((c,i)=>{if(c.img)imgMap['c'+i]=c.img;return{...c,img:null};});
   const enemiesNoImg=enemies.map((e,i)=>{if(e.img)imgMap['e'+i]=e.img;return{...e,img:null};});
-  return {chars:charsNoImg,enemies:enemiesNoImg,memoBoards,statusTemplates,imgMap};
+  const npcsNoImg=npcs.map((n,i)=>{if(n.img)imgMap['n'+i]=n.img;return{...n,img:null};});
+  return {chars:charsNoImg,enemies:enemiesNoImg,npcs:npcsNoImg,memoBoards,statusTemplates,imgMap};
 }
 
 function applyPayload(data){
   const imgMap=data.imgMap||{};
   chars=(data.chars||[]).map((c,i)=>({...c,img:imgMap['c'+i]||null}));
   enemies=(data.enemies||[]).map((e,i)=>({...e,img:imgMap['e'+i]||null,hpmax:e.hpmax||e.hp,hit:e.hit||0,evd:e.evd||0,lif:e.lif||0,mnd:e.mnd||0,mp:e.mp||0,mpmax:e.mpmax||0}));
+  npcs=(data.npcs||[]).map((n,i)=>({...n,img:imgMap['n'+i]||null}));
   memoBoards=data.memoBoards||memoBoards;
   if(data.statusTemplates) statusTemplates=data.statusTemplates;
 }
@@ -1907,6 +1955,7 @@ document.querySelectorAll('.modal-bg').forEach(bg=>{
 loadSave();
 renderChars();
 renderEnemies();
+renderNpcs();
 renderMemoBoards();
 renderCookingPage();
 pushHistory();
@@ -1924,6 +1973,7 @@ Object.assign(window,{
   addMemoBoard,addMemoCard,deleteMemoBoard,renderMemoBoards,
   clearAllData,save,undo,redo,pushHistory,
   renderCookingPage,toggleIng,toggleChef,addIngredient,startCooking,copyLog,
+  addNpc,renderNpcs,
   // データ変数（oninputから直接アクセスするため）
   get chars(){return chars;},
   get enemies(){return enemies;},
