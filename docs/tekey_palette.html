@@ -1014,8 +1014,10 @@ async function sendChat(message, { name, color, bot } = {}) {
   const room     = cfg('room');
   const password = cfg('pass');
   const tab      = cfg('tab');
-  // senderName：空文字は送らない
-  const senderName = (name || cfg('senderName') || '').trim() || null;
+  // senderName：空文字・空白のみは送らない（全角/半角スペース対応）
+  const senderName = (name || cfg('senderName') || '').replace(/[\s\u3000]+/g, '').length > 0
+    ? (name || cfg('senderName') || '').trim()
+    : null;
 
   if (!room) {
     showToast('⚙ 接続設定（ルームID）を先に行ってください', 'err');
@@ -1055,24 +1057,23 @@ async function startRound() {
   // 1. ラウンド開始メッセージ
   await sendChat(`--- ${roundNum}R 開始 ---`, { color: 'c9a84c' });
 
-  // 2. PC＋エネミー全員の行動を解除（:行動=0）
-  // PC名リスト
-  const pcNames = [...characters];
-  // エネミー駒名リスト（群れはA/B/C付きの表示名）
-  const enemyNames = enemies.map(e => e.displayName);
-  const allTargets = [...pcNames, ...enemyNames];
+  // 2. PC＋エネミー全員の行動を解除（:行動=0）※現在停止中
+  // ※Tekey APIのsendChatでは:コマンドが実行されないため一時停止
+  // const pcNames = [...characters];
+  // const enemyNames = enemies.map(e => e.displayName);
+  // const allTargets = [...pcNames, ...enemyNames];
+  // if (allTargets.length === 0) {
+  //   showToast(`${roundNum}R 開始（対象なし）`, 'ok');
+  //   return;
+  // }
+  // let ok = 0;
+  // for (const name of allTargets) {
+  //   const success = await sendChat(`:行動=0`, { name });
+  //   if (success) ok++;
+  // }
+  // showToast(`${roundNum}R 開始 ／ 行動解除 ${ok}/${allTargets.length}体`, 'ok');
 
-  if (allTargets.length === 0) {
-    showToast(`${roundNum}R 開始（対象なし）`, 'ok');
-    return;
-  }
-  let ok = 0;
-  for (const name of allTargets) {
-    // 送信者名をキャラ名にして :行動=0 を送信
-    const success = await sendChat(`:行動=0`, { name });
-    if (success) ok++;
-  }
-  showToast(`${roundNum}R 開始 ／ 行動解除 ${ok}/${allTargets.length}体`, 'ok');
+  showToast(`${roundNum}R 開始`, 'ok');
 }
 
 function resetRound() {
@@ -1232,17 +1233,22 @@ function selectEnemy(i) {
   const panel = document.getElementById('monsterPanel');
   panel.style.display = 'flex';
 
-  // ヘッダー
+  // ヘッダー（剣のかけら強化値を反映）
   const rk = String(currentMonster.rank).charAt(0);
+  const sfH     = e.swordFragments || 0;
+  const sfBonusH = sfH > 0 ? calcSwordBonus(sfH) : null;
+  const hpDisp  = sfBonusH ? `${currentMonster.hp}+${sfBonusH.hp}` : currentMonster.hp;
+  const mpDisp  = sfBonusH ? `${currentMonster.mp}+${sfBonusH.mp}` : currentMonster.mp;
+  const sfBadge = sfH > 0 ? ` <span style="font-size:10px;color:var(--gold);margin-left:4px;">🗡${sfH}</span>` : '';
   document.getElementById('monsterHeader').innerHTML = `
     <div class="mi-rank r${rk}" style="width:32px;height:32px;font-size:13px;">${currentMonster.rank}</div>
     <div style="flex:1">
-      <div class="mh-name">${e.displayName}</div>
-      <div style="font-size:10px;color:var(--gold);margin-top:1px;">${currentMonster.name}</div>
+      <div class="mh-name">${e.displayName}${sfBadge}</div>
+      <div style="font-size:11px;color:var(--gold);margin-top:1px;">${currentMonster.name}</div>
       <div class="mh-meta">
         <span>🏷 ${currentMonster.cat}</span>
-        <span>❤️ HP ${currentMonster.hp}</span>
-        <span>💙 MP ${currentMonster.mp}</span>
+        <span>❤️ HP ${hpDisp}</span>
+        <span>💙 MP ${mpDisp}</span>
         <span>⚡ 先制 ${currentMonster.init}</span>
         <span>🥾 ${currentMonster.move}</span>
       </div>
@@ -1368,8 +1374,8 @@ function renderActionTab() {
     // ─ 行動管理 ─
     '<div class="section-label" style="margin-top:12px;">行動管理</div>' +
     '<div class="btn-grid">' +
-      '<button class="action-btn" style="background:linear-gradient(135deg,#0a1a0a,#060d06);border-color:#3a7a3a;color:#70c070;" id="btnMarkActed">' +
-        '<span class="btn-label">行動完了を送信</span><span class="btn-val">✔ 行動済</span>' +
+      '<button class="action-btn" style="background:linear-gradient(135deg,#0a1a0a,#060d06);border-color:#3a7a3a;color:#70c070;opacity:0.6;cursor:not-allowed;" id="btnMarkActed">' +
+        '<span class="btn-label">行動完了を送信　※未実装</span><span class="btn-val">✔ 行動済</span>' +
       '</button>' +
     '</div>' +
     // ─ 戦利品 ─
