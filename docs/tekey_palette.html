@@ -1014,10 +1014,9 @@ async function sendChat(message, { name, color, bot } = {}) {
   const room     = cfg('room');
   const password = cfg('pass');
   const tab      = cfg('tab');
-  // senderName：空文字・空白のみは送らない（全角/半角スペース対応）
-  const senderName = (name || cfg('senderName') || '').replace(/[\s\u3000]+/g, '').length > 0
-    ? (name || cfg('senderName') || '').trim()
-    : null;
+  // senderName：全角/半角スペースのみは空扱い
+  const _rawName = name || cfg('senderName') || '';
+  const senderName = _rawName.replace(/[\s\u3000]/g, '').length > 0 ? _rawName.trim() : null;
 
   if (!room) {
     showToast('⚙ 接続設定（ルームID）を先に行ってください', 'err');
@@ -1235,11 +1234,11 @@ function selectEnemy(i) {
 
   // ヘッダー（剣のかけら強化値を反映）
   const rk = String(currentMonster.rank).charAt(0);
-  const sfH     = e.swordFragments || 0;
+  const sfH      = e.swordFragments || 0;
   const sfBonusH = sfH > 0 ? calcSwordBonus(sfH) : null;
-  const hpDisp  = sfBonusH ? `${currentMonster.hp}+${sfBonusH.hp}` : currentMonster.hp;
-  const mpDisp  = sfBonusH ? `${currentMonster.mp}+${sfBonusH.mp}` : currentMonster.mp;
-  const sfBadge = sfH > 0 ? ` <span style="font-size:10px;color:var(--gold);margin-left:4px;">🗡${sfH}</span>` : '';
+  const hpDisp   = sfBonusH ? (parseInt(currentMonster.hp) + sfBonusH.hp) : currentMonster.hp;
+  const mpDisp   = sfBonusH ? (parseInt(currentMonster.mp) + sfBonusH.mp) : currentMonster.mp;
+  const sfBadge  = sfH > 0 ? ` <span style="font-size:10px;color:var(--gold);margin-left:4px;">🗡${sfH}</span>` : '';
   document.getElementById('monsterHeader').innerHTML = `
     <div class="mi-rank r${rk}" style="width:32px;height:32px;font-size:13px;">${currentMonster.rank}</div>
     <div style="flex:1">
