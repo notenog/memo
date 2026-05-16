@@ -1445,7 +1445,7 @@ function renderActionTab() {
     '</div>' +
     // ─ 威力表 ─
     '<div class="section-label" style="margin-top:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" id="powerTableToggle">' +
-      '<span>》威力表</span><span id="powerTableArrow" style="font-size:10px;color:var(--text3);">▶</span>' +
+      '<span>威力表</span><span id="powerTableArrow" style="font-size:10px;color:var(--text3);">▶</span>' +
     '</div>' +
     '<div id="powerTableBody" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:4px;">' +
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">' +
@@ -1454,7 +1454,7 @@ function renderActionTab() {
       '</div>' +
       '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">' +
         ['k0','k10','k20','k30','k40','k50'].map(k =>
-          `<button class="btn btn-ghost" style="font-size:11px;" data-power-k="${k}">${k}+{}</button>`
+          `<button class="btn btn-ghost" style="font-size:13px;" data-power-k="${k}">${k}+</button>`
         ).join('') +
       '</div>' +
     '</div>' +
