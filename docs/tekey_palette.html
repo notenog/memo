@@ -1443,6 +1443,21 @@ function renderActionTab() {
         '<span class="btn-val" style="font-size:12px;">--- 先制判定 ---　目標値《' + initTarget + '》</span>' +
       '</button>' +
     '</div>' +
+    // ─ 威力表 ─
+    '<div class="section-label" style="margin-top:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" id="powerTableToggle">' +
+      '<span>》威力表</span><span id="powerTableArrow" style="font-size:10px;color:var(--text3);">▶</span>' +
+    '</div>' +
+    '<div id="powerTableBody" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:4px;">' +
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">' +
+        '<span style="font-size:12px;color:var(--text3);white-space:nowrap;">固定値/魔力点</span>' +
+        '<input type="number" id="powerBonus" value="0" style="width:60px;font-size:13px;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text1);padding:2px 4px;">' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">' +
+        ['k0','k10','k20','k30','k40','k50'].map(k =>
+          `<button class="btn btn-ghost" style="font-size:11px;" data-power-k="${k}">${k}+{}</button>`
+        ).join('') +
+      '</div>' +
+    '</div>' +
     // ─ 行動管理 ─
     '<div class="section-label" style="margin-top:12px;">行動管理</div>' +
     '<div class="btn-grid">' +
@@ -1482,6 +1497,24 @@ function renderActionTab() {
     showToast('先制判定を送信', 'ok');
   });
   tab.querySelector('#btnMarkActed')?.addEventListener('click', markActed);
+
+  // ─ 威力表 ─
+  tab.querySelector('#powerTableToggle')?.addEventListener('click', () => {
+    const body  = tab.querySelector('#powerTableBody');
+    const arrow = tab.querySelector('#powerTableArrow');
+    const open  = body.style.display === 'none';
+    body.style.display  = open ? 'block' : 'none';
+    arrow.textContent   = open ? '▼' : '▶';
+  });
+  tab.querySelectorAll('[data-power-k]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const k     = btn.dataset.powerK;
+      const bonus = parseInt(tab.querySelector('#powerBonus').value) || 0;
+      const msg   = bonus >= 0 ? `${k}+${bonus}` : `${k}${bonus}`;
+      sendChat(msg, { bot: 'SwordWorld2_5' });
+      showToast(`威力表送信: ${msg}`, 'ok');
+    });
+  });
   tab.querySelector('#btnSetColor')?.addEventListener('click', () => {
     if (!enemyObj) return;
     const hex = tab.querySelector('#enemyColorPicker').value.replace('#','');
