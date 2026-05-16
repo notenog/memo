@@ -764,43 +764,10 @@ body::before {
   </div>
   <button class="btn btn-round" onclick="startRound()">▶ ラウンド開始</button>
   <button class="btn btn-ghost" onclick="resetRound()" title="ラウンドを0に戻す">↺ リセット</button>
-  <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-    <span id="pcBadge" style="font-size:10px;color:var(--text3);">PC <b style="color:var(--gold2);">0</b> 人</span>
-    <button class="btn btn-ghost" style="font-size:11px;" id="pcToggleBtn" onclick="togglePCPanel()">👥 PC登録 ▾</button>
-    <button class="btn btn-ghost" style="font-size:11px;border-color:rgba(100,160,255,.4);color:#80b0e0;" onclick="setupColumns()" title="全駒に行動カラムを追加">⚙ カラム設定</button>
-  </div>
+
 </div>
 
-<!-- PC登録アコーディオン -->
-<div id="pcPanel" style="
-  display:none;
-  background:var(--bg2);
-  border-bottom:1px solid var(--border2);
-  padding:10px 16px 12px;
-  position:relative;
-  z-index:1;
-">
-  <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
-    <!-- PC一覧 -->
-    <div style="flex:1;min-width:200px;">
-      <div style="font-size:11px;color:var(--text3);letter-spacing:.08em;margin-bottom:6px;">登録PC（ラウンド開始時に全員 :行動=0 を送信）</div>
-      <div id="pcInlineList" style="display:flex;flex-wrap:wrap;gap:5px;min-height:24px;margin-bottom:8px;"></div>
-      <div style="display:flex;gap:6px;">
-        <input type="text" id="pcInlineInput" placeholder="PC名を入力..." onkeydown="if(event.key==='Enter')addPCInline()"
-          style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:11px;font-family:'Noto Sans JP',sans-serif;padding:5px 8px;outline:none;">
-        <button class="btn btn-ghost" style="font-size:11px;" onclick="addPCInline()">追加</button>
-      </div>
-    </div>
-    <!-- 補足 -->
-    <div style="font-size:10px;color:var(--text3);line-height:1.9;border-left:1px solid var(--border);padding-left:16px;min-width:200px;max-width:340px;">
-      ▶ ラウンド開始時の動作<br>
-      1. <code style="color:var(--gold);">--- NR 開始 ---</code> をチャット送信<br>
-      2. 登録PC全員 ＋ エネミー全員に<br>
-      　　<code style="color:var(--gold);">:行動=0</code> を送信して行動解除<br>
-      ※ PC名はTekeyの駒名と一致させること
-    </div>
-  </div>
-</div>
+
 
 <!-- メインレイアウト -->
 <div class="layout">
@@ -1663,57 +1630,7 @@ function switchTab(tab, btn) {
   document.getElementById(`tab-${tab}`).classList.add('active');
 }
 
-// ────────────────────────────────────────────
-//  PC登録アコーディオン
-// ────────────────────────────────────────────
-let pcPanelOpen = false;
 
-function togglePCPanel() {
-  pcPanelOpen = !pcPanelOpen;
-  const panel = document.getElementById('pcPanel');
-  const btn   = document.getElementById('pcToggleBtn');
-  panel.style.display = pcPanelOpen ? 'block' : 'none';
-  btn.textContent = pcPanelOpen ? '👥 PC登録 ▴' : '👥 PC登録 ▾';
-  if (pcPanelOpen) renderPCInlineList();
-}
-
-function renderPCInlineList() {
-  const el = document.getElementById('pcInlineList');
-  if (characters.length === 0) {
-    el.innerHTML = '<span style="font-size:10px;color:var(--text3);">登録なし</span>';
-    return;
-  }
-  el.innerHTML = characters.map((n,i) => `
-    <span style="display:inline-flex;align-items:center;gap:4px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:2px 8px 2px 10px;font-size:11px;color:var(--gold2);">
-      ${n}
-      <button onclick="removePC(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:0;line-height:1;" title="削除">✕</button>
-    </span>
-  `).join('');
-  // バッジ更新
-  document.getElementById('pcBadge').innerHTML = `PC <b style="color:var(--gold2);">${characters.length}</b> 人`;
-}
-
-function addPCInline() {
-  const input = document.getElementById('pcInlineInput');
-  const name  = input.value.trim();
-  if (!name) return;
-  if (!characters.includes(name)) {
-    characters.push(name);
-    renderPCInlineList();
-  }
-  input.value = '';
-  input.focus();
-}
-
-function removePC(i) {
-  characters.splice(i, 1);
-  renderPCInlineList();
-}
-
-// 旧関数（後方互換のため残す）
-function addChar()        { addPCInline(); }
-function renderCharList() { renderPCInlineList(); }
-function removeChar(i)    { removePC(i); }
 
 // ────────────────────────────────────────────
 //  設定モーダル
@@ -1750,50 +1667,7 @@ function updateConnStatus() {
   }
 }
 
-// ────────────────────────────────────────────
-//  カラム設定（setColumns）
-// ────────────────────────────────────────────
-async function setupColumns() {
-  const room     = cfg('room');
-  const password = cfg('pass');
-  if (!room) {
-    showToast('⚙ 接続設定を先に行ってください', 'err');
-    return;
-  }
 
-  // 全対象（PC＋エネミー）に setColumns を送信
-  const pcNames    = [...characters];
-  const enemyNames = enemies.map(e => e.displayName);
-  const allTargets = [...pcNames, ...enemyNames];
-
-  if (allTargets.length === 0) {
-    showToast('PCまたはエネミーを登録してください', 'err');
-    return;
-  }
-
-  // columns: HP・MP・行動（チェックボックス）
-  const columns = 'HP:false:false,MP:false:false,行動:true:false';
-
-  let ok = 0;
-  for (const name of allTargets) {
-    try {
-      const res = await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command: 'setColumns', room, password, name, columns }),
-      });
-      if (res.ok) {
-        ok++;
-        addLog(`✓ カラム設定: ${name}`, 'ok');
-      } else {
-        addLog(`✗ カラム設定失敗: ${name}`, 'err');
-      }
-    } catch (e) {
-      addLog(`✗ カラム設定エラー: ${name} → ${e.message}`, 'err');
-    }
-  }
-  showToast(`カラム設定完了 ${ok}/${allTargets.length}体`, 'ok');
-}
 let dbVisible = true;
 
 function toggleDB() {
