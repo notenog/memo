@@ -368,9 +368,9 @@ const monsters = [
   { cat:"動物", name:"ウルフ", rank:1, intel:"動物並み", percep:"五感", habitat:"森・草原・洞窟", hp:12, mp:8, init:11, move:"15/―", vit:"3(10)", mres:"1(8)", weakness:"物理ダメージ+2点", know:"5", knowval:"10", attacks:[{part:"牙",hit:"2(9)",dmg:"2d",evd:"2(9)",def:"1"}], abilities:["なし"], loot:["2〜3：なし","4〜8：狼の皮(20G/赤B)","9〜10：上質な狼の皮(50G/赤B)","11〜：きれいな狼の皮(100G/金赤A)"], tags:"動物" },
   { cat:"動物", name:"ジャイアントギャドフライ", rank:1, intel:"動物並み", percep:"五感", habitat:"森・草原・湿地", hp:8, mp:5, init:9, move:"3(六足)/15(飛行)", vit:"2(9)", mres:"2(9)", weakness:"物理ダメージ+2点", know:"6", knowval:"9", attacks:[{part:"口吻",hit:"2(9)",dmg:"2d-1",evd:"2(9)",def:"1"}], abilities:["○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。","○白眼中撃 — ジャイアントギャドフライによる攻撃が回避された場合、その対象に対してジャイアントギャドフライの次の攻撃は命中力判定に+1のボーナス修正を得る。この修正は攻撃するジャイアントギャドフライの個体の違いを無視して蓄積されていき、上限はない。ただし、一度ジャイアントギャドフライの攻撃が命中するか、そのラウンドの最後となるジャイアントギャドフライによる攻撃が回避されると、失われる。"], loot:["2〜7：なし","8〜11：黒ずんだ複眼(30G/赤B)","12〜：光沢のある複眼(150G/赤A)"], tags:"動物,飛行" },
   { cat:"動物", name:"ジャイアントリザード", rank:2, intel:"動物並み", percep:"五感", habitat:"さまざま", hp:20, mp:8, init:10, move:"12(四足)/―", vit:"5(12)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"7", knowval:"11", attacks:[{part:"牙",hit:"3(10)",dmg:"2d+2",evd:"2(9)",def:"2"}], abilities:["なし"], loot:["2〜7：なし","8〜：上質な鱗(140G/赤A)"], tags:"動物" },
-  { cat:"動物", name:"バープルアント", rank:2, intel:"動物並み", percep:"五感", habitat:"森・山・洞窟・草原・荒野・魔域", hp:14, mp:8, init:10, move:"12(六足)/―", vit:"4(11)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"8", knowval:"11", attacks:[{part:"顎",hit:"4(11)",dmg:"2d+1",evd:"3(10)",def:"4"}], abilities:["▶毒脚／4(11)／生命抵抗力／消滅 — 「射程：接触」で「対象：1体」に顎を吐きつけ、「2d-1」点の毒属性の魔法ダメージを与える。"], loot:["2〜9：甲虫の殻(30G/赤B)","10〜11：紫色の石(120G/金A)","12〜：アビスシャード(200G/―)"], tags:"動物,毒" },
+  { cat:"動物", name:"パープルアント", rank:2, intel:"動物並み", percep:"五感", habitat:"森・山・洞窟・草原・荒野・魔域", hp:14, mp:8, init:10, move:"12(六足)/―", vit:"4(11)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"8", knowval:"11", attacks:[{part:"顎",hit:"4(11)",dmg:"2d+1",evd:"3(10)",def:"4"}], abilities:["▶毒脚／4(11)／生命抵抗力／消滅 — 「射程：接触」で「対象：1体」に顎を吐きつけ、「2d-1」点の毒属性の魔法ダメージを与える。"], loot:["2〜9：甲虫の殻(30G/赤B)","10〜11：紫色の石(120G/金A)","12〜：アビスシャード(200G/―)"], tags:"動物,毒" },
   { cat:"動物", name:"グレイリンクス", rank:3, intel:"動物並み", percep:"五感(暗視)", habitat:"森・山", hp:19, mp:10, init:12, move:"16(四足)/―", vit:"5(12)", mres:"3(10)", weakness:"魔法ダメージ+2点", know:"12", knowval:"15", attacks:[{part:"牙",hit:"4(11)",dmg:"2d+3",evd:"5(12)",def:"2"}], abilities:["○連続攻撃 — 攻撃が命中した場合、同じ対象にもう1回攻撃できる。2回目の攻撃が命中しても、この効果はない。"], loot:["自動：グレイリンクスの毛皮(80G/赤B)","2〜9：なし","10〜：鎌の様(100G/赤緑A)"], tags:"動物" },
-  { cat:"動物", name:"バックリーダー", rank:3, intel:"動物並み", percep:"五感", habitat:"森・草原", hp:23, mp:11, init:13, move:"16(四足)/―", vit:"5(12)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"8", knowval:"11", attacks:[{part:"牙",hit:"5(12)",dmg:"2d+3",evd:"5(12)",def:"2"}], abilities:["○群れの統率 — 自身と同じ乱戦エリア内にいる、すべてのウルフの命中力判定と回避力判定に+1のボーナス修正を与える。この効果は複数のバックリーダーがいても累積しない。","○手早い斬撃 — 命中力判定に+1のボーナス修正を得る。この能力は、カテゴリ（金属鎧）を装備しているキャラクターには効果を持ちません。"], loot:["2〜3：なし","4〜5：狼の皮(20G/赤B)","6〜8：上質な狼の皮(50G/赤B)","9〜：きれいな狼の皮(100G/金赤A)"], tags:"動物" },
+  { cat:"動物", name:"パックリーダー", rank:3, intel:"動物並み", percep:"五感", habitat:"森・草原", hp:23, mp:11, init:13, move:"16(四足)/―", vit:"5(12)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"8", knowval:"11", attacks:[{part:"牙",hit:"5(12)",dmg:"2d+3",evd:"5(12)",def:"2"}], abilities:["○群れの統率 — 自身と同じ乱戦エリア内にいる、すべてのウルフの命中力判定と回避力判定に+1のボーナス修正を与える。この効果は複数のパックリーダーがいても累積しない。","○手早い斬撃 — 命中力判定に+1のボーナス修正を得る。この能力は、カテゴリ（金属鎧）を装備しているキャラクターには効果を持ちません。"], loot:["2〜3：なし","4〜5：狼の皮(20G/赤B)","6〜8：上質な狼の皮(50G/赤B)","9〜：きれいな狼の皮(100G/金赤A)"], tags:"動物" },
   { cat:"動物", name:"ディノス", rank:4, intel:"動物並み", percep:"五感", habitat:"寒冷地", hp:26, mp:9, init:10, move:"13/―", vit:"7(14)", mres:"5(12)", weakness:"衝撃属性ダメージ+3点", know:"9", knowval:"12", attacks:[{part:"牙(頭部)",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"3"},{part:"尾り(胴体)",hit:"7(14)",dmg:"2d+5",evd:"5(12)",def:"4"}], abilities:["▶頭部/冷気のブレス／5(12)／生命抵抗力／半減 — 「射程／形状：2(20m)／射撃」で「対象：1体」に冷気の塊を吐き出し、「2d+2」点の水・氷属性の魔法ダメージを与える。この能力は連続した手番には使用できない。","○胴体/攻撃障害＝+4・なし — 大きさが攻撃を妨げます。「部位：頭部」は、近接攻撃に対する回避力判定に+4のボーナス修正を得る。「部位：胴体」のHPが0以下となった場合、この効果は失われる。"], loot:["自動：凍った肉(90G/赤B)","2〜7：なし","8〜12：亜竜鱗(350G/赤A)","13〜：水の結晶(1600G/金S)"], tags:"動物,多部位,ブレス" },
   { cat:"動物", name:"サンドウォーム", rank:5, intel:"動物並み", percep:"五感(聴覚)", habitat:"砂漠", hp:46, mp:11, init:11, move:"20(蠕動)/20(地中)", vit:"9(16)", mres:"6(13)", weakness:"水・氷属性ダメージ+3点", know:"10", knowval:"15", attacks:[{part:"口",hit:"8(15)",dmg:"2d+10",evd:"7(14)",def:"3"}], abilities:["なし"], loot:["2〜5：なし","6〜9：砂虫石(150G/金赤A)","10〜：緑色鉱虫石(200G/金赤A)×1d"], tags:"動物" },
 
@@ -428,11 +428,11 @@ const monsters = [
 
 // 記号→ラベル・クラスの対応表
 const MARK_MAP = [
-  { mark:'▶▶', label:'補助動作', cls:'mark-補助動作' },
-  { mark:'▶',  label:'主動作',   cls:'mark-主動作'   },
-  { mark:'○',  label:'常時',     cls:'mark-常時'     },
-  { mark:'△',  label:'戦闘準備', cls:'mark-戦闘準備' },
-  { mark:'💬', label:'宣言',     cls:'mark-宣言'     },
+  { mark:'▶▶', label:'補助動作', cls:'mark-補助動作', desc:'補助動作型', descDetail:'補助動作として実行する能力。特記がない限り、タイミングも回数も任意です。' },
+  { mark:'▶',  label:'主動作',   cls:'mark-主動作',   desc:'主動作型',   descDetail:'主動作として実行する能力。1手番に1回のみ使用でき、近接攻撃とも並立しません。' },
+  { mark:'○',  label:'常時',     cls:'mark-常時',     desc:'常時型',     descDetail:'常に効果があります。特定の条件で発動・停止するものも含みます。' },
+  { mark:'△',  label:'戦闘準備', cls:'mark-戦闘準備', desc:'戦闘準備型', descDetail:'「戦闘準備」で使用できる能力です。' },
+  { mark:'💬', label:'宣言',     cls:'mark-宣言',     desc:'宣言型',     descDetail:'宣言特技に準じる能力。1手番に1回のみ使用でき、複数の併用不可。1回の動作（攻撃など）にのみ効果が適用されます。' },
 ];
 
 // テキスト用：記号→[ラベル]に変換
@@ -581,11 +581,11 @@ const MARK_DESC = {
 let markPopOpen = false;
 
 function openMarkPopover(el, label) {
-  const info = MARK_DESC[label];
+  const info = MARK_MAP.find(m => m.label === label);
   if (!info) return;
   const pop = document.getElementById('markPopover');
-  document.getElementById('markPopTitle').textContent = info.title;
-  document.getElementById('markPopDesc').textContent = info.desc;
+  document.getElementById('markPopTitle').textContent = info.desc;
+  document.getElementById('markPopDesc').textContent = info.descDetail;
 
   // 位置計算
   const rect = el.getBoundingClientRect();
