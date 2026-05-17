@@ -471,7 +471,7 @@ body::before {
   border-radius: 3px;
   margin-right: 4px;
   vertical-align: middle;
-  cursor: default;
+  cursor: pointer;
   letter-spacing: 0.05em;
 }
 .mark-常時     { background: #1a3a1a; color: #6dd46d; }
@@ -1334,13 +1334,28 @@ function renderActionTab() {
   const mresBonused = sfBonus ? (parseInt(mresBase) + sfBonus.res) : parseInt(mresBase);
 
   // 攻撃ブロック
-  const attackBlocks = m.attacks.map(a => {
+  const attackBlocks = m.attacks.map((a, ai) => {
     const hitBase = statBase(a.hit);
     const evdBase = statBase(a.evd);
     const dmgBc   = dmgToBCDice(a.dmg);
     const hitCmd  = hitBase === '―' ? null : '2d6+' + hitBase + ' [' + a.part + ':命中]';
     const dmgCmd  = a.dmg === '―'  ? null : dmgBc + ' [' + a.part + ':打撃点]';
     const evdCmd  = '2d6+' + evdBase + ' [' + a.part + ':回避]';
+
+    const modInput = (id) =>
+      `<input type="number" id="${id}" value="0"
+        style="width:44px;font-size:11px;text-align:center;background:var(--bg3);
+               border:1px solid var(--border);border-radius:var(--radius-sm);
+               color:var(--text1);padding:1px 3px;">`;
+
+    const modRow = `
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:11px;color:var(--text3);">
+        修正値
+        ${hitCmd ? `<span style="color:var(--text3);">命中</span>${modInput('mod-hit-' + ai)}` : ''}
+        ${dmgCmd ? `<span style="color:var(--text3);">打撃</span>${modInput('mod-dmg-' + ai)}` : ''}
+        <span style="color:var(--text3);">回避</span>${modInput('mod-evd-' + ai)}
+      </div>`;
+
     return '<div class="attack-section">' +
       '<div class="attack-name">⚔️ ' + a.part + '</div>' +
       '<div class="attack-stats">' +
@@ -1349,9 +1364,10 @@ function renderActionTab() {
         '<span>回避 ' + a.evd + '</span>' +
         '<span>防護 ' + a.def + '</span>' +
       '</div>' +
-      '<div class="btn-grid">' +
+      modRow +
+      '<div class="btn-grid" data-attack-idx="' + ai + '">' +
         (hitCmd ? makeBtn('btn-hit', '命中判定', '2d6+' + hitBase, hitCmd) : '') +
-        (dmgCmd ? makeBtn('btn-dmg', '打撃点', a.dmg, dmgCmd) : '') +
+        (dmgCmd ? makeBtn('btn-dmg', '打撃点',   a.dmg,             dmgCmd) : '') +
         makeBtn('btn-evd', '回避判定', '2d6+' + evdBase, evdCmd) +
       '</div></div>';
   }).join('');
@@ -1450,7 +1466,31 @@ function renderActionTab() {
 
   // ─ イベント設定 ─
   tab.querySelectorAll('[data-cmd]').forEach(btn => {
-    btn.addEventListener('click', () => roll(decodeURIComponent(btn.dataset.cmd)));
+    btn.addEventListener('click', () => {
+      let cmd = decodeURIComponent(btn.dataset.cmd);
+      // 修正値を取得して付加
+      const grid = btn.closest('[data-attack-idx]');
+      if (grid) {
+        const ai = grid.dataset.attackIdx;
+        let modId = null;
+        if (btn.classList.contains('btn-hit')) modId = 'mod-hit-' + ai;
+        else if (btn.classList.contains('btn-dmg')) modId = 'mod-dmg-' + ai;
+        else if (btn.classList.contains('btn-evd')) modId = 'mod-evd-' + ai;
+        if (modId) {
+          const modVal = parseInt(tab.querySelector('#' + modId)?.value) || 0;
+          if (modVal !== 0) {
+            // [ラベル]の前に修正値を挿入
+            const labelIdx = cmd.indexOf(' [');
+            if (labelIdx !== -1) {
+              cmd = cmd.slice(0, labelIdx) + (modVal > 0 ? '+' : '') + modVal + cmd.slice(labelIdx);
+            } else {
+              cmd += (modVal > 0 ? '+' : '') + modVal;
+            }
+          }
+        }
+      }
+      roll(cmd);
+    });
   });
   tab.querySelector('[data-chat-cmd="knowledge"]')?.addEventListener('click', () => {
     sendChat(tekeyMsg('▶' + m.name + '　目標値《' + knowVal + '／' + knowBase + '》'), { color: '999999' });
