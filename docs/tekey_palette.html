@@ -1425,13 +1425,6 @@ function renderActionTab() {
     // ─ 攻撃 ─
     '<div class="section-label" style="margin-top:12px;">攻撃</div>' +
     attackBlocks +
-    // ─ 特殊能力 ─
-    (m.abilities && m.abilities.length > 0
-      ? '<div class="section-label" style="margin-top:12px;">特殊能力</div>' +
-        '<div style="font-size:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;line-height:2.2;">' +
-          m.abilities.map(a => formatAbilityHTML(a)).join('<br>') +
-        '</div>'
-      : '') +
     // ─ 抵抗 ─
     '<div class="section-label" style="margin-top:12px;">抵抗・その他</div>' +
     '<div class="btn-grid">' +
@@ -1454,6 +1447,13 @@ function renderActionTab() {
         ).join('') +
       '</div>' +
     '</div>' +
+    // ─ 特殊能力 ─
+    (m.abilities && m.abilities.length > 0
+      ? '<div class="section-label" style="margin-top:12px;">特殊能力</div>' +
+        '<div style="font-size:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;line-height:2.2;">' +
+          m.abilities.map(a => formatAbilityHTML(a)).join('<br>') +
+        '</div>'
+      : '') +
     // ─ 行動管理 ─
     '<div class="section-label" style="margin-top:12px;">行動管理</div>' +
     '<div class="btn-grid">' +
