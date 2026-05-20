@@ -1876,7 +1876,7 @@ async function initFirebase(){
     if(snapshot.exists()){
       applyPayload(snapshot.val());
       localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot.val()));
-      renderChars(); renderEnemies(); renderMemoBoards();
+      renderChars(); renderNpcs(); renderMemoBoards();
     }
 
     // リアルタイム監視：他のデバイスの変更を受け取る
@@ -1886,7 +1886,7 @@ async function initFirebase(){
       const data=snap.val();
       applyPayload(data);
       localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-      renderChars(); renderEnemies(); renderMemoBoards();
+      renderChars(); renderNpcs(); renderMemoBoards();
       setIndicator('↓ 同期済み','saved');
       setTimeout(()=>setIndicator(''),2000);
     });
@@ -1947,7 +1947,7 @@ Object.assign(window,{
   addMemoBoard,addMemoCard,deleteMemoBoard,renderMemoBoards,
   clearAllData,save,undo,redo,pushHistory,
   renderCookingPage,toggleIng,toggleChef,addIngredient,startCooking,copyLog,
-  addNpc,renderNpcs,
+  addNpc,renderNpcs,renderChars,renderEnemies,
   // データ変数（oninputから直接アクセスするため）
   get chars(){return chars;},
   get enemies(){return enemies;},
