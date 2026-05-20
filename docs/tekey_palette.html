@@ -938,7 +938,7 @@ body::before {
   </div>
 
 <!-- キャラクターページ -->
-<div id="pageChar" style="display:none;padding:12px 16px 60px;">
+<div id="pageChar" style="display:none;padding:12px 16px 60px;min-height:calc(100vh - 106px);overflow-y:auto;">
 
   <!-- ステータスシート設定ボタン -->
   <div style="display:flex;justify-content:flex-end;margin-bottom:10px;gap:6px;">
@@ -1937,8 +1937,8 @@ if (localStorage.getItem('lightMode') === '1') {
 //  メインタブ切替
 // ────────────────────────────────────────────
 function switchMainTab(tab) {
-  document.getElementById('pageMonster').style.display = tab === 'monster' ? '' : 'none';
-  document.getElementById('pageChar').style.display    = tab === 'char'    ? '' : 'none';
+  document.getElementById('pageMonster').style.display = tab === 'monster' ? 'grid' : 'none';
+  document.getElementById('pageChar').style.display    = tab === 'char'    ? 'block' : 'none';
   document.getElementById('mainTabMonster').classList.toggle('active', tab === 'monster');
   document.getElementById('mainTabChar').classList.toggle('active', tab === 'char');
   if (tab === 'char') renderCharPage();
