@@ -2150,26 +2150,28 @@ async function createCharPiece(ci) {
   const chars = loadCharData();
   const c = chars[ci];
   if (!c) return;
-  await createPiece(c.name);
+  await createPiece(c.name, c.raceTraits || '');
 }
 
 async function createNpcPiece(ni) {
   const npcs = loadNpcData();
   const n = npcs[ni];
   if (!n) return;
-  await createPiece(n.name);
+  await createPiece(n.name, '');
 }
 
-async function createPiece(name) {
+async function createPiece(name, raceTraits) {
   const room     = cfg('room');
   const password = cfg('pass');
   if (!room) { showToast('⚙ 接続設定を先に行ってください', 'err'); return; }
   if (!name)  { showToast('名前が設定されていません', 'err'); return; }
+  const body = { command: 'addCharacter', room, password, name };
+  if (raceTraits) body.info = raceTraits;
   try {
     const res = await fetch(ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: 'addCharacter', room, password, name }),
+      body: JSON.stringify(body),
     });
     if (res.ok) {
       showToast(`🎴 コマ生成: ${name}`, 'ok');
@@ -2401,22 +2403,29 @@ function importFromDashboard() {
     const existChars = loadCharData();
     const existNpcs  = loadNpcData();
 
-    const newChars = srcChars.map(c => ({
-      name:       c.name  || '不明',
-      cls:        c.cls   || '',
-      hp:         c.hp    || 0,
-      hpmax:      c.hpmax || 0,
-      mp:         c.mp    || 0,
-      mpmax:      c.mpmax || 0,
-      raceTraits: '',
-      stats: c.stats ? Object.fromEntries(
-        Object.entries(c.stats).map(([k, v]) => [k, { base: v, bonus: 0 }])
-      ) : {},
-      skills: (c.skills || []).map(s =>
+    // ダッシュボードのstatsキー変換（STR→筋力 など）
+    const dashStatMap = {
+      DEX: '器用', AGI: '敏捷', STR: '筋力', VIT: '生命', INT: '知力', MND: '精神'
+    };
+    const newChars = srcChars.map(c => {
+      const stats = {};
+      if (c.stats) {
+        for (const [k, v] of Object.entries(c.stats)) {
+          const label = dashStatMap[k] || k;
+          stats[label] = { base: v, bonus: 0 };
+        }
+      }
+      const skills = (c.skills || []).map(s =>
         typeof s === 'string' ? { type: '特技', name: s } : { type: '特技', name: s.name || '' }
-      ),
-      memo: c.memo || '',
-    }));
+      );
+      return {
+        name: c.name || '不明', cls: c.cls || '',
+        hp: c.hp || 0, hpmax: c.hpmax || 0,
+        mp: c.mp || 0, mpmax: c.mpmax || 0,
+        raceTraits: '', stats, skills,
+        memo: c.memo || '',
+      };
+    });
     const newNpcs = srcNpcs.map(n => ({
       name: n.name || '不明',
       memo: n.memo || '',
