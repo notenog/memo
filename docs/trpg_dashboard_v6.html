@@ -550,6 +550,20 @@ let currentCMTab = 'ytsheet';
 let charWaitingVisible = false;
 let enemyWaitingVisible = false;
 let dragSrcType = null, dragSrcIdx = null;
+let isEditing = false; // フォーカス中はFirebase同期をブロック
+
+// テキスト入力・contenteditable のフォーカスを監視
+document.addEventListener('focusin', e=>{
+  if(e.target.isContentEditable || ['INPUT','TEXTAREA'].includes(e.target.tagName)){
+    isEditing = true;
+  }
+});
+document.addEventListener('focusout', e=>{
+  if(e.target.isContentEditable || ['INPUT','TEXTAREA'].includes(e.target.tagName)){
+    // 少し遅らせてsave()が完了してからフラグを解除
+    setTimeout(()=>{ isEditing = false; }, 2000);
+  }
+});
 
 /* ━━━━━━ HELPERS ━━━━━━ */
 const hpColor = p => p>60?'var(--hp-hi)':p>30?'var(--hp-mid)':'var(--hp-lo)';
@@ -1911,6 +1925,7 @@ async function initFirebase(){
     // リアルタイム監視：他のデバイスの変更を受け取る
     onValue(ref(db,'sessionboard'), (snap)=>{
       if(isSyncing) return; // 自分の書き込みは無視
+      if(isEditing) return; // ユーザーが編集中は無視
       if(!snap.exists()) return;
       const data=snap.val();
       applyPayload(data);
@@ -1926,7 +1941,7 @@ async function initFirebase(){
         set: async(val)=>{
           isSyncing=true;
           await set(ref(db,path),val);
-          setTimeout(()=>isSyncing=false,1000);
+          setTimeout(()=>isSyncing=false,3000); // 3秒に延長
         },
         remove: ()=>set(ref(db,'sessionboard'),null)
       })
