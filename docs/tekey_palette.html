@@ -825,6 +825,21 @@ body::before {
   outline: none; border-radius: 2px;
 }
 .npc-name:focus { background: rgba(201,168,76,.08); }
+
+/* ── ドラッグ ── */
+.drag-handle {
+  font-size: 14px; color: var(--text3);
+  cursor: grab; padding: 2px 4px;
+  flex-shrink: 0; user-select: none;
+  line-height: 1;
+}
+.drag-handle:active { cursor: grabbing; }
+.char-card.dragging, .npc-card.dragging {
+  opacity: .35; border-style: dashed;
+}
+.char-card.drag-over, .npc-card.drag-over {
+  border-color: var(--gold); border-style: dashed;
+}
 </style>
 </head>
 <body>
@@ -2006,8 +2021,9 @@ function renderCharsGrid() {
     }).join('') : '<div style="font-size:11px;color:var(--text3);">スキルなし</div>';
 
     return `
-    <div class="char-card" id="chcard-${ci}">
+    <div class="char-card" id="chcard-${ci}" draggable="true" data-ci="${ci}">
       <div class="char-card-head">
+        <span class="drag-handle" title="ドラッグで並び替え">⠿</span>
         <div style="flex:1;min-width:0;">
           <div class="char-name" contenteditable="true"
             onblur="updateChar(${ci},'name',this.textContent.trim())">${c.name || '名前未設定'}</div>
@@ -2065,6 +2081,7 @@ function renderCharsGrid() {
       </div>
     </div>`;
   }).join('');
+  setupDragDrop(grid, 'char');
 }
 
 function toggleCharSkills(ci) {
@@ -2085,6 +2102,11 @@ function toggleCharMemo(ci) {
   arrow.textContent   = open ? '▼' : '▶';
 }
 
+function _setupCharDrag() {
+  const grid = document.getElementById('charGrid');
+  if (grid) setupDragDrop(grid, 'char');
+}
+
 function renderNpcsGrid() {
   const npcs = loadNpcData();
   const grid = document.getElementById('npcGrid');
@@ -2094,8 +2116,9 @@ function renderNpcsGrid() {
     return;
   }
   grid.innerHTML = npcs.map((n, ni) => `
-    <div class="npc-card">
+    <div class="npc-card" draggable="true" data-ni="${ni}">
       <div style="display:flex;align-items:center;gap:8px;">
+        <span class="drag-handle" title="ドラッグで並び替え">⠿</span>
         <span class="npc-name" contenteditable="true"
           onblur="updateNpc(${ni},'name',this.textContent.trim())">${n.name || '名前未設定'}</span>
         <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;color:var(--green2);border-color:var(--green);"
@@ -2106,6 +2129,7 @@ function renderNpcsGrid() {
       <textarea class="char-memo" rows="2" placeholder="メモ..."
         oninput="updateNpc(${ni},'memo',this.value)">${n.memo || ''}</textarea>
     </div>`).join('');
+  setupDragDrop(grid, 'npc');
 }
 
 function updateChar(ci, key, val) {
@@ -2222,8 +2246,54 @@ async function setupCharColumns() {
 }
 
 // ────────────────────────────────────────────
-//  キャラ追加モーダル
+//  ドラッグ&ドロップ（キャラ・NPC並び替え）
 // ────────────────────────────────────────────
+let _dragType = null; // 'char' or 'npc'
+let _dragIdx  = null;
+
+function setupDragDrop(grid, type) {
+  grid.querySelectorAll('[draggable="true"]').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      _dragType = type;
+      _dragIdx  = parseInt(card.dataset.ci ?? card.dataset.ni);
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      grid.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+    card.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const over = parseInt(card.dataset.ci ?? card.dataset.ni);
+      if (over !== _dragIdx) card.classList.add('drag-over');
+    });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      const toIdx = parseInt(card.dataset.ci ?? card.dataset.ni);
+      if (_dragType !== type || _dragIdx === null || _dragIdx === toIdx) return;
+      if (type === 'char') {
+        const chars = loadCharData();
+        const [moved] = chars.splice(_dragIdx, 1);
+        chars.splice(toIdx, 0, moved);
+        saveCharData(chars);
+        renderCharsGrid();
+        setupDragDrop(document.getElementById('charGrid'), 'char');
+      } else {
+        const npcs = loadNpcData();
+        const [moved] = npcs.splice(_dragIdx, 1);
+        npcs.splice(toIdx, 0, moved);
+        saveNpcData(npcs);
+        renderNpcsGrid();
+        setupDragDrop(document.getElementById('npcGrid'), 'npc');
+      }
+      _dragIdx = null;
+    });
+  });
+}
 let _charTab = 'yt';
 
 function openCharAddModal() {
