@@ -937,30 +937,6 @@ body::before {
     </div>
   </div>
 
-<!-- キャラクターページ -->
-<div id="pageChar" style="display:none;padding:12px 16px 60px;min-height:calc(100vh - 106px);overflow-y:auto;">
-
-  <!-- ステータスシート設定ボタン -->
-  <div style="display:flex;justify-content:flex-end;margin-bottom:10px;gap:6px;">
-    <button class="btn btn-ghost" style="font-size:11px;" onclick="importFromDashboard()">📥 ダッシュボードから引継ぎ</button>
-    <button class="btn btn-ghost" style="font-size:11px;" onclick="setupCharColumns()">📋 ステータスシート設定</button>
-  </div>
-
-  <!-- Characters -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
-    <span style="font-size:12px;color:var(--gold);letter-spacing:.1em;">⚔ CHARACTERS</span>
-    <button class="btn btn-ghost" style="font-size:11px;" onclick="openCharAddModal()">＋ キャラ追加</button>
-  </div>
-  <div id="charGrid" style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px;"></div>
-
-  <!-- NPC -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
-    <span style="font-size:12px;color:var(--gold);letter-spacing:.1em;">👤 NPC</span>
-    <button class="btn btn-ghost" style="font-size:11px;" onclick="addNpcEntry()">＋ NPC追加</button>
-  </div>
-  <div id="npcGrid" style="display:flex;flex-direction:column;gap:8px;"></div>
-</div>
-
 <!-- キャラ追加モーダル -->
 <div class="modal-overlay" id="charAddModal" onclick="if(event.target===this)closeCharAddModal()">
   <div class="modal">
@@ -1014,6 +990,30 @@ body::before {
       <button class="btn btn-save btn" id="charAddOk" onclick="submitCharAdd()">追加</button>
     </div>
   </div>
+</div>
+
+<!-- キャラクターページ -->
+<div id="pageChar" style="display:none;padding:12px 16px 60px;min-height:calc(100vh - 106px);overflow-y:auto;">
+
+  <!-- ステータスシート設定ボタン -->
+  <div style="display:flex;justify-content:flex-end;margin-bottom:10px;gap:6px;">
+    <button class="btn btn-ghost" style="font-size:11px;" onclick="importFromDashboard()">📥 ダッシュボードから引継ぎ</button>
+    <button class="btn btn-ghost" style="font-size:11px;" onclick="setupCharColumns()">📋 ステータスシート設定</button>
+  </div>
+
+  <!-- Characters -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+    <span style="font-size:12px;color:var(--gold);letter-spacing:.1em;">⚔ CHARACTERS</span>
+    <button class="btn btn-ghost" style="font-size:11px;" onclick="openCharAddModal()">＋ キャラ追加</button>
+  </div>
+  <div id="charGrid" style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px;"></div>
+
+  <!-- NPC -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+    <span style="font-size:12px;color:var(--gold);letter-spacing:.1em;">👤 NPC</span>
+    <button class="btn btn-ghost" style="font-size:11px;" onclick="addNpcEntry()">＋ NPC追加</button>
+  </div>
+  <div id="npcGrid" style="display:flex;flex-direction:column;gap:8px;"></div>
 </div>
 
 <!-- エネミー追加ポップアップ -->
