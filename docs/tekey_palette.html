@@ -744,6 +744,86 @@ body::before {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── メインタブ ── */
+.main-tabs {
+  display: flex;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 12px;
+}
+.main-tab {
+  font-size: 12px;
+  padding: 8px 18px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text3);
+  cursor: pointer;
+  letter-spacing: .05em;
+  transition: all .15s;
+}
+.main-tab.active, .main-tab:hover {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+/* ── キャラカード ── */
+.char-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.char-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+.char-card-body { padding: 10px 12px; }
+.char-name {
+  font-size: 14px;
+  color: var(--gold2);
+  font-weight: 500;
+  flex: 1;
+  outline: none;
+  border-radius: 2px;
+}
+.char-name:focus { background: rgba(201,168,76,.08); }
+.char-cls { font-size: 11px; color: var(--text3); }
+.char-bar-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.char-bar-lbl { font-size: 11px; color: var(--text3); width: 24px; }
+.char-bar-bg { flex: 1; height: 6px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
+.char-bar-fill { height: 100%; border-radius: 3px; transition: width .3s; }
+.char-bar-in {
+  width: 42px; font-size: 11px; text-align: center;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 3px; color: var(--text); padding: 1px 3px;
+}
+.char-memo {
+  width: 100%; font-size: 11px; color: var(--text2);
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 5px 8px;
+  resize: vertical; min-height: 40px; font-family: inherit;
+}
+.char-actions { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+.npc-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.npc-name {
+  font-size: 13px; color: var(--gold2);
+  outline: none; border-radius: 2px;
+}
+.npc-name:focus { background: rgba(201,168,76,.08); }
 </style>
 </head>
 <body>
@@ -769,8 +849,15 @@ body::before {
 
 
 
+
+<!-- メインタブバー -->
+<div class="main-tabs" id="mainTabs">
+  <button class="main-tab active" id="mainTabMonster" onclick="switchMainTab('monster')">🐉 モンスター</button>
+  <button class="main-tab" id="mainTabChar" onclick="switchMainTab('char')">👥 キャラクター</button>
+</div>
+
 <!-- メインレイアウト -->
-<div class="layout">
+<div class="layout" id="pageMonster">
 
   <!-- 左ペイン：モンスターDB -->
   <div class="pane-left">
@@ -847,6 +934,84 @@ body::before {
           <button class="btn btn-ghost" style="font-size:11px;" onclick="document.getElementById('logArea').innerHTML='<div class=\'log-entry\'><span class=\'log-info\'>-- クリア済み --</span></div>'">ログクリア</button>
         </div>
       </div>
+    </div>
+  </div>
+
+<!-- キャラクターページ -->
+<div id="pageChar" style="display:none;padding:12px 16px 60px;">
+
+  <!-- ステータスシート設定ボタン -->
+  <div style="display:flex;justify-content:flex-end;margin-bottom:10px;gap:6px;">
+    <button class="btn btn-ghost" style="font-size:11px;" onclick="importFromDashboard()">📥 ダッシュボードから引継ぎ</button>
+    <button class="btn btn-ghost" style="font-size:11px;" onclick="setupCharColumns()">📋 ステータスシート設定</button>
+  </div>
+
+  <!-- Characters -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+    <span style="font-size:12px;color:var(--gold);letter-spacing:.1em;">⚔ CHARACTERS</span>
+    <button class="btn btn-ghost" style="font-size:11px;" onclick="openCharAddModal()">＋ キャラ追加</button>
+  </div>
+  <div id="charGrid" style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px;"></div>
+
+  <!-- NPC -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+    <span style="font-size:12px;color:var(--gold);letter-spacing:.1em;">👤 NPC</span>
+    <button class="btn btn-ghost" style="font-size:11px;" onclick="addNpcEntry()">＋ NPC追加</button>
+  </div>
+  <div id="npcGrid" style="display:flex;flex-direction:column;gap:8px;"></div>
+</div>
+
+<!-- キャラ追加モーダル -->
+<div class="modal-overlay" id="charAddModal" onclick="if(event.target===this)closeCharAddModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">キャラクター追加</span>
+      <button class="btn btn-ghost" style="padding:3px 8px;font-size:12px;" onclick="closeCharAddModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- タブ -->
+      <div style="display:flex;gap:4px;margin-bottom:12px;">
+        <button class="btn btn-ghost" id="ctab-yt" style="font-size:11px;flex:1;border-color:var(--gold);" onclick="switchCharTab('yt')">ゆとシートから</button>
+        <button class="btn btn-ghost" id="ctab-manual" style="font-size:11px;flex:1;" onclick="switchCharTab('manual')">手動入力</button>
+      </div>
+      <!-- ゆとシートタブ -->
+      <div id="ctab-yt-body">
+        <div style="font-size:11px;color:var(--text2);line-height:1.9;margin-bottom:10px;background:var(--bg3);padding:8px 10px;border-radius:var(--radius-sm);">
+          ① ゆとシートをブラウザで開く<br>
+          ② Ctrl+S →「Webページ、完全」で保存<br>
+          ③ 保存した .html ファイルをここで選択
+        </div>
+        <div class="fgroup">
+          <label>HTMLファイルを選択</label>
+          <input type="file" id="ytFile" accept=".html,.htm" style="font-size:11px;color:var(--text2);">
+        </div>
+        <div id="ytLoading" style="font-size:11px;color:var(--gold);margin-top:6px;"></div>
+      </div>
+      <!-- 手動入力タブ -->
+      <div id="ctab-manual-body" style="display:none;">
+        <div class="fgroup">
+          <label>キャラクター名</label>
+          <input type="text" id="cm-name" placeholder="名前">
+        </div>
+        <div class="fgroup">
+          <label>クラス / レベル</label>
+          <input type="text" id="cm-cls" placeholder="ファイター2/シーフ1">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
+          <div class="fgroup" style="margin:0;"><label>HP</label><input type="number" id="cm-hp" placeholder="24" style="margin:0;"></div>
+          <div class="fgroup" style="margin:0;"><label>HP最大</label><input type="number" id="cm-hpmax" placeholder="24" style="margin:0;"></div>
+          <div class="fgroup" style="margin:0;"><label>MP</label><input type="number" id="cm-mp" placeholder="8" style="margin:0;"></div>
+          <div class="fgroup" style="margin:0;"><label>MP最大</label><input type="number" id="cm-mpmax" placeholder="8" style="margin:0;"></div>
+        </div>
+        <div class="fgroup">
+          <label>メモ</label>
+          <textarea id="cm-memo" rows="2" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;padding:6px 8px;resize:vertical;font-family:inherit;" placeholder="スキル・備考など..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeCharAddModal()">キャンセル</button>
+      <button class="btn btn-save btn" id="charAddOk" onclick="submitCharAdd()">追加</button>
     </div>
   </div>
 </div>
@@ -1766,6 +1931,390 @@ updateConnStatus();
 if (localStorage.getItem('lightMode') === '1') {
   document.body.classList.add('light-mode');
   document.getElementById('lightToggleBtn').textContent = '☀️';
+}
+
+// ────────────────────────────────────────────
+//  メインタブ切替
+// ────────────────────────────────────────────
+function switchMainTab(tab) {
+  document.getElementById('pageMonster').style.display = tab === 'monster' ? '' : 'none';
+  document.getElementById('pageChar').style.display    = tab === 'char'    ? '' : 'none';
+  document.getElementById('mainTabMonster').classList.toggle('active', tab === 'monster');
+  document.getElementById('mainTabChar').classList.toggle('active', tab === 'char');
+  if (tab === 'char') renderCharPage();
+}
+
+// ────────────────────────────────────────────
+//  キャラクターページ データ
+// ────────────────────────────────────────────
+const CHAR_SAVE_KEY = 'tekey_chars';
+const NPC_SAVE_KEY  = 'tekey_npcs';
+
+function loadCharData() {
+  try { return JSON.parse(localStorage.getItem(CHAR_SAVE_KEY)) || []; } catch { return []; }
+}
+function saveCharData(arr) { localStorage.setItem(CHAR_SAVE_KEY, JSON.stringify(arr)); }
+function loadNpcData() {
+  try { return JSON.parse(localStorage.getItem(NPC_SAVE_KEY)) || []; } catch { return []; }
+}
+function saveNpcData(arr) { localStorage.setItem(NPC_SAVE_KEY, JSON.stringify(arr)); }
+
+// ────────────────────────────────────────────
+//  キャラクターページ レンダリング
+// ────────────────────────────────────────────
+function renderCharPage() {
+  renderCharsGrid();
+  renderNpcsGrid();
+}
+
+function renderCharsGrid() {
+  const chars = loadCharData();
+  const grid = document.getElementById('charGrid');
+  if (!grid) return;
+  if (chars.length === 0) {
+    grid.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px;">キャラクターが登録されていません</div>';
+    return;
+  }
+  grid.innerHTML = chars.map((c, ci) => {
+    const hpp = Math.round((c.hp / (c.hpmax || 1)) * 100);
+    const mpp = Math.round((c.mp / (c.mpmax || 1)) * 100);
+    const hpColor = hpp > 60 ? 'var(--green)' : hpp > 30 ? 'var(--gold)' : 'var(--red)';
+    return `
+    <div class="char-card" id="chcard-${ci}">
+      <div class="char-card-head">
+        <div style="flex:1;min-width:0;">
+          <div class="char-name" contenteditable="true"
+            onblur="updateChar(${ci},'name',this.textContent.trim())">${c.name || '名前未設定'}</div>
+          <div class="char-cls">${c.cls || ''}</div>
+        </div>
+        <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;color:var(--green2);border-color:var(--green);"
+          onclick="createCharPiece(${ci})" title="Tekeyにコマ生成">🎴 コマ生成</button>
+        <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;color:var(--red2);"
+          onclick="removeChar(${ci})">✕</button>
+      </div>
+      <div class="char-card-body">
+        <div class="char-bar-row">
+          <span class="char-bar-lbl">HP</span>
+          <div class="char-bar-bg"><div class="char-bar-fill" style="width:${hpp}%;background:${hpColor};"></div></div>
+          <input class="char-bar-in" type="number" value="${c.hp}" oninput="updateChar(${ci},'hp',+this.value)">
+          <span style="font-size:11px;color:var(--text3);">/</span>
+          <input class="char-bar-in" type="number" value="${c.hpmax}" oninput="updateChar(${ci},'hpmax',+this.value)">
+        </div>
+        <div class="char-bar-row">
+          <span class="char-bar-lbl">MP</span>
+          <div class="char-bar-bg"><div class="char-bar-fill" style="width:${mpp}%;background:var(--blue);"></div></div>
+          <input class="char-bar-in" type="number" value="${c.mp}" oninput="updateChar(${ci},'mp',+this.value)">
+          <span style="font-size:11px;color:var(--text3);">/</span>
+          <input class="char-bar-in" type="number" value="${c.mpmax}" oninput="updateChar(${ci},'mpmax',+this.value)">
+        </div>
+        ${c.memo ? `<div style="font-size:11px;color:var(--text2);margin-top:6px;padding:5px 8px;background:var(--bg3);border-radius:var(--radius-sm);white-space:pre-wrap;">${c.memo}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderNpcsGrid() {
+  const npcs = loadNpcData();
+  const grid = document.getElementById('npcGrid');
+  if (!grid) return;
+  if (npcs.length === 0) {
+    grid.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px;">NPCが登録されていません</div>';
+    return;
+  }
+  grid.innerHTML = npcs.map((n, ni) => `
+    <div class="npc-card">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="npc-name" contenteditable="true"
+          onblur="updateNpc(${ni},'name',this.textContent.trim())">${n.name || '名前未設定'}</span>
+        <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;color:var(--green2);border-color:var(--green);"
+          onclick="createNpcPiece(${ni})" title="Tekeyにコマ生成">🎴 コマ生成</button>
+        <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;color:var(--red2);margin-left:auto;"
+          onclick="removeNpc(${ni})">✕</button>
+      </div>
+      <textarea class="char-memo" rows="2" placeholder="メモ..."
+        oninput="updateNpc(${ni},'memo',this.value)">${n.memo || ''}</textarea>
+    </div>`).join('');
+}
+
+function updateChar(ci, key, val) {
+  const chars = loadCharData();
+  if (!chars[ci]) return;
+  chars[ci][key] = val;
+  saveCharData(chars);
+  if (['hp','hpmax','mp','mpmax'].includes(key)) renderCharsGrid();
+}
+
+function updateNpc(ni, key, val) {
+  const npcs = loadNpcData();
+  if (!npcs[ni]) return;
+  npcs[ni][key] = val;
+  saveNpcData(npcs);
+}
+
+function removeChar(ci) {
+  if (!confirm('削除しますか？')) return;
+  const chars = loadCharData();
+  chars.splice(ci, 1);
+  saveCharData(chars);
+  renderCharsGrid();
+}
+
+function removeNpc(ni) {
+  if (!confirm('削除しますか？')) return;
+  const npcs = loadNpcData();
+  npcs.splice(ni, 1);
+  saveNpcData(npcs);
+  renderNpcsGrid();
+}
+
+function addNpcEntry() {
+  const npcs = loadNpcData();
+  npcs.push({ name: '新規NPC', memo: '' });
+  saveNpcData(npcs);
+  renderNpcsGrid();
+}
+
+// ────────────────────────────────────────────
+//  コマ生成
+// ────────────────────────────────────────────
+async function createCharPiece(ci) {
+  const chars = loadCharData();
+  const c = chars[ci];
+  if (!c) return;
+  await createPiece(c.name);
+}
+
+async function createNpcPiece(ni) {
+  const npcs = loadNpcData();
+  const n = npcs[ni];
+  if (!n) return;
+  await createPiece(n.name);
+}
+
+async function createPiece(name) {
+  const room     = cfg('room');
+  const password = cfg('pass');
+  if (!room) { showToast('⚙ 接続設定を先に行ってください', 'err'); return; }
+  if (!name)  { showToast('名前が設定されていません', 'err'); return; }
+  try {
+    const res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ command: 'addCharacter', room, password, name }),
+    });
+    if (res.ok) {
+      showToast(`🎴 コマ生成: ${name}`, 'ok');
+      addLog(`✓ コマ生成: ${name}`, 'ok');
+    } else {
+      showToast(`コマ生成失敗: ${res.status}`, 'err');
+      addLog(`✗ コマ生成失敗: ${name} (${res.status})`, 'err');
+    }
+  } catch (e) {
+    showToast('通信エラー', 'err');
+  }
+}
+
+// ────────────────────────────────────────────
+//  ステータスシート設定 (setColumns)
+// ────────────────────────────────────────────
+async function setupCharColumns() {
+  const room     = cfg('room');
+  const password = cfg('pass');
+  if (!room) { showToast('⚙ 接続設定を先に行ってください', 'err'); return; }
+
+  const chars = loadCharData();
+  const npcs  = loadNpcData();
+  const targets = [...chars.map(c => c.name), ...npcs.map(n => n.name)].filter(Boolean);
+  if (targets.length === 0) { showToast('キャラクター/NPCを先に登録してください', 'err'); return; }
+
+  // カラム：💠 移動力 HP MP 命中 防護点 回避 生命 精神 行動*
+  const columns = '💠移動力:false:false,HP:false:false,MP:false:false,命中:false:false,防護点:false:false,回避:false:false,生命:false:false,精神:false:false,行動:true:false';
+
+  let ok = 0;
+  for (const name of targets) {
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: 'setColumns', room, password, name, columns }),
+      });
+      if (res.ok) { ok++; addLog(`✓ カラム設定: ${name}`, 'ok'); }
+      else { addLog(`✗ カラム設定失敗: ${name}`, 'err'); }
+    } catch (e) {
+      addLog(`✗ カラム設定エラー: ${name}`, 'err');
+    }
+  }
+  showToast(`📋 カラム設定完了 ${ok}/${targets.length}体`, 'ok');
+}
+
+// ────────────────────────────────────────────
+//  キャラ追加モーダル
+// ────────────────────────────────────────────
+let _charTab = 'yt';
+
+function openCharAddModal() {
+  document.getElementById('charAddModal').classList.add('open');
+  switchCharTab('yt');
+  document.getElementById('ytFile').value = '';
+  document.getElementById('ytLoading').textContent = '';
+  document.getElementById('cm-name').value = '';
+  document.getElementById('cm-cls').value  = '';
+  document.getElementById('cm-hp').value   = '';
+  document.getElementById('cm-hpmax').value = '';
+  document.getElementById('cm-mp').value   = '';
+  document.getElementById('cm-mpmax').value = '';
+  document.getElementById('cm-memo').value = '';
+}
+
+function closeCharAddModal() {
+  document.getElementById('charAddModal').classList.remove('open');
+}
+
+function switchCharTab(tab) {
+  _charTab = tab;
+  document.getElementById('ctab-yt-body').style.display     = tab === 'yt'     ? '' : 'none';
+  document.getElementById('ctab-manual-body').style.display = tab === 'manual' ? '' : 'none';
+  document.getElementById('ctab-yt').style.borderColor     = tab === 'yt'     ? 'var(--gold)' : '';
+  document.getElementById('ctab-manual').style.borderColor = tab === 'manual' ? 'var(--gold)' : '';
+}
+
+function submitCharAdd() {
+  if (_charTab === 'yt') {
+    loadYutsheet();
+  } else {
+    addManualChar();
+  }
+}
+
+// ゆとシート読み込み
+function loadYutsheet() {
+  const file = document.getElementById('ytFile').files[0];
+  if (!file) { showToast('ファイルを選択してください', 'err'); return; }
+  const loading = document.getElementById('ytLoading');
+  loading.textContent = '読み込み中...';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parser = new DOMParser();
+      const doc    = parser.parseFromString(e.target.result, 'text/html');
+      const char   = parseYutsheet(doc);
+      if (!char) { loading.textContent = '⚠ 解析できませんでした'; return; }
+      const chars = loadCharData();
+      chars.push(char);
+      saveCharData(chars);
+      closeCharAddModal();
+      renderCharsGrid();
+      showToast(`✓ ${char.name} を追加しました`, 'ok');
+    } catch (err) {
+      loading.textContent = '⚠ 読み込みエラー: ' + err.message;
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function parseYutsheet(doc) {
+  // ゆとシートのHTML構造からデータ抽出
+  const name = doc.querySelector('.pc-name, .character-name, [class*="name"]')?.textContent?.trim()
+             || doc.title?.replace(/ゆとシート.*/, '').trim()
+             || '不明';
+  // HP/MP
+  const getText = sel => parseInt(doc.querySelector(sel)?.textContent?.trim()) || 0;
+  const getVal  = sel => parseInt(doc.querySelector(sel)?.value) || 0;
+
+  // 複数のセレクタを試す
+  const hp    = getText('.hp-now, [class*="hp-now"], #hp_now')    || getVal('[name="hp_now"]') || 0;
+  const hpmax = getText('.hp-max, [class*="hp-max"], #hp_max')    || getVal('[name="hp_max"]') || 0;
+  const mp    = getText('.mp-now, [class*="mp-now"], #mp_now')    || getVal('[name="mp_now"]') || 0;
+  const mpmax = getText('.mp-max, [class*="mp-max"], #mp_max')    || getVal('[name="mp_max"]') || 0;
+
+  // クラス・レベル
+  const cls = doc.querySelector('.class-name, [class*="class"]')?.textContent?.trim() || '';
+
+  // メモ：title以外から適当なテキストを集める
+  const memo = doc.querySelector('.memo, [class*="memo"], textarea')?.value
+             || doc.querySelector('.memo, [class*="memo"]')?.textContent?.trim()
+             || '';
+
+  return { name, cls, hp: hp||hpmax, hpmax, mp: mp||mpmax, mpmax, memo };
+}
+
+// 手動追加
+function addManualChar() {
+  const name   = document.getElementById('cm-name').value.trim();
+  if (!name) { showToast('名前を入力してください', 'err'); return; }
+  const chars = loadCharData();
+  chars.push({
+    name,
+    cls:   document.getElementById('cm-cls').value.trim(),
+    hp:    parseInt(document.getElementById('cm-hp').value)    || 0,
+    hpmax: parseInt(document.getElementById('cm-hpmax').value) || 0,
+    mp:    parseInt(document.getElementById('cm-mp').value)    || 0,
+    mpmax: parseInt(document.getElementById('cm-mpmax').value) || 0,
+    memo:  document.getElementById('cm-memo').value.trim(),
+  });
+  saveCharData(chars);
+  closeCharAddModal();
+  renderCharsGrid();
+  showToast(`✓ ${name} を追加しました`, 'ok');
+}
+
+// ────────────────────────────────────────────
+//  ダッシュボードからのデータ引継ぎ
+// ────────────────────────────────────────────
+function importFromDashboard() {
+  try {
+    // ダッシュボードのlocalStorageキーを試す
+    const keys = ['trpg_session_board', 'sessionboard', 'trpg_board', 'trpg_chars'];
+    let raw = null;
+    for (const k of keys) {
+      const v = localStorage.getItem(k);
+      if (v) { raw = v; break; }
+    }
+    if (!raw) {
+      // 全キーを確認してJSONにcharsキーがあるものを探す
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        try {
+          const v = JSON.parse(localStorage.getItem(k));
+          if (v && Array.isArray(v.chars)) { raw = localStorage.getItem(k); break; }
+        } catch {}
+      }
+    }
+    if (!raw) { showToast('ダッシュボードのデータが見つかりません', 'err'); return; }
+
+    const data = JSON.parse(raw);
+    const srcChars = data.chars || [];
+    const srcNpcs  = data.npcs  || [];
+
+    if (srcChars.length === 0 && srcNpcs.length === 0) {
+      showToast('引継ぎできるデータがありません', 'err');
+      return;
+    }
+
+    const existChars = loadCharData();
+    const existNpcs  = loadNpcData();
+
+    const newChars = srcChars.map(c => ({
+      name:  c.name  || '不明',
+      cls:   c.cls   || '',
+      hp:    c.hp    || 0,
+      hpmax: c.hpmax || 0,
+      mp:    c.mp    || 0,
+      mpmax: c.mpmax || 0,
+      memo:  c.memo  || (c.skills ? c.skills.map(s => typeof s === 'string' ? s : s.name).join('\n') : ''),
+    }));
+    const newNpcs = srcNpcs.map(n => ({
+      name: n.name || '不明',
+      memo: n.memo || '',
+    }));
+
+    saveCharData([...existChars, ...newChars]);
+    saveNpcData([...existNpcs, ...newNpcs]);
+    renderCharPage();
+    showToast(`📥 引継ぎ完了: キャラ${newChars.length}人 NPC${newNpcs.length}人`, 'ok');
+  } catch (e) {
+    showToast('引継ぎエラー: ' + e.message, 'err');
+  }
 }
 </script>
 </body>
