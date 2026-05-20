@@ -872,11 +872,13 @@ function renderChars(){
     const statsHtml = c.stats ? Object.entries(c.stats).map(([k,v])=>{
       const base  = typeof v === 'object' ? (v.base||0) : v;
       const bonus = typeof v === 'object' ? (v.bonus||0) : 0;
+      const bonusHtml = bonus ? `<span style="font-size:9px;color:var(--gold2);display:block;">+${bonus}</span>` : '';
       return `
       <div class="stat-chip">
         <span class="stat-key">${k}</span>
         <span class="stat-num" contenteditable="true"
           data-ci="${ci}" data-statkey="${k}" data-bonus="${bonus}">${base}</span>
+        ${bonusHtml}
       </div>`;
     }).join('') : '';
     const skillsHtml = buildSkillsHtml(c.skills,'char',ci);
@@ -1083,11 +1085,20 @@ function parseYtsheet(html){
   };
   const stats = {};
   for(const [label, ids] of Object.entries(statIdMap)){
-    const baseEl  = doc.querySelector(`#${ids.base} dd`);
-    const bonusEl = doc.querySelector(`#${ids.bonus} dd`);
-    const baseVal  = parseInt(baseEl?.textContent?.trim())  || 0;
-    const bonusVal = parseInt(bonusEl?.textContent?.trim()) || 0;
-    stats[label] = { base: baseVal, bonus: bonusVal };
+    const baseDl  = doc.querySelector(`#${ids.base}`);
+    const bonusDl = doc.querySelector(`#${ids.bonus}`);
+    // ddの値はdl内の最後のテキストノードに入っている場合があるので
+    // dl全体のテキストから数値を抽出し、dtのテキストを除いた末尾の数値を取る
+    const getVal = (dl) => {
+      if(!dl) return 0;
+      const ddEl = dl.querySelector('dd');
+      if(ddEl) return parseInt(ddEl.textContent.trim()) || 0;
+      // ddが取れない場合はdl全体のテキストから末尾の数値を取る
+      const txt = dl.textContent.trim();
+      const nums = txt.match(/\d+/g);
+      return nums ? parseInt(nums[nums.length-1]) : 0;
+    };
+    stats[label] = { base: getVal(baseDl), bonus: getVal(bonusDl) };
   }
 
   // スキル
