@@ -1973,13 +1973,37 @@ function renderCharsGrid() {
   const grid = document.getElementById('charGrid');
   if (!grid) return;
   if (chars.length === 0) {
-    grid.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px;">キャラクターが登録されていません</div>';
+    grid.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px;grid-column:1/-1;">キャラクターが登録されていません</div>';
     return;
   }
   grid.innerHTML = chars.map((c, ci) => {
     const hpp = Math.round((c.hp / (c.hpmax || 1)) * 100);
     const mpp = Math.round((c.mp / (c.mpmax || 1)) * 100);
     const hpColor = hpp > 60 ? 'var(--green)' : hpp > 30 ? 'var(--gold)' : 'var(--red)';
+
+    // 能力値HTML
+    const statsHtml = c.stats ? Object.entries(c.stats).map(([label, v]) => {
+      const base  = typeof v === 'object' ? v.base  : v;
+      const bonus = typeof v === 'object' ? v.bonus : 0;
+      return `<div style="text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 2px;">
+        <div style="font-size:9px;color:var(--text3);">${label}</div>
+        <div style="font-size:13px;color:var(--gold2);font-weight:500;">${base}</div>
+        ${bonus ? `<div style="font-size:9px;color:var(--green2);">+${bonus}</div>` : '<div style="font-size:9px;color:transparent;">-</div>'}
+      </div>`;
+    }).join('') : '';
+
+    // スキルHTML（アコーディオン）
+    const skills = c.skills || [];
+    const skillsHtml = skills.length > 0 ? skills.map(s => {
+      const type = typeof s === 'object' ? s.type : '特技';
+      const nm   = typeof s === 'object' ? s.name : s;
+      const typeColor = type === '戦闘特技' ? 'var(--blue2)' : type === '練技' ? 'var(--purple2)' : 'var(--text3)';
+      return `<div style="font-size:11px;padding:3px 0;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:baseline;">
+        <span style="font-size:9px;color:${typeColor};flex-shrink:0;">${type}</span>
+        <span style="color:var(--text2);">${nm}</span>
+      </div>`;
+    }).join('') : '<div style="font-size:11px;color:var(--text3);">スキルなし</div>';
+
     return `
     <div class="char-card" id="chcard-${ci}">
       <div class="char-card-head">
@@ -1987,6 +2011,7 @@ function renderCharsGrid() {
           <div class="char-name" contenteditable="true"
             onblur="updateChar(${ci},'name',this.textContent.trim())">${c.name || '名前未設定'}</div>
           <div class="char-cls">${c.cls || ''}</div>
+          ${c.raceTraits ? `<div style="font-size:10px;color:var(--purple2);margin-top:3px;">${c.raceTraits}</div>` : ''}
         </div>
         <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;color:var(--green2);border-color:var(--green);"
           onclick="createCharPiece(${ci})" title="Tekeyにコマ生成">🎴 コマ生成</button>
@@ -1994,6 +2019,7 @@ function renderCharsGrid() {
           onclick="removeChar(${ci})">✕</button>
       </div>
       <div class="char-card-body">
+        <!-- HP/MPバー -->
         <div class="char-bar-row">
           <span class="char-bar-lbl">HP</span>
           <div class="char-bar-bg"><div class="char-bar-fill" style="width:${hpp}%;background:${hpColor};"></div></div>
@@ -2008,10 +2034,52 @@ function renderCharsGrid() {
           <span style="font-size:11px;color:var(--text3);">/</span>
           <input class="char-bar-in" type="number" value="${c.mpmax}" oninput="updateChar(${ci},'mpmax',+this.value)">
         </div>
-        ${c.memo ? `<div style="font-size:11px;color:var(--text2);margin-top:6px;padding:5px 8px;background:var(--bg3);border-radius:var(--radius-sm);white-space:pre-wrap;">${c.memo}</div>` : ''}
+        <!-- 能力値 -->
+        ${statsHtml ? `<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin-top:8px;">${statsHtml}</div>` : ''}
+        <!-- スキルアコーディオン -->
+        ${skills.length > 0 ? `
+        <div style="margin-top:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0;border-bottom:1px solid var(--border);"
+            onclick="toggleCharSkills(${ci})">
+            <span style="font-size:11px;color:var(--text3);letter-spacing:.05em;">スキル・特技 (${skills.length})</span>
+            <span id="char-skill-arrow-${ci}" style="font-size:10px;color:var(--text3);">▶</span>
+          </div>
+          <div id="char-skills-${ci}" style="display:none;margin-top:4px;">${skillsHtml}</div>
+        </div>` : ''}
+        <!-- メモ -->
+        ${c.memo ? `
+        <div style="margin-top:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0;border-bottom:1px solid var(--border);"
+            onclick="toggleCharMemo(${ci})">
+            <span style="font-size:11px;color:var(--text3);letter-spacing:.05em;">メモ</span>
+            <span id="char-memo-arrow-${ci}" style="font-size:10px;color:var(--text3);">▶</span>
+          </div>
+          <div id="char-memo-${ci}" style="display:none;margin-top:4px;">
+            <textarea class="char-memo" rows="3"
+              oninput="updateChar(${ci},'memo',this.value)">${c.memo}</textarea>
+          </div>
+        </div>` : ''}
       </div>
     </div>`;
   }).join('');
+}
+
+function toggleCharSkills(ci) {
+  const el    = document.getElementById(`char-skills-${ci}`);
+  const arrow = document.getElementById(`char-skill-arrow-${ci}`);
+  if (!el) return;
+  const open = el.style.display === 'none';
+  el.style.display    = open ? 'block' : 'none';
+  arrow.textContent   = open ? '▼' : '▶';
+}
+
+function toggleCharMemo(ci) {
+  const el    = document.getElementById(`char-memo-${ci}`);
+  const arrow = document.getElementById(`char-memo-arrow-${ci}`);
+  if (!el) return;
+  const open = el.style.display === 'none';
+  el.style.display    = open ? 'block' : 'none';
+  arrow.textContent   = open ? '▼' : '▶';
 }
 
 function renderNpcsGrid() {
@@ -2214,29 +2282,67 @@ function loadYutsheet() {
 }
 
 function parseYutsheet(doc) {
-  // ゆとシートのHTML構造からデータ抽出
-  const name = doc.querySelector('.pc-name, .character-name, [class*="name"]')?.textContent?.trim()
-             || doc.title?.replace(/ゆとシート.*/, '').trim()
+  // 名前
+  const name = doc.querySelector('#character-name')?.textContent?.trim()
+             || doc.querySelector('#area-name h1')?.textContent?.trim()
              || '不明';
-  // HP/MP
-  const getText = sel => parseInt(doc.querySelector(sel)?.textContent?.trim()) || 0;
-  const getVal  = sel => parseInt(doc.querySelector(sel)?.value) || 0;
 
-  // 複数のセレクタを試す
-  const hp    = getText('.hp-now, [class*="hp-now"], #hp_now')    || getVal('[name="hp_now"]') || 0;
-  const hpmax = getText('.hp-max, [class*="hp-max"], #hp_max')    || getVal('[name="hp_max"]') || 0;
-  const mp    = getText('.mp-now, [class*="mp-now"], #mp_now')    || getVal('[name="mp_now"]') || 0;
-  const mpmax = getText('.mp-max, [class*="mp-max"], #mp_max')    || getVal('[name="mp_max"]') || 0;
+  // クラス（og:descriptionから）
+  const ogDesc = doc.querySelector('meta[property="og:description"]')?.getAttribute('content') || '';
+  const clsMatch = ogDesc.match(/技能[：:]([\S]+)/);
+  const cls = clsMatch ? clsMatch[1].replace(/,/g, '/') : '';
 
-  // クラス・レベル
-  const cls = doc.querySelector('.class-name, [class*="class"]')?.textContent?.trim() || '';
+  // 種族・種族特徴
+  const raceEl      = doc.querySelector('#race dd');
+  const race        = raceEl?.textContent?.trim() || '';
+  const raceAbility = doc.querySelector('#race-ability dd');
+  const raceTraits  = raceAbility
+    ? Array.from(raceAbility.querySelectorAll('span')).map(s => s.textContent.trim()).join(' ')
+    : '';
 
-  // メモ：title以外から適当なテキストを集める
-  const memo = doc.querySelector('.memo, [class*="memo"], textarea')?.value
-             || doc.querySelector('.memo, [class*="memo"]')?.textContent?.trim()
-             || '';
+  // HP/MP（全角数字）
+  const statusText = doc.querySelector('#area-status, #area-combat')?.textContent || '';
+  const hpmax = parseInt((statusText.match(/ＨＰ(\d+)/) || [])[1]) || 0;
+  const mpmax = parseInt((statusText.match(/ＭＰ(\d+)/) || [])[1]) || 0;
 
-  return { name, cls, hp: hp||hpmax, hpmax, mp: mp||mpmax, mpmax, memo };
+  // 能力値
+  const statMap = {
+    dex: { id: 'stt-dex',       bonusId: 'stt-bonus-dex', label: '器用' },
+    agi: { id: 'stt-agi',       bonusId: 'stt-bonus-agi', label: '敏捷' },
+    str: { id: 'stt-str',       bonusId: 'stt-bonus-str', label: '筋力' },
+    vit: { id: 'stt-vit',       bonusId: 'stt-bonus-vit', label: '生命' },
+    int: { id: 'stt-int',       bonusId: 'stt-bonus-int', label: '知力' },
+    mnd: { id: 'stt-mnd',       bonusId: 'stt-bonus-mnd', label: '精神' },
+  };
+  const stats = {};
+  for (const [key, { id, bonusId, label }] of Object.entries(statMap)) {
+    const base  = parseInt((doc.querySelector(`#${id}`)?.textContent?.match(/\d+/) || [])[0])  || 0;
+    const bonus = parseInt((doc.querySelector(`#${bonusId}`)?.textContent?.match(/\d+/) || [])[0]) || 0;
+    stats[label] = { base, bonus };
+  }
+
+  // スキル（戦闘特技・練技・騎芸など）
+  const skills = [];
+  for (const li of doc.querySelectorAll('#combat-feats li')) {
+    const t = li.textContent.trim();
+    if (t) skills.push({ type: '戦闘特技', name: t });
+  }
+  for (const li of doc.querySelectorAll('#crafts li, #craft-enhance li')) {
+    const t = li.textContent.trim();
+    if (t) skills.push({ type: '練技', name: t });
+  }
+  // 騎芸など他の特技
+  for (const li of doc.querySelectorAll('#area-ability ul li')) {
+    const t = li.textContent.trim();
+    if (t && !skills.find(s => s.name === t)) {
+      skills.push({ type: '特技', name: t });
+    }
+  }
+
+  // メモ
+  const memo = doc.querySelector('.memo, [id*="memo"]')?.textContent?.trim() || '';
+
+  return { name, cls, hp: hpmax, hpmax, mp: mpmax, mpmax, race, raceTraits, stats, skills, memo };
 }
 
 // 手動追加
@@ -2296,13 +2402,20 @@ function importFromDashboard() {
     const existNpcs  = loadNpcData();
 
     const newChars = srcChars.map(c => ({
-      name:  c.name  || '不明',
-      cls:   c.cls   || '',
-      hp:    c.hp    || 0,
-      hpmax: c.hpmax || 0,
-      mp:    c.mp    || 0,
-      mpmax: c.mpmax || 0,
-      memo:  c.memo  || (c.skills ? c.skills.map(s => typeof s === 'string' ? s : s.name).join('\n') : ''),
+      name:       c.name  || '不明',
+      cls:        c.cls   || '',
+      hp:         c.hp    || 0,
+      hpmax:      c.hpmax || 0,
+      mp:         c.mp    || 0,
+      mpmax:      c.mpmax || 0,
+      raceTraits: '',
+      stats: c.stats ? Object.fromEntries(
+        Object.entries(c.stats).map(([k, v]) => [k, { base: v, bonus: 0 }])
+      ) : {},
+      skills: (c.skills || []).map(s =>
+        typeof s === 'string' ? { type: '特技', name: s } : { type: '特技', name: s.name || '' }
+      ),
+      memo: c.memo || '',
     }));
     const newNpcs = srcNpcs.map(n => ({
       name: n.name || '不明',
