@@ -866,12 +866,17 @@ function renderChars(){
   document.getElementById('char-grid').innerHTML = chars.map((c,ci)=>{
     if(c.hidden) return '';
     const hpp=Math.round((c.hp/c.hpmax)*100||0), mpp=Math.round((c.mp/c.mpmax)*100||0);
-    const statsHtml = c.stats ? Object.entries(c.stats).map(([k,v])=>`
+    const statsHtml = c.stats ? Object.entries(c.stats).map(([k,v])=>{
+      const base  = typeof v === 'object' ? (v.base||0) : v;
+      const bonus = typeof v === 'object' ? (v.bonus||0) : 0;
+      const display = bonus ? `${base}<span style="font-size:9px;color:var(--gold2);">+${bonus}</span>` : base;
+      return `
       <div class="stat-chip">
         <span class="stat-key">${k}</span>
         <span class="stat-num" contenteditable="true"
-          onblur="chars[${ci}].stats['${k}']=parseInt(this.textContent)||0;save()">${v}</span>
-      </div>`).join('') : '';
+          onblur="chars[${ci}].stats['${k}']={base:parseInt(this.textContent)||0,bonus:${bonus}};save()">${base}</span>
+      </div>`;
+    }).join('') : '';
     const skillsHtml = buildSkillsHtml(c.skills,'char',ci);
     const statusHtml = (c.status||[]).map((s,si)=>`
       <span class="sbadge s-${s.c}" data-ci="${ci}" data-si="${si}" title="クリックで削除">${s.t}</span>`).join('');
@@ -1008,28 +1013,104 @@ function submitTag(){
 
 /* ━━━━━━ YTSHEET PARSER ━━━━━━ */
 function parseYtsheet(html){
-  const doc=new DOMParser().parseFromString(html,'text/html');
-  const allText=doc.body?doc.body.innerText:'';
-  let name='';
-  const titleEl=doc.querySelector('title');
-  if(titleEl) name=titleEl.textContent.split(' - ')[0].trim();
-  let clsStr='';
-  const meta=doc.querySelector('meta[property="og:description"]')||doc.querySelector('meta[name="description"]');
-  if(meta){const d=meta.getAttribute('content')||'';const m=d.match(/技能:([^\s　]+)/);if(m)clsStr=m[1].replace(/,/g,'／');}
-  const hpM=allText.match(/ＨＰ\s*\*?\*?(\d+)\*?\*?/);
-  const mpM=allText.match(/ＭＰ\s*\*?\*?(\d+)\*?\*?/);
-  const hp=hpM?parseInt(hpM[1]):20, mp=mpM?parseInt(mpM[1]):10;
-  const stats={};
-  [['器用度','器用'],['敏捷度','敏捷'],['筋力','筋力'],['生命力','生命'],['知力','知力'],['精神力','精神']].forEach(([l,s])=>{
-    const m=allText.match(new RegExp(l+'\\s*\\n?\\s*(\\d+)'));if(m)stats[s]=parseInt(m[1]);
-  });
-  const skills=[];
-  for(const m of allText.matchAll(/《([^》]+)》/g)) skills.push(`《${m[1]}》`);
-  for(const m of allText.matchAll(/【([^】]+)】/g)) skills.push(`【${m[1]}】`);
-  return {name:name||'キャラクター',cls:clsStr||'',ava:'⚔️',img:null,memo:'',
-    hp,hpmax:hp,mp,mpmax:mp,stats,
-    skills:skills.length?skills:['（自動取得できませんでした）'],
-    status:[{t:'正常',c:'ok'}],hidden:false};
+  const doc = new DOMParser().parseFromString(html,'text/html');
+
+  // 名前
+  let name = doc.querySelector('#character-name')?.textContent?.trim() || '';
+  if(!name){
+    const titleEl = doc.querySelector('title');
+    if(titleEl) name = titleEl.textContent.split(' - ')[0].trim();
+  }
+
+  // クラス
+  let clsStr = '';
+  const meta = doc.querySelector('meta[property="og:description"]') || doc.querySelector('meta[name="description"]');
+  if(meta){
+    const d = meta.getAttribute('content') || '';
+    const m = d.match(/技能:([^\s　]+)/);
+    if(m) clsStr = m[1].replace(/,/g,'／');
+  }
+
+  // 種族名
+  const race = doc.querySelector('#race dd')?.textContent?.trim() || '';
+
+  // 種族特徴
+  const raceAbility = doc.querySelector('#race-ability dd');
+  const raceTraits = raceAbility
+    ? Array.from(raceAbility.querySelectorAll('span')).map(s=>s.textContent.trim()).filter(Boolean).join(' ')
+    : '';
+
+  // HP/MP（dl.box方式 + フォールバック）
+  let hpmax = 0, mpmax = 0;
+  for(const dl of doc.querySelectorAll('dl.box')){
+    const dt = dl.querySelector('dt');
+    const b  = dl.querySelector('dd b');
+    if(!dt || !b) continue;
+    const label = dt.textContent.trim();
+    const val   = parseInt(b.textContent.trim()) || 0;
+    if(label === 'ＨＰ') hpmax = val;
+    if(label === 'ＭＰ') mpmax = val;
+  }
+  if(!hpmax || !mpmax){
+    const txt = doc.querySelector('#area-status, #area-combat')?.textContent || '';
+    const flat = txt.replace(/\s/g,'');
+    if(!hpmax) hpmax = parseInt((flat.match(/ＨＰ(\d+)/) || [])[1]) || 0;
+    if(!mpmax) mpmax = parseInt((flat.match(/ＭＰ(\d+)/) || [])[1]) || 0;
+  }
+  if(!hpmax || !mpmax){
+    const allText = doc.body ? doc.body.innerText : '';
+    if(!hpmax){ const m = allText.match(/ＨＰ\s*\*?\*?(\d+)\*?\*?/); if(m) hpmax = parseInt(m[1]); }
+    if(!mpmax){ const m = allText.match(/ＭＰ\s*\*?\*?(\d+)\*?\*?/); if(m) mpmax = parseInt(m[1]); }
+  }
+
+  // 能力値（base + bonus）
+  const statIdMap = {
+    '器用': {base:'stt-dex',   bonus:'stt-bonus-dex'},
+    '敏捷': {base:'stt-agi',   bonus:'stt-bonus-agi'},
+    '筋力': {base:'stt-str',   bonus:'stt-bonus-str'},
+    '生命': {base:'stt-vit',   bonus:'stt-bonus-vit'},
+    '知力': {base:'stt-int',   bonus:'stt-bonus-int'},
+    '精神': {base:'stt-mnd',   bonus:'stt-bonus-mnd'},
+  };
+  const stats = {};
+  for(const [label, ids] of Object.entries(statIdMap)){
+    const baseVal  = parseInt(doc.querySelector(`#${ids.base}`)?.textContent?.match(/\d+/)?.[0]) || 0;
+    const bonusVal = parseInt(doc.querySelector(`#${ids.bonus}`)?.textContent?.match(/\d+/)?.[0]) || 0;
+    stats[label] = { base: baseVal, bonus: bonusVal };
+  }
+
+  // スキル（type区別）
+  const skills = [];
+  const seen = new Set();
+  const addSkillItem = (type, name) => {
+    const t = name.trim();
+    if(t && !seen.has(t)){ seen.add(t); skills.push({type, name:t, detail:''}); }
+  };
+  for(const li of doc.querySelectorAll('#combat-feats li'))
+    addSkillItem('戦闘特技', li.textContent);
+  for(const li of doc.querySelectorAll('#crafts li, #craft-enhance li'))
+    addSkillItem('練技', li.textContent);
+  for(const li of doc.querySelectorAll('#area-ability ul li'))
+    addSkillItem('特技', li.textContent);
+  // フォールバック
+  if(!skills.length){
+    const allText = doc.body ? doc.body.innerText : '';
+    for(const m of allText.matchAll(/《([^》]+)》/g)) addSkillItem('戦闘特技', `《${m[1]}》`);
+    for(const m of allText.matchAll(/【([^】]+)】/g)) addSkillItem('練技', `【${m[1]}】`);
+  }
+
+  return {
+    name: name || 'キャラクター',
+    cls: clsStr || race || '',
+    race, raceTraits,
+    ava: '⚔️', img: null, memo: '',
+    hp: hpmax, hpmax,
+    mp: mpmax, mpmax,
+    stats,
+    skills: skills.length ? skills : [{type:'特技', name:'（自動取得できませんでした）', detail:''}],
+    status: [{t:'正常', c:'ok'}],
+    hidden: false
+  };
 }
 
 /* ━━━━━━ CHAR MODAL ━━━━━━ */
@@ -1409,9 +1490,11 @@ async function startCooking(){
     renderStage(shuffledChefs, i);
     await logWait(300);
 
-    const dex=+(chef.stats?.['器用']||chef.stats?.['器用度']||0);
-    const int_=+(chef.stats?.['知力']||0);
-    const bonus=Math.floor(dex/5)+Math.floor(int_/5);
+    const dexStat = chef.stats?.['器用'] || chef.stats?.['器用度'] || 0;
+    const intStat = chef.stats?.['知力'] || 0;
+    const dex = typeof dexStat === 'object' ? (dexStat.base||0) : dexStat;
+    const int_ = typeof intStat === 'object' ? (intStat.base||0) : intStat;
+    const bonus = Math.floor(dex/5) + Math.floor(int_/5);
 
     const chefRoll=rollDetail();
     const ingRoll=rollDetail();
