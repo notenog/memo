@@ -733,8 +733,7 @@ function renderNpcs(){
           data-ni="${ni}" data-field="npcmemo">${n.memo||''}</textarea>
       </div>
       <div class="card-footer">
-        <button class="cfbtn cfbtn-del"
-          onclick="if(confirm('削除しますか？')){npcs.splice(${ni},1);renderNpcs();save();}">削除</button>
+        <button class="cfbtn cfbtn-del" data-ni="${ni}">削除</button>
       </div>
     </div>`).join('');
 
@@ -743,6 +742,10 @@ function renderNpcs(){
     if(ava) setupDrop(ava,src=>{npcs[ni].img=src;renderNpcs();save();});
     const memoEl=document.querySelector(`[data-field="npcmemo"][data-ni="${ni}"]`);
     if(memoEl) memoEl.addEventListener('input',()=>{npcs[ni].memo=memoEl.value;save();});
+    const delBtn=document.querySelector(`.cfbtn-del[data-ni="${ni}"]`);
+    if(delBtn) delBtn.addEventListener('click',()=>{
+      if(confirm('削除しますか？')){npcs.splice(ni,1);renderNpcs();save();}
+    });
   });
 }
 
@@ -869,12 +872,11 @@ function renderChars(){
     const statsHtml = c.stats ? Object.entries(c.stats).map(([k,v])=>{
       const base  = typeof v === 'object' ? (v.base||0) : v;
       const bonus = typeof v === 'object' ? (v.bonus||0) : 0;
-      const display = bonus ? `${base}<span style="font-size:9px;color:var(--gold2);">+${bonus}</span>` : base;
       return `
       <div class="stat-chip">
         <span class="stat-key">${k}</span>
         <span class="stat-num" contenteditable="true"
-          onblur="chars[${ci}].stats['${k}']={base:parseInt(this.textContent)||0,bonus:${bonus}};save()">${base}</span>
+          data-ci="${ci}" data-statkey="${k}" data-bonus="${bonus}">${base}</span>
       </div>`;
     }).join('') : '';
     const skillsHtml = buildSkillsHtml(c.skills,'char',ci);
@@ -926,8 +928,8 @@ function renderChars(){
         <textarea class="memo-area" rows="2" placeholder="メモ..." data-ci="${ci}" data-field="charmemo">${c.memo||''}</textarea>
       </div>
       <div class="card-footer">
-        <button class="cfbtn cfbtn-hide" onclick="toggleHide('char',${ci})">待合室へ</button>
-        <button class="cfbtn cfbtn-del" onclick="if(confirm('削除しますか？')){chars.splice(${ci},1);renderChars();save();}">削除</button>
+        <button class="cfbtn cfbtn-hide">待合室へ</button>
+        <button class="cfbtn cfbtn-del">削除</button>
       </div>
     </div>`;
   }).join('');
@@ -936,8 +938,19 @@ function renderChars(){
     const card = document.getElementById('ccard-'+ci);
     if(card){
       initCardDrag(card,'char',ci);
+      // メモ欄
       const memoEl=card.querySelector('[data-field="charmemo"]');
       if(memoEl) memoEl.addEventListener('input',()=>{chars[ci].memo=memoEl.value;save();});
+      // 能力値編集
+      card.querySelectorAll('.stat-num[data-ci]').forEach(el=>{
+        el.addEventListener('blur',()=>{
+          const k=el.dataset.statkey, bonus=+(el.dataset.bonus||0);
+          if(!chars[ci].stats) chars[ci].stats={};
+          chars[ci].stats[k]={base:parseInt(el.textContent)||0,bonus};
+          save();
+        });
+      });
+      // statusバッジ削除
       card.querySelectorAll('.sbadge[data-ci]').forEach(badge=>{
         badge.addEventListener('click',()=>{
           const si=+badge.dataset.si;
@@ -946,6 +959,14 @@ function renderChars(){
           pushHistory();renderChars();save();
         });
       });
+      // 削除ボタン
+      const delBtn=card.querySelector('.cfbtn-del');
+      if(delBtn) delBtn.addEventListener('click',()=>{
+        if(confirm('削除しますか？')){chars.splice(ci,1);renderChars();save();}
+      });
+      // 待合室ボタン
+      const hideBtn=card.querySelector('.cfbtn-hide');
+      if(hideBtn) hideBtn.addEventListener('click',()=>toggleHide('char',ci));
     }
     const ava = document.getElementById('cava-'+ci);
     if(ava) setupDrop(ava,src=>{chars[ci].img=src;renderChars();save();});
