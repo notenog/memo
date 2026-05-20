@@ -1014,102 +1014,118 @@ function submitTag(){
 /* ━━━━━━ YTSHEET PARSER ━━━━━━ */
 function parseYtsheet(html){
   const doc = new DOMParser().parseFromString(html,'text/html');
+  const allText = (doc.body ? doc.body.innerText : '').replace(/\r/g,'');
+  const lines = allText.split('\n').map(l=>l.trim()).filter(l=>l);
 
-  // 名前
-  let name = doc.querySelector('#character-name')?.textContent?.trim() || '';
-  if(!name){
-    const titleEl = doc.querySelector('title');
-    if(titleEl) name = titleEl.textContent.split(' - ')[0].trim();
-  }
+  // 名前（titleから）
+  let name = doc.querySelector('title')?.textContent?.split(' - ')[0]?.trim() || 'キャラクター';
 
-  // クラス
+  // クラス（metaから）
   let clsStr = '';
   const meta = doc.querySelector('meta[property="og:description"]') || doc.querySelector('meta[name="description"]');
   if(meta){
     const d = meta.getAttribute('content') || '';
-    const m = d.match(/技能:([^\s　]+)/);
+    const m = d.match(/技能:([^\s　\u3000]+)/);
     if(m) clsStr = m[1].replace(/,/g,'／');
   }
 
-  // 種族名
-  const race = doc.querySelector('#race dd')?.textContent?.trim() || '';
+  // 種族（metaから）
+  let race = '';
+  if(meta){
+    const d = meta.getAttribute('content') || '';
+    const m = d.match(/種族:([^\s　\u3000]+)/);
+    if(m) race = m[1];
+  }
+  // フォールバック：テキストから
+  if(!race){
+    const idx = lines.findIndex(l=>l==='種族');
+    if(idx>=0 && lines[idx+1]) race = lines[idx+1];
+  }
 
-  // 種族特徴
-  const raceAbility = doc.querySelector('#race-ability dd');
-  const raceTraits = raceAbility
-    ? Array.from(raceAbility.querySelectorAll('span')).map(s=>s.textContent.trim()).filter(Boolean).join(' ')
-    : '';
+  // 種族特徴（「種族特徴」の次の行）
+  let raceTraits = '';
+  const rtIdx = lines.findIndex(l=>l==='種族特徴');
+  if(rtIdx>=0 && lines[rtIdx+1]) raceTraits = lines[rtIdx+1];
 
-  // HP/MP（dl.box方式 + フォールバック）
+  // HP/MP（「ＨＰ」「ＭＰ」の次のbold数値）
   let hpmax = 0, mpmax = 0;
-  for(const dl of doc.querySelectorAll('dl.box')){
-    const dt = dl.querySelector('dt');
-    const b  = dl.querySelector('dd b');
-    if(!dt || !b) continue;
-    const label = dt.textContent.trim();
-    const val   = parseInt(b.textContent.trim()) || 0;
-    if(label === 'ＨＰ') hpmax = val;
-    if(label === 'ＭＰ') mpmax = val;
+  for(let i=0;i<lines.length;i++){
+    if(lines[i]==='ＨＰ' && lines[i+1]) hpmax = parseInt(lines[i+1].replace(/\*/g,'')) || 0;
+    if(lines[i]==='ＭＰ' && lines[i+1]) mpmax = parseInt(lines[i+1].replace(/\*/g,'')) || 0;
   }
-  if(!hpmax || !mpmax){
-    const txt = doc.querySelector('#area-status, #area-combat')?.textContent || '';
-    const flat = txt.replace(/\s/g,'');
-    if(!hpmax) hpmax = parseInt((flat.match(/ＨＰ(\d+)/) || [])[1]) || 0;
-    if(!mpmax) mpmax = parseInt((flat.match(/ＭＰ(\d+)/) || [])[1]) || 0;
-  }
-  if(!hpmax || !mpmax){
-    const allText = doc.body ? doc.body.innerText : '';
-    if(!hpmax){ const m = allText.match(/ＨＰ\s*\*?\*?(\d+)\*?\*?/); if(m) hpmax = parseInt(m[1]); }
-    if(!mpmax){ const m = allText.match(/ＭＰ\s*\*?\*?(\d+)\*?\*?/); if(m) mpmax = parseInt(m[1]); }
-  }
+  // フォールバック
+  if(!hpmax){ const m=allText.match(/ＨＰ\s*\**(\d+)\**/); if(m) hpmax=parseInt(m[1]); }
+  if(!mpmax){ const m=allText.match(/ＭＰ\s*\**(\d+)\**/); if(m) mpmax=parseInt(m[1]); }
 
-  // 能力値（base + bonus）
-  const statIdMap = {
-    '器用': {base:'stt-dex',   bonus:'stt-bonus-dex'},
-    '敏捷': {base:'stt-agi',   bonus:'stt-bonus-agi'},
-    '筋力': {base:'stt-str',   bonus:'stt-bonus-str'},
-    '生命': {base:'stt-vit',   bonus:'stt-bonus-vit'},
-    '知力': {base:'stt-int',   bonus:'stt-bonus-int'},
-    '精神': {base:'stt-mnd',   bonus:'stt-bonus-mnd'},
-  };
+  // 能力値 base（「器用度」の2行後が値、次の行がボーナス）
+  // テキスト構造: 器用度\n16\n... 増強\n...\n器用度\n2
+  const statLabels = [
+    {key:'器用', pattern:'器用度'},
+    {key:'敏捷', pattern:'敏捷度'},
+    {key:'筋力', pattern:'筋力'},
+    {key:'生命', pattern:'生命力'},
+    {key:'知力', pattern:'知力'},
+    {key:'精神', pattern:'精神力'},
+  ];
+  // base値を取得（最初の出現）
+  const baseVals = {};
+  const bonusVals = {};
+  // 「増強」より前のブロックがbase、後がbonus
+  const augIdx = lines.findIndex(l=>l==='増強');
+  const baseLines = augIdx>0 ? lines.slice(0,augIdx) : lines;
+  const bonusLines = augIdx>0 ? lines.slice(augIdx) : [];
+
+  for(const {key,pattern} of statLabels){
+    // base
+    const bi = baseLines.findLastIndex ? baseLines.findLastIndex(l=>l===pattern) : [...baseLines].reverse().findIndex(l=>l===pattern);
+    const biIdx = baseLines.findLastIndex ? bi : (bi>=0 ? baseLines.length-1-bi : -1);
+    if(biIdx>=0 && baseLines[biIdx+1]) baseVals[key] = parseInt(baseLines[biIdx+1]) || 0;
+    // bonus（「増強」以降の同名ラベル）
+    const bo = bonusLines.findIndex(l=>l===pattern);
+    if(bo>=0 && bonusLines[bo+1]) bonusVals[key] = parseInt(bonusLines[bo+1]) || 0;
+  }
   const stats = {};
-  for(const [label, ids] of Object.entries(statIdMap)){
-    const baseVal  = parseInt(doc.querySelector(`#${ids.base}`)?.textContent?.match(/\d+/)?.[0]) || 0;
-    const bonusVal = parseInt(doc.querySelector(`#${ids.bonus}`)?.textContent?.match(/\d+/)?.[0]) || 0;
-    stats[label] = { base: baseVal, bonus: bonusVal };
+  for(const {key} of statLabels){
+    stats[key] = { base: baseVals[key]||0, bonus: bonusVals[key]||0 };
   }
 
-  // スキル（type区別）
+  // スキル（戦闘特技・練技・騎芸）
   const skills = [];
   const seen = new Set();
-  const addSkillItem = (type, name) => {
-    const t = name.trim();
+  const addS = (type, name) => {
+    const t = name.trim().replace(/^\s*[-・]\s*/,'');
     if(t && !seen.has(t)){ seen.add(t); skills.push({type, name:t, detail:''}); }
   };
-  for(const li of doc.querySelectorAll('#combat-feats li'))
-    addSkillItem('戦闘特技', li.textContent);
-  for(const li of doc.querySelectorAll('#crafts li, #craft-enhance li'))
-    addSkillItem('練技', li.textContent);
-  for(const li of doc.querySelectorAll('#area-ability ul li'))
-    addSkillItem('特技', li.textContent);
+
+  // 見出しセクションを探してリスト取得
+  let section = null;
+  for(const line of lines){
+    if(line==='戦闘特技') { section='戦闘特技'; continue; }
+    if(line==='練技')     { section='練技'; continue; }
+    if(line==='騎芸')     { section='騎芸'; continue; }
+    // 別セクションに入ったら終了
+    if(['判定パッケージ','言語','武器','防具','所持品','容姿'].includes(line)) { section=null; continue; }
+    if(section && line){
+      // 《》【】を含む行だけ取得
+      if(/[《》【】]/.test(line)) addS(section, line);
+    }
+  }
   // フォールバック
   if(!skills.length){
-    const allText = doc.body ? doc.body.innerText : '';
-    for(const m of allText.matchAll(/《([^》]+)》/g)) addSkillItem('戦闘特技', `《${m[1]}》`);
-    for(const m of allText.matchAll(/【([^】]+)】/g)) addSkillItem('練技', `【${m[1]}】`);
+    for(const m of allText.matchAll(/《([^》]+)》/g)) addS('戦闘特技',`《${m[1]}》`);
+    for(const m of allText.matchAll(/【([^】]+)】/g)) addS('練技',`【${m[1]}】`);
   }
 
   return {
-    name: name || 'キャラクター',
-    cls: clsStr || race || '',
+    name, cls: clsStr || race || '',
     race, raceTraits,
-    ava: '⚔️', img: null, memo: '',
-    hp: hpmax, hpmax,
-    mp: mpmax, mpmax,
+    ava:'⚔️', img:null, memo:'',
+    hp:hpmax, hpmax,
+    mp:mpmax, mpmax,
     stats,
     skills: skills.length ? skills : [{type:'特技', name:'（自動取得できませんでした）', detail:''}],
-    status: [{t:'正常', c:'ok'}],
-    hidden: false
+    status:[{t:'正常',c:'ok'}],
+    hidden:false
   };
 }
 
