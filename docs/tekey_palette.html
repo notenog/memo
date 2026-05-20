@@ -2033,8 +2033,6 @@ function renderCharsGrid() {
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
           <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;color:var(--red2);"
             onclick="removeChar(${ci})">✕</button>
-          <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;color:var(--green2);border-color:var(--green);"
-            onclick="createCharPiece(${ci})" title="Tekeyにコマ生成">🎴 コマ生成</button>
         </div>
       </div>
       <div class="char-card-body">
@@ -2079,6 +2077,12 @@ function renderCharsGrid() {
           </div>
         </div>` : ''}
       </div>
+      <div style="display:flex;gap:6px;padding:8px 12px;border-top:1px solid var(--border);">
+        <button class="btn btn-ghost" style="flex:1;font-size:11px;color:var(--green2);border-color:var(--green);"
+          onclick="createCharPiece(${ci})">🎴 コマ生成</button>
+        <button class="btn btn-ghost" style="font-size:11px;color:var(--red2);"
+          onclick="removeChar(${ci})">削除</button>
+      </div>
     </div>`;
   }).join('');
   setupDragDrop(grid, 'char');
@@ -2121,13 +2125,17 @@ function renderNpcsGrid() {
         <span class="drag-handle" title="ドラッグで並び替え">⠿</span>
         <span class="npc-name" contenteditable="true"
           onblur="updateNpc(${ni},'name',this.textContent.trim())">${n.name || '名前未設定'}</span>
-        <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;color:var(--green2);border-color:var(--green);"
-          onclick="createNpcPiece(${ni})" title="Tekeyにコマ生成">🎴 コマ生成</button>
         <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;color:var(--red2);margin-left:auto;"
           onclick="removeNpc(${ni})">✕</button>
       </div>
       <textarea class="char-memo" rows="2" placeholder="メモ..."
         oninput="updateNpc(${ni},'memo',this.value)">${n.memo || ''}</textarea>
+      <div style="display:flex;gap:6px;margin-top:6px;">
+        <button class="btn btn-ghost" style="flex:1;font-size:11px;color:var(--green2);border-color:var(--green);"
+          onclick="createNpcPiece(${ni})">🎴 コマ生成</button>
+        <button class="btn btn-ghost" style="font-size:11px;color:var(--red2);"
+          onclick="removeNpc(${ni})">削除</button>
+      </div>
     </div>`).join('');
   setupDragDrop(grid, 'npc');
 }
