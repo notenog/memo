@@ -2463,14 +2463,13 @@ function addManualChar() {
 function importFromDashboard() {
   try {
     // ダッシュボードのlocalStorageキーを試す
-    const keys = ['trpg_session_board', 'sessionboard', 'trpg_board', 'trpg_chars'];
+    const keys = ['trpg_session_board_v1', 'trpg_session_board', 'sessionboard', 'trpg_board', 'trpg_chars'];
     let raw = null;
     for (const k of keys) {
       const v = localStorage.getItem(k);
       if (v) { raw = v; break; }
     }
     if (!raw) {
-      // 全キーを確認してJSONにcharsキーがあるものを探す
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
         try {
@@ -2493,7 +2492,7 @@ function importFromDashboard() {
     const existChars = loadCharData();
     const existNpcs  = loadNpcData();
 
-    // ダッシュボードのstatsキー変換（STR→筋力 など）
+    // ダッシュボードv1はすでに日本語キー・{base,bonus}形式・raceTraits入り
     const dashStatMap = {
       DEX: '器用', AGI: '敏捷', STR: '筋力', VIT: '生命', INT: '知力', MND: '精神'
     };
@@ -2502,17 +2501,23 @@ function importFromDashboard() {
       if (c.stats) {
         for (const [k, v] of Object.entries(c.stats)) {
           const label = dashStatMap[k] || k;
-          stats[label] = { base: v, bonus: 0 };
+          // すでに{base,bonus}形式ならそのまま、数値ならラップ
+          stats[label] = typeof v === 'object' ? v : { base: v, bonus: 0 };
         }
       }
       const skills = (c.skills || []).map(s =>
-        typeof s === 'string' ? { type: '特技', name: s } : { type: '特技', name: s.name || '' }
+        typeof s === 'string' ? { type: '特技', name: s } : { type: '特技', name: s.name || '', type: s.type || '特技' }
       );
       return {
-        name: c.name || '不明', cls: c.cls || '',
-        hp: c.hp || 0, hpmax: c.hpmax || 0,
-        mp: c.mp || 0, mpmax: c.mpmax || 0,
-        raceTraits: '', stats, skills,
+        name:       c.name       || '不明',
+        cls:        c.cls        || '',
+        hp:         c.hp         || 0,
+        hpmax:      c.hpmax      || 0,
+        mp:         c.mp         || 0,
+        mpmax:      c.mpmax      || 0,
+        race:       c.race       || '',
+        raceTraits: c.raceTraits || '',
+        stats, skills,
         memo: c.memo || '',
       };
     });
