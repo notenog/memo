@@ -2002,9 +2002,9 @@ function renderCharsGrid() {
       const base  = typeof v === 'object' ? v.base  : v;
       const bonus = typeof v === 'object' ? v.bonus : 0;
       return `<div style="text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 2px;">
-        <div style="font-size:9px;color:var(--text3);">${label}</div>
-        <div style="font-size:13px;color:var(--gold2);font-weight:500;">${base}</div>
-        ${bonus ? `<div style="font-size:9px;color:var(--green2);">+${bonus}</div>` : '<div style="font-size:9px;color:transparent;">-</div>'}
+        <div style="font-size:10px;color:var(--text3);">${label}</div>
+        <div style="font-size:14px;color:var(--gold2);font-weight:500;">${base}</div>
+        ${bonus ? `<div style="font-size:10px;color:var(--green2);">+${bonus}</div>` : '<div style="font-size:10px;color:transparent;">-</div>'}
       </div>`;
     }).join('') : '';
 
@@ -2014,8 +2014,8 @@ function renderCharsGrid() {
       const type = typeof s === 'object' ? s.type : '特技';
       const nm   = typeof s === 'object' ? s.name : s;
       const typeColor = type === '戦闘特技' ? 'var(--blue2)' : type === '練技' ? 'var(--purple2)' : 'var(--text3)';
-      return `<div style="font-size:11px;padding:3px 0;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:baseline;">
-        <span style="font-size:9px;color:${typeColor};flex-shrink:0;">${type}</span>
+      return `<div style="font-size:12px;padding:3px 0;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:baseline;">
+        <span style="font-size:10px;color:${typeColor};flex-shrink:0;">${type}</span>
         <span style="color:var(--text2);">${nm}</span>
       </div>`;
     }).join('') : '<div style="font-size:11px;color:var(--text3);">スキルなし</div>';
@@ -2028,11 +2028,7 @@ function renderCharsGrid() {
           <div class="char-name" contenteditable="true"
             onblur="updateChar(${ci},'name',this.textContent.trim())">${c.name || '名前未設定'}</div>
           <div class="char-cls" style="margin-top:2px;">${c.cls || ''}</div>
-          ${c.raceTraits ? `<div style="font-size:10px;color:var(--purple2);margin-top:3px;">${c.raceTraits}</div>` : ''}
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
-          <button class="btn btn-ghost" style="font-size:10px;padding:2px 7px;color:var(--red2);"
-            onclick="removeChar(${ci})">✕</button>
+          ${c.raceTraits ? `<div style="font-size:11px;color:var(--purple2);margin-top:3px;">${c.raceTraits}</div>` : ''}
         </div>
       </div>
       <div class="char-card-body">
@@ -2058,7 +2054,7 @@ function renderCharsGrid() {
         <div style="margin-top:8px;">
           <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0;border-bottom:1px solid var(--border);"
             onclick="toggleCharSkills(${ci})">
-            <span style="font-size:11px;color:var(--text3);letter-spacing:.05em;">スキル・特技 (${skills.length})</span>
+            <span style="font-size:12px;color:var(--text3);letter-spacing:.05em;">スキル・特技 (${skills.length})</span>
             <span id="char-skill-arrow-${ci}" style="font-size:10px;color:var(--text3);">▶</span>
           </div>
           <div id="char-skills-${ci}" style="display:none;margin-top:4px;">${skillsHtml}</div>
@@ -2068,7 +2064,7 @@ function renderCharsGrid() {
         <div style="margin-top:8px;">
           <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0;border-bottom:1px solid var(--border);"
             onclick="toggleCharMemo(${ci})">
-            <span style="font-size:11px;color:var(--text3);letter-spacing:.05em;">メモ</span>
+            <span style="font-size:12px;color:var(--text3);letter-spacing:.05em;">メモ</span>
             <span id="char-memo-arrow-${ci}" style="font-size:10px;color:var(--text3);">▶</span>
           </div>
           <div id="char-memo-${ci}" style="display:none;margin-top:4px;">
