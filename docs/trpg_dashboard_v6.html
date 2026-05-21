@@ -560,8 +560,8 @@ document.addEventListener('focusin', e=>{
 });
 document.addEventListener('focusout', e=>{
   if(e.target.isContentEditable || ['INPUT','TEXTAREA'].includes(e.target.tagName)){
-    // 少し遅らせてsave()が完了してからフラグを解除
-    setTimeout(()=>{ isEditing = false; }, 2000);
+    // save(600ms) + Firebase書き込み + onValue受信をカバーする時間待つ
+    setTimeout(()=>{ isEditing = false; }, 6000);
   }
 });
 
@@ -738,8 +738,7 @@ function renderNpcs(){
           <div class="drop-hint">画像変更</div>
         </div>
         <div class="head-info">
-          <span class="ed-name" contenteditable="true"
-            onblur="npcs[${ni}].name=this.textContent.trim();save()">${n.name}</span>
+          <span class="ed-name" contenteditable="true" data-ni="${ni}" data-field="npcname">${n.name}</span>
         </div>
       </div>
       <div class="npc-body">
@@ -754,6 +753,8 @@ function renderNpcs(){
   npcs.forEach((_,ni)=>{
     const ava=document.getElementById('nava-'+ni);
     if(ava) setupDrop(ava,src=>{npcs[ni].img=src;renderNpcs();save();});
+    const nameEl=document.querySelector(`[data-field="npcname"][data-ni="${ni}"]`);
+    if(nameEl) nameEl.addEventListener('blur',()=>{npcs[ni].name=nameEl.textContent.trim();save();});
     const memoEl=document.querySelector(`[data-field="npcmemo"][data-ni="${ni}"]`);
     if(memoEl) memoEl.addEventListener('input',()=>{npcs[ni].memo=memoEl.value;save();});
     const delBtn=document.querySelector(`.cfbtn-del[data-ni="${ni}"]`);
@@ -905,8 +906,8 @@ function renderChars(){
         <span class="drag-handle" title="ドラッグで並び替え">⠿</span>
         <div class="ava" id="cava-${ci}" style="width:48px;height:58px;font-size:26px;">${avaInner}<div class="drop-hint">画像変更</div></div>
         <div class="head-info">
-          <span class="ed-name" contenteditable="true" onblur="chars[${ci}].name=this.textContent.trim();save()">${c.name}</span>
-          <span class="ed-sub" contenteditable="true" onblur="chars[${ci}].cls=this.textContent.trim();save()">${c.cls}</span>
+          <span class="ed-name" contenteditable="true" data-ci="${ci}" data-field="charname">${c.name}</span>
+          <span class="ed-sub" contenteditable="true" data-ci="${ci}" data-field="charcls">${c.cls}</span>
         </div>
       </div>
       <div class="card-body">
@@ -954,6 +955,11 @@ function renderChars(){
     const card = document.getElementById('ccard-'+ci);
     if(card){
       initCardDrag(card,'char',ci);
+      // 名前・クラス編集
+      const nameEl=card.querySelector('[data-field="charname"]');
+      const clsEl=card.querySelector('[data-field="charcls"]');
+      if(nameEl) nameEl.addEventListener('blur',()=>{chars[ci].name=nameEl.textContent.trim();save();});
+      if(clsEl)  clsEl.addEventListener('blur',()=>{chars[ci].cls=clsEl.textContent.trim();save();});
       // メモ欄
       const memoEl=card.querySelector('[data-field="charmemo"]');
       if(memoEl) memoEl.addEventListener('input',()=>{chars[ci].memo=memoEl.value;save();});
@@ -1941,7 +1947,8 @@ async function initFirebase(){
         set: async(val)=>{
           isSyncing=true;
           await set(ref(db,path),val);
-          setTimeout(()=>isSyncing=false,3000); // 3秒に延長
+          // Firebaseの反映+onValueコールバックが来るまで余裕を持って待つ
+          setTimeout(()=>isSyncing=false,5000);
         },
         remove: ()=>set(ref(db,'sessionboard'),null)
       })
