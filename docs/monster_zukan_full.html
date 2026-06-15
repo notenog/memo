@@ -20,62 +20,27 @@
   --r5: #2e1a1a; --r5t: #d46060;
   --r6: #2a1a2a; --r6t: #c472c4;
   --r7: #1e1a32; --r7t: #8878e8;
+  --r8: #1a2a1a; --r8t: #5ab85a;
+  --r9: #1a2a3a; --r9t: #6aabdd;
+  --r10: #1a2e1a; --r10t: #72c472;
+  --r11: #2e2412; --r11t: #d4a340;
+  --r12: #2e1a1a; --r12t: #d46060;
+  --r13: #2a1a2a; --r13t: #c472c4;
+
   --radius: 10px; --radius-sm: 6px;
 }
 
-/* ── 記号ラベル ポップオーバー ── */
-.mark-label {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 3px;
-  cursor: pointer;
-  user-select: none;
-  margin-right: 4px;
-  transition: opacity 0.15s;
-}
-.mark-label:hover { opacity: 0.8; }
-.mark-常時     { background: #1a3a1a; color: #6dd46d; border: 0.5px solid #3a6a3a; }
-.mark-主動作   { background: #1a2a3a; color: #6aaee8; border: 0.5px solid #2a4a6a; }
-.mark-補助動作 { background: #2a1a3a; color: #c47de8; border: 0.5px solid #4a2a6a; }
-.mark-戦闘準備 { background: #3a2a1a; color: #e8b46a; border: 0.5px solid #6a4a2a; }
-.mark-宣言     { background: #3a1a1a; color: #e86a6a; border: 0.5px solid #6a2a2a; }
-
-.mark-popover {
-  position: fixed;
-  z-index: 9999;
-  max-width: 280px;
-  background: #1e1c1a;
-  border: 0.5px solid var(--gold);
-  border-radius: 8px;
-  padding: 10px 13px;
-  font-size: 12px;
-  line-height: 1.7;
-  color: var(--text);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 0.15s, transform 0.15s;
-}
-.mark-popover.visible {
-  pointer-events: auto;
-  opacity: 1;
-  transform: translateY(0);
-}
-.mark-popover-title {
-  font-weight: 700;
-  margin-bottom: 5px;
-  color: var(--gold2);
-}
-.mark-popover-close {
-  position: absolute;
-  top: 6px; right: 8px;
-  background: none; border: none;
-  color: var(--text3); cursor: pointer;
-  font-size: 13px; line-height: 1;
-}
+.mark-label{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;cursor:pointer;user-select:none;margin-right:4px;transition:opacity 0.15s;}
+.mark-label:hover{opacity:0.8;}
+.mark-常時{background:#1a3a1a;color:#6dd46d;border:0.5px solid #3a6a3a;}
+.mark-主動作{background:#1a2a3a;color:#6aaee8;border:0.5px solid #2a4a6a;}
+.mark-補助動作{background:#2a1a3a;color:#c47de8;border:0.5px solid #4a2a6a;}
+.mark-戦闘準備{background:#3a2a1a;color:#e8b46a;border:0.5px solid #6a4a2a;}
+.mark-宣言{background:#3a1a1a;color:#e86a6a;border:0.5px solid #6a2a2a;}
+.mark-popover{position:fixed;z-index:9999;max-width:280px;background:#1e1c1a;border:0.5px solid var(--gold);border-radius:8px;padding:10px 13px;font-size:12px;line-height:1.7;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,0.6);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity 0.15s,transform 0.15s;}
+.mark-popover.visible{pointer-events:auto;opacity:1;transform:translateY(0);}
+.mark-popover-title{font-weight:700;margin-bottom:5px;color:var(--gold2);}
+.mark-popover-close{position:absolute;top:6px;right:8px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;}
 
 body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
@@ -108,6 +73,20 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
 .r5 { background: var(--r5); color: var(--r5t); }
 .r6 { background: var(--r6); color: var(--r6t); }
 .r7 { background: var(--r7); color: var(--r7t); }
+.r8{background:var(--r8);color:var(--r8t);border:1px solid var(--r8t);}
+.r9{background:var(--r9);color:var(--r9t);border:1px solid var(--r9t);}
+.r10{background:var(--r10);color:var(--r10t);border:1px solid var(--r10t);}
+.r11{background:var(--r11);color:var(--r11t);border:1px solid var(--r11t);}
+.r12{background:var(--r12);color:var(--r12t);border:1px solid var(--r12t);}
+.r13{background:var(--r13);color:var(--r13t);border:1px solid var(--r13t);}
+.r14{background:var(--r1);color:var(--r1t);border:1.5px solid var(--r1t);}
+.r15{background:var(--r2);color:var(--r2t);border:1.5px solid var(--r2t);}
+.r16{background:var(--r3);color:var(--r3t);border:1.5px solid var(--r3t);}
+.r17{background:var(--r4);color:var(--r4t);border:1.5px solid var(--r4t);}
+.r18{background:var(--r5);color:var(--r5t);border:1.5px solid var(--r5t);}
+.r19{background:var(--r6);color:var(--r6t);border:1.5px solid var(--r6t);}
+.r20{background:var(--r7);color:var(--r7t);border:1.5px solid var(--r7t);}
+
 .card-name { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.4; }
 .card-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
 .card-cat { font-size: 10px; color: var(--gold); margin-top: 1px; }
@@ -154,7 +133,6 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
 .btn-cancel { font-family: 'Noto Sans JP', sans-serif; font-size: 13px; padding: 6px 16px; border-radius: var(--radius-sm); border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; }
 .badge-orig { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 8px; background: #2a2010; color: var(--gold); border: 0.5px solid var(--gold); margin-left: 4px; vertical-align: middle; }
 </style>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%231a1814'/><rect x='18' y='14' width='16' height='72' rx='2' fill='%23c9a84c'/><rect x='33' y='14' width='50' height='72' rx='2' fill='%23b8922e'/><line x1='42' y1='26' x2='74' y2='26' stroke='%23e8cc7a' stroke-width='2.5'/><line x1='42' y1='38' x2='74' y2='38' stroke='%23e8cc7a' stroke-width='2.5'/><line x1='58' y1='48' x2='58' y2='74' stroke='%23e8cc7a' stroke-width='2.5' stroke-linecap='round'/><line x1='48' y1='60' x2='68' y2='60' stroke='%23e8cc7a' stroke-width='2.5' stroke-linecap='round'/><polygon points='58,44 54,54 62,54' fill='%23e8cc7a'/></svg>">
 </head>
 <body>
 
@@ -220,14 +198,7 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
   </div>
 </div>
 
-
-<!-- 記号ラベル ポップオーバー -->
-<div class="mark-popover" id="markPopover">
-  <button class="mark-popover-close" onclick="closeMarkPopover()">✕</button>
-  <div class="mark-popover-title" id="markPopTitle"></div>
-  <div id="markPopDesc"></div>
-</div>
-
+<div class="mark-popover" id="markPopover"><button class="mark-popover-close" onclick="closeMarkPopover()">✕</button><div class="mark-popover-title" id="markPopTitle"></div><div id="markPopDesc"></div></div>
 <!-- Tekey設定モーダル -->
 <div class="add-overlay" id="tekeySettingsOverlay">
   <div class="add-panel">
@@ -330,7 +301,7 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
       </div>
       <div class="fsep">特殊能力（1行1能力、「能力名 — 説明」形式）</div>
       <div class="fgroup"><label>特殊能力</label>
-        <textarea id="f_abilities" placeholder="痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに+4点する。
+        <textarea id="f_abilities" placeholder="○痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに+4点する。
 なし"></textarea>
       </div>
       <div class="fsep">戦利品（1行1アイテム）</div>
@@ -349,38 +320,23 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
 
 <script>
 const monsters = [
-  // ── 蛮族 ──
-  { cat:"蛮族", name:"シールドフッド", rank:2, intel:"低い", percep:"五感", habitat:"さまざま", hp:19, mp:12, init:11, move:"12/―", vit:"4(11)", mres:"5(12)", weakness:"属性ダメージ+2点", know:"8", knowval:"12", attacks:[{part:"大盾",hit:"5(12)",dmg:"2d+2",evd:"3(10)",def:"5"}], abilities:["💬かばうI — 戦闘特技《かばうI》と同じ効果。"], loot:["自動：粗雑な毒(50G/緑白B)","5〜10：汚いフード(20G/白B)","11〜：着慣れたフード(80G/白B)"], tags:"蛮族" },
+  { cat:"蛮族", name:"シールドフッド", rank:2, intel:"人間並み", percep:"五感(暗視)", habitat:"さまざま", hp:19, mp:12, init:11, move:"12/―", vit:"4(11)", mres:"5(12)", weakness:"属性ダメージ+2点", know:"8", knowval:"12", attacks:[{part:"大盾",hit:"5(12)",dmg:"2d+2",evd:"3(10)",def:"5"}], abilities:["💬かばうI — 戦闘特技《かばうI》と同じ効果。"], loot:["自動：粗雑な毒(50G/緑白B)","5〜10：汚いフード(20G/白B)","11〜：着慣れたフード(80G/白B)"], tags:"蛮族" },
   { cat:"蛮族", name:"フーグル", rank:2, intel:"低い", percep:"五感(暗視)", habitat:"砂漠・山岳", hp:12, mp:7, init:11, move:"10/15(飛行)", vit:"3(10)", mres:"3(10)", weakness:"風属性ダメージ+3点", know:"9", knowval:"12", attacks:[{part:"爪",hit:"3(10)",dmg:"2d+1",evd:"3(10)",def:"3"}], abilities:["▶▶機動飛行 — 翼で素早く飛行。近接攻撃の命中・回避判定に+1のボーナス修正。連続した手番には使用不可。","○翼での追撃 — 爪で攻撃した対象に、翼での近接攻撃を追加で1回実行可能。命中力・打撃点は爪と同じ。"], loot:["2〜9：土色の鱗(30G/赤B)","10〜：琥珀色の鱗(90G/赤B)"], tags:"蛮族,飛行,鱗" },
-  { cat:"蛮族", name:"フーグルマンサー", rank:3, intel:"低い", percep:"五感(暗視)", habitat:"砂漠・山岳", hp:17, mp:18, init:11, move:"10/15(飛行)", vit:"4(11)", mres:"5(12)", weakness:"風属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"杖",hit:"4(11)",dmg:"2d+2",evd:"3(10)",def:"3"}], abilities:["▶真語魔法3レベル／魔力4(11)","○ターゲッティング — 乱戦中に「形状：射撃」の魔法を放っても誤射しない。","▶▶機動飛行 — 翼で素早く飛行。近接攻撃の命中・回避判定に+1のボーナス修正。連続した手番には使用不可。"], loot:["2〜7：土色の鱗(30G/赤B)","8〜：琥珀色の鱗(90G/赤B)"], tags:"蛮族,飛行,魔法,鱗" },
+  { cat:"蛮族", name:"フーグルマンサー", rank:3, intel:"人間並み", percep:"五感(暗視)", habitat:"砂漠・山岳", hp:17, mp:18, init:11, move:"10/15(飛行)", vit:"4(11)", mres:"5(12)", weakness:"風属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"杖",hit:"4(11)",dmg:"2d+2",evd:"3(10)",def:"3"}], abilities:["▶真語魔法3レベル／魔力4(11)","○ターゲッティング — 乱戦中に「形状：射撃」の魔法を放っても誤射しない。","▶▶機動飛行 — 翼で素早く飛行。近接攻撃の命中・回避判定に+1のボーナス修正。連続した手番には使用不可。"], loot:["2〜7：土色の鱗(30G/赤B)","8〜：琥珀色の鱗(90G/赤B)"], tags:"蛮族,飛行,魔法,鱗" },
   { cat:"蛮族", name:"ボルグ", rank:3, intel:"低い", percep:"五感(暗視)", habitat:"森・山・洞窟", hp:23, mp:10, init:11, move:"14/―", vit:"4(11)", mres:"4(11)", weakness:"物理ダメージ+2点", know:"7", knowval:"13", attacks:[{part:"武器",hit:"4(11)",dmg:"2d+4",evd:"4(11)",def:"3"}], abilities:["○痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに+4点する。"], loot:["2〜6：武器(30G/黒白B)","7〜：意匠を凝らした武器(150G/黒白A)"], tags:"蛮族,痛恨" },
   { cat:"蛮族", name:"ボルグハイランダー", rank:4, intel:"低い", percep:"五感(暗視)", habitat:"森・山・洞窟", hp:29, mp:14, init:11, move:"16/―", vit:"5(12)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"9", knowval:"14", attacks:[{part:"武器",hit:"5(12)",dmg:"2d+5",evd:"5(12)",def:"3"}], abilities:["💬斬り返しI — 2回まで命中力判定を行うことができ、どちらか成功すれば武器での攻撃に成功する。","○痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに+6点する。"], loot:["2〜5：鋭い武器(100G/黒白A)","6〜9：意匠を凝らした武器(150G/黒白A)","10〜：豪華な武器(500G/黒白A)"], tags:"蛮族,痛恨,斬り返し" },
   { cat:"蛮族", name:"レッサーオーガ", rank:4, intel:"人間並み", percep:"五感(暗視)", habitat:"さまざま", hp:36, mp:20, init:13, move:"14/―", vit:"5(12)", mres:"6(13)", weakness:"命中力+1", know:"9", knowval:"14", attacks:[{part:"武器",hit:"5(12)",dmg:"2d+4",evd:"5(12)",def:"2"}], abilities:["▶真語魔法3レベル／魔力5(12)","▶▶人化 — 肉体を人族の姿に変化させる。1日に柔軟で18時間まで制限される。人化中は命中力・回避力・生命抵抗力・精神抵抗力が-1され、最大HPと最大MPが5点減少する。"], loot:["2〜3：なし","4〜8：銀貨袋(30G/―)×1d","9〜10：銀貨袋(100G/―)×1d","11〜：宝石(150G/金A)×1d"], tags:"蛮族,魔法,変身" },
-  { cat:"蛮族", name:"フーグルアサルター", rank:5, intel:"低い", percep:"五感(暗視)", habitat:"砂漠・山岳", hp:38, mp:16, init:14, move:"15/20(飛行)", vit:"7(14)", mres:"7(14)", weakness:"風属性ダメージ+3点", know:"12", knowval:"15", attacks:[{part:"爪",hit:"7(14)",dmg:"2d+6",evd:"7(14)",def:"5"}], abilities:["▶▶機動飛行 — 翼で素早く飛行。近接攻撃の命中・回避判定に+1のボーナス修正。連続した手番には使用不可。","○翼での追撃 — 爪で攻撃した対象に、翼での近接攻撃を追加で1回実行可能。","💬2回攻撃＆双撃 — 両手の爪でそれぞれ1回ずつの攻撃を行う。1回目の攻撃の結果を確認してから、同じ対象か別の対象かを選べる。","💬全力攻撃I — 打撃点を+4点する。リスクとして回避判定に-2のペナルティ修正を受ける。"], loot:["2〜4：土色の鱗(30G/赤B)","5〜8：琥珀色の鱗(90G/赤B)","9〜：七色の鱗(220G/金赤A)"], tags:"蛮族,飛行,双撃" },
-  { cat:"蛮族", name:"ボルグヘビーアーム", rank:5, intel:"低い", percep:"五感(暗視)", habitat:"森・山・洞窟", hp:36, mp:17, init:10, move:"12/―", vit:"7(14)", mres:"6(13)", weakness:"物理ダメージ+2点", know:"10", knowval:"15", attacks:[{part:"武器",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"8"}], abilities:["💬全力攻撃I — 打撃点を+4点する。リスクとして回避判定に-2のペナルティ修正を受ける。","○痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに+6点する。"], loot:["2〜7：意匠を凝らした武器(150G/黒白A)","8〜：豪華な武器(500G/黒白A)"], tags:"蛮族,痛恨,重装" },
-  { cat:"蛮族", name:"ディアボロカデット(人間形態)", rank:5, intel:"高い", percep:"五感(暗視)", habitat:"荒野・魔域", hp:42, mp:23, init:13, move:"20/20(飛行)", vit:"8(15)", mres:"8(15)", weakness:"純エネルギー属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"武器",hit:"7(14)",dmg:"2d+7",evd:"7(14)",def:"4"}], abilities:["○強靭な皮膚 — 斬空属性または衝撃属性の物理・魔法ダメージを受けるとき、それを-3点する。","○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。","💬掃き払いI — 近接攻撃可能なキャラクターを任意に3体まで選び、それらに近接攻撃を行う。","▶魔人の視光／必中 — 鋭い視光で、周囲の者を眩惑させ、わずかなダメージを与える。「射程／形状：1(10m)／記点指定」で、任意の対象を任意の数まで選び、それぞれに「2」点の呪い属性の魔法ダメージを与えます。その後、対象に与えたダメージすべての合計と同じだけ、自身のHPが回復します。この能力を使用するには、対象１体につきMPを2点消費します。","▶▶魔人化 — 魔人形態に変化する。魔人形態のデータは《ディアボロカデット(魔人形態)》を参照。"], loot:["自動：アビスシャード(200G/―)","2〜6：黒の宝玉(300G/金A)","7〜10：黒の宝玉(300G/金A)×2","11〜：黒の宝玉(300G/金A)×1d"], tags:"蛮族,飛行,変身,魔人" },
-  { cat:"蛮族", name:"ディアボロカデット(魔人形態)", rank:6, intel:"高い", percep:"五感(暗視)", habitat:"荒野・魔域", hp:44, mp:26, init:14, move:"20/20(飛行)", vit:"9(16)", mres:"9(16)", weakness:"純エネルギー属性ダメージ+3点", know:"14", knowval:"17", attacks:[{part:"牙(頭部)",hit:"7(14)",dmg:"2d+7",evd:"7(14)",def:"4"},{part:"武器(胴体)",hit:"8(15)",dmg:"2d+9",evd:"6(13)",def:"6"}], abilities:["○強靭な皮膚 — 斬空属性または衝撃属性の物理・魔法ダメージを-3点する。","○胴体/飛翔 — すべての部位で近接攻撃における命中力・回避力判定に+1のボーナス修正。「部位：胴体」のHPが0以下になった場合この能力は失われる。","▶頭部/魔神の視光／必中 — 鋭い視光で周囲の者を眩惑させ、わずかなダメージを与える。","💬掃き払いI — 近接攻撃可能なキャラクターを任意に3体まで選び近接攻撃。","▶▶人間化 — 人間形態に変化する。"], loot:["自動：アビスシャード(200G/―)×1d","2〜5：黒の宝玉(300G/金A)","6〜9：黒の宝玉(300G/金A)×2","10〜：黒の宝玉(300G/金A)×1d"], tags:"蛮族,飛行,変身,魔人,多部位" },
-  { cat:"蛮族", name:"ケパラウラ", rank:6, intel:"人間並み", percep:"五感(暗視)", habitat:"森・洞窟・湿地・魔域", hp:48, mp:41, init:13, move:"15/―", vit:"7(14)", mres:"9(16)", weakness:"炎属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"牙",hit:"8(15)",dmg:"2d+7",evd:"6(13)",def:"4"}], abilities:["○毒無効 — 毒属性のダメージや効果を受けない。","▶真語魔法・操霊魔法6レベル／魔力8(15)","○毒／命中時 — 牙の攻撃が命中した場合、対象に6点の毒属性の魔法ダメージを与える。","○魔法連性 — 戦闘特技《ターゲッティング》《魔法拡大／数》《マルチアクション》を習得している。"], loot:["2〜4：なし","5〜8：魔法文明の本(170G/白A)","9〜12：魔法書(500G/白A)","13〜：秘を記した魔法書(1500G/白S)"], tags:"蛮族,魔法,毒" },
-  { cat:"蛮族", name:"トロール", rank:6, intel:"人間並み", percep:"五感(暗視)", habitat:"洞窟", hp:50, mp:26, init:14, move:"18/―", vit:"9(16)", mres:"8(15)", weakness:"魔法ダメージ+2点", know:"11", knowval:"16", attacks:[{part:"武器",hit:"9(16)",dmg:"2d+10",evd:"7(14)",def:"5"}], abilities:["▶神聖魔法5レベル／魔力7(14)","💬全力攻撃I — 打撃点を+4点する。リスクとして回避判定に-2のペナルティ修正を受ける。","○弱体化(日光) — 太陽の下にいる限り、命中力・回避力判定に-2のペナルティ修正を受ける。"], loot:["自動：トロールの血(100G/赤A)","2〜8：大きな武器(300G/黒白A)","9〜：宝石(150G/金A)×1d"], tags:"蛮族,魔法,巨人" },
-  { cat:"蛮族", name:"ドレイク(人間形態)", rank:6, intel:"高い", percep:"五感(暗視)", habitat:"さまざま", hp:58, mp:36, init:16, move:"20/40(飛行)", vit:"9(16)", mres:"10(17)", weakness:"魔法ダメージ+2点", know:"10", knowval:"17", attacks:[{part:"剣",hit:"9(16)",dmg:"2d+8",evd:"7(14)",def:"4"}], abilities:["▶操霊魔法5レベル／魔力8(15)","💬魔力撃＝+8ダメージ — 打撃点を+8点する。リスクとして、目身の生命・精神抵抗力判定に-2のペナルティ修正を受ける。","○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。","▶▶電化 — 竜形態に変化する。竜形態のデータは《ドレイク(竜形態)》を参照。"], loot:["自動：剣のかけら(200G/―)"], tags:"蛮族,飛行,魔法,変身,竜" },
-  { cat:"蛮族", name:"ドレイク(竜形態)", rank:7, intel:"高い", percep:"五感(暗視)", habitat:"さまざま", hp:62, mp:46, init:18, move:"20/40(飛行)", vit:"10(17)", mres:"11(18)", weakness:"魔法ダメージ+2点", know:"12", knowval:"18", attacks:[{part:"牙(胴体)",hit:"9(16)",dmg:"2d+12",evd:"9(16)",def:"7"},{part:"翼",hit:"11(18)",dmg:"2d+9",evd:"7(14)",def:"4"},{part:"翼",hit:"11(18)",dmg:"2d+9",evd:"7(14)",def:"4"}], abilities:["▶操霊魔法5レベル／魔力9(16)","▶光のブレス — 射程：形状2(50m)／射撃で、対象1体にエネルギー属性の魔法ダメージを与える。この能力は連続した手番には使用不可。","▶▶瞬時人間化 — 瞬時に人間形態へ変化する。人間形態のデータは《ドレイク(人間形態)》を参照。","○飛翔 — 全部位の近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。"], loot:["2〜6：剣のかけら(200G/―)","7〜10：剣のかけら(200G/―)×2","11：剣のかけら(200G/―)×3","12〜：竜の魔剣(4000G/金黒白S)"], tags:"蛮族,飛行,魔法,変身,竜,多部位" },
-
-  // ── 動物 ──
   { cat:"動物", name:"ウルフ", rank:1, intel:"動物並み", percep:"五感", habitat:"森・草原・洞窟", hp:12, mp:8, init:11, move:"15/―", vit:"3(10)", mres:"1(8)", weakness:"物理ダメージ+2点", know:"5", knowval:"10", attacks:[{part:"牙",hit:"2(9)",dmg:"2d",evd:"2(9)",def:"1"}], abilities:["なし"], loot:["2〜3：なし","4〜8：狼の皮(20G/赤B)","9〜10：上質な狼の皮(50G/赤B)","11〜：きれいな狼の皮(100G/金赤A)"], tags:"動物" },
   { cat:"動物", name:"ジャイアントギャドフライ", rank:1, intel:"動物並み", percep:"五感", habitat:"森・草原・湿地", hp:8, mp:5, init:9, move:"3(六足)/15(飛行)", vit:"2(9)", mres:"2(9)", weakness:"物理ダメージ+2点", know:"6", knowval:"9", attacks:[{part:"口吻",hit:"2(9)",dmg:"2d-1",evd:"2(9)",def:"1"}], abilities:["○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。","○白眼中撃 — ジャイアントギャドフライによる攻撃が回避された場合、その対象に対してジャイアントギャドフライの次の攻撃は命中力判定に+1のボーナス修正を得る。この修正は攻撃するジャイアントギャドフライの個体の違いを無視して蓄積されていき、上限はない。ただし、一度ジャイアントギャドフライの攻撃が命中するか、そのラウンドの最後となるジャイアントギャドフライによる攻撃が回避されると、失われる。"], loot:["2〜7：なし","8〜11：黒ずんだ複眼(30G/赤B)","12〜：光沢のある複眼(150G/赤A)"], tags:"動物,飛行" },
   { cat:"動物", name:"ジャイアントリザード", rank:2, intel:"動物並み", percep:"五感", habitat:"さまざま", hp:20, mp:8, init:10, move:"12(四足)/―", vit:"5(12)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"7", knowval:"11", attacks:[{part:"牙",hit:"3(10)",dmg:"2d+2",evd:"2(9)",def:"2"}], abilities:["なし"], loot:["2〜7：なし","8〜：上質な鱗(140G/赤A)"], tags:"動物" },
-  { cat:"動物", name:"パープルアント", rank:2, intel:"動物並み", percep:"五感", habitat:"森・山・洞窟・草原・荒野・魔域", hp:14, mp:8, init:10, move:"12(六足)/―", vit:"4(11)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"8", knowval:"11", attacks:[{part:"顎",hit:"4(11)",dmg:"2d+1",evd:"3(10)",def:"4"}], abilities:["▶毒脚／4(11)／生命抵抗力／消滅 — 「射程：接触」で「対象：1体」に顎を吐きつけ、「2d-1」点の毒属性の魔法ダメージを与える。"], loot:["2〜9：甲虫の殻(30G/赤B)","10〜11：紫色の石(120G/金A)","12〜：アビスシャード(200G/―)"], tags:"動物,毒" },
+  { cat:"動物", name:"バープルアント", rank:2, intel:"動物並み", percep:"五感(暗視)", habitat:"森・山・洞窟・草原・荒野・魔域", hp:14, mp:8, init:10, move:"12(六足)/―", vit:"4(11)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"8", knowval:"11", attacks:[{part:"顎",hit:"4(11)",dmg:"2d+1",evd:"3(10)",def:"4"}], abilities:["▶毒脚／4(11)／生命抵抗力／消滅 — 「射程：接触」で「対象：1体」に顎を吐きつけ、「2d-1」点の毒属性の魔法ダメージを与える。"], loot:["2〜9：甲虫の殻(30G/赤B)","10〜11：紫色の石(120G/金A)","12〜：アビスシャード(200G/―)"], tags:"動物,毒" },
   { cat:"動物", name:"グレイリンクス", rank:3, intel:"動物並み", percep:"五感(暗視)", habitat:"森・山", hp:19, mp:10, init:12, move:"16(四足)/―", vit:"5(12)", mres:"3(10)", weakness:"魔法ダメージ+2点", know:"12", knowval:"15", attacks:[{part:"牙",hit:"4(11)",dmg:"2d+3",evd:"5(12)",def:"2"}], abilities:["○連続攻撃 — 攻撃が命中した場合、同じ対象にもう1回攻撃できる。2回目の攻撃が命中しても、この効果はない。"], loot:["自動：グレイリンクスの毛皮(80G/赤B)","2〜9：なし","10〜：鎌の様(100G/赤緑A)"], tags:"動物" },
-  { cat:"動物", name:"パックリーダー", rank:3, intel:"動物並み", percep:"五感", habitat:"森・草原", hp:23, mp:11, init:13, move:"16(四足)/―", vit:"5(12)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"8", knowval:"11", attacks:[{part:"牙",hit:"5(12)",dmg:"2d+3",evd:"5(12)",def:"2"}], abilities:["○群れの統率 — 自身と同じ乱戦エリア内にいる、すべてのウルフの命中力判定と回避力判定に+1のボーナス修正を与える。この効果は複数のパックリーダーがいても累積しない。","○手早い斬撃 — 命中力判定に+1のボーナス修正を得る。この能力は、カテゴリ（金属鎧）を装備しているキャラクターには効果を持ちません。"], loot:["2〜3：なし","4〜5：狼の皮(20G/赤B)","6〜8：上質な狼の皮(50G/赤B)","9〜：きれいな狼の皮(100G/金赤A)"], tags:"動物" },
+  { cat:"動物", name:"バックリーダー", rank:3, intel:"動物並み", percep:"五感", habitat:"森・草原", hp:23, mp:11, init:13, move:"16(四足)/―", vit:"5(12)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"8", knowval:"11", attacks:[{part:"牙",hit:"5(12)",dmg:"2d+3",evd:"5(12)",def:"2"}], abilities:["○群れの統率 — 自身と同じ乱戦エリア内にいる、すべてのウルフの命中力判定と回避力判定に+1のボーナス修正を与える。この効果は複数のバックリーダーがいても累積しない。","○手早い斬撃 — 命中力判定に+1のボーナス修正を得る。この能力は、カテゴリ（金属鎧）を装備しているキャラクターには効果を持ちません。"], loot:["2〜3：なし","4〜5：狼の皮(20G/赤B)","6〜8：上質な狼の皮(50G/赤B)","9〜：きれいな狼の皮(100G/金赤A)"], tags:"動物" },
   { cat:"動物", name:"ディノス", rank:4, intel:"動物並み", percep:"五感", habitat:"寒冷地", hp:26, mp:9, init:10, move:"13/―", vit:"7(14)", mres:"5(12)", weakness:"衝撃属性ダメージ+3点", know:"9", knowval:"12", attacks:[{part:"牙(頭部)",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"3"},{part:"尾り(胴体)",hit:"7(14)",dmg:"2d+5",evd:"5(12)",def:"4"}], abilities:["▶頭部/冷気のブレス／5(12)／生命抵抗力／半減 — 「射程／形状：2(20m)／射撃」で「対象：1体」に冷気の塊を吐き出し、「2d+2」点の水・氷属性の魔法ダメージを与える。この能力は連続した手番には使用できない。","○胴体/攻撃障害＝+4・なし — 大きさが攻撃を妨げます。「部位：頭部」は、近接攻撃に対する回避力判定に+4のボーナス修正を得る。「部位：胴体」のHPが0以下となった場合、この効果は失われる。"], loot:["自動：凍った肉(90G/赤B)","2〜7：なし","8〜12：亜竜鱗(350G/赤A)","13〜：水の結晶(1600G/金S)"], tags:"動物,多部位,ブレス" },
   { cat:"動物", name:"サンドウォーム", rank:5, intel:"動物並み", percep:"五感(聴覚)", habitat:"砂漠", hp:46, mp:11, init:11, move:"20(蠕動)/20(地中)", vit:"9(16)", mres:"6(13)", weakness:"水・氷属性ダメージ+3点", know:"10", knowval:"15", attacks:[{part:"口",hit:"8(15)",dmg:"2d+10",evd:"7(14)",def:"3"}], abilities:["なし"], loot:["2〜5：なし","6〜9：砂虫石(150G/金赤A)","10〜：緑色鉱虫石(200G/金赤A)×1d"], tags:"動物" },
-
-  // ── 植物 ──
   { cat:"植物", name:"スチームポッド", rank:2, intel:"なし", percep:"魔法", habitat:"森", hp:18, mp:3, init:7, move:"5(陶芸)/―", vit:"4(11)", mres:"3(10)", weakness:"霊属性ダメージ+3点", know:"7", knowval:"11", attacks:[{part:"つる",hit:"3(10)",dmg:"2d+3",evd:"1(8)",def:"2"}], abilities:["▶不快な蒸気／必中 — 「射程：自身」「対象：1エリア（半径5m）／空間」で、蒸気から蒸気を吹き出し、生物にとって不快な環境を作っています。範囲内にいるキャラクターは、あらゆる命中力・回避力判定に-1のペナルティ修正を受ける。この効果は霊属性です。「生息地」に「森」「湿地」「洞窟」のいずれかが含まれる魔物は、この効果を受けない。"], loot:["自動：蒸気草(30G/緑B)","2〜10：なし","11〜：蒸気草の種(120G/緑A)"], tags:"植物" },
   { cat:"植物", name:"ダンシングゾーン", rank:3, intel:"なし", percep:"魔法", habitat:"草原・荒野", hp:23, mp:4, init:11, move:"10(回転)/―", vit:"5(12)", mres:"4(11)", weakness:"炎属性ダメージ+3点", know:"10", knowval:"12", attacks:[{part:"体当たり",hit:"5(12)",dmg:"2d+4",evd:"4(11)",def:"2"}], abilities:["○痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに+3点する。"], loot:["2〜8：なし","9〜：血色の花びら(120G/緑A)"], tags:"植物,痛恨" },
   { cat:"植物", name:"ブラッディーペタル", rank:5, intel:"なし", percep:"魔法", habitat:"森", hp:58, mp:20, init:10, move:"5(多足)/―", vit:"11(18)", mres:"9(16)", weakness:"炎属性ダメージ+3点", know:"11", knowval:"14", attacks:[{part:"なし(胴体)",hit:"―",dmg:"―",evd:"5(12)",def:"2"},{part:"花(花×3〜5)",hit:"7(14)",dmg:"2d+8",evd:"6(13)",def:"1"}], abilities:["○胴体/再生＝5点 — 手番の終了時に、すべての「部位：胴体」と「部位：花」のHPが「5」点ずつ回復します。この能力は、すでにHPが0になった部位には効果がありません。「部位：胴体」のHPが0以下となった場合、この能力は失われる。","○花/麻痺の毒／7(14)／生命抵抗力／消滅 — 花での攻撃が命中した場合、対象に10秒(1ラウンド)の間、命中力・回避力判定に-1のペナルティ修正を与える。この効果は蓄積します。この効果は毒属性です。"], loot:["自動：血色の花びら(120G/緑A)","2〜8：なし","9〜：赤い果実(300G/緑A)"], tags:"植物,毒,多部位" },
-
-  // ── アンデッド ──
   { cat:"アンデッド", name:"スケルトン", rank:1, intel:"低い", percep:"魔法", habitat:"遺跡・墓地", hp:15, mp:"―", init:10, move:"8/―", vit:"2(9)", mres:"4(11)", weakness:"回復効果ダメージ+3点", know:"6", knowval:"11", attacks:[{part:"武器",hit:"2(9)",dmg:"2d",evd:"2(9)",def:"3"}], abilities:["○精神効果無効","○骨の身体 — 刃武器から、クリティカルを受けません。"], loot:["2〜5：なし","6〜10：頑丈な骨(30G/赤B)","11〜：魔力を帯びた骨(250G/金赤A)"], tags:"アンデッド" },
   { cat:"アンデッド", name:"レブナント", rank:"1〜", intel:"低い", percep:"魔法", habitat:"さまざま", hp:"＊+10", mp:"―", init:"＊-2", move:"＊", vit:"＊", mres:"＊", weakness:"回復効果ダメージ+3点", know:"8", knowval:"14", attacks:[{part:"武器等",hit:"＊+2",dmg:"＊+2",evd:"＊-2",def:"＊"}], abilities:["○精神効果無効","○生前による — この魔物の強さは、生前のそれに依存します。各種数値で、「＊」となっている場所に、生前の数値を当てはめてください。レベルは「生前の数値+1」です。","○再生＝3点 — 手番の終了時に、HPが「3」点回復します。HPが0以下になると、この能力は失われます。"], loot:["2〜5：なし","6〜10：砕れた骨(50G/赤B)","11〜：壊れた頭蓋骨(300G/赤A)"], tags:"アンデッド" },
   { cat:"アンデッド", name:"ゴースト", rank:2, intel:"人間並み", percep:"魔法", habitat:"さまざま", hp:20, mp:20, init:11, move:"―/10(浮遊)", vit:"5(12)", mres:"4(11)", weakness:"魔法ダメージ+2点", know:"10", knowval:"13", attacks:[{part:"腕",hit:"3(10)",dmg:"2d",evd:"3(10)",def:"0"}], abilities:["○通常武器無効","▶誘惑／4(11)／精神抵抗力／消滅 — 「射程／形状：1(10m)／記点指定」で「対象：1体全」に誘惑を聞かせます。対象は、ゴーストの思いのままに動かされます。何も選ばなければ、その場に茫然と突っ立っています。対象は、精神効果属性（霊）として扱い1日間持続します。"], loot:["2〜11：なし","12〜：悩みの涙の結晶(500G/白A)"], tags:"アンデッド,浮遊" },
@@ -388,123 +344,188 @@ const monsters = [
   { cat:"アンデッド", name:"ドライコープス", rank:3, intel:"低い", percep:"魔法", habitat:"遺跡・墓地", hp:25, mp:"―", init:13, move:"16/―", vit:"5(12)", mres:"5(12)", weakness:"炎属性ダメージ+3点", know:"8", knowval:"13", attacks:[{part:"爪",hit:"5(12)",dmg:"2d+2",evd:"5(12)",def:"2"}], abilities:["○精神効果無効","○連続攻撃 — 攻撃が命中した場合、同じ対象にもう1回攻撃できる。2回目の攻撃が命中しても、この効果はない。"], loot:["2〜10：砕れた骨(50G/赤B)","11〜：壊れた頭蓋骨(300G/赤A)"], tags:"アンデッド" },
   { cat:"アンデッド", name:"ファントム", rank:5, intel:"人間並み", percep:"魔法", habitat:"さまざま", hp:42, mp:16, init:13, move:"―/11(浮遊)", vit:"6(13)", mres:"8(15)", weakness:"回復効果ダメージ+3点", know:"10", knowval:"16", attacks:[{part:"鎌",hit:"6(13)",dmg:"2d+4",evd:"7(14)",def:"0"}], abilities:["○通常武器無効","▶死者への祝福／5(12)／任意 — 「射程：自身」「対象：2〜3エリア（半径10m）／すべて」で、自身以外の「分類：アンデッド」のキャラクターを強化します。対象は、10秒（1ラウンド）の間、命中力判定に+2のボーナス修正を受け、打撃点が+2点されます。この効果は呪い属性です。","▶怨念の呼び声／7(14)／精神抵抗力／半減 — 「射程：自身」「対象：1エリア（半径6m）／すべて」で、生者を呪う叫びを発します。「分類：アンデッド」以外のすべての対象は「2d+2」点の呪い属性の魔法ダメージを受けます。この能力は連続した手番には使えない。"], loot:["2〜6：なし","7〜10：古びた外套(200G/白A)","11〜：年経たマント(800G/白A)"], tags:"アンデッド,浮遊" },
   { cat:"アンデッド", name:"デュラハン", rank:7, intel:"人間並み", percep:"魔法", habitat:"不明", hp:53, mp:44, init:16, move:"25(四足&車輪)/―", vit:"10(17)", mres:"10(17)", weakness:"回復効果ダメージ+3点", know:"11", knowval:"18", attacks:[{part:"剣(本体)",hit:"10(17)",dmg:"2d+12",evd:"9(16)",def:"5"},{part:"突進(戦車)",hit:"8(15)",dmg:"2d+14",evd:"7(14)",def:"7"},{part:"蹄(馬)",hit:"9(16)",dmg:"2d+8",evd:"8(15)",def:"3"},{part:"蹄(馬)",hit:"9(16)",dmg:"2d+8",evd:"8(15)",def:"3"}], abilities:["○本体/通常武器無効","▶本体/真語魔法・神聖魔法5レベル／魔力8(15)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《バイオレントキャストI》を習得している。","○戦車/鉄の身体 — 刃武器から、クリティカルを受けません。","○戦車/攻撃障害＝不可・なし — 大きさが攻撃を妨げます。「部位：本体」は、近接攻撃の対象になりません。","💬馬/全力攻撃I — 打撃点を+4点する。リスクとして、回避力判定に-2のペナルティ修正を受ける。","○馬/機動力低下 — 「部位：馬」のいずれかのHPが0以下になった場合、そのとのうちの1つのことに、移動力が-10されます。"], loot:["2〜4：なし","5〜7：廃材(200G/金緑A)","8〜12：上質な廃材(500G/金緑A)","13〜：ミスリル(2600G/金S)"], tags:"アンデッド,多部位,魔法" },
-
-  // ── 魔法生物 ──
   { cat:"魔法生物", name:"ガスト", rank:1, intel:"命令を聞く", percep:"魔法", habitat:"森・洞窟・遺跡", hp:14, mp:"―", init:9, move:"15/―", vit:"2(9)", mres:"2(9)", weakness:"物理ダメージ+2点", know:"5", knowval:"10", attacks:[{part:"爪",hit:"3(10)",dmg:"2d+2",evd:"2(9)",def:"0"}], abilities:["なし"], loot:["2〜9：なし","10〜：魔力を帯びた石(250G/金赤A)"], tags:"魔法生物" },
   { cat:"魔法生物", name:"チープストーン", rank:2, intel:"なし", percep:"魔法", habitat:"洞窟・遺跡", hp:13, mp:"―", init:8, move:"8(回転)/―", vit:"3(10)", mres:"3(10)", weakness:"純エネルギー属性ダメージ+3点", know:"7", knowval:"10", attacks:[{part:"体当たり",hit:"3(10)",dmg:"2d+1",evd:"4(11)",def:"3"}], abilities:["▶もぐりこむ／2(9)／危険感知判定／消滅 — 「射程：接触」で「対象：1体」の足下にもぐりこみ、対象を転倒させます。"], loot:["2〜9：なし","10〜11：魔晶石(1点)(50G/―)","12〜：魔晶石(2点)(100G/―)"], tags:"魔法生物" },
-  { cat:"魔法生物", name:"ガーゴイル", rank:3, intel:"命令を聞く", percep:"魔法", habitat:"遺跡", hp:26, mp:"―", init:12, move:"15/30(飛行)", vit:"4(11)", mres:"4(11)", weakness:"衝撃属性ダメージ+3点", know:"9", knowval:"14", attacks:[{part:"爪",hit:"5(12)",dmg:"2d+4",evd:"4(11)",def:"3"}], abilities:["○擬態／12／危険感知／消滅 — 石像に擬態します。擬態中は、この魔物に対し、魔物知識判定を行うことはできません。本用意に接近した場合、目標値12の危険感知判定を行い、失敗したら不意打ちを受けます。動を開始したら、擬態は自動的に解除されます。【センス・マジック】などの魔法に反応します。","○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。"], loot:["2〜7：鋭利な石(20G/黒B)","8〜：魔力を帯びた石(250G/金A)"], tags:"魔法生物,飛行" },
-  { cat:"魔法生物", name:"ドアイミテイター", rank:3, intel:"命令を聞く", percep:"魔法", habitat:"遺跡", hp:22, mp:"―", init:10, move:"―/5(浮遊)", vit:"5(12)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"9", knowval:"12", attacks:[{part:"体当たり",hit:"5(12)",dmg:"2d+7",evd:"3(10)",def:"5"}], abilities:["○擬態／11／危険感知／消滅 — 扉に擬態します。擬態中は、この魔物に対し、魔物知識判定を行うことはできません。本用意に接近した場合、目標値11の危険感知判定を行い、失敗したら不意打ちを受けます。動を開始したら、擬態は自動的に解除されます。【センス・マジック】などの魔法に反応します。","○叩きつける — 体当たりの攻撃が命中した場合、対象を地面に叩きつけ、その場に転倒させます。"], loot:["2〜6：なし","7〜11：廃材(200G/金緑A)","12〜：上質な廃材(500G/金緑A)"], tags:"魔法生物,浮遊" },
+  { cat:"魔法生物", name:"ガーゴイル", rank:3, intel:"なし", percep:"魔法", habitat:"遺跡", hp:26, mp:"―", init:12, move:"15/30(飛行)", vit:"4(11)", mres:"4(11)", weakness:"衝撃属性ダメージ+3点", know:"9", knowval:"14", attacks:[{part:"爪",hit:"5(12)",dmg:"2d+4",evd:"4(11)",def:"3"}], abilities:["○擬態／12／危険感知／消滅 — 石像に擬態します。擬態中は、この魔物に対し、魔物知識判定を行うことはできません。本用意に接近した場合、目標値12の危険感知判定を行い、失敗したら不意打ちを受けます。動を開始したら、擬態は自動的に解除されます。【センス・マジック】などの魔法に反応します。","○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。"], loot:["2〜7：鋭利な石(20G/黒B)","8〜：魔力を帯びた石(250G/金A)"], tags:"魔法生物,飛行" },
+  { cat:"魔法生物", name:"ドアイミテイター", rank:3, intel:"なし", percep:"魔法", habitat:"遺跡", hp:22, mp:"―", init:10, move:"―/5(浮遊)", vit:"5(12)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"9", knowval:"12", attacks:[{part:"体当たり",hit:"5(12)",dmg:"2d+7",evd:"3(10)",def:"5"}], abilities:["○擬態／11／危険感知／消滅 — 扉に擬態します。擬態中は、この魔物に対し、魔物知識判定を行うことはできません。本用意に接近した場合、目標値11の危険感知判定を行い、失敗したら不意打ちを受けます。動を開始したら、擬態は自動的に解除されます。【センス・マジック】などの魔法に反応します。","○叩きつける — 体当たりの攻撃が命中した場合、対象を地面に叩きつけ、その場に転倒させます。"], loot:["2〜6：なし","7〜11：廃材(200G/金緑A)","12〜：上質な廃材(500G/金緑A)"], tags:"魔法生物,浮遊" },
   { cat:"魔法生物", name:"ガストナイト", rank:4, intel:"命令を聞く", percep:"魔法", habitat:"遺跡", hp:32, mp:"―", init:11, move:"8/―", vit:"7(14)", mres:"4(11)", weakness:"物理ダメージ+2点", know:"7", knowval:"13", attacks:[{part:"武器",hit:"6(13)",dmg:"2d+8",evd:"5(12)",def:"2"}], abilities:["なし"], loot:["2〜6：なし","7〜11：魔力を帯びた石(250G/金A)","12〜：高密度の魔石(700G/金A)"], tags:"魔法生物" },
-  { cat:"魔法生物", name:"ホムンクルス", rank:5, intel:"人間並み", percep:"五感", habitat:"さまざま", hp:39, mp:37, init:14, move:"16/―", vit:"7(14)", mres:"8(15)", weakness:"物理ダメージ+2点", know:"10", knowval:"15", attacks:[{part:"武器",hit:"7(14)",dmg:"2d+4",evd:"6(13)",def:"6"}], abilities:["▶真語魔法・操霊魔法3レベル／魔力6(13)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《魔法拡大／数》《ワードブレイク》を習得している。"], loot:["自動：ゼロ年以前の物品(100G/赤A)","2〜12：なし","13〜：古代文字の小石(2,000G/白S)"], tags:"魔法生物,魔法" },
-
-  // ── 魔動機 ──
+  { cat:"魔法生物", name:"ホムンクルス", rank:5, intel:"人間並み", percep:"五感", habitat:"さまざま", hp:39, mp:37, init:14, move:"16/―", vit:"7(14)", mres:"8(15)", weakness:"物理ダメージ+2点", know:"10", knowval:"15", attacks:[{part:"武器",hit:"7(14)",dmg:"2d+4",evd:"6(13)",def:"6"}], abilities:["▶真語魔法・操霊魔法3レベル／魔力6(13)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《魔法拡大／数》《ワードブレイク》を習得している。"], loot:[], tags:"魔法生物,魔法" },
   { cat:"魔動機", name:"ドルン", rank:2, intel:"命令を聞く", percep:"機械", habitat:"遺跡・人里", hp:18, mp:"―", init:8, move:"13(車輪)/―", vit:"3(10)", mres:"3(10)", weakness:"霊属性ダメージ+3点", know:"9", knowval:"12", attacks:[{part:"ハンマー",hit:"3(10)",dmg:"2d+4",evd:"3(10)",def:"2"}], abilities:["○機械の身体 — 刃武器から、クリティカルを受けません。"], loot:["自動：鉄(20G/黒B)","2〜10：なし","11〜：粗悪な魔動部品(100G/黒白A)"], tags:"魔動機" },
   { cat:"魔動機", name:"ザーレィ", rank:3, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:25, mp:"―", init:9, move:"10/―", vit:"5(12)", mres:"5(12)", weakness:"衝撃属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"体当たり",hit:"4(11)",dmg:"2d+3",evd:"4(11)",def:"3"}], abilities:["○マナコーティング(1) — 自身が受けるあらゆる魔法ダメージを「-1」点します。この能力は、連続した手番にも使用できない。","▶光弾／5(12)／精神抵抗力／半減 — 前傾姿勢となり、発射筒から光弾を射ち出します。この能力は、手番における移動の種別が「射程移動」でなければ使用できません。また、連続した手番には使用できません。","○ターゲッティング — 乱戦エリア内のキャラクターを対象に「光弾」を使用しても誤射しません。"], loot:["自動：耐魔素材(40G/金黒B)","2〜8：なし","9〜：粗悪な魔動部品(100G/黒白A)"], tags:"魔動機" },
-  { cat:"魔動機", name:"ブルドルン", rank:4, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:32, mp:"―", init:10, move:"14(車輪)/―", vit:"6(13)", mres:"6(13)", weakness:"霊属性ダメージ+3点", know:"11", knowval:"14", attacks:[{part:"ハンマー(右半身)",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"4"},{part:"ハンマー(左半身)",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"4"}], abilities:["○全身/機械の身体 — 刃武器から、クリティカルを受けません。","▶ハンマースロー＆引き戻し／5(12)／回避力／消滅 — 「射程／形状：1(10m)／射撃」で「対象：1体」に、「2d+4」点の物理ダメージを与えます。この能力を使用した部位は、次の手番開始時まで自身の回避力判定に-1のペナルティ修正を受けます。結んでいる鎖で引き戻して再使用を可能にします。"], loot:["自動：鉄(20G/黒B)","2〜5：なし","6〜9：粗悪な魔動部品(100G/黒白A)","10〜：魔動部品(300G/黒白A)"], tags:"魔動機,多部位" },
-  { cat:"魔動機", name:"シャザーレィ", rank:5, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:30, mp:"―", init:11, move:"10(四足)/―", vit:"7(14)", mres:"7(14)", weakness:"衝撃属性ダメージ+3点", know:"12", knowval:"15", attacks:[{part:"筒(発射筒)",hit:"7(14)",dmg:"2d+4",evd:"7(14)",def:"3"},{part:"体当たり(胴体)",hit:"7(14)",dmg:"2d+6",evd:"7(14)",def:"4"}], abilities:["○全身/マナコーティング(1) — 自身が受けるあらゆる魔法ダメージを「-1」点します。","▶発射筒/光弾／7(14)／精神抵抗力／半減 — 眩いだしいエネルギー光の束を投げかけて攻撃します。「射程／形状：2(20m)／貫通」で、対象に「2d+5」点の純エネルギー属性の魔法ダメージを与えます。この能力は連続した手番には使えない。","○全身/ターゲッティング＆鷹の目 — 乱戦エリア内のキャラクターを「光弾」の目標（⇒181頁）に選ぶことができます。また、遮蔽越しに目標を定めることも可能です。","○胴体/攻撃障害＝+4・なし — 大きさが攻撃を妨げます。「部位：発射筒」は、近接攻撃に対する回避力判定に+4のボーナス修正を得る。「部位：胴体」のHPが0以下となった場合、この効果は失われる。","○胴体/機動力喪失 — 「部位：胴体」のHPが0となった場合、まったく移動できなくなります。"], loot:["自動：耐魔素材(40G/金黒B)","2〜5：なし","6〜8：粗悪な魔動部品(100G/黒白A)","9〜：魔動部品(300G/黒白A)"], tags:"魔動機,多部位" },
-
-  // ── 幻獣 ──
-  { cat:"幻獣", name:"ディーラ", rank:3, intel:"人間並み", percep:"五感(暗視)", habitat:"森・山", hp:24, mp:21, init:11, move:"13/26(飛行)", vit:"5(12)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"8", knowval:"14", attacks:[{part:"爪",hit:"4(11)",dmg:"2d",evd:"5(12)",def:"2"}], abilities:["▶魅了の歌／3(10)／精神抵抗力／消滅 — 「射程／形状：2(20m)／記点指定」で「対象：1体」を魅了します。対象は、10秒（1ラウンド）の間、あらゆる行動判定に-2のボーナス修正を受けますが、ディーラの思いのままに命令を実行します。命令は対象に理解できる言語で行わなければならず、そして、簡単なものでなければなりません。対象の生命を直接害するようなものは効果がありません。命令は、精神効果属性（霊）として扱い、命令に含まれた命令を実行します。"], loot:["2〜9：なし","10〜：魔法文明の本(170G/白A)×1d"], tags:"幻獣,飛行" },
-  { cat:"幻獣", name:"ヘルハウンド", rank:4, intel:"低い", percep:"五感(暗視)", habitat:"遺跡", hp:38, mp:20, init:16, move:"18(四足)/―", vit:"6(13)", mres:"7(14)", weakness:"水・氷属性ダメージ+3点", know:"9", knowval:"15", attacks:[{part:"牙",hit:"7(14)",dmg:"2d+4",evd:"6(13)",def:"2"}], abilities:["○炎無効","▶炎の吐息／5(12)／生命抵抗力／半減 — 「射程：接触」で、任意の3体までの対象に炎を吐きかけ、「2d+4」点の炎属性の魔法ダメージを与える。この能力は連続した手番には使えない。"], loot:["2〜3：なし","4〜11：幻獣の皮(140G/赤A)","12〜：炎の結晶(1600G/金S)"], tags:"幻獣,炎" },
+  { cat:"魔動機", name:"マギレプリカ", rank:"2〜", intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:"＊", mp:"―", init:"＊+1", move:"＊", vit:"＊", mres:"＊", weakness:"霊属性ダメージ+3点", know:"5", knowval:"＊", attacks:[{part:"＊(＊)",hit:"＊+1",dmg:"＊",evd:"＊-1",def:"＊+5"}], abilities:["○機械の身体 — 刃武器から、クリティカルを受けません。","○モデルによる — この魔物の強さはモデルとした動物に依存します。各種数値やデータはモデルとなった「分類：動物」の魔物のもの（分類：魔動機→データ+1）とします。ただし、特殊能力はいっさい持たず、コア部位は「なし」となります。HPを回復させる効果はごく一部の魔動術や○「再生」「○癒血」などは保持しています。"], loot:["2〜5：鉄(20G/黒B)","6〜9：粗悪な魔動部品(100G/黒白A)","10〜：魔動部品(300G/黒白A)"], tags:"魔動機" },
+  { cat:"魔動機", name:"カーグナー", rank:3, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:28, mp:"―", init:9, move:"10(車輪)/―", vit:"5(12)", mres:"5(12)", weakness:"霊属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"体当たり",hit:"4(11)",dmg:"2d+4",evd:"4(11)",def:"4"}], abilities:["○機械の身体 — 刃武器から、クリティカルを受けません。","○魔動機搭乗＝2体 — 「分類：魔動機」のキャラクターを2体(2部位)まで搭載（⇒64頁）できます。","○搭載者助言＝+2・+2 — この魔物に搭載されているキャラクターは、近接攻撃と遠距攻撃に対する回避力判定に+2のボーナス修正を得ます。"], loot:["自動：鉄(20G/黒B)","2〜7：なし","8〜：粗悪な魔動部品(100G/黒白A)"], tags:"魔動機" },
+  { cat:"魔動機", name:"カッティングトーチ", rank:3, intel:"命令を聞く", percep:"機械", habitat:"遺跡・洞窟", hp:22, mp:"―", init:10, move:"12(四足)/―", vit:"5(12)", mres:"5(12)", weakness:"水・氷属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"回転刃(右半身)",hit:"5(12)",dmg:"2d+4",evd:"4(11)",def:"3"},{part:"回転刃(左半身)",hit:"4(11)",dmg:"2d+3",evd:"4(11)",def:"3"}], abilities:["○全身/溶断刃 — 回転刃の攻撃は、防護点を半分（端数切り上げ）として計算します。","○冷やる刃 — 「水・氷」属性による物理ダメージ・魔法ダメージでHPが「1」点以上減少したとき、次の手番終了時まで打撃点が4点減少します。"], loot:["自動：鉄(20G/黒B)×2","2〜9：なし","10〜：粗悪な魔動部品(100G/黒白A)"], tags:"魔動機,多部位" },
+  { cat:"魔動機", name:"ルドルン", rank:3, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:23, mp:"―", init:9, move:"13(車輪)/―", vit:"4(11)", mres:"5(12)", weakness:"霊属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"ハンマー",hit:"5(12)",dmg:"2d+5",evd:"4(11)",def:"3"}], abilities:["○機械の身体 — 刃武器から、クリティカルを受けません。"], loot:["自動：鉄(20G/黒B)","2〜8：なし","9〜：粗悪な魔動部品(100G/黒白A)"], tags:"魔動機" },
+  { cat:"魔動機", name:"バルバ", rank:4, intel:"命令を聞く", percep:"機械", habitat:"遺跡・洞窟・山岳", hp:31, mp:"―", init:11, move:"―/10(浮遊)", vit:"6(13)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"9", knowval:"15", attacks:[{part:"砲撃",hit:"6(13)",dmg:"2d+5",evd:"6(13)",def:"3"}], abilities:["▶下向近爆撃／6(13)／精神抵抗力／消滅 — 下向きに浮遊している形を崩して落下します。「射程：自身」で「対象：1エリア（半径3m）／5」に「2d+5」点の炎属性の魔法ダメージを与えます。この能力は1回しか使えません。"], loot:["自動：鉄(20G/黒B)","2〜5：なし","6〜9：粗悪な魔動部品(100G/黒白A)","10〜：魔動部品(300G/黒白A)"], tags:"魔動機,浮遊" },
+  { cat:"魔動機", name:"ブルドルン", rank:4, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:32, mp:"―", init:10, move:"14(車輪)/―", vit:"6(13)", mres:"6(13)", weakness:"霊属性ダメージ+3点", know:"11", knowval:"14", attacks:[{part:"ハンマー(右半身)",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"4"},{part:"ハンマー(左半身)",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"4"}], abilities:["○全身/機械の身体 — 刃武器から、クリティカルを受けません。","▶ハンマースロー＆引き戻し／5(12)／回避力／消滅 — 「射程／形状：1(10m)／射撃」で「対象：1体」に、「2d+4」点の物理ダメージを与えます。結んでいる鎖で引き戻して再使用を可能にします。この能力を使用した部位は、次の手番開始時まで自身の回避力判定に-1のペナルティ修正を受けます。"], loot:["自動：鉄(20G/黒B)","2〜5：なし","6〜9：粗悪な魔動部品(100G/黒白A)","10〜：魔動部品(300G/黒白A)"], tags:"魔動機,多部位" },
+  { cat:"魔動機", name:"デグカーグナー", rank:5, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:42, mp:"―", init:11, move:"10(車輪)/―", vit:"7(14)", mres:"7(14)", weakness:"霊属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"体当たり",hit:"8(15)",dmg:"2d+7",evd:"7(14)",def:"7"}], abilities:["○機械の身体 — 刃武器から、クリティカルを受けません。","○魔動機搭乗＝2体 — 「分類：魔動機」のキャラクターを2体(2部位)まで搭載（⇒64頁）できます。","○搭載者助言＝+2・+2 — この魔物に搭載されているキャラクターは、近接攻撃と遠距攻撃に対する回避力判定に+2のボーナス修正を得ます。"], loot:["自動：鉄(20G/黒B)","2〜8：なし","9〜：魔動部品(100G/黒白A)"], tags:"魔動機" },
+  { cat:"魔動機", name:"ミガ", rank:5, intel:"命令を聞く", percep:"機械", habitat:"遺跡・洞窟", hp:50, mp:"―", init:12, move:"15/―", vit:"8(15)", mres:"7(14)", weakness:"魔法ダメージ+2点", know:"13", knowval:"16", attacks:[{part:"武器腕",hit:"7(14)",dmg:"2d+6",evd:"6(13)",def:"6"}], abilities:["▶2回攻撃＆双撃 — 両方の武器腕でそれぞれ1回ずつの攻撃を行います。1回目の攻撃の結果を確認してから、2回目の攻撃を、同じ対象にさらに行うか、別の対象を選んで行うかを選べます。","▶ロケットアーム／7(14)／回避力／消滅 — 腕を遠くに向けて投射します。「射程：2(30m)」「形状：貫通」で「2d+8」点の物理ダメージを与えます。この能力は1回しか使えません。また使用すると「▶2回攻撃＆双撃」の能力は使えなくなります。","▶フェイントアーム／必中 — 補助動作として攻撃を繰り出し、相手の目線を誘導します。「射程：接触」「対象：1体」の回避力判定に-2のペナルティ修正を与えます。この効果は10秒（1ラウンド）持続します。この能力は1ラウンドに1回しか使えません。また、この能力は戦闘中に「▶ロケットアーム」を使用した後には使用できません。"], loot:["自動：鉄(20G/黒B)","2〜8：なし","9〜：魔動部品(300G/黒白A)"], tags:"魔動機" },
+  { cat:"魔動機", name:"グルバルバ", rank:6, intel:"命令を聞く", percep:"機械", habitat:"遺跡・洞窟・山岳", hp:48, mp:"―", init:13, move:"―/10(浮遊)", vit:"8(15)", mres:"7(14)", weakness:"物理ダメージ+2点", know:"13", knowval:"16", attacks:[{part:"足",hit:"9(16)",dmg:"2d+8",evd:"8(15)",def:"5"}], abilities:["▶炸裂弾投下／8(15)／精神抵抗力／半減 — 下向きに浮遊している形を崩して落下させます。「射程：自身」で「対象：1エリア（半径3m）／5」に「2d+7」点の炎属性の魔法ダメージを与えます。この能力の発射は1回しか使えません。","○魔弾広範布／必中 — 「射程：自身」「対象：1エリア（半径3m）／5」に、魔動機爆発液を散布します。対象が「分類：魔動機」のキャラクターである場合、そのHP6「2d+7」点を減少させます。この能力は1回しか使えません。また、必ず自身を対象から除外して使用します。"], loot:["自動：鉄(20G/黒B)","2〜7：粗悪な魔動部品(100G/黒白A)","8〜：魔動部品(300G/黒白A)"], tags:"魔動機,浮遊" },
+  { cat:"魔動機", name:"サローイ", rank:6, intel:"命令を聞く", percep:"機械", habitat:"遺跡・洞窟", hp:52, mp:"―", init:13, move:"40(浮遊)/―", vit:"7(14)", mres:"8(15)", weakness:"霊属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"刺(胴体)",hit:"9(16)",dmg:"2d+9",evd:"9(16)",def:"8"},{part:"車輪(車輪)",hit:"8(15)",dmg:"2d+5",evd:"7(14)",def:"8"}], abilities:["○全身/機械の身体 — 刃武器から、クリティカルを受けません。","○胴体/💬全力攻撃I — 打撃点を+4点する。リスクとして、回避力判定に-2のペナルティ修正を受けます。","○胴体/○痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに+5点します。","○胴体/▶起き上こう／8(15)／生命抵抗力／消滅 — 車輪を素早く超えた高速域に加速させます。「射程：自身」で「対象：1エリア（半径6m）／すべて」に、10秒（1ラウンド）の間、命中力または回避力判定に-1のペナルティ修正を受けます。いずれのペナルティを受けるかは対象ごとに、効果を受けるかに別に決定します。この能力は連続した手番に使用できません。","○神立ち — 「部位：車輪」のHPが0以下になった場合、「部位：胴体」は回避力に-2のペナルティ修正を受けます。"], loot:["自動：鉄(20G/黒B)","2〜6：なし","7〜：豪華な武器(500G/黒白A)"], tags:"魔動機,多部位" },
+  { cat:"魔動機", name:"バレンドルン", rank:6, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:49, mp:"―", init:12, move:"16(車輪)/―", vit:"8(15)", mres:"8(15)", weakness:"霊属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"ハンマー(胴体)",hit:"8(15)",dmg:"2d+6",evd:"7(14)",def:"6"},{part:"ハンマー(左半身)",hit:"8(15)",dmg:"2d+9",evd:"7(14)",def:"6"},{part:"単軸(単軸)",hit:"9(16)",dmg:"2d+7",evd:"6(13)",def:"8"}], abilities:["○全身/機械の身体 — 刃武器から、クリティカルを受けません。","○左半身/◎燃やす刃 — ブレードを焦熱させます。この攻撃が命中した場合、与えるダメージは炎属性になります。同時に、打撃点が（端数切り上げ）以上となります。","▶左半身/ハンマースロー＆引き戻し／7(14)／回避力／消滅 — 腕のハンマーを投擲攻撃に使い、脚部に連結している鎖で引き戻して再使用を可能にします。「射程／形状：1(10m)／射撃」で「対象：1体」に、「2d+7」点の物理ダメージを与えます。この能力を使用した部位は、次の手番開始時まで自身の回避力判定に-1のペナルティ修正を受けます。","○スラローム駆動 — 単軸の近接攻撃では2体まで対象にできます。命中力判定は一括で行い1回の命中で、ダメージは個別に決定します。","▶不規則機動 — 次の手番開始時まで、「部位：右半身」と「部位：左半身」は、回避力判定に+2のボーナス修正を得ます。この能力は連続した手番には使えません。"], loot:["自動：鉄(20G/黒B)×3","2〜7：粗悪な魔動部品(100G/黒白A)","8〜11：魔動部品(300G/黒白A)","12〜：稀少な魔動部品(900G/黒白A)"], tags:"魔動機,多部位" },
+  { cat:"魔動機", name:"シャザーレィ", rank:5, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:30, mp:"―", init:11, move:"10(四足)/―", vit:"7(14)", mres:"7(14)", weakness:"衝撃属性ダメージ+3点", know:"12", knowval:"15", attacks:[{part:"筒(発射筒)",hit:"7(14)",dmg:"2d+4",evd:"7(14)",def:"3"},{part:"体当たり(胴体)",hit:"7(14)",dmg:"2d+6",evd:"7(14)",def:"4"}], abilities:["○全身/マナコーティング(1) — 自身が受けるあらゆる魔法ダメージを「-1」点します。","▶発射筒/光弾／7(14)／精神抵抗力／半減 — 眩いだしいエネルギー光の束を投げかけて攻撃します。「射程／形状：2(20m)／貫通」で、対象に「2d+5」点の純エネルギー属性の魔法ダメージを与えます。この能力は連続した手番には使えない。","○全身/ターゲッティング＆鷹の目 — 乱戦エリア内のキャラクターを「光弾」の目標（⇒181頁）に選ぶことができます。また、遮蔽越しに目標を定めることも可能です。","▶オーバーチャージ — この能力が使用される発動すると「光弾」のダメージを「3」点上乗せします。この効果は2回（+6）まで累積します。","▶排熱限界 — いずれかの部位が「光弾」を使用した場合、稼動する部位は同じ手番に「▶発射筒/光弾」は使用できなくなります。なお3つの部位は、「部位：中発射筒」を「部位：左発射筒」と「部位：右発射筒」として部位名として続きます。"], loot:["自動：耐魔素材(40G/金黒B)×3","2〜6：粗悪な魔動部品(100G/黒白A)","7〜10：魔動部品(300G/黒白A)","11〜：稀少な魔動部品(900G/黒白A)"], tags:"魔動機,多部位" },
+  { cat:"魔動機", name:"ヒブレイザン", rank:7, intel:"命令を聞く", percep:"機械", habitat:"遺跡・洞窟", hp:55, mp:"―", init:14, move:"―/18(浮遊)", vit:"9(16)", mres:"9(16)", weakness:"霊属性ダメージ+3点", know:"14", knowval:"17", attacks:[{part:"砲撃(上半身)",hit:"9(16)",dmg:"2d+9",evd:"9(16)",def:"8"},{part:"回転刃(下半身)",hit:"9(16)",dmg:"2d+11",evd:"10(17)",def:"6"}], abilities:["○全身/炎無効","○全身/機械の身体 — 刃武器からクリティカルを受けません。","○上半身/▶2回攻撃＆双撃 — 両手でそれぞれ1回ずつ攻撃を行います。1回目の攻撃の結果を確認してから、2回目の攻撃を同じ対象か別の対象に選べます。","○下半身/溶断刃 — 回転刃による攻撃は、対象の防護点を半分（端数切り上げ）として計算します。","○冷やる刃 — 「水・氷」または「霊」属性で「1」点以上の適用ダメージを受けたとき、次の手番終了時まで打撃点が4点減少します。","○下半身/▶痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに+5点します。","▶▶機動機動 — 浮遊しながら複数な機動を取り戻します。「部位：上半身」は命中力・回避力判定に+1のボーナス修正を得ます。同時に「部位：下半身」は命中力・回避力判定に-1のペナルティ修正を受けます。この効果は1ラウンドに1回しか使用できません。連続した手番には使用できません。","▶回転ブレード／10(17)／回避力／消滅 — 下半身で刃を振り回し、周囲のものを切断します。任意の5体まで近距離攻撃を行います。この能力は連続した手番には使用できません。"], loot:["自動：魔動部品(300G/黒白A)","2〜8：なし","9〜：稀少な魔動部品(900G/黒白A)"], tags:"魔動機,多部位,浮遊" },
+  { cat:"魔動機", name:"ラングカーグナー", rank:7, intel:"命令を聞く", percep:"機械", habitat:"遺跡・山岳", hp:63, mp:"―", init:13, move:"10(車輪)/15(浮遊)", vit:"10(17)", mres:"10(17)", weakness:"物理ダメージ+3点", know:"15", knowval:"18", attacks:[{part:"体当たり",hit:"10(17)",dmg:"2d+11",evd:"9(16)",def:"7"}], abilities:["○機械の身体 — 刃武器から、クリティカルを受けません。","○魔動機搭乗＝2体 — 「分類：魔動機」のキャラクターを2体(2部位)まで搭載（⇒64頁）できます。","○搭載者助言＝+2・+2 — この魔物に搭載されているキャラクターは、近接攻撃と遠距攻撃に対する回避力判定に+2のボーナス修正を得ます。","▶風の砲撃／9(16)／精神抵抗力／半減 — 「射程／形状：2(20m)／射撃」で、強烈な風の束を噴出し、「対象：1体」に「2d+8」点の風属性の魔法ダメージを与えさらに転倒させます。また、このキャラクターの移動方法が「車輪」である（接地している）ときのみ使用できます。"], loot:["自動：鉄(20G/黒B)","2〜8：魔動部品(300G/黒白A)","9〜11：稀少な魔動部品(900G/黒白A)","12〜：未知の魔動部品(2400G/黒白S)"], tags:"魔動機" },
+  { cat:"魔動機", name:"スタースナイパー", rank:8, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:67, mp:"―", init:16, move:"10(四足)/―", vit:"11(18)", mres:"11(18)", weakness:"霊属性ダメージ+3点", know:"15", knowval:"18", attacks:[{part:"砲撃",hit:"12(19)",dmg:"2d+15",evd:"9(16)",def:"4"}], abilities:["○投擲 — 投擲の攻撃は「射程：2(100m)」の投擲攻撃として扱います。また、投擲は戦闘中に再装填できません。","○ターゲッティング＆鷹の目 — 遠距攻撃において誤射を起こしません。また、遮蔽越しに目標を定めることも可能です。","▶狙撃準備 — 対象に対して、集中して狙撃する態勢を整えます。「射程／形状：2(100m)／記点指定」で「対象：1体」に対して集中狙撃攻撃を行うことを宣言します。この魔物が、次の戦闘準備時機会に、宣言した対象に投擲攻撃を行なう場合、その打撃点が+15点されます。この動作を実行したどうか、攻撃が命中したどうかにかかわらず、主動作が完了したら、この能力の効果は失われます。"], loot:["自動：鉄(20G/黒B)","2〜7：魔動部品(300G/黒白A)","8〜10：稀少な魔動部品(900G/黒白A)","11〜：未知の魔動部品(2400G/黒白S)"], tags:"魔動機" },
+  { cat:"魔動機", name:"バルバカーグナー", rank:9, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:68, mp:"―", init:15, move:"10(車輪)/―", vit:"12(19)", mres:"12(19)", weakness:"霊属性ダメージ+3点", know:"16", knowval:"19", attacks:[{part:"機銃(右胴体)",hit:"12(19)",dmg:"2d+9",evd:"13(20)",def:"7"},{part:"機銃(左胴体)",hit:"12(19)",dmg:"2d+9",evd:"13(20)",def:"7"},{part:"単軸(台車)",hit:"11(18)",dmg:"2d+14",evd:"11(18)",def:"10"}], abilities:["○全身/機械の身体 — 刃武器から、クリティカルを受けません。","○右胴体・左胴体/ガン — 「射程：2(20m)」で発射数3のカテゴリ(ガン)の武器として扱います。","○ターゲッティング＆鷹の目 — 遠距攻撃において誤射を起こしません。また、遮蔽越しに目標を定めることも可能です。","○機銃 — 機銃の弾丸を完全に装填します。","○台車 — 「▶マリスバルバ発進」を参照します。","▶マリスバルバ発進 — 搭載されているマリスバルバ（⇒160頁）を1体発進させます。発進したマリスバルバは次のターンから行動します。次のラウンドから、その魔物と動きの連動行動ができます。この能力は1ターンに1回しか使えません。また3回までしか使用できません。","▶慢遅液散布／必中 — 「射程：接触」「対象：1体」に、魔動機慢遅液を散布します。対象が「分類：魔動機」のキャラクターである場合、そのHP6「2d+10」点を減少させます。この効果は連続した手番に使えます。また、必ず自身を対象から除外して使用します。","▶覆盤 — 「部位：台車」のHPが0以下になると、「部位：右胴体」「部位：左胴体」が近距攻撃に対するペナルティ修正を受けます。"], loot:["自動：鉄(200G/黒B)","2〜8：稀少な魔動部品(900G/黒白A)","9〜12：未知の魔動部品(2400G/黒白S)","13〜：取り出し物の魔動部品(7600G/黒白S)"], tags:"魔動機,多部位" },
+  { cat:"魔動機", name:"マリスバルバ", rank:8, intel:"命令を聞く", percep:"機械", habitat:"遺跡・洞窟・山岳", hp:61, mp:"―", init:15, move:"―/10(浮遊)", vit:"10(17)", mres:"11(18)", weakness:"物理ダメージ+2点", know:"15", knowval:"18", attacks:[{part:"機銃(胴体)",hit:"11(18)",dmg:"2d+9",evd:"11(18)",def:"6"},{part:"足(胴部)",hit:"11(18)",dmg:"2d+10",evd:"10(17)",def:"7"}], abilities:["○胴体/ガン — 「射程：2(20m)」で発射数3のカテゴリ(ガン)の武器として扱います。弾丸が尽きると、いっさいの攻撃を行えなくなります。","○胴体/▶銃1回限定 — 機銃の銃弾を完全に装填します。この効果は1回しか使用できません。","○ターゲッティング＆鷹の目 — 遠距攻撃において誤射を起こしません。また、遮蔽越しに目標を定めることも可能です。","▶胴部/射撃回数削除／10(17)／精神抵抗力／半減 — 「射程：自身」で「対象：1エリア（半径3m）／5」に「2d+10」点の炎属性の魔法ダメージを与えます。この能力は1回しか使えません。"], loot:["自動：鉄(20G/黒B)","2〜5：なし","6〜8：粗悪な魔動部品(100G/黒白A)","9〜11：稀少な魔動部品(900G/黒白A)","12〜：未知の魔動部品(2400G/黒白S)"], tags:"魔動機,多部位,浮遊" },
+  { cat:"魔動機", name:"ザーレィドルン", rank:10, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:85, mp:"―", init:16, move:"20(車輪)/―", vit:"13(20)", mres:"13(20)", weakness:"霊属性ダメージ+3点", know:"17", knowval:"21", attacks:[{part:"光弾(右胴体)",hit:"13(20)",dmg:"2d+12",evd:"12(19)",def:"9"},{part:"光弾(左胴体)",hit:"13(20)",dmg:"2d+12",evd:"12(19)",def:"9"},{part:"ハンマー(右脚部)",hit:"14(21)",dmg:"2d+15",evd:"11(18)",def:"11"},{part:"ハンマー(左脚部)",hit:"14(21)",dmg:"2d+15",evd:"11(18)",def:"11"}], abilities:["○右胴体・左胴体/マナコーティング(2) — 自身が受けるあらゆる魔法ダメージを「-2」点します。","▶右胴体・左胴体/光弾／13(20)／精神抵抗力／半減 — 眩いだしいエネルギー光の束を投げかけて攻撃します。「射程／形状：2(20m)／貫通」で、対象に「2d+10」点の純エネルギー属性の魔法ダメージを与えます。この能力は連続した手番には使えない。","○ターゲッティング＆鷹の目 — 乱戦エリア内のキャラクターを「光弾」の目標に選ぶことができます。また、遮蔽越しに目標を定めることも可能です。","▶右脚部・左脚部/ハンマースロー＆引き戻し／12(19)／回避力／消滅 — 腕のハンマーを投擲攻撃に使い、脚部に連結している鎖で引き戻して再使用を可能にします。「射程／形状：1(10m)／射撃」で「対象：1体」に、「2d+13」点の物理ダメージを与えます。この能力を使用した部位は、次の手番開始時まで自身の回避力判定に-1のペナルティ修正を受けます。"], loot:["自動：耐魔素材(40G/金黒B)×2","自動：耐魔素材(40G/金黒B)×2","2〜12：稀少な魔動部品(900G/黒白A)","13〜：取り出し物の魔動部品(7600G/黒白S)"], tags:"魔動機,多部位" },
+  { cat:"魔動機", name:"マジノヘク", rank:11, intel:"命令を聞く", percep:"機械", habitat:"遺跡・平原", hp:200, mp:"―", init:17, move:"10(四足)/―", vit:"14(21)", mres:"14(21)", weakness:"魔法ダメージ+2点", know:"18", knowval:"21", attacks:[{part:"槍",hit:"15(22)",dmg:"2d+18",evd:"10(17)",def:"20"}], abilities:["○水・氷無効","○機械の身体 — 刃武器から、クリティカルを受けません。","○限定3回攻撃 — 魔法による攻撃を最大3回行えます。同じラウンドに1つの対象に2回まで攻撃できません。","○巨躯 — このキャラクターは、移動速度の可否や乱戦エリアのサイズの決定においては、キャラクター5体分として扱います。","▶▶形態変化 — この魔物は「移動時形態」と「戦闘時形態」の2つの形態を持ち、補助動作で交互に変化できます。「移動時形態」では近距攻撃を行えません。また「C機銃＝3体」の能力を使えます。「戦闘時形態」では近距攻撃を行えます。また「○C機銃＝3体」の能力を使えます。","○機銃＝3体 — キャラクターを3体まで搭載（⇒64頁）できます。","○近距離限界 — 大きさが攻撃を妨げます。「部位：胴体」は近距離の対象にならず、また遠距離攻撃に対する回避力判定に+4のボーナス修正を得ます。「部位：胴体」のHPが0以下になった場合、この能力は失われます。","○豆狸廉価 — この魔物を倒したことで獲得できる経験点は、1体あたり「220」点です。"], loot:["自動：未知の魔動部品(2400G/黒白S)×1d"], tags:"魔動機" },
+  { cat:"魔動機", name:"レイルウェイカノン", rank:11, intel:"命令を聞く", percep:"機械", habitat:"平原", hp:80, mp:"―", init:17, move:"30(多足)/―", vit:"14(21)", mres:"14(21)", weakness:"物理ダメージ+2点", know:"16", knowval:"23", attacks:[{part:"大砲(列車砲×2)",hit:"15(22)",dmg:"2d+16",evd:"12(19)",def:"8"},{part:"大砲(列車砲×2)",hit:"15(22)",dmg:"2d+16",evd:"12(19)",def:"8"},{part:"主砲(土台×2)",hit:"13(20)",dmg:"2d+13",evd:"13(20)",def:"12"},{part:"主砲(土台×2)",hit:"13(20)",dmg:"2d+13",evd:"13(20)",def:"12"}], abilities:["○全身/機械の身体 — 刃武器から、クリティカルを受けません。","○列車砲/ターゲッティング — 遠距攻撃において誤射を起こしません。","○列車砲/ガン — 大砲「射程：2(50m)」で発射数1のカテゴリ(ガン)の武器として扱います。","▶列車砲/装弾 — 大砲に装備する。武器が装備されていなければなりません。3発の弾丸を同時に装填します。射程の命中力判定の達成値が、この能力の達成値以上で「0」になった場合、通常弾が「0」になった場合、弾丸が終了したため「連射可能」の判定に使うサイコロを振ることになります。その結果にかかわらず、弾丸が消費されます。","○土台/攻撃障害＝不可・なし — 大きさが攻撃を妨げます。「部位：土台」は近距離の対象になりません。「部位：土台」のHPが0以下になった場合、この能力は失われます。","○いずれかの「部位：土台」のHPが0以下になった場合、「部位：列車砲」の近距攻撃に対する回避力判定に-4のボーナス修正を受けます。"], loot:["自動：巨大な魔動部品(3000G/黒白S)","2〜6：稀少な魔動部品(900G/黒白A)","7〜10：未知の魔動部品(2400G/黒白S)","11〜：取り出し物の魔動部品(7600G/黒白S)"], tags:"魔動機,多部位" },
+  { cat:"魔動機", name:"コロッサス：ボーン", rank:13, intel:"命令を聞く", percep:"機械", habitat:"さまざま", hp:120, mp:"―", init:20, move:"40(大足)/―", vit:"16(23)", mres:"16(23)", weakness:"物理ダメージ+2点", know:"19", knowval:"24", attacks:[{part:"なし(板)",hit:"―",dmg:"―",evd:"16(23)",def:"10"},{part:"武器(胴体)",hit:"17(24)",dmg:"2d+18",evd:"15(22)",def:"8"},{part:"武器(胴体)",hit:"17(24)",dmg:"2d+18",evd:"15(22)",def:"8"},{part:"武器(胴部×2)",hit:"16(23)",dmg:"2d+15",evd:"13(20)",def:"10"},{part:"武器(胴部×2)",hit:"16(23)",dmg:"2d+15",evd:"13(20)",def:"10"}], abilities:["○機械の身体 — 刃武器から、クリティカルを受けません。","○マナコーティング(3) — 自身が受けるあらゆる魔法ダメージを「-3」点します。","○幹/▶魔動機制10レベル／魔力13(20)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《魔法拡大すべて》《ワードブレイク》を習得しています。","▶胴部/射撃プロトコル／15(22)／精神抵抗力／半減 — 下半身が重い動きによってHPが残高が30以下となっている場合、どちらかの条件のHPが30以下となっていれば必ず実行されます。「射程：自身」でため動作「対象：全エリア（半径30m）／すべて」に、その「部位：胴部」の命令によるプロトコルが解除されます。その後、その部位に「2d+10」点の炎属性の魔法ダメージを与えます。この能力は1回しか使用できません。","○連続攻撃 — 攻撃が命中した場合、同じ対象にもう1回攻撃できます。2回目の攻撃が命中しても、この効果はありません。","○噛い付つ — 命中力判定に+2のボーナス修正を得ます。同時に、自身の打撃点が-4されます。","▶胴部 — 「部位：板」のHPが0以下になった場合、「部位：胴体」と「部位：胴部×2」は回避力判定に-2のペナルティ修正を受けます。","▶踏み与し／15(22)／生命抵抗力／半減 — 周囲を踏み与し、振り回して攻撃します。「射程：自身」で「対象：全エリア（半径3m）／すべて」「2d+12」点の土属性の魔法ダメージを与えます。この能力を使用した後は、同じラウンドに他の「部位：胴体」が使用することはできません。"], loot:["自動：巨兵の命石(5000G/金黒S)","2〜6：稀少な魔動部品(900G/黒白A)","7〜10：未知の魔動部品(2400G/黒白S)","11〜：取り出し物の魔動部品(7600G/黒白S)"], tags:"魔動機,多部位" },
+  { cat:"魔動機", name:"ドラゴンフォートレス", rank:15, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:145, mp:"―", init:22, move:"20/50(飛行)", vit:"21(28)", mres:"19(26)", weakness:"霊属性ダメージ+3点", know:"17", knowval:"20", attacks:[{part:"牙(頭部)",hit:"17(24)",dmg:"2d+16",evd:"18(25)",def:"13"},{part:"主砲(胴体)",hit:"19(26)",dmg:"2d+18",evd:"16(23)",def:"11"},{part:"副砲(副砲)",hit:"17(24)",dmg:"2d+16",evd:"17(24)",def:"12"},{part:"翼(翼)",hit:"17(24)",dmg:"2d+15",evd:"17(24)",def:"10"},{part:"足(足×2)",hit:"18(25)",dmg:"2d+17",evd:"17(24)",def:"10"}], abilities:["○全身/機械の身体 — 刃武器から、クリティカルを受けません。","▶頭部/応炎砲射／18(25)／精神抵抗力／半減 — 「射程：形状：2(50m)／射撃」で「対象：1エリア（半径6m）／20」に「2d+20」点の炎属性の魔法ダメージを与えます。この能力は連続した手番には使えない。","○全身/ターゲッティング＆鷹の目 — 遠距攻撃において誤射を起こしません。また、遮蔽越しに目標を定めることも可能です。","▶胴体＆翼/武器 — 大砲に装置する。武器が3発以上の弾丸が装備されていなければならず、3発の弾丸を同時に消費します。この効果が発生すると、打撃点は変わりません。同一のドラゴンフォートレスは、同じ対象に対しては、1ラウンドに1回しか使えません。","▶胴体/攻撃障害＝不可・不可 — 大きさが攻撃を妨げます。「部位：胴体」は近距離攻撃の対象になりません。「部位：胴体」のいずれかのHPが0以下になった場合、この能力は失われます。","○一覧 — すべての「部位：胴体」のHPが0以下になった場合、「部位：頭部」は回避力に-4のペナルティ修正を受けます。","○翼/飛翔II — 翼の部位は、近接攻撃における命中力・回避力判定に+2のボーナス修正を得ます。「部位：翼」のいずれかのHPが0以下になった場合、この能力は失われます。"], loot:["自動：稀少な魔動部品(900G/黒白A)","2〜9：未知の魔動部品(2400G/黒白S)","10〜12：取り出し物の魔動部品(7600G/黒白S)","13〜：斬新な魔動部品(25000G/黒白SS)"], tags:"魔動機,多部位,飛行" },
+  { cat:"魔動機", name:"コロッサス：ナイト", rank:16, intel:"命令を聞く", percep:"機械", habitat:"さまざま", hp:140, mp:"―", init:23, move:"50(大足)/―", vit:"21(28)", mres:"20(27)", weakness:"物理ダメージ+2点", know:"19", knowval:"26", attacks:[{part:"剣(右上半身)",hit:"20(27)",dmg:"2d+24",evd:"19(26)",def:"15"},{part:"剣(左上半身)",hit:"20(27)",dmg:"2d+24",evd:"19(26)",def:"15"},{part:"盾(前下半身)",hit:"18(25)",dmg:"2d+28",evd:"18(25)",def:"18"},{part:"蹴り(後下半身)",hit:"18(25)",dmg:"2d+18",evd:"18(25)",def:"18"}], abilities:["○全身/機械の身体 — 刃武器から、クリティカルを受けません。","○全身/マナコーティング(4) — 自身が受けるあらゆる魔法ダメージを「-4」点します。","○コロッサス：トランプル — 「形状：突撃」で攻撃を行います。この魔物のいずれかの近接攻撃を受けます。すべての部位の命中力に+2のボーナス修正を得ます。打撃点を+0点します。","○右上半身・左上半身/▶2回攻撃＆双撃 — 剣をそれぞれ1回ずつの攻撃を行います。1回目の攻撃の結果を確認してから、2回目の攻撃を、同じ対象にさらに行うか、別の対象を選んで行うかを選べます。","○前下半身・後下半身/移動障害 — 「部位：前下半身」または「部位：後下半身」のHPが0以下となった場合、「部位：右上半身」および「部位：左上半身」の回避力判定に-2のペナルティ修正を受けます。両方のHPが0以下になったら、ペナルティ修正は-4となります。","▶後下半身/急速メンテナンス — 自身の任意の部位のHPを「2d×5」点回復させます。この能力は連続した手番には使えません。","▶上を使する — 行動を終えた後に土台を立て上げるよう、攻撃を続けます。10秒（1ラウンド）の間、この魔物と同じエリアにいる（基本戦闘・精鋭戦闘）でないキャラクターはすべてその射程・命中力・回避力に+2のボーナス修正が発生します。"], loot:["自動：巨兵の青核(8000G/金黒S)","2〜8：未知の魔動部品(2400G/黒白S)","9〜：取り出し物の魔動部品(7600G/黒白S)"], tags:"魔動機,多部位" },
+  { cat:"魔動機", name:"マテリアルディーラー", rank:12, intel:"命令を聞く", percep:"機械", habitat:"遺跡", hp:111, mp:"―", init:19, move:"20(四足)/―", vit:"15(22)", mres:"16(23)", weakness:"霊属性ダメージ+3点", know:"19", knowval:"22", attacks:[{part:"カード",hit:"15(22)",dmg:"2d+16",evd:"14(21)",def:"10"}], abilities:["▶カード投擲 — カードの攻撃「射程：1(10m)」の投擲攻撃として扱い、命中したら、新たな攻撃を行えます。カードは無限に生成されるため、何度でも使用可能です。","○ターゲッティング＆鷹の目 — 遠距攻撃において誤射を起こしません。また、遮蔽越しに目標を定めることも可能です。","▶▶練技／15(22) — 練技「ヴァーバルウェポン」【クリティカルレイ】【スラッシュフィールド】【ヒールスプレイ】を習得しています。使用する際は、補助動作として行えます。すべての戦略行使を行う場合は、練技の利用はこの能力を発動した後でなければ行えません。練技はすべてのカードの枚数分だけ使用できます。カードの枚数を使用する為には、適切な手が必要で「状態は終了」となります。","▶狂乱のカードディール／必中 — カードを引いたり並べたりした後に、「対象：1エリア（半径6m）／20」に向かって、それぞれ1d枚飛ばします。出目「1〜3」は基本武器の物理ダメージ、出目「4〜6」は炎属性の魔法ダメージを与えます。この能力を使用するには、HPを10点消費します。"], loot:["自動：演奏カード(50G/白B)","2〜8：稀少な魔動部品(9000G/黒白A)","9〜11：未知の魔動部品(2400G/黒白S)","12〜：取り出し物の魔動部品(7600G/黒白S)"], tags:"魔動機" },
+  { cat:"魔動機", name:"スカイシップ", rank:14, intel:"命令を聞く", percep:"機械", habitat:"不定", hp:200, mp:"―", init:19, move:"―/50(浮遊)", vit:"18(25)", mres:"17(24)", weakness:"炎属性ダメージ+3点", know:"16", knowval:"19", attacks:[{part:"なし",hit:"―",dmg:"―",evd:"15(22)",def:"20"}], abilities:["○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得ます。","○メタ搭乗＝10体 — 飛行している魔物を最大で10体まで搭乗（⇒64頁）させることができます。ただし、「○メタ搭乗」能力を持つもの自体は搭乗できません。","▶自壊 — 「部位：板」のHPが0以下になると、船内全体に爆発が起きます。すべての部位の命中力・回避力判定に-2、搭乗を行うすべてのキャラクターに+2のダメージが行き渡ります。"], loot:["自動：壊れた魔動部品(50G/黒B)×5"], tags:"魔動機,浮遊" },
   { cat:"幻獣", name:"サンダーバード", rank:5, intel:"低い", percep:"五感", habitat:"山岳", hp:37, mp:22, init:14, move:"―/50(飛行)", vit:"8(15)", mres:"8(15)", weakness:"魔法ダメージ+2点", know:"10", knowval:"16", attacks:[{part:"嘴(胴体)",hit:"7(14)",dmg:"2d+8",evd:"7(14)",def:"5"},{part:"翼(翼)",hit:"8(15)",dmg:"2d+6",evd:"6(13)",def:"3"},{part:"翼(翼)",hit:"8(15)",dmg:"2d+6",evd:"6(13)",def:"3"}], abilities:["○全身/雷無効","▶胴体/雷撃／6(13)／精神抵抗力／半減 — 「射程：自身」「対象：1エリア（半径6m）／20」で雷を召喚し、対象に「2d+4」点の雷属性の魔法ダメージを与える。この能力は連続した手番には使えない。","○翼/飛翔 — すべての部位は、近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。「部位：翼」のいずれかのHPが0以下になった場合、この能力は失われる。"], loot:["2〜7：なし","8〜10：幻獣の翼(350G/赤A)","11〜：雷の結晶(1600G/金S)"], tags:"幻獣,飛行,多部位" },
+  { cat:"幻獣", name:"アクリス", rank:2, intel:"高い", percep:"五感", habitat:"水辺", hp:18, mp:10, init:9, move:"12(四足)/―", vit:"4(11)", mres:"3(10)", weakness:"物理ダメージ+2点", know:"9", knowval:"12", attacks:[{part:"噛み付き(前半身)",hit:"4(11)",dmg:"2d+1",evd:"4(11)",def:"3"},{part:"尾(後半身)",hit:"4(11)",dmg:"2d+4",evd:"3(10)",def:"4"}], abilities:["○前半身/▶嗚咽の声／3(10)／生命抵抗力／消滅 — 「射程：自身」で「対象：半径3m（1エリア）／すべて」に声で叫び上げます。10秒（1ラウンド）の間、命中力・回避力判定に-1のペナルティ修正を受けます。この能力は1ラウンドに1回だけ使用でき、連続した手番には使えません。","○後半身/崩立ち — 「部位：後半身」のHPが0以下になった場合、「部位：前半身」の命中力・回避力判定に-2のペナルティ修正を受けます。"], loot:["2〜6：なし","7〜10：白いべ毛(60G/赤B)","11〜：純白の毛皮(130G/赤A)"], tags:"幻獣,多部位" },
+  { cat:"幻獣", name:"ディーラ", rank:3, intel:"人間並み", percep:"五感(暗視)", habitat:"森・山", hp:24, mp:21, init:11, move:"13/26(飛行)", vit:"5(12)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"8", knowval:"14", attacks:[{part:"爪",hit:"4(11)",dmg:"2d",evd:"5(12)",def:"2"}], abilities:["▶魅了の歌／3(10)／精神抵抗力／消滅 — 「射程／形状：2(20m)／記点指定」で「対象：1体」を魅了します。対象は、10秒（1ラウンド）の間、あらゆる行動判定に-2のボーナス修正を受けますが、ディーラの思いのままに命令を実行します。命令は対象に理解できる言語で行わなければならず、そして、簡単なものでなければなりません。対象の生命を直接害するようなものは効果がありません。命令は、精神効果属性（霊）として扱い、命令に含まれた命令を実行します。"], loot:["2〜9：なし","10〜：魔法文明の本(170G/白A)×1d"], tags:"幻獣,飛行,魔法" },
+  { cat:"幻獣", name:"カマウェト", rank:4, intel:"人間並み", percep:"五感", habitat:"海洋", hp:33, mp:16, init:10, move:"5(蛙歩)/30(水中)", vit:"7(14)", mres:"6(13)", weakness:"霊属性ダメージ+3点", know:"5", knowval:"12", attacks:[{part:"体当たり",hit:"5(12)",dmg:"2d+4",evd:"5(12)",def:"3"}], abilities:["○水中特化 — 水中の行動にペナルティ修正を受けません。逆に、地上ではすべての行動判定に-2のペナルティ修正を受けます。","○水・氷無効"], loot:["2〜6：欠けた牙(100G/赤A)","7〜：カマウェトの牙(500G/赤A)"], tags:"幻獣,水中" },
+  { cat:"幻獣", name:"ヘルハウンド", rank:4, intel:"低い", percep:"五感(暗視)", habitat:"遺跡", hp:38, mp:20, init:16, move:"18(四足)/―", vit:"6(13)", mres:"7(14)", weakness:"水・氷属性ダメージ+3点", know:"9", knowval:"15", attacks:[{part:"牙",hit:"7(14)",dmg:"2d+4",evd:"6(13)",def:"2"}], abilities:["○炎無効","▶炎の吐息／5(12)／生命抵抗力／半減 — 「射程：接触」で、任意の3体までの対象に炎を吐きかけ、「2d+4」点の炎属性の魔法ダメージを与える。この能力は連続した手番には使えない。"], loot:["2〜3：なし","4〜11：幻獣の皮(140G/赤A)","12〜：炎の結晶(1600G/金S)"], tags:"幻獣,炎" },
+  { cat:"幻獣", name:"ペガサス", rank:5, intel:"人間並み", percep:"五感", habitat:"山岳", hp:41, mp:23, init:16, move:"20(四足)/40(飛行)", vit:"6(13)", mres:"6(13)", weakness:"命中力+1", know:"9", knowval:"16", attacks:[{part:"蹄",hit:"7(14)",dmg:"2d+5",evd:"6(13)",def:"3"}], abilities:["○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得ます。","○毒・病気抵抗 — この魔物は病気属性の攻撃やダメージを受けると、常に「抵抗：住む」として扱います。"], loot:["自動：白い羽(500G/赤B)","2〜9：なし","10〜：純白のたてがみ(800G/赤A)"], tags:"幻獣,飛行" },
+  { cat:"幻獣", name:"ラタトゥスク", rank:5, intel:"人間並み", percep:"五感(暗視)", habitat:"森林", hp:44, mp:22, init:14, move:"20(四足)/―", vit:"6(13)", mres:"7(14)", weakness:"命中力+1", know:"12", knowval:"15", attacks:[{part:"牙",hit:"7(14)",dmg:"2d+6",evd:"7(14)",def:"4"}], abilities:["▶風の刃／7(14)／精神抵抗力／半減 — 「射程：形状2(30m)／記点指定」で任意のキャラクター3体に、「2d+3」点の風属性の魔法ダメージを与えます。この能力を使用すると、対象1体につきMPを3点消費します。"], loot:["自動：宝石(300G/金A)","2〜8：なし","9〜：爪い歯(400G/赤A)"], tags:"幻獣,魔法" },
+  { cat:"幻獣", name:"ヴァルグ", rank:6, intel:"低い", percep:"五感(暗視)", habitat:"ヴァルグ語・沼・丘陵", hp:58, mp:22, init:16, move:"20(四足)/―", vit:"10(17)", mres:"8(15)", weakness:"炎属性ダメージ+3点", know:"11", knowval:"16", attacks:[{part:"牙",hit:"9(16)",dmg:"2d+8",evd:"9(16)",def:"5"}], abilities:["○連廉 — 自身が存在する乱戦エリア内に、自分以外のヴァルグ（種別は問わない）の数だけ、命中力と回避力判定のボーナス修正を得ます。この修正によるボーナスは+4まで上昇します。","💬全力攻撃I — 打撃点を+4点する。リスクとして回避判定に-2のペナルティ修正を受けます。"], loot:["2〜5：幻獣の皮(140G/赤A)","6〜8：上質な幻の皮(300G/赤A)","9〜：きれいな幻の皮(800G/金赤A)"], tags:"幻獣" },
+  { cat:"幻獣", name:"エメラルドラクーン", rank:6, intel:"人間並み", percep:"五感(暗視)", habitat:"森・沼・花園", hp:52, mp:48, init:13, move:"16(四足)/―", vit:"8(15)", mres:"9(16)", weakness:"土属性ダメージ+3点", know:"12", knowval:"16", attacks:[{part:"爪",hit:"8(15)",dmg:"2d+8",evd:"8(15)",def:"6"}], abilities:["▶妖精魔法6レベル／魔力9(16) — 使用する属性は「土・水・氷・風・光・闇」です。","○魔法適性 — 戦闘特技《ターゲッティング》《魔法拡大／数》を習得しています。"], loot:["自動：緑の体毛(250G/赤A)","2〜9：なし","10〜：鮮緑の体毛(750G/赤A)"], tags:"幻獣,魔法" },
+  { cat:"幻獣", name:"ユニコーン", rank:6, intel:"高い", percep:"五感", habitat:"森・草原", hp:50, mp:80, init:14, move:"20(四足)/―", vit:"10(17)", mres:"10(17)", weakness:"命中力+1", know:"10", knowval:"15", attacks:[{part:"角",hit:"8(15)",dmg:"2d+6",evd:"7(14)",def:"5"}], abilities:["▶妖精魔法6レベル／魔力10(17) — 使用する属性は「土・水・氷・光・闇」です。","○魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《魔法拡大すべて》を習得しています。","▶癒しの角／10(17)／生命抵抗力／消滅 — 「射程：接触」「対象：1体」に角で癒します。対象は、HPとMPが最大値の50分の1ごとに、HPの確認値が1点回復します。1ラウンドに1点を限度でこの能力を使用できます。切り取られた角は、その後回収されたMPを保持しています。「一角獣の角」（⇒II）261頁、IET）137頁）としても使用できます。"], loot:["自動：一角獣の角(300G×現行MP/金赤〜SS)","2〜：なし"], tags:"幻獣,魔法" },
+  { cat:"幻獣", name:"アンタール", rank:7, intel:"人間並み", percep:"五感", habitat:"森林・山岳", hp:52, mp:68, init:13, move:"15(四足)/―", vit:"10(17)", mres:"10(17)", weakness:"魔法ダメージ+2点", know:"15", knowval:"18", attacks:[{part:"角",hit:"8(15)",dmg:"2d+8",evd:"8(15)",def:"5"}], abilities:["▶真語魔法7レベル／魔力10(17)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法拡大／数》《魔法収束》《魔法拡大術》を習得しています。","○森の怒り — 森を払うとする怒りをあらわにします。3分（18ラウンド）の間、命中力と魔力行使判定に+1のボーナス修正を受け、行動が活発化する状態になります。また、使用後、このHPの能力が0以下になった場合は解除されます。"], loot:["2〜5：なし","6〜8：白銀の体毛(600G/赤A)","9〜11：上位の白銀(1200G/赤A)","12〜：幻の姿の皮(1600G/赤S)"], tags:"幻獣,魔法" },
+  { cat:"幻獣", name:"アンフィスバエナ", rank:7, intel:"低い", percep:"五感(暗視)", habitat:"遺跡・沼地・高地", hp:42, mp:19, init:14, move:"20(四足)/40(飛行)", vit:"10(17)", mres:"9(16)", weakness:"魔法ダメージ+2点", know:"12", knowval:"18", attacks:[{part:"牙(頭部)",hit:"10(17)",dmg:"2d+9",evd:"9(16)",def:"7"},{part:"牙(尾)",hit:"10(17)",dmg:"2d+9",evd:"9(16)",def:"7"}], abilities:["○全身/毒無効","○頭/毒／10(17)／生命抵抗力／消滅 — 牙の攻撃が命中した場合、対象に「8」点の毒属性の魔法ダメージを与えます。","▶頭部/ブレス／10(17)／精神抵抗力／半減 — 「射程／形状：2(20m)／射撃」で「1エリア（半径3m）／5」の範囲にガスを吐き出します。対象に「2d」点の毒属性の魔法ダメージを与えます。この能力は連続した手番には使えません。"], loot:["2〜5：なし","6〜12：宝石(150G/金A)×1d","13〜：ミスリル(2600G/金S)"], tags:"幻獣,多部位,毒,ブレス" },
   { cat:"幻獣", name:"グリフォン", rank:7, intel:"低い", percep:"五感", habitat:"山岳", hp:58, mp:26, init:18, move:"20(四足)/40(飛行)", vit:"12(19)", mres:"9(16)", weakness:"霊属性ダメージ+3点", know:"12", knowval:"18", attacks:[{part:"嘴(胴体)",hit:"9(16)",dmg:"2d+11",evd:"11(18)",def:"5"},{part:"翼(翼)",hit:"10(17)",dmg:"2d+8",evd:"9(16)",def:"4"},{part:"翼(翼)",hit:"10(17)",dmg:"2d+8",evd:"9(16)",def:"4"}], abilities:["○全身/連続攻撃 — 攻撃が命中した場合、同じ対象にもう1回攻撃できる。2回目の攻撃が命中しても、この効果はない。","○翼/飛翔 — すべての部位は、近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。「部位：翼」のいずれかのHPが0以下になった場合、この能力は失われる。"], loot:["2〜5：なし","6〜12：宝石(150G/金A)×1d","13〜：ミスリル(2600G/金S)"], tags:"幻獣,飛行,多部位" },
-
-  // ── 魔神 ──
-  { cat:"魔神", name:"エルビレア", rank:3, intel:"動物並み", percep:"五感", habitat:"魔域", hp:24, mp:9, init:8, move:"8/―", vit:"4(11)", mres:"5(12)", weakness:"魔法ダメージ+2点", know:"9", knowval:"13", attacks:[{part:"爪",hit:"5(12)",dmg:"2d+6",evd:"4(11)",def:"3"}], abilities:["○マナ阻害の毒／4(11)／生命抵抗力／消滅 — 爪の攻撃が命中した場合、10秒(1ラウンド)の間、対象の魔力を-1します。この効果は毒属性です。"], loot:["自動：悪魔の血(100G/赤A)","2〜10：なし","11〜：アビスシャード(200G/―)"], tags:"魔神,毒" },
-  { cat:"魔神", name:"アザービースト", rank:4, intel:"低い", percep:"五感(暗視)", habitat:"地下深遠", hp:32, mp:15, init:12, move:"14(四足)/―", vit:"5(12)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"12", knowval:"15", attacks:[{part:"牙",hit:"6(13)",dmg:"2d+5",evd:"5(12)",def:"3"}], abilities:["なし"], loot:["自動：悪魔の血(100G/赤A)","2〜9：なし","10〜：悪魔の牙(300G/赤A)"], tags:"魔神" },
-  { cat:"魔神", name:"ナズラック", rank:5, intel:"人間並み", percep:"五感(暗視)", habitat:"魔域", hp:26, mp:16, init:12, move:"5/―", vit:"7(14)", mres:"7(14)", weakness:"魔法ダメージ+2点", know:"13", knowval:"16", attacks:[{part:"なし(頭部)",hit:"―",dmg:"―",evd:"6(13)",def:"4"},{part:"触手(触手)",hit:"7(14)",dmg:"2d+6",evd:"5(12)",def:"6"},{part:"触手(触手)",hit:"7(14)",dmg:"2d+6",evd:"5(12)",def:"6"}], abilities:["▶頭部/圧迫の視線／6(13)／精神抵抗力／消滅 — 「射程／形状：2(20m)／記点指定」で「対象：1体」を睨みつけ、囲みます。対象は10秒（1ラウンド）の間、あらゆる行動判定に-2のボーナス修正を受けますが、ナズラックの思いのままに動かされます。これにより、HPが0やマイナスになることもあります。対象が気絶した場合、効果は自動的に解除されます。この効果は精神効果属性です。","▶頭部/任熱の視線／6(13)／精神抵抗力／消滅 — 「射程／形状：2(20m)／記点指定」で「対象：1体」に視線を落とします。対象は3分（18ラウンド）の間、あらゆる行動判定に-2のボーナス修正を受けますが、手番の終了時に「5」点のHPを強制的に消費させ（HPは0やマイナスになることもあります）、対象が気絶した場合、効果は自動的に解除されます。この効果は精神効果属性です。","▶触手/テイルスイープ — 近接攻撃可能なキャラクターを任意に3体まで選び、それらに触手での攻撃を行います。命中力判定は一括で行い、複数に命中した場合もダメージは別々に決定します。この能力は連続した手番には使えない。","○触手/攻撃障害＝+4・なし — 大きさが攻撃を妨げます。「部位：頭部」は、近接攻撃に対する回避力判定に+4のボーナス修正を得る。「部位：触手」のいずれかのHPが0以下となった場合、この効果は失われる。"], loot:["自動：悪魔の血(100G/赤A)","2〜8：なし","9〜：アビスシャード(200G/―)"], tags:"魔神,多部位" },
-
-  // ── 人族 ──
-  { cat:"人族", name:"匪賊の雑兵", rank:2, intel:"人間並み", percep:"五感", habitat:"さまざま", hp:20, mp:10, init:9, move:"14/―", vit:"4(11)", mres:"3(10)", weakness:"なし", know:"5", knowval:"―", attacks:[{part:"武器",hit:"4(11)",dmg:"2d+2",evd:"3(10)",def:"3"}], abilities:["○剣の加護／運命変転 — 行為判定や打撃点決定で2dを振ったとき、直後にその出目をひっくり返します。この能力は1日に1回だけ使えます。"], loot:["2〜6：なし","7〜10：銀貨袋(50G/―)×1d","11〜：銀貨袋(50G/―)×1d"], tags:"人族" },
+  { cat:"幻獣", name:"ティルグリス", rank:8, intel:"人間並み", percep:"五感", habitat:"高山・森・山", hp:69, mp:24, init:16, move:"20(四足)/―", vit:"11(18)", mres:"10(17)", weakness:"斬空属性ダメージ+3点", know:"14", knowval:"17", attacks:[{part:"爪(前半身)",hit:"11(18)",dmg:"2d+9",evd:"11(18)",def:"8"},{part:"爪(後半身)",hit:"10(17)",dmg:"2d+10",evd:"10(17)",def:"7"}], abilities:["○前半身/▶2回攻撃 — 両手の爪で、1体の対象を2回攻撃します。","▶前半身/銀竜のブレス／10(17)／生命抵抗力／半減 — 「射程：形状2(20m)／射撃」で「対象：1エリア（半径3m）／5」に「2d+9」点の霊・水・氷属性の魔法ダメージを与えます。この能力は連続した手番には使えません。","○後半身/長い尾 — 尾の近距離攻撃は「射程：形状1(10m)／起点指定」として実行できます。","○後半身/痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに+7点します。"], loot:["2〜6：なし","7〜11：硬質の外皮(800G/赤A)","12〜：光る硬質の外皮(2600G/赤S)"], tags:"幻獣,多部位,ブレス" },
+  { cat:"幻獣", name:"ブルートヴァルグ", rank:8, intel:"低い", percep:"精神", habitat:"森・平原・丘陵", hp:78, mp:27, init:18, move:"20(四足)/―", vit:"12(19)", mres:"10(17)", weakness:"炎属性ダメージ+3点", know:"13", knowval:"18", attacks:[{part:"牙",hit:"11(18)",dmg:"2d+12",evd:"11(18)",def:"7"}], abilities:["○連廉 — 自身が存在する乱戦エリア内に、自分以外のヴァルグ（種別は問わない）の数だけ、命中力と回避力判定のボーナス修正を得ます。この修正によるボーナスは+4まで上昇します。","○情愛 — 自身が存在する乱戦エリア内で自分以外のヴァルグ（種別は問わない）が死亡した場合、10秒（1ラウンド）の間、打撃点を+2点します。この効果は累積します。","○最後の咆哮 — 「部位」のHPが0以下になるとき、あらゆる行動を行えなくなります。「射程：自身」で「対象：全エリア（半径30m）／すべて」のヴァルグ（種別は問わない）は、自身の行動判定に+4のボーナス修正を受けて、打撃点を+4されます。","💬全力攻撃II — 打撃点を+12点する。リスクとして、自身の回避力判定に-2のペナルティ修正を受けます。"], loot:["2〜6：幻獣の皮(140G/赤A)","7〜11：硬質の外皮(800G/赤A)","12〜：光る硬質の外皮(2600G/赤S)"], tags:"幻獣" },
+  { cat:"幻獣", name:"リングングレインディア", rank:8, intel:"低い", percep:"五感", habitat:"森・沼", hp:68, mp:27, init:16, move:"20(四足)/―", vit:"10(17)", mres:"11(18)", weakness:"物理ダメージ+2点", know:"15", knowval:"18", attacks:[{part:"角",hit:"11(18)",dmg:"2d+11",evd:"10(17)",def:"7"}], abilities:["▶基本呪歌5レベル／9(16)／全エリア（半径60m）","▶特殊呪歌【ノスタルジス】／9(16)／全エリア（半径60m） — 「▶基本呪歌】(⇒I）221頁）を使用します。ただし、どちらかの呪歌を選べますが、次のどちらかの呪歌を使うまで30秒が効果発生時間が有効です。","▶後継：草原の逃げ／9(16) — 「射程：2(60m)」で任意の3体まで対象と選び、そのHPを「2d+7」点回復させます。「分類：アンデッド」「分類：魔法生物」「分類：魔動機」のキャラクターには使えない。また、一度効果を受けたキャラクターは、続く1時間後は効果を受けません。"], loot:["2〜10：戦いの皮(200G/金黒白A)×16","11〜：漆みた皮の細(2680G/金黒白S)"], tags:"幻獣,魔法" },
+  { cat:"幻獣", name:"カトブレパス", rank:9, intel:"人間並み", percep:"魔法", habitat:"森・沼", hp:82, mp:41, init:16, move:"15(四足)/―", vit:"12(19)", mres:"12(19)", weakness:"炎属性ダメージ+3点", know:"17", knowval:"20", attacks:[{part:"角",hit:"12(19)",dmg:"2d+14",evd:"11(18)",def:"10"}], abilities:["○毒無効・病気無効・呪い無効","○水中適性","▶石化の眼視／12(19)／精神抵抗力／消滅 — 「射程：接触・視線」「対象：1体」を睨みつけ、石化進行します。この能力は1ラウンドに1度しか使用できません。"], loot:["自動：石化の像(1200G/金赤黒S)×2","2〜9：なし","10〜：ぬめめした皮(680G/赤A)"], tags:"幻獣,毒" },
+  { cat:"幻獣", name:"キマイラ", rank:9, intel:"高い", percep:"五感(暗視)", habitat:"遺跡", hp:81, mp:12, init:13, move:"13(四足)/25(飛行)", vit:"11(18)", mres:"12(19)", weakness:"魔法ダメージ+2点", know:"13", knowval:"20", attacks:[{part:"牙(獅子頭)",hit:"11(18)",dmg:"2d+13",evd:"11(18)",def:"9"},{part:"角(山羊頭)",hit:"9(16)",dmg:"2d+9",evd:"10(17)",def:"8"},{part:"電撃(竜電撃)",hit:"12(19)",dmg:"2d+9",evd:"11(18)",def:"6"},{part:"牙尻(胴体)",hit:"12(19)",dmg:"2d+11",evd:"11(18)",def:"6"},{part:"なし(尾)",hit:"―",dmg:"―",evd:"9(16)",def:"6"}], abilities:["▶▶練技 — 【キャッツアイ】【ビートルスキン】【リカバリィ(5点回復)】の練技を使用します。","▶操霊魔法7レベル／魔力10(17)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法自在》《魔法収束》（魔法拡大すべて）【ワードブレイク】を習得しています。","○焔 — 電撃攻撃が命中した場合、対象に「2d+10」点の属性の魔法ダメージを与えます。","○胴体/呪いの毒守／11(18)／生命抵抗力／消滅 — 爪などの尾のみの0の適用ダメージが11以上の魔法ダメージを与えた場合、対象は次の戦闘に備えて「リリーブ・カース」の魔法などで解除することができますが、「部位：胴体」のHPが0以下になった場合は自動的に解除されます。","○翼 — すべての部位は、近接攻撃における命中力・回避力判定に+1のボーナス修正を得ます。「部位：翼」のいずれかのHPが0以下になった場合、この能力は失われます。"], loot:["自動：キマイラの角(500G/赤A)","2〜9：キマイラの角(500G/赤A)","10〜：キマイラの角(500G/赤A)"], tags:"幻獣,多部位,飛行,魔法" },
+  { cat:"幻獣", name:"ビュートーン", rank:9, intel:"低い", percep:"五感(暗視)", habitat:"地底・沼地", hp:79, mp:19, init:17, move:"20(蛇行)/―", vit:"12(19)", mres:"12(19)", weakness:"物理ダメージ+2点", know:"15", knowval:"20", attacks:[{part:"頭部(頭部)",hit:"12(19)",dmg:"2d+12",evd:"12(19)",def:"7"},{part:"体当たり(胴体)",hit:"11(18)",dmg:"2d+10",evd:"10(17)",def:"11"},{part:"尾(尾爪)",hit:"14(21)",dmg:"2d+12",evd:"12(19)",def:"4"}], abilities:["○全身/毒無効","○頭部/毒／12(19)／生命抵抗力／消滅 — 牙の攻撃が命中した場合、対象に「10」点の毒属性の魔法ダメージを与えます。","▶頭部/毒霧噴射／11(18)／生命抵抗力／半減 — 「射程：形状2(30m)／射撃」で「対象：1体」に毒の霧を吹きかけ、「2d+9」点の毒属性の魔法ダメージを与えます。この能力は連続した手番には使えません。","▶尾爪/毒を帯ぐ／11(18)／生命抵抗力／半減 — 巣の毒虫から高品の毒液を放ちます。「射程：接触」「対象：1エリア（半径3m）／5」に「2d+6」点の毒属性の魔法ダメージを与えます。この能力は連続した手番には使えない。","○尾爪/テイルスイープ — 近距離攻撃可能なキャラクターを任意に5体まで選び、それらに尾爪での攻撃を行います。命中力判定は一括で行い、複数に命中した場合、ダメージは個別に決定します。この能力は連続した手番には使えません。"], loot:["2〜11：竜幻の血流(1000G/赤S)","12〜：大竜の血流(10000G/赤SS)"], tags:"幻獣,多部位,毒" },
+  { cat:"幻獣", name:"コカトリス", rank:10, intel:"低い", percep:"五感(暗視)", habitat:"森・荒野", hp:93, mp:27, init:15, move:"18/18(飛行)", vit:"13(20)", mres:"13(20)", weakness:"水・氷属性ダメージ+3点", know:"15", knowval:"20", attacks:[{part:"嘴",hit:"13(20)",dmg:"2d+9",evd:"11(18)",def:"10"}], abilities:["○毒無効・病気無効・呪い魔法","○連続攻撃II — 攻撃が命中した場合、同じ対象にもう1回攻撃できます。この効果は2回目の攻撃が命中しても発生しません。3回目の攻撃が命中しても、これ以上の攻撃は行われません。","○石化くちばし／11(18)／精神抵抗力／消滅 — 嘴の攻撃が命中した場合、対象に石化進行（石化進行度⇒-12（⇒65頁）の効果を与えます。この効果は強制です。","▶▶練技 — 【ビートルスキン】【メディテーション】【リカバリィ(5点回復)】の練技を使用します。","○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得ます。"], loot:["2〜6：なし","7〜12：コカトリスのくちばし(1000G/赤S)","13〜：貫龍のくちばし(3200G/赤S)"], tags:"幻獣,飛行,毒" },
+  { cat:"幻獣", name:"ダイアヴァルグ", rank:10, intel:"人間並み", percep:"五感(暗視)", habitat:"森・平原・丘陵", hp:98, mp:32, init:21, move:"20(四足)/―", vit:"15(22)", mres:"13(20)", weakness:"炎属性ダメージ+3点", know:"15", knowval:"21", attacks:[{part:"牙",hit:"16(23)",dmg:"2d+16",evd:"11(18)",def:"9"}], abilities:["○情廉 — 自身が存在する乱戦エリア内に、自身以外のヴァルグ（種別は問わない）が死んだとき、1回は「情廉」の判断を、GMが行います。基本的には、回避が不可能な戦闘状態になったことを意味します。「情廉の判断をGM」が行います。","○最後の咆哮 — 自身の「0」以下になるとき、魔力のヴァルグの心を感慮し、「射程：自身」「対象：全エリア（半径30m）／すべて」のヴァルグ（種別は問わない）は、自身の行動判定に+4のボーナス修正を受け、打撃点が+4されます。","💬全力攻撃II — 打撃点を+12点する。リスクとして、自身の回避力判定に-2のペナルティ修正を受けます。"], loot:["2〜5：上質な幻の皮(300G/赤A)","6〜9：きれいな幻の皮(800G/赤A)","10〜：綺麗な幻の皮(3600G/赤S)"], tags:"幻獣" },
+  { cat:"幻獣", name:"ドラゴネット", rank:10, intel:"人間並み", percep:"五感(暗視)", habitat:"さまざま", hp:105, mp:32, init:17, move:"13/25(飛行)", vit:"13(20)", mres:"12(19)", weakness:"物理ダメージ+2点", know:"10", knowval:"16", attacks:[{part:"牙(胴体)",hit:"13(20)",dmg:"2d+14",evd:"12(19)",def:"11"},{part:"翼(翼)",hit:"12(19)",dmg:"2d+9",evd:"10(17)",def:"10"},{part:"翼(翼)",hit:"12(19)",dmg:"2d+9",evd:"10(17)",def:"10"}], abilities:["○全身/炎無効","○全身/▶火炎のブレス／11(18)／生命抵抗力／半減 — 「射程：形状2(20m)／射撃」で「対象：1体：1エリア（半径3m）／5」に炎を吐き出し、「2d+15」点の炎属性の魔法ダメージを与えます。この能力は連続した手番には使えません。","○胴体/連廉攻撃 — 打撃点を+8点します。同時に、自身の回避力判定に-3のペナルティ修正を受けます。","○飛翔II — すべての部位は、近接攻撃における命中力・回避力判定に+2のボーナス修正を得ます。「部位：翼」のいずれかのHPが0以下になった場合、この能力は失われます。"], loot:["自動：竜の鱗(5000G/赤S)","2〜6：竜の牙(1200G/赤S)","7〜：竜の牙(1200G/赤S)×1d"], tags:"幻獣,多部位,飛行,ブレス" },
+  { cat:"幻獣", name:"クジャタ", rank:12, intel:"人間並み", percep:"五感", habitat:"山岳", hp:101, mp:103, init:17, move:"20/―", vit:"15(22)", mres:"16(23)", weakness:"炎属性ダメージ+3点", know:"18", knowval:"24", attacks:[{part:"角(頭部)",hit:"17(24)",dmg:"2d+16",evd:"15(22)",def:"14"},{part:"爪(前半身)",hit:"16(23)",dmg:"2d+15",evd:"14(21)",def:"11"},{part:"爪(後半身)",hit:"15(22)",dmg:"2d+15",evd:"14(21)",def:"11"}], abilities:["○頭部/▶妖精魔法12レベル／魔力15(22) — 使用する属性は「土・水・氷・炎・風・光」です。","○魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《魔法拡大率》《魔法拡大大すべて》《魔法拡大すべて》《魔法拡大大すべて》《魔法拡大すべて》《ルーンマスター》《ワードブレイク》を習得しています。","○限定天候制御 — 自身を中心に「半径10m」の天候と気流を変化させます。天候は「快晴」の属性などを自由に変化することができ、この効果の地面の属性は自由となります。また、雪や霧を起こすこともできます。この効果は、そこが「山」とみなされる範囲でのみ発動します。また、単独で変えることのできる天候の域は、このみの晴れです。","○前半身・後半身/攻撃障害＝不可・+4 — 大きさが攻撃を妨げます。「部位：前半身」及び「後半身」は近接攻撃の対象になりません。また、遠距離攻撃に対する回避力判定に+4のボーナス修正を受けます。両部位のいずれかのHPが0以下になった場合、「○攻撃障害＝+4・なし」（遮蔽距離のみ）に変化し、さらに完全に失われます。"], loot:["自動：宝石(150G/金A)×2d","自動：宝石(300G/金A)×1d","2〜6：宝石(500G/金A)","7〜10：めずらしい宝石(1500G/金赤S)","11〜：大きな宝石(4000G/金赤A)"], tags:"幻獣,多部位,魔法" },
+  { cat:"幻獣", name:"レッサードラゴン", rank:13, intel:"高い", percep:"五感(暗視)", habitat:"山・洞窟", hp:147, mp:"―", init:18, move:"15/30(飛行)", vit:"17(24)", mres:"17(24)", weakness:"物理ダメージ+2点", know:"12", knowval:"20", attacks:[{part:"牙(頭部)",hit:"17(24)",dmg:"2d+13",evd:"13(20)",def:"13"},{part:"爪(胴体)",hit:"15(22)",dmg:"2d+13",evd:"13(20)",def:"13"},{part:"翼(翼)",hit:"15(22)",dmg:"2d+13",evd:"13(20)",def:"13"},{part:"翼(翼)",hit:"15(22)",dmg:"2d+13",evd:"13(20)",def:"13"}], abilities:["○全身/▶真語魔法・操霊魔法10レベル／魔力14(21)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《魔法拡大率》《魔法拡大大すべて》《ルーンマスター》を習得しています。","▶頭部/火炎のブレス／15(22)／生命抵抗力／半減 — 「射程：形状2(20m)／射撃」で「対象：1体：1エリア（半径6m）／20」に「2d+20」点の炎属性の魔法ダメージを与えます。この能力は連続した手番には使えません。","▶▶練技 — 【ストロングブラッド】【ビートルスキン】【リカバリィ(5点回復)】の練技を使用します。","○胴体/連廉攻撃 — 打撃点を+8点します。同時に、自身の回避力判定に-3のペナルティ修正を受けます。","○飛翔 — すべての部位は、近接攻撃における命中力・回避力判定に+1のボーナス修正を得ます。「部位：翼」のいずれかのHPが0以下になった場合、この能力は失われます。"], loot:["自動：竜の鱗(5000G/赤S)","2〜6：竜の牙(1200G/赤S)","7〜12：竜の牙(1200G/赤S)×1d","13〜：竜玉(10000G/全SS)"], tags:"幻獣,多部位,飛行,ブレス,魔法" },
+  { cat:"幻獣", name:"スフィンクス", rank:15, intel:"高い", percep:"五感", habitat:"砂漠", hp:137, mp:194, init:20, move:"20(四足)/40(飛行)", vit:"20(27)", mres:"22(29)", weakness:"物理ダメージ+2点", know:"18", knowval:"25", attacks:[{part:"爪(胴体)",hit:"17(24)",dmg:"2d+17",evd:"16(23)",def:"16"},{part:"翼(翼)",hit:"19(26)",dmg:"2d+10",evd:"18(25)",def:"13"},{part:"翼(翼)",hit:"19(26)",dmg:"2d+10",evd:"18(25)",def:"13"}], abilities:["○全身/マナ耐性 — 自分が受けるあらゆる魔法ダメージを-5点します。","○知識の化身＆弱点感知 — セージ技能の達成値が20で自動的に成功します。このとき、戦闘特技「賢人の知恵」を習得したものとして扱います。","○頭部/▶魔法(全系統)13レベル／魔力19(26) — あらゆる魔法の系統を13レベルで習得します。","○魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《魔法拡大大すべて》（魔法制約）【(使用魔法)】《マリオネット》《マネージャー》（KM機能）《流魔使い》（基本特技）《ワードブレイク》を習得しています。","○複数宣言言＝3回 — 宣言は特技を3回使えます。","○魔法変化身 — 《使用魔法「練技」》となっているすべての戦闘特技と《マルチアクション》《ターゲッティング》《魔法法回すべての日》《魔法拡大大の人》《マリオネット》《マネージャーKM機能》《流魔使い》《ワードブレイク》を習得しています。"], loot:["自動：羽毛(1000G/赤S)","2〜9：古代文字の小石(2000G/白S)","10〜12：謎の指輪(5000G/金SS)","13〜：謎の石板(10000G/金SS)"], tags:"幻獣,多部位,飛行,魔法" },
+  { cat:"幻獣", name:"グレータードラゴン", rank:18, intel:"高い", percep:"五感(暗視)", habitat:"山・洞窟", hp:170, mp:102, init:23, move:"20/40(飛行)", vit:"24(31)", mres:"24(31)", weakness:"物理ダメージ+2点", know:"18", knowval:"24", attacks:[{part:"牙(頭部)",hit:"23(30)",dmg:"2d+21",evd:"24(31)",def:"17"},{part:"爪(胴体)",hit:"24(31)",dmg:"2d+19",evd:"21(28)",def:"17"},{part:"翼(翼)",hit:"21(28)",dmg:"2d+17",evd:"22(29)",def:"14"},{part:"翼(翼)",hit:"21(28)",dmg:"2d+17",evd:"22(29)",def:"14"},{part:"尾爪(尾爪)",hit:"22(29)",dmg:"2d+19",evd:"22(29)",def:"18"}], abilities:["○全身/炎無効・純エネルギー無効","○全身/▶真語魔法・操霊魔法15レベル／魔力20(27)","○魔法適性 — 戦闘特技《マルチアクション》《ターゲッティング》《魔法収束》《魔法拡大すべて》《ルーンマスター》を習得しています。","▶頭部/火炎と星光のブレス／24(31)／生命抵抗力／半減 — 「射程：形状2(50m)／射撃」で「対象：1体：1エリア（半径6m）／20」にブレスを吐き出し、「2d+24」点の炎属性の魔法ダメージを与えます。さらに、炎を吐いた地面はこの魔物の任意で属性を変えることが自由に選べます。この能力は連続した手番には使えません。","▶全身/光炎のブレス：エネルギー塊を吐き出し、「2d+24」点の純エネルギー属性の魔法ダメージを与えます。この能力は連続した手番には使えません。どちらのブレスを使用しても、次の手番にはどちらのブレスも使えません。","○全身/2回行動 — 1ラウンドに主動作を2回行えます。","▶胴体/ワードブレイク — 戦闘特技《ワードブレイク》を「部位：胴体」の魔力で使用します。","○胴体/攻撃障害＝不可・なし — 大きさが攻撃を妨げます。「部位：胴体」は近距離攻撃の対象になりません。「部位：胴体」のHPが0以下になった場合、この能力は失われます。","○全身/連廉攻撃 — 打撃点を+8点します。同時に、自身の回避力判定に-3のペナルティ修正を受けます。","○翼/飛翔 — すべての部位は、近接攻撃における命中力・回避力判定に+1のボーナス修正を得ます。「部位：翼」のいずれかのHPが0以下になった場合、この能力は失われます。","○尾爪/テイルスイープ — 近距離攻撃可能なキャラクターを任意に5体まで選び、それらに尾爪での攻撃を行います。命中力判定は一括で行い、複数に命中した場合、ダメージは個別に決定します。この能力は連続した手番には使えません。","○全身/連廉攻撃/確定打ち — 打撃点を+8点します。同時に、自身の回避力判定に-3のペナルティ修正を受けます。","○全身/▶▶瞬身攻撃 — 「部位：胴体」の近距離攻撃が命中した場合、もう1体対象を選び、その相手への近距離攻撃が追加で行われます。打撃点は命中した後もそのまま続きます。"],loot:["自動：竜の鱗(5000G/赤S)×1d","自動：竜の牙(5000G/赤S)","2〜9：なし","10〜：電竜(10000G/全SS)"], tags:"幻獣,多部位,飛行,ブレス,魔法" },
+  { cat:"幻獣", name:"エルダードラゴン", rank:25, intel:"高い", percep:"五感(暗視)", habitat:"山・洞窟", hp:254, mp:201, init:35, move:"30/60(飛行)", vit:"29(36)", mres:"29(36)", weakness:"物理ダメージ+2点", know:"10", knowval:"33", attacks:[{part:"牙(頭部)",hit:"32(39)",dmg:"2d+29",evd:"32(39)",def:"28"},{part:"爪(胴体)",hit:"33(40)",dmg:"2d+28",evd:"31(38)",def:"30"},{part:"翼(翼)",hit:"30(37)",dmg:"2d+26",evd:"31(38)",def:"25"},{part:"翼(翼)",hit:"30(37)",dmg:"2d+26",evd:"31(38)",def:"25"},{part:"尾爪(尾爪)",hit:"31(38)",dmg:"2d+27",evd:"31(38)",def:"29"}], abilities:["○全身/無効・純エネルギー無効","○全身/▶真語魔法・操霊魔法15レベル／魔力29(35)","○魔法適性＆ブレス適性 — 戦闘特技《マルチアクション》《ターゲッティング》《魔法自在》《魔法収束》（魔法拡大すべて）《ルーンマスター》を習得しています。","○全身/▶火炎と光のブレス／28(35)／生命抵抗力／半減 — 「射程：形状2(50m)／射撃」で「対象：1エリア（半径6m）／20」に「2d+30」点の炎属性の魔法ダメージを与えます。さらに、この魔物の任意で属性を選択できます。","○全身/魔力のブレス：エネルギー塊を吐き出し、「2d+30」点の純エネルギー属性の魔法ダメージを与えます。どちらのブレスを使用しても、次の手番にはどちらのブレスも使えません。","○全身/ワードブレイク — 戦闘特技《ワードブレイク》を「部位：頭部」の魔力で使用します。","○胴体/攻撃障害＝不可・不可・なし＝-4 — 「部位：頭部」が対象として含まれる場合の、攻撃に対する回避力判定に-4のペナルティ修正を受けます。「部位：頭部」のHPが0以下になった場合、この能力は失われます。","○全身/翼/▶飛翔II — すべての部位は、近接攻撃における命中力・回避力判定に+2のボーナス修正を得ます。","○全身/確定打ち — 打撃点を+8点します。同時に、自身の回避力判定に-3のペナルティ修正を受けます。","▶尾爪/刻み定打ち — 近距離攻撃が命中した後に、さらに、尾爪でなぞるように攻撃します。対象は「+4」のボーナス修正を得ます。同時に、自身の打撃点が-8点されます。「○確定打ち」と同時に行うことはできません。"], loot:["自動：竜の牙(1200G/赤S)×2d","自動：竜の鱗(5000G/赤S)","2〜13：なし","14〜：元竜王(50000G/全SS)"], tags:"幻獣,多部位,飛行,ブレス,魔法" },
+  { cat:"幻獣", name:"グランガチ", rank:11, intel:"低い", percep:"五感(暗視)", habitat:"森・河川", hp:105, mp:66, init:18, move:"20(蛙歩)/40(水中)", vit:"14(21)", mres:"13(20)", weakness:"土属性ダメージ+3点", know:"14", knowval:"21", attacks:[{part:"前足(前半身)",hit:"13(20)",dmg:"2d+15",evd:"13(20)",def:"14"},{part:"後足(後半身)",hit:"13(20)",dmg:"2d+12",evd:"14(21)",def:"10"}], abilities:["○全身/水中適性","○炎無効","○前半身/▶2回攻撃＆双撃 — 両手でそれぞれ1回ずつの攻撃を行います。1回目の攻撃の結果を確認してから、2回目の攻撃を、同じ対象にさらに行うか、別の対象を選んで行うかを選べます。","▶妖精魔法10レベル／魔力12(19) — 使用する属性は「土・水・氷・風・雷」です。","○魔法適性 — 戦闘特技《マルチアクション》《ターゲッティング》《魔法収束》《魔法拡大大すべて》《ワードブレイク》を習得しています。","○頭部の噛みつき／13(20)／危険感知／消滅 — フェイントを仕掛け、自身の前方から最大「1体」を噛む（「射程：接触」「対象：1体」に「2d+25」点の物理ダメージを与えます。この能力は連続した手番には使えません。","○後半身/贈りの蟠り — 「部位：後半身」による近接攻撃は「射程：形状2(30m)／射撃」として実行できます。"], loot:["2〜6：きれいな皮(200G/赤A)","7〜11：頑丈な皮(500G/金赤S)","12〜：接げ付した皮(6800G/金赤S)"], tags:"幻獣,多部位,水中,魔法" },
+  { cat:"魔神", name:"エルビレア", rank:3, intel:"人間並み", percep:"五感(暗視)", habitat:"魔域", hp:24, mp:9, init:8, move:"8/―", vit:"4(11)", mres:"5(12)", weakness:"魔法ダメージ+2点", know:"9", knowval:"13", attacks:[{part:"爪",hit:"5(12)",dmg:"2d+6",evd:"4(11)",def:"3"}], abilities:["▶マナ阻害の毒／4(11)／生命抵抗力／消滅 — 爪の攻撃が命中した場合、10秒(1ラウンド)の間、対象の魔力を-1します。この効果は毒属性です。"], loot:["自動：悪魔の血(100G/赤A)","2〜10：なし","11〜：アビスシャード(200G/―)"], tags:"魔神,毒" },
+  { cat:"魔神", name:"アザービースト", rank:4, intel:"人間並み", percep:"五感(暗視)", habitat:"地下深遠", hp:32, mp:15, init:12, move:"14(四足)/―", vit:"5(12)", mres:"5(12)", weakness:"物理ダメージ+2点", know:"12", knowval:"15", attacks:[{part:"牙",hit:"6(13)",dmg:"2d+5",evd:"5(12)",def:"3"}], abilities:["なし"], loot:["自動：悪魔の血(100G/赤A)","2〜9：なし","10〜：悪魔の牙(300G/赤A)"], tags:"魔神" },
+  { cat:"魔神", name:"ナズラック", rank:5, intel:"人間並み", percep:"五感(暗視)", habitat:"魔域", hp:26, mp:16, init:12, move:"5/―", vit:"7(14)", mres:"7(14)", weakness:"魔法ダメージ+2点", know:"13", knowval:"16", attacks:[{part:"なし(頭部)",hit:"―",dmg:"―",evd:"6(13)",def:"4"},{part:"触手(触手)",hit:"7(14)",dmg:"2d+6",evd:"5(12)",def:"6"},{part:"触手(触手)",hit:"7(14)",dmg:"2d+6",evd:"5(12)",def:"6"}], abilities:["▶頭部/圧迫の視線／6(13)／精神抵抗力／消滅 — 「射程／形状：2(20m)／記点指定」で「対象：1体」を睨みつけ、囲みます。対象は10秒（1ラウンド）の間、あらゆる行動判定に-2のボーナス修正を受けますが、ダーラの思いのままに動かされます。これにより、HPが0とYマイナスになることもあります。対象が気絶した場合、効果は自動的に解除されます。この効果は精神効果属性です。","▶頭部/任熱の視線／6(13)／精神抵抗力／消滅 — 「射程／形状：2(20m)／記点指定」で「対象：1体」に視線を落とします。対象は3分（18ラウンド）の間、あらゆる行動判定に-2のボーナス修正を受けますが、手番の終了時に「5」点のHPを強制的に消費させ（HPは0やマイナスになることもあります）、対象が気絶した場合、効果は自動的に解除されます。この効果は精神効果属性です。","○触手/テイルスイープ — 近接攻撃可能なキャラクターを任意に3体まで選び、それらに触手での攻撃を行います。命中力判定は一括で行い、複数に命中した場合もダメージは別々に決定します。この能力は連続した手番には使えない。","○触手/攻撃障害＝+4・なし — 大きさが攻撃を妨げます。「部位：頭部」は、近接攻撃に対する回避力判定に+4のボーナス修正を得る。「部位：触手」のいずれかのHPが0以下となった場合、この効果は失われる。"], loot:["自動：悪魔の血(100G/赤A)","2〜8：なし","9〜：アビスシャード(200G/―)"], tags:"魔神,多部位" },
+  { cat:"人族", name:"庭鉄の雑兵", rank:2, intel:"人間並み", percep:"五感", habitat:"さまざま", hp:20, mp:10, init:9, move:"14/―", vit:"4(11)", mres:"3(10)", weakness:"なし", know:"5", knowval:"―", attacks:[{part:"武器",hit:"4(11)",dmg:"2d+2",evd:"3(10)",def:"3"}], abilities:["○剣の加護／運命変転 — 行為判定や打撃点決定で2dを振ったとき、直後にその出目をひっくり返します。この能力は1日に1回だけ使えます。"], loot:["2〜6：なし","7〜10：銀貨袋(50G/―)×1d","11〜：銀貨袋(50G/―)×1d"], tags:"人族" },
   { cat:"人族", name:"腕利きの傭兵", rank:5, intel:"人間並み", percep:"五感", habitat:"さまざま", hp:52, mp:12, init:14, move:"20/―", vit:"8(15)", mres:"7(14)", weakness:"なし", know:"8", knowval:"―", attacks:[{part:"剣",hit:"8(15)",dmg:"2d+10",evd:"8(15)",def:"5"}], abilities:["○手早い斬撃 — 命中力判定に+1のボーナス修正を得る。この能力は、カテゴリ（金属鎧）を装備しているキャラクターには効果を持ちません。","○剣の加護／運命変転 — 行為判定や打撃点決定で2dを振ったとき、直後にその出目をひっくり返します。この能力は1日に1回だけ使えます。","💬全力攻撃I — 打撃点を+4点する。リスクとして、回避力判定に-2のペナルティ修正を受ける。"], loot:["2〜3：なし","4〜7：銀貨袋(30G/―)×1d","8〜9：銀貨袋(100G/―)×1d","10〜：宝石(150G/金A)×1d"], tags:"人族" },
-  { cat:"蛮族", name:"サハギン", rank:2, intel:"低い", percep:"五感(暗視)", habitat:"海岸・河口付近", hp:20, mp:10, init:10, move:"12/16(水中)", vit:"4(11)", mres:"3(10)", weakness:"土属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"武器",hit:"3(10)",dmg:"2d+2",evd:"3(10)",def:"2"}], abilities:["○水中適性 — 水中での行動にペナルティを受けない。"], loot:["2〜7：なし","8〜10：サハギンの三つ又槍(30G/黒白B)","11〜：装飾された三つ又槍(120G/黒白A)"], tags:"蛮族,水中" },
-  { cat:"蛮族", name:"ケンタウロス", rank:3, intel:"人間並み", percep:"五感", habitat:"草原", hp:25, mp:18, init:12, move:"22(四足)/―", vit:"5(12)", mres:"4(11)", weakness:"土属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"武器",hit:"5(12)",dmg:"2d+2",evd:"3(10)",def:"2"}], abilities:["▶妖精魔法2レベル／魔力4(11) — 使用する属性は、「土」「炎」「風」「光」です。","▶突撃／5(12)／回避力／消滅 — この能力は、通常移動を行ったラウンドのみ使えます。突撃し、近接攻撃として敵1体に槍を突き立て、「2d+7」点の物理ダメージを与えます。"], loot:["2〜7：なし","8〜10：戦いの装束(30G/白B)","11〜：上質な装束(120G/白A)"], tags:"蛮族,魔法" },
-  { cat:"蛮族", name:"ハンガーフッド", rank:3, intel:"低い", percep:"五感", habitat:"さまざま", hp:18, mp:12, init:10, move:"12/―", vit:"4(11)", mres:"5(12)", weakness:"魔法ダメージ+2点", know:"8", knowval:"12", attacks:[{part:"鉤縄",hit:"5(12)",dmg:"2d+5",evd:"5(12)",def:"3"}], abilities:["○鉤縄 — 鉤縄による攻撃は「射程：1(10m)」まで届く近接攻撃として扱います。","▶▶鉤縄ぶら下がり — 鉤縄で頭上の建物などにぶら下がります。次の手番開始時まで足場が悪いことによるペナルティ修正を受けません。また、命中力判定に+1のボーナス修正を得て、打撃点が「-2」点されます。この能力は天井など、頭上に天井や高い建造物などがある環境でしか使えません。"], loot:["自動：鉤縄(50G/黒白B)×2","2〜5：なし","6〜10：汚いフード(20G/白B)","11〜：着慣れたフード(80G/白B)"], tags:"蛮族" },
-  { cat:"蛮族", name:"ホッグフッド", rank:3, intel:"低い", percep:"五感", habitat:"さまざま", hp:18, mp:11, init:10, move:"15(四足)/―", vit:"5(12)", mres:"5(12)", weakness:"魔法ダメージ+2点", know:"9", knowval:"12", attacks:[{part:"武器(本体)",hit:"6(13)",dmg:"2d+4",evd:"5(12)",def:"2"},{part:"体当たり(豚)",hit:"5(12)",dmg:"2d+3",evd:"3(10)",def:"2"}], abilities:["○全身/騎乗解除 — この魔物は「部位：本体」が「部位：豚」に騎乗しています。この騎乗状態が解除された場合、すべての部位は、あらゆる行動判定に-2のペナルティ修正を受け、打撃点が-2されます。騎乗状態が解除される条件や騎乗状態に復帰する条件は、ライダー技能と騎乗ルールに準じます。"], loot:["自動：汚いフード(20G/白B)","2〜6：なし","7〜11：柔い肉(100G/赤A)","12〜：上質の肉(200G/赤A)"], tags:"蛮族,多部位" },
-  { cat:"蛮族", name:"メデューサ", rank:4, intel:"人間並み", percep:"五感(暗視)", habitat:"地下深遠", hp:26, mp:22, init:13, move:"14/―", vit:"4(11)", mres:"6(13)", weakness:"物理ダメージ+2点", know:"10", knowval:"15", attacks:[{part:"髪の蛇",hit:"6(13)",dmg:"2d+2",evd:"4(11)",def:"2"}], abilities:["○瞬時攻撃 — 自身の存在する乱戦エリア内のすべてに、髪の蛇による攻撃を行います。","○毒／5(12)／生命抵抗力／消滅 — 髪の蛇の攻撃が命中した場合、対象に「3」点の毒属性の魔法ダメージを与えます。","○石化する視線／4(11)／精神抵抗力／消滅 — この魔物を見たキャラクターは、毎回、自身の手番の終了時に精神抵抗力判定を行わなければなりません。失敗したら、石化進行度毎に敏捷（⇒65頁）の効果を受けます。この効果は呪い属性として扱います。"], loot:["自動：メデューサの毒牙(50G/赤B)","2〜9：なし","10〜12：宝石(150G/金A)×1d","13〜：石化の瞳(1200G/金黒白S)"], tags:"蛮族,毒" },
-  { cat:"蛮族", name:"リザードマン", rank:4, intel:"人間並み", percep:"五感", habitat:"沼・湿地", hp:32, mp:15, init:10, move:"13/13(水中)", vit:"6(13)", mres:"5(12)", weakness:"土属性ダメージ+3点", know:"11", knowval:"14", attacks:[{part:"武器",hit:"6(13)",dmg:"2d+4",evd:"4(11)",def:"5"}], abilities:["○水中適性","▶テイルスイープ — 自身の存在する乱戦エリア内の任意の者すべてに、尾での攻撃を行います。この能力は連続した手番には使えません。"], loot:["2〜9：なし","10〜：七色の鱗(220G/金赤A)"], tags:"蛮族,水中" },
-  { cat:"蛮族", name:"リザードマンベアラー", rank:4, intel:"人間並み", percep:"五感", habitat:"沼・湿地", hp:30, mp:18, init:11, move:"12/12(水中)", vit:"5(12)", mres:"6(13)", weakness:"土属性ダメージ+3点", know:"10", knowval:"14", attacks:[{part:"旗棒",hit:"5(12)",dmg:"2d+5",evd:"5(12)",def:"5"}], abilities:["○水中適性","▶族旗の鼓舞／必中 — 族旗を高く掲げ、仲間を鼓舞します。「射程：自身」「対象：全エリア（半径30m）／すべて」で、リザードマン（種別を問わない）は、10秒（1ラウンド）の間、命中力と魔力、特殊能力の達成値に+1のボーナス修正を得て、HPが各部位に「5」点回復します。この効果は連続した手番に使用できません。"], loot:["自動：リザードマンの旗(100G/緑黒A)","2〜10：なし","11〜：七色の鱗(220G/金赤A)"], tags:"蛮族,水中" },
-  { cat:"蛮族", name:"ローレライ", rank:4, intel:"人間並み", percep:"五感", habitat:"河川", hp:26, mp:18, init:13, move:"14/14(水中)", vit:"4(11)", mres:"6(13)", weakness:"物理ダメージ+2点", know:"―", knowval:"―", attacks:[{part:"武器",hit:"4(11)",dmg:"2d+2",evd:"4(11)",def:"2"}], abilities:["○水中適性","▶基本呪歌1レベル／7(14)／全エリア（半径40m）","▶ラブソング — 旋律【ラブソング】(⇒221頁)を使用します。この能力は敵対する障害に発生が存在し、かつ、直前の手番に「基本呪歌」を使用していたときにのみ使用できます。","▶後継：春の猫瞰／7(14)／精神抵抗力／半減 — 「射程：2(40m)」で【後継：春の猫瞰】を使用して、対象1体に「2d+4」点の風属性の魔法ダメージを与えます。この能力は、直前の手番に「基本呪歌」または「後継呪歌【ラブソング】」を使用していたときにのみ使用できます。"], loot:["2〜5：なし","6〜8：木綿の羽衣(100G/白A)","9〜12：美しい羽衣(300G/白A)","13〜：光り輝く羽衣(1000G/白S)"], tags:"蛮族,水中,魔法" },
+  { cat:"蛮族", name:"サハギン", rank:2, intel:"人間並み", percep:"五感(暗視)", habitat:"海岸・河口付近", hp:20, mp:10, init:10, move:"12/16(水中)", vit:"4(11)", mres:"3(10)", weakness:"土属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"武器",hit:"3(10)",dmg:"2d+2",evd:"3(10)",def:"2"}], abilities:["○水中適性 — 水中での行動にペナルティを受けない。"], loot:["2〜7：なし","8〜10：サハギンの三つ又槍(30G/黒白B)","11〜：装飾された三つ又槍(120G/黒白A)"], tags:"人族,水中" },
+  { cat:"蛮族", name:"ケンタウロス", rank:3, intel:"人間並み", percep:"五感", habitat:"草原", hp:25, mp:18, init:12, move:"22(四足)/―", vit:"5(12)", mres:"4(11)", weakness:"土属性ダメージ+3点", know:"10", knowval:"13", attacks:[{part:"武器",hit:"5(12)",dmg:"2d+2",evd:"3(10)",def:"2"}], abilities:["▶妖精魔法2レベル／魔力4(11) — 使用する属性は、「土」「炎」「風」「光」です。","▶突撃／5(12)／回避力／消滅 — この能力は、通常移動を行ったラウンドのみ使えます。突撃し、近接攻撃として敵1体に槍を突き立て、「2d+7」点の物理ダメージを与えます。"], loot:["2〜7：なし","8〜10：戦いの装束(30G/白B)","11〜：上質な装束(120G/白A)"], tags:"人族,魔法" },
+  { cat:"蛮族", name:"ハンガーフッド", rank:3, intel:"低い", percep:"五感(暗視)", habitat:"さまざま", hp:18, mp:12, init:10, move:"12/―", vit:"4(11)", mres:"5(12)", weakness:"魔法ダメージ+2点", know:"8", knowval:"12", attacks:[{part:"鉤縄",hit:"5(12)",dmg:"2d+5",evd:"5(12)",def:"3"}], abilities:["○鉤縄 — 鉤縄による攻撃は「射程：1(10m)」まで届く近接攻撃として扱います。","▶▶鉤縄ぶら下がり — 鉤縄で頭上の建物などにぶら下がります。次の手番開始時まで足場が悪いことによるペナルティ修正を受けません。また、命中力判定に+1のボーナス修正を得て、打撃点が「-2」点されます。この能力は天井など、頭上に天井や高い建造物などがある環境でしか使えません。"], loot:["自動：鉤縄(50G/黒白B)×2","2〜5：なし","6〜10：汚いフード(20G/白B)","11〜：着慣れたフード(80G/白B)"], tags:"人族" },
+  { cat:"蛮族", name:"ホッグフッド", rank:3, intel:"低い", percep:"五感(暗視)", habitat:"さまざま", hp:18, mp:11, init:10, move:"15(四足)/―", vit:"5(12)", mres:"5(12)", weakness:"魔法ダメージ+2点", know:"9", knowval:"12", attacks:[{part:"武器(本体)",hit:"6(13)",dmg:"2d+4",evd:"5(12)",def:"2"},{part:"体当たり(豚)",hit:"5(12)",dmg:"2d+3",evd:"3(10)",def:"2"}], abilities:["○全身/騎乗解除 — この魔物は「部位：本体」が「部位：豚」に騎乗しています。この騎乗状態が解除された場合、すべての部位は、あらゆる行動判定に-2のペナルティ修正を受け、打撃点が-2されます。騎乗状態が解除される条件や騎乗状態に復帰する条件は、ライダー技能と騎乗ルールに準じます。"], loot:["自動：汚いフード(20G/白B)","2〜6：なし","7〜11：柔い肉(100G/赤A)","12〜：上質の肉(200G/赤A)"], tags:"人族,多部位" },
+  { cat:"蛮族", name:"メデューサ", rank:4, intel:"人間並み", percep:"五感(暗視)", habitat:"地下深遠", hp:26, mp:22, init:13, move:"14/―", vit:"4(11)", mres:"6(13)", weakness:"物理ダメージ+2点", know:"10", knowval:"15", attacks:[{part:"髪の蛇",hit:"6(13)",dmg:"2d+2",evd:"4(11)",def:"2"}], abilities:["○瞬時攻撃 — 自身の存在する乱戦エリア内のすべてに、髪の蛇による攻撃を行います。","▶毒／5(12)／生命抵抗力／消滅 — 髪の蛇の攻撃が命中した場合、対象に「3」点の毒属性の魔法ダメージを与えます。","○石化する視線／4(11)／精神抵抗力／消滅 — この魔物を見たキャラクターは、毎回、自身の手番の終了時に精神抵抗力判定を行わなければなりません。失敗したら、石化進行度毎に敏捷（⇒65頁）の効果を受けます。この効果は呪い属性として扱います。"], loot:["自動：メデューサの毒牙(50G/赤B)","2〜9：なし","10〜12：宝石(150G/金A)×1d","13〜：石化の瞳(1200G/金黒白S)"], tags:"人族,毒" },
+  { cat:"蛮族", name:"リザードマン", rank:4, intel:"人間並み", percep:"五感", habitat:"沼・湿地", hp:32, mp:15, init:10, move:"13/13(水中)", vit:"6(13)", mres:"5(12)", weakness:"土属性ダメージ+3点", know:"11", knowval:"14", attacks:[{part:"武器",hit:"6(13)",dmg:"2d+4",evd:"4(11)",def:"5"}], abilities:["○水中適性","○テイルスイープ — 自身の存在する乱戦エリア内の任意の者すべてに、尾での攻撃を行います。この能力は連続した手番には使えません。"], loot:["2〜9：なし","10〜：七色の鱗(220G/金赤A)"], tags:"人族,水中" },
+  { cat:"蛮族", name:"リザードマンベアラー", rank:4, intel:"人間並み", percep:"五感", habitat:"沼・湿地", hp:30, mp:18, init:11, move:"12/12(水中)", vit:"5(12)", mres:"6(13)", weakness:"土属性ダメージ+3点", know:"10", knowval:"14", attacks:[{part:"旗棒",hit:"5(12)",dmg:"2d+5",evd:"5(12)",def:"5"}], abilities:["○水中適性","▶族旗の鼓舞／必中 — 族旗を高く掲げ、仲間を鼓舞します。「射程：自身」「対象：全エリア（半径30m）／すべて」で、リザードマン（種別を問わない）は、10秒（1ラウンド）の間、命中力と魔力、特殊能力の達成値に+1のボーナス修正を得て、HPが各部位に「5」点回復します。この効果は連続した手番に使用できません。"], loot:["自動：リザードマンの旗(100G/緑黒A)","2〜10：なし","11〜：七色の鱗(220G/金赤A)"], tags:"人族,水中" },
+  { cat:"蛮族", name:"ローレライ", rank:4, intel:"人間並み", percep:"五感", habitat:"河川", hp:26, mp:18, init:13, move:"14/14(水中)", vit:"4(11)", mres:"6(13)", weakness:"物理ダメージ+2点", know:"―", knowval:"―", attacks:[{part:"武器",hit:"4(11)",dmg:"2d+2",evd:"4(11)",def:"2"}], abilities:["○水中適性","▶基本呪歌1レベル／7(14)／全エリア（半径40m）","▶ラブソング — 旋律【ラブソング】(⇒221頁)を使用します。この能力は敵対する障害に発生が存在し、かつ、直前の手番に「基本呪歌」を使用していたときにのみ使用できます。","▶後継：春の猫瞰／7(14)／精神抵抗力／半減 — 「射程：2(40m)」で【後継：春の猫瞰】を使用して、対象1体に「2d+4」点の風属性の魔法ダメージを与えます。この能力は、直前の手番に「基本呪歌」または「後継呪歌【ラブソング】」を使用していたときにのみ使用できます。"], loot:["2〜5：なし","6〜8：木綿の羽衣(100G/白A)","9〜12：美しい羽衣(300G/白A)","13〜：光り輝く羽衣(1000G/白S)"], tags:"人族,水中,魔法" },
+  { cat:"蛮族", name:"アンドロスコーピオン", rank:5, intel:"人間並み", percep:"五感(暗視)", habitat:"砂漠・遺跡", hp:34, mp:26, init:12, move:"15(多足)/―", vit:"7(14)", mres:"7(14)", weakness:"物理ダメージ+2点", know:"12", knowval:"15", attacks:[{part:"武器(上半身)",hit:"7(14)",dmg:"2d+5",evd:"6(13)",def:"6"},{part:"爪尾(下半身)",hit:"8(15)",dmg:"2d+4",evd:"6(13)",def:"5"}], abilities:["▶魔動機制4レベル／魔力6(13)","○銃撃／6(13)／回避力／消滅 — 「射程：2(20m)」で。「射程と形状：射撃」の魔法行使や効果の使用において、誤射を起こしません。","○ターゲッティング — 「射程：射撃」の魔法行使や効果の使用において、誤射を起こしません。","▶下半身/毒／5(12)／生命抵抗力／消滅 — 爪尾の攻撃が命中した場合、対象に「6」点の毒属性の魔法ダメージを与えます。","○下半身/崩立ち — 「部位：下半身」のHPが0以下になった場合、「部位：上半身」は回避力判定に-2のペナルティ修正を受けます。"], loot:["自動：サソリの腹(50G/赤B)","2〜6：なし","7〜11：毒針(100G/金赤A)","12〜：毒針と毒腺(800G/金赤A)"], tags:"蛮族,多部位,毒" },
+  { cat:"蛮族", name:"ゴブリンシャーマン", rank:5, intel:"人間並み", percep:"五感(暗視)", habitat:"森・山・洞窟", hp:36, mp:38, init:12, move:"11/―", vit:"7(14)", mres:"8(15)", weakness:"魔法ダメージ+2点", know:"13", knowval:"16", attacks:[{part:"武器",hit:"6(13)",dmg:"2d+4",evd:"7(14)",def:"5"}], abilities:["▶妖精魔法5レベル／魔力8(15) — 使用する属性は「土・炎・氷・風・雷・闇」です。","▶神聖魔法2レベル／魔力5(12)","○魔法適性 — 戦闘特技《魔法拡大／数》を習得しています。"], loot:["自動：魔族の命宝(500G/白A)","2〜7：なし","8〜：闇に砕ける爪(280G/白A)"], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"ドーンウォーカー", rank:5, intel:"人間並み", percep:"五感(暗視)", habitat:"廃墟", hp:38, mp:28, init:13, move:"18/―", vit:"6(13)", mres:"6(13)", weakness:"命中力+1", know:"12", knowval:"15", attacks:[{part:"武器",hit:"7(14)",dmg:"2d+7",evd:"7(14)",def:"4"}], abilities:["▶神聖魔法4レベル／魔力6(13)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法拡大／数》《マルチアクション》を習得しています。"], loot:["自動：魔族の命宝(500G/白A)","2〜7：なし","8〜：闇に砕ける衣(280G/白A)"], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"マーマン", rank:5, intel:"人間並み", percep:"五感(暗視)", habitat:"海洋", hp:35, mp:19, init:12, move:"5(跳躍)/20(水中)", vit:"6(13)", mres:"7(14)", weakness:"炎属性ダメージ+3点", know:"11", knowval:"14", attacks:[{part:"武器",hit:"7(14)",dmg:"2d+6",evd:"7(14)",def:"4"}], abilities:["○水・氷無効","○水中特化 — 水中の行動にペナルティ修正を受けません。逆に、地上では全ての行動判定に-2のペナルティ修正を受けます。","💬かばうI — 戦闘特技《かばうI》と同じ効果です。"], loot:["自動：さびた槍(50G/黒B)","2〜6：なし","7〜：きれいな貝殻(180G/金赤A)"], tags:"蛮族,水中" },
+  { cat:"蛮族", name:"フーグルアサルター", rank:5, intel:"低い", percep:"五感(暗視)", habitat:"砂漠・山岳", hp:38, mp:16, init:14, move:"15/20(飛行)", vit:"7(14)", mres:"7(14)", weakness:"風属性ダメージ+3点", know:"12", knowval:"15", attacks:[{part:"爪",hit:"7(14)",dmg:"2d+6",evd:"7(14)",def:"5"}], abilities:["▶▶機動飛行 — 近接攻撃の命中・回避判定に+1のボーナス修正。連続した手番には使用不可。","○翼での追撃 — 爪で攻撃した対象に、翼での近接攻撃を追加で1回実行可能。","💬全力攻撃I — 打撃点を+4点する。リスクとして回避判定に-2のペナルティ修正を受ける。"], loot:["2〜4：土色の鱗(30G/赤B)","5〜8：琥珀色の鱗(90G/赤B)","9〜：七色の鱗(220G/金赤A)"], tags:"蛮族,飛行" },
+  { cat:"蛮族", name:"ボルグヘビーアーム", rank:5, intel:"低い", percep:"五感(暗視)", habitat:"森・山・洞窟", hp:36, mp:17, init:10, move:"12/―", vit:"7(14)", mres:"6(13)", weakness:"物理ダメージ+2点", know:"10", knowval:"15", attacks:[{part:"武器",hit:"6(13)",dmg:"2d+6",evd:"5(12)",def:"8"}], abilities:["💬全力攻撃I — 打撃点を+4点する。リスクとして回避判定に-2のペナルティ修正を受ける。","○痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに+6点する。"], loot:["2〜7：畜意を漂らした武器(150G/黒白A)","8〜：豪華な武器(500G/黒白A)"], tags:"蛮族" },
+  { cat:"蛮族", name:"ディアボロカデット(人間形態)", rank:5, intel:"高い", percep:"五感(暗視)", habitat:"荒野・魔域", hp:42, mp:23, init:13, move:"20/20(飛行)", vit:"8(15)", mres:"8(15)", weakness:"純エネルギー属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"武器",hit:"7(14)",dmg:"2d+7",evd:"7(14)",def:"4"}], abilities:["○強靭な皮膚 — 斬空属性または衝撃属性の物理・魔法ダメージを-3点する。","○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得る。","💬掃き払いI — 近接攻撃可能なキャラクターを任意に3体まで選び、それらに近接攻撃を行う。","▶魔人の視光／必中 — 「射程／形状：1(10m)／記点指定」で任意の対象に「2」点の呪い属性魔法ダメージ×数。HPが合計と同じだけ回復。","▶▶魔人化 — 魔人形態に変化する。"], loot:["自動：アビスシャード(200G/―)","2〜6：黒の宝玉(300G/金A)","7〜10：黒の宝玉(300G/金A)×2","11〜：黒の宝玉(300G/金A)×1d"], tags:"蛮族,飛行,魔法" },
+  { cat:"蛮族", name:"ディアボロカデット(魔人形態)", rank:6, intel:"高い", percep:"五感(暗視)", habitat:"荒野・魔域", hp:44, mp:26, init:14, move:"20/20(飛行)", vit:"9(16)", mres:"9(16)", weakness:"純エネルギー属性ダメージ+3点", know:"14", knowval:"17", attacks:[{part:"牙(頭部)",hit:"7(14)",dmg:"2d+7",evd:"7(14)",def:"4"},{part:"武器(胴体)",hit:"8(15)",dmg:"2d+9",evd:"6(13)",def:"6"}], abilities:["○全身/強靭な皮膚 — 斬空属性または衝撃属性の物理・魔法ダメージを-3点する。","○胴体/飛翔 — 全部位で近接攻撃における命中力・回避力判定に+1のボーナス修正。「部位：胴体」のHPが0以下で失われる。","💬掃き払いI — 近接攻撃可能なキャラクターを任意に3体まで選び近接攻撃。","▶▶人間化 — 人間形態に変化する。"], loot:["自動：アビスシャード(200G/―)×1d","2〜5：黒の宝玉(300G/金A)","6〜9：黒の宝玉(300G/金A)×2","10〜：黒の宝玉(300G/金A)×1d"], tags:"蛮族,多部位,飛行,魔法" },
+  { cat:"蛮族", name:"アルボル", rank:6, intel:"人間並み", percep:"五感", habitat:"森・林", hp:52, mp:36, init:16, move:"16/―", vit:"9(16)", mres:"9(16)", weakness:"炎属性ダメージ+3点", know:"13", knowval:"17", attacks:[{part:"武器",hit:"9(16)",dmg:"2d+7",evd:"7(14)",def:"4"}], abilities:["▶魔法(1系統)5レベル／魔力8(15) — 妖精魔法・森霊魔法のいずれか5レベル。","○魔法適性 — 戦闘特技《ターゲッティング》《魔法拡大／数》《マルチアクション》を習得しています。","▶帰れる木の訴風 — 自身中心1エリア内の仲間武器に魔法属性付与（次1ラウンド）。MPを8点消費。"], loot:["自動：絶いた木の肌(130G/緑黒A)","2〜8：なし","9〜：炎の残滓(900G/金A)"], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"ケパラウラ", rank:6, intel:"人間並み", percep:"五感(暗視)", habitat:"森・洞窟・湿地・魔域", hp:48, mp:41, init:13, move:"15/―", vit:"7(14)", mres:"9(16)", weakness:"炎属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"牙",hit:"8(15)",dmg:"2d+7",evd:"6(13)",def:"4"}], abilities:["○毒無効","▶真語魔法・操霊魔法6レベル／魔力8(15)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法拡大／数》《マルチアクション》を習得しています。","▶毒／命中時／6(13)／生命抵抗力 — 牙命中で対象に6点毒属性魔法ダメージ。"], loot:["2〜4：なし","5〜8：魔法文明の本(170G/白A)","9〜12：魔法書(500G/白A)","13〜：秘伝を記した魔法書(1500G/白S)"], tags:"蛮族,魔法,毒" },
+  { cat:"蛮族", name:"トロール", rank:6, intel:"人間並み", percep:"五感(暗視)", habitat:"洞窟", hp:50, mp:26, init:14, move:"18/―", vit:"9(16)", mres:"8(15)", weakness:"魔法ダメージ+2点", know:"11", knowval:"16", attacks:[{part:"武器",hit:"9(16)",dmg:"2d+10",evd:"7(14)",def:"5"}], abilities:["▶神聖魔法5レベル／魔力7(14)","💬全力攻撃I — 打撃点を+4点する。リスクとして回避判定に-2のペナルティ修正を受ける。","○弱体化(日光) — 太陽の下にいる限り、命中力・回避力判定に-2のペナルティ修正を受ける。"], loot:["自動：トロールの血(100G/赤A)","2〜8：大きな武器(300G/黒白A)","9〜：宝石(150G/金A)×1d"], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"ケンタウロスインペイラー", rank:6, intel:"人間並み", percep:"五感", habitat:"草原", hp:53, mp:28, init:15, move:"30(四足)/―", vit:"8(15)", mres:"7(14)", weakness:"土属性ダメージ+3点", know:"12", knowval:"15", attacks:[{part:"武器",hit:"8(15)",dmg:"2d+8",evd:"7(14)",def:"6"}], abilities:["▶妖精魔法4レベル／魔力6(13) — 使用属性：土・炎・氷・風・雷。","▶突撃／7(14)／回避力／消滅 — 通常移動後のみ使用可。近接攻撃として「2d+14」点物理ダメージ。"], loot:["2〜6：棒(50G/黒B)","7〜9：鋭麻の肌(150G/黒白A)","10〜：畜意を漂らした槍(600G/黒白A)"], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"マーマンビショップ", rank:6, intel:"人間並み", percep:"五感(暗視)", habitat:"海洋", hp:43, mp:"―", init:12, move:"5(跳躍)/20(水中)", vit:"7(14)", mres:"8(15)", weakness:"水・氷属性ダメージ+3点", know:"12", knowval:"15", attacks:[{part:"武器",hit:"6(13)",dmg:"2d+4",evd:"7(14)",def:"4"}], abilities:["○水・氷無効","▶神聖魔法6レベル／魔力8(15)","○水中特化 — 水中の行動にペナルティ修正を受けません。逆に地上では全行動判定に-2のペナルティ修正。"], loot:["2〜6：ポリカ袋(50G/黒白B)","7〜12：きれいな貝殻(180G/金赤A)","13〜：銀装飾(3000G/金赤S)"], tags:"蛮族,水中,魔法" },
+  { cat:"蛮族", name:"ランブルフィスト", rank:6, intel:"低い", percep:"五感(暗視)", habitat:"荒地・山岳", hp:56, mp:12, init:13, move:"14/―", vit:"9(16)", mres:"7(14)", weakness:"斬空属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"砕手",hit:"8(15)",dmg:"2d+10",evd:"7(14)",def:"5"}], abilities:["○霊無効・衝撃無効","○弾丸の皮膚 — 打撃点に対しては防護点を3点高いものとして扱います。","▶高速回転自走／9(16)／回避力／消滅 — 任意の5体まで近接攻撃で「2d+8」点物理ダメージ。連続した手番には使えません。"], loot:["2〜8：なし","9〜：水生々の皮膚(330G/赤A)"], tags:"蛮族" },
+  { cat:"蛮族", name:"ドレイク(人間形態)", rank:6, intel:"高い", percep:"五感(暗視)", habitat:"さまざま", hp:58, mp:36, init:16, move:"20/40(飛行)", vit:"9(16)", mres:"10(17)", weakness:"魔法ダメージ+2点", know:"10", knowval:"17", attacks:[{part:"剣",hit:"9(16)",dmg:"2d+8",evd:"7(14)",def:"4"}], abilities:["▶操霊魔法5レベル／魔力8(15)","💬魔力撃＝+8ダメージ — 打撃点+8点。リスクとして生命・精神抵抗力判定に-2のペナルティ修正。","○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正。","▶▶電化 — 竜形態に変化する。"], loot:["自動：剣のかけら(200G/―)"], tags:"蛮族,飛行,魔法" },
+  { cat:"蛮族", name:"ドレイク(竜形態)", rank:7, intel:"高い", percep:"五感(暗視)", habitat:"さまざま", hp:62, mp:46, init:18, move:"20/40(飛行)", vit:"10(17)", mres:"11(18)", weakness:"魔法ダメージ+2点", know:"12", knowval:"18", attacks:[{part:"牙(胴体)",hit:"9(16)",dmg:"2d+12",evd:"9(16)",def:"7"},{part:"翼(翼)",hit:"11(18)",dmg:"2d+9",evd:"7(14)",def:"4"},{part:"翼(翼)",hit:"11(18)",dmg:"2d+9",evd:"7(14)",def:"4"}], abilities:["▶操霊魔法5レベル／魔力9(16)","▶光のブレス — 「射程：形状2(50m)／射撃」で対象1体に純エネルギー属性魔法ダメージ。連続した手番には使用不可。","▶▶瞬時人間化 — 人間形態に変化する。","○飛翔 — 全部位の近接攻撃における命中力・回避力判定に+1のボーナス修正。"], loot:["2〜6：剣のかけら(200G/―)","7〜10：剣のかけら(200G/―)×2","11：剣のかけら(200G/―)×3","12〜：朽ちた魔剣(4000G/金黒白S)"], tags:"蛮族,多部位,飛行,魔法" },
+  { cat:"蛮族", name:"オーガ", rank:7, intel:"人間並み", percep:"五感(暗視)", habitat:"さまざま", hp:58, mp:30, init:14, move:"18/―", vit:"10(17)", mres:"9(16)", weakness:"命中力+1", know:"12", knowval:"15", attacks:[{part:"武器",hit:"10(17)",dmg:"2d+11",evd:"10(17)",def:"7"}], abilities:["▶真語魔法5レベル／魔力8(15)","○魔法適性 — 戦闘特技《ターゲッティング》《ワードブレイク》を習得しています。","▶▶人化 — 一瞬で人族の姿に変化。命中力・回避力・抵抗力-1、最大HP/MP-5。1日最大18時間まで。"], loot:["2〜8：銀貨袋(100G/―)×1d","9〜12：宝石(150G/金A)×1d","13〜：剣のかけら(200G/―)×3"], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"シザースコーピオン", rank:7, intel:"人間並み", percep:"五感(暗視)", habitat:"砂漠・遺跡", hp:56, mp:35, init:14, move:"17(多足)/―", vit:"9(16)", mres:"9(16)", weakness:"物理ダメージ+2点", know:"13", knowval:"18", attacks:[{part:"武器(上半身)",hit:"9(16)",dmg:"2d+9",evd:"9(16)",def:"7"},{part:"ハサミ(ハサミ)",hit:"9(16)",dmg:"2d+10",evd:"8(15)",def:"8"},{part:"爪尾(下半身)",hit:"8(15)",dmg:"2d+7",evd:"8(15)",def:"6"}], abilities:["▶上半身/魔動機制5レベル／魔力7(14)","○ターゲッティング","○下半身/毒／8(15)／生命抵抗力／消滅 — 爪尾命中で「8」点毒属性魔法ダメージ。","○下半身/崩立ち — 下半身HP0以下で上半身とハサミの回避力判定に-2ペナルティ。"], loot:["自動：サソリの腹(50G/赤B)","2〜6：なし","7〜10：毒針と毒腺(800G/金赤A)","11〜：光を砕く爪(1600G/金赤S)"], tags:"蛮族,多部位,毒" },
+  { cat:"蛮族", name:"タノズ", rank:7, intel:"人間並み", percep:"五感(暗視)", habitat:"海岸・川岸", hp:59, mp:42, init:13, move:"13/13(水中)", vit:"9(16)", mres:"9(16)", weakness:"物理ダメージ+2点", know:"12", knowval:"16", attacks:[{part:"ハサミ",hit:"10(17)",dmg:"2d+10",evd:"8(15)",def:"6"}], abilities:["○水中適性","▶妖精魔法6レベル／魔力8(15) — 使用属性：土・水・氷・風・雷。","○魔法適性 — 戦闘特技《マルチアクション》《ターゲッティング》《魔法拡大／数》を習得しています。"], loot:["2〜4：銀利な爪(50G/赤B)","5〜9：命懸の爪(570G/赤A)","10〜：光を砕く爪(1600G/赤S)"], tags:"蛮族,水中,魔法" },
+  { cat:"蛮族", name:"ミノタウロス", rank:7, intel:"低い", percep:"五感(暗視)", habitat:"さまざま", hp:67, mp:"―", init:12, move:"16/―", vit:"9(16)", mres:"7(14)", weakness:"魔法ダメージ+2点", know:"13", knowval:"16", attacks:[{part:"武器",hit:"9(16)",dmg:"2d+12",evd:"7(14)",def:"8"}], abilities:["○複数直正 2 — 攻撃命中で同じ対象にもう1回攻撃可。2回目命中でも発生しない。","💬掃き払いI — 任意3体まで近接攻撃。一括命中判定、ダメージ個別。全て-3点。","💬全力攻撃I — 打撃点+4点。リスクとして回避判定-2。「💬掃き払いI」同時宣言時は打撃点上昇1回のみ。","▶▶練技 — 【マッスルベアー】【ビートルスキン】【キャップアイ】【ガゼルフット】【リカバリィ(5点回復)】"], loot:["自動：ミノタウロスアックス(475G/黒白A)","2〜6：なし","7〜9：大きな角(600G/赤A)","10〜：美しい角(600G/赤A)"], tags:"蛮族" },
+  { cat:"蛮族", name:"ドーンリッパー", rank:7, intel:"人間並み", percep:"五感(暗視)", habitat:"廃墟", hp:56, mp:46, init:14, move:"20/―", vit:"8(15)", mres:"8(15)", weakness:"命中力+1", know:"14", knowval:"17", attacks:[{part:"爪",hit:"10(17)",dmg:"2d+9",evd:"10(17)",def:"7"}], abilities:["▶神聖魔法7レベル／魔力9(16)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法拡大／数》《マルチアクション》を習得しています。","○魔力撃＝+9ダメージ — 打撃点+9点。リスクとして生命・精神抵抗力判定に-2のペナルティ修正。"], loot:["自動：魔族の命宝(500G/白A)","2〜7：闇に砕ける衣(280G/白A)","8〜：魔族の武闘衣(780G/白A)"], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"リザードマンマリーナ", rank:7, intel:"人間並み", percep:"五感", habitat:"沼・湿地", hp:64, mp:20, init:15, move:"14/14(水中)", vit:"10(17)", mres:"10(17)", weakness:"土属性ダメージ+3点", know:"12", knowval:"16", attacks:[{part:"武器",hit:"10(17)",dmg:"2d+6",evd:"9(16)",def:"8"}], abilities:["○水中適性","○連廉 — 同乱戦エリア内の他リザードマンマリーナ数だけ命中・回避力ボーナス。最大+4。","○情 — 同乱戦エリア内でリザードマンが死亡した場合、1ラウンド打撃点+2点（累積）。"], loot:["自動：宝石(150G/金A)","2〜7：きれいな刃(30G/金赤B)","8〜：七色の刃(200G/金赤A)"], tags:"蛮族,水中" },
+  { cat:"蛮族", name:"アラクルーデルハンター", rank:8, intel:"人間並み", percep:"五感", habitat:"山岳", hp:77, mp:18, init:19, move:"10/35(飛行)", vit:"10(17)", mres:"10(17)", weakness:"命中力+1", know:"15", knowval:"19", attacks:[{part:"爪",hit:"10(17)",dmg:"2d+9",evd:"10(17)",def:"6"}], abilities:["○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正。","○飛の連撃 — 爪攻撃の相手にさらに爪で近接攻撃。","💬掃き払いI","💬全力攻撃I","▶▶練技 — 【キャッツアイ】【マッスルベアー】【ガゼルフット】【ビートルスキン】【リカバリィ(5点回復)】","○荒気狂う — HP最大値半分以下で自動発動。「反撃(掃き払いI)」特技習得、打撃点+4、命中判定-2。"], loot:["自動：宝石(150G/金A)","2〜4：きれいな刃(30G/金赤B)","5〜11：七色の刃(200G/金赤A)","12〜：光の刃の目(2000G/金赤S)"], tags:"蛮族,飛行" },
+  { cat:"蛮族", name:"ボルグラウドコマンダー", rank:8, intel:"人間並み", percep:"五感(暗視)", habitat:"森・山・洞窟", hp:72, mp:20, init:15, move:"15/―", vit:"12(19)", mres:"10(17)", weakness:"物理ダメージ+2点", know:"15", knowval:"20", attacks:[{part:"武器",hit:"12(19)",dmg:"2d+9",evd:"9(16)",def:"9"}], abilities:["▶恐怖統率／必中 — 号令で自身と半径30m内の命中・回避力判定に+1ボーナス。戦闘準備でも使用可。","△斬り返しII — 2回まで命中力判定可。1回目成功で打撃点+4。","○痛恨撃 — 2dの出目10以上で打撃点+8点。"], loot:["自動：畜意の命令書(500G/白A)","2〜9：豪華な武器(500G/黒白A)","10〜：手入れの行き届いた武器(1000G/黒白S)"], tags:"蛮族" },
+  { cat:"蛮族", name:"ボルティックフィスト", rank:8, intel:"低い", percep:"五感(暗視)", habitat:"森・山", hp:71, mp:18, init:15, move:"16/―", vit:"11(18)", mres:"9(16)", weakness:"斬空属性ダメージ+3点", know:"15", knowval:"18", attacks:[{part:"砕手",hit:"11(18)",dmg:"2d+14",evd:"9(16)",def:"8"}], abilities:["○霊無効・衝撃無効","○弾丸の皮膚 — 打撃点に対しては防護点を3点高いものとして扱います。","▶雷の拳 — 雷属性攻撃で蓄積（最大6点）。","▶降霊の呼び声／10(17)／精神抵抗力／半減 — 自身周囲「2d+8」点霊属性魔法ダメージ。HP＋対象数×6のMPを消費。"], loot:["2〜6：なし","7〜10：親腕の人体膜(200G/赤A)","11〜：輝く爪(1200G/金赤S)"], tags:"蛮族" },
+  { cat:"蛮族", name:"ワーウルフ", rank:8, intel:"人間並み", percep:"五感(暗視)", habitat:"さまざま", hp:73, mp:15, init:16, move:"21/―", vit:"11(18)", mres:"10(17)", weakness:"銃武器ダメージ+3点", know:"11", knowval:"16", attacks:[{part:"爪",hit:"12(19)",dmg:"2d+10",evd:"11(18)",def:"9"}], abilities:["○通常武器無効 — 銀製か魔法の武器でなければダメージを与えられません。","○獣人の力 — 満月の夜のみ命中・回避力+1ボーナス。太陽の下では-1ペナルティ。","▶2回攻撃＆双撃","▶▶練技 — 【ストロングブラッド】【ビートルスキン】"], loot:["2〜6：旅族の命令書(500G/白A)","7〜10：豪華な武器(500G/黒白A)","11〜：手入れの行き届いた武器(1000G/黒白S)"], tags:"蛮族" },
+  { cat:"蛮族", name:"ケパラウラウラ", rank:8, intel:"人間並み", percep:"五感(暗視)", habitat:"森・沼・湿地・魔域", hp:74, mp:68, init:15, move:"15/―", vit:"9(16)", mres:"11(18)", weakness:"炎属性ダメージ+3点", know:"15", knowval:"18", attacks:[{part:"牙",hit:"11(18)",dmg:"2d+9",evd:"9(16)",def:"6"}], abilities:["○毒無効","▶魔法(2系統)8レベル／魔力10(17)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法拡大／数》《マルチアクション》を習得しています。","▶毒／7(14)／生命抵抗力／消滅 — 牙命中で「6」点毒属性魔法ダメージ。"], loot:["2〜4：なし","5〜8：魔法文明の本(170G/白A)","9〜12：魔法書(500G/白A)","13〜：秘伝を記した魔法書(1500G/白S)"], tags:"蛮族,魔法,毒" },
+  { cat:"蛮族", name:"ダークトロール", rank:8, intel:"人間並み", percep:"五感(暗視)", habitat:"遺跡", hp:77, mp:44, init:14, move:"17/―", vit:"12(19)", mres:"10(17)", weakness:"魔法ダメージ+2点", know:"13", knowval:"18", attacks:[{part:"武器",hit:"11(18)",dmg:"2d+12",evd:"9(16)",def:"9"}], abilities:["▶神聖魔法7レベル／魔力10(17)","○魔法適性 — 戦闘特技《マルチアクション》《魔法拡大／数》《ワードブレイク》を習得しています。","💬魔力撃＝+10ダメージ","○細胞再生＝5点 — 手番終了時HP5点回復。HP0以下で失われる。太陽の下では無効。","○弱体化 — 太陽の下で命中・回避力-2ペナルティ。"], loot:["自動：トロールの血(100G/赤A)","2〜11：宝石(300G/金A)×1d","12〜：奇妙な武器(1300G/黒白S)"], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"アルボルシニア", rank:8, intel:"人間並み", percep:"五感", habitat:"地域・森林", hp:68, mp:46, init:16, move:"18/―", vit:"11(18)", mres:"11(18)", weakness:"炎属性ダメージ+3点", know:"16", knowval:"19", attacks:[{part:"牙",hit:"11(16)",dmg:"2d+10",evd:"9(16)",def:"6"}], abilities:["▶魔法(1系統)7レベル／魔力10(17) — 妖精魔法・森霊魔法のいずれか7レベル。","○魔法適性 — 戦闘特技《ターゲッティング》《鷹の目》《魔法拡大／数》《マルチアクション》を習得しています。","▶塞がる木の作り上げ — 自身中心1エリア内仲間の武器に魔法属性付与（次2ラウンド）。","▶毒／10(17)／生命抵抗力／消滅 — 牙命中で「8」点毒属性魔法ダメージ。"], loot:["自動：緑しい木目の樹(130G/緑黒A)×2","2〜5：なし","7〜10：炎の残滓(900G/金A)","11〜：邪亡の残像(2400G/金S)"], tags:"蛮族,魔法,毒" },
+  { cat:"蛮族", name:"バジリスク(人間形態)", rank:8, intel:"高い", percep:"五感", habitat:"砂漠・遺跡", hp:69, mp:45, init:14, move:"18/―", vit:"9(16)", mres:"9(16)", weakness:"水・氷属性ダメージ+3点", know:"13", knowval:"16", attacks:[{part:"武器",hit:"10(17)",dmg:"2d+10",evd:"9(16)",def:"9"}], abilities:["○毒無効・病気無効","▶真語魔法7レベル／魔力10(17)","○魔法適性 — 戦闘特技《マルチアクション》《魔法拡大すべて》《ワードブレイク》を習得しています。","▶石化の視線／9(16)／精神抵抗力／消滅 — 「射程：形状2(250m)」「対象：1体」を睨みつけ石化進行効果。","○石の血流／11(18)／生命抵抗力／消滅 — 自身にダメージを与えたものは手番終了時「2d」点毒属性魔法ダメージ。","▶▶魔物化 — 魔物形態に変化。"], loot:["自動：バジリスクの血(200G/赤A)","2〜10：なし","11〜：石化の瞳(1200G/金赤S)"], tags:"蛮族,魔法,毒" },
+  { cat:"蛮族", name:"バジリスク(魔物形態)", rank:9, intel:"低い", percep:"五感", habitat:"砂漠・遺跡", hp:73, mp:45, init:15, move:"12(多足)/―", vit:"10(17)", mres:"10(17)", weakness:"水・氷属性ダメージ+3点", know:"11", knowval:"16", attacks:[{part:"なし(頭郡)",hit:"13(20)",dmg:"2d+10",evd:"10(17)",def:"8"},{part:"牛(頭郡)",hit:"10(17)",dmg:"2d+12",evd:"10(17)",def:"11"},{part:"爪尾(胴体)",hit:"17(24)",dmg:"2d+14",evd:"10(17)",def:"15"}], abilities:["○全身/毒無効・病気無効","▶頭郡/石化の視線／10(17)／精神抵抗力／消滅","○胴体/崩立ち — 胴体HP0以下で全部位回避力判定に-2ペナルティ。","▶▶繰り人形 — 人間形態に変化。HPとMP最大まで回復。"], loot:["自動：バジリスクの血(200G/赤A)","2〜9：なし","11〜12：石化の瞳(1200G/金赤S)","13〜：停止の種(10000G/金赤SS)"], tags:"蛮族,多部位,毒" },
+  { cat:"蛮族", name:"オーガウィザード", rank:9, intel:"人間並み", percep:"五感(暗視)", habitat:"さまざま", hp:72, mp:85, init:15, move:"18/―", vit:"12(19)", mres:"12(19)", weakness:"命中力+1", know:"14", knowval:"17", attacks:[{part:"武器",hit:"12(19)",dmg:"2d+13",evd:"12(19)",def:"10"}], abilities:["▶真語魔法・操霊魔法6レベル／魔力11(18)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法自在》《魔法拡大／数》《ワードブレイク》を習得しています。","▶▶人化 — 人族の姿に変化。命中・回避・抵抗-1、最大HP/MP-5。1日最大18時間。"], loot:["2〜6：銀貨袋(100G/―)×1d","7〜11：宝石(150G/金A)×1d","12〜：金の塊(2500G/金S)"], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"グレンデル", rank:9, intel:"低い", percep:"五感(暗視)", habitat:"海岸・沼・湿地", hp:80, mp:14, init:16, move:"15/15(水中)", vit:"13(20)", mres:"11(18)", weakness:"炎属性ダメージ+3点", know:"16", knowval:"18", attacks:[{part:"爪(上半身)",hit:"12(19)",dmg:"2d+14",evd:"11(18)",def:"6"},{part:"爪尾(下半身)",hit:"13(20)",dmg:"2d+11",evd:"10(17)",def:"8"}], abilities:["○全身/水中適性","○上半身/水蒸爆 — 自身中心1エリア（半径4m）で転倒させる。水上・水中でのみ使用可。"], loot:["2〜9：なし","10〜：銀色のマント(1000G/白S)","13〜：漆黒のマント(5000G/白S)"], tags:"蛮族,多部位,水中" },
+  { cat:"蛮族", name:"タノズクレリック", rank:9, intel:"人間並み", percep:"五感(暗視)", habitat:"海岸・川岸", hp:83, mp:78, init:14, move:"15/15(水中)", vit:"11(18)", mres:"11(18)", weakness:"物理ダメージ+2点", know:"14", knowval:"18", attacks:[{part:"ハサミ",hit:"12(19)",dmg:"2d+13",evd:"11(18)",def:"7"}], abilities:["○水中適性","▶神聖魔法・妖精魔法9レベル／魔力11(18) — 妖精魔法使用属性：土・水・氷・風・雷。","○魔法適性 — 戦闘特技《ターゲッティング》《魔法自在》《魔法拡大／数》を習得しています。"], loot:["2〜8：輝者払う爪(570G/赤A)","9〜11：光を砕く爪(1660G/赤S)","12〜：世界の牙(4400G/金S)"], tags:"蛮族,水中,魔法" },
+  { cat:"蛮族", name:"フーグルモーター", rank:9, intel:"低い", percep:"五感(暗視)", habitat:"砂漠・山岳", hp:74, mp:27, init:18, move:"15/20(飛行)", vit:"11(18)", mres:"11(18)", weakness:"風属性ダメージ+3点", know:"16", knowval:"19", attacks:[{part:"爪",hit:"12(19)",dmg:"2d+11",evd:"11(18)",def:"8"}], abilities:["▶▶機動飛行 — 10秒間近接攻撃命中・回避力+1。連続した手番には使えない。戦闘準備使用時は1ラウンド目不可。","○翼での追撃 — 爪攻撃の相手にさらに翼で近接攻撃を追加1回。","▶▶練技 — 【キャッツアイ】【マッスルベアー】【デーモンフィンガー】【ジャイアントアーム】"], loot:["2〜4：琥珀色の鱗(90G/赤B)","5〜8：七色の鱗(220G/金赤A)","9〜：握り七色の鱗(570G/金赤A)"], tags:"蛮族,飛行" },
+  { cat:"蛮族", name:"ミノタウロスキャスター", rank:9, intel:"人間並み", percep:"五感(暗視)", habitat:"さまざま", hp:77, mp:60, init:12, move:"12/―", vit:"11(18)", mres:"10(17)", weakness:"魔法ダメージ+2点", know:"11", knowval:"18", attacks:[{part:"武器",hit:"9(16)",dmg:"2d+12",evd:"7(14)",def:"8"}], abilities:["▶魔法(2系統)8レベル／魔力11(18) — 真語・操霊・神聖魔法のうち任意2系統を8レベルまで。","○魔法適性 — 戦闘特技《ターゲッティング》《魔法自在》を習得しています。","💬掃き払いI"], loot:["自動：ミノタウロスアックス(475G/黒白A)","7〜9：大きな角(600G/赤A)","10〜：美しい角(600G/赤A)","11〜：立派な角(3500G/赤S)"], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"ドレイクバロン(人間形態)", rank:9, intel:"高い", percep:"五感(暗視)", habitat:"さまざま", hp:88, mp:48, init:17, move:"20/40(飛行)", vit:"12(19)", mres:"13(20)", weakness:"魔法ダメージ+2点", know:"15", knowval:"20", attacks:[{part:"武器",hit:"12(19)",dmg:"2d+13",evd:"10(17)",def:"10"}], abilities:["▶操霊魔法7レベル／魔力10(17)","○魔法適性 — 戦闘特技《マルチアクション》《ターゲッティング》《魔法自在》《魔法拡大／数》《ワードブレイク》を習得しています。","▶▶練技 — 【ヒットスキン】【キャッツアイ】【リカバリィ(5点回復)】","💬魔力撃＝+10ダメージ","○飛行","▶▶電化 — 竜形態に変化。"], loot:["自動：剣のかけら(200G/―)×5","2〜9：竜人の角(500G/赤A)","10〜：美しい竜人の角(4200G/赤S)"], tags:"蛮族,飛行,魔法" },
+  { cat:"蛮族", name:"ドレイクバロン(竜形態)", rank:10, intel:"高い", percep:"五感(暗視)", habitat:"さまざま", hp:98, mp:58, init:19, move:"20/40(飛行)", vit:"13(20)", mres:"14(21)", weakness:"魔法ダメージ+2点", know:"13", knowval:"20", attacks:[{part:"牙(胴体)",hit:"12(19)",dmg:"2d+15",evd:"11(18)",def:"12"},{part:"翼(翼)",hit:"14(21)",dmg:"2d+12",evd:"9(16)",def:"9"},{part:"翼(翼)",hit:"14(21)",dmg:"2d+12",evd:"9(16)",def:"9"}], abilities:["▶操霊魔法7レベル／魔力10(17)","○魔法適性","▶▶練技 — 【ヒットスキン】【キャッツアイ】【リカバリィ(9点回復)】【ジャイアントアーム】【スフィンクスノレッジ】","💬魔力撃＝+21ダメージ","▶光のブレス／11(18)／生命抵抗力／半減 — 「2d+25」点純エネルギー属性魔法ダメージ。連続した手番不可。","▶▶瞬時人間化 — 人間形態に変化。"], loot:["自動：剣のかけら(200G/―)","2〜9：竜人の角(500G/赤A)","10〜：美しい竜人の角(4200G/赤S)"], tags:"蛮族,多部位,飛行,魔法" },
+  { cat:"蛮族", name:"ディアボロテナント(人間形態)", rank:10, intel:"高い", percep:"五感(暗視)", habitat:"荒野・魔域", hp:96, mp:58, init:18, move:"20/20(飛行)", vit:"13(20)", mres:"13(20)", weakness:"純エネルギー属性ダメージ+3点", know:"18", knowval:"21", attacks:[{part:"武器",hit:"13(20)",dmg:"2d+13",evd:"12(19)",def:"9"}], abilities:["○強靭な皮膚","○飛行","○限定2回行動 — 1ラウンドに主動作を2回行えます。ただし近距攻撃で、💬掃き払いIIの宣言は禁止。","💬掃き払いII — 自身の乱戦エリア内の任意5体を武器攻撃。","▶魔人の視光II／必中","▶▶瞬時魔人化 — 魔人形態に変化。HP・MP最大まで回復。"], loot:["自動：アビスシャード(200G/―)×2","2〜8：黒の宝玉(300G/金A)×1d","9〜：漆黒の宝玉(2200G/金S)×2"], tags:"蛮族,飛行,魔法" },
+  { cat:"蛮族", name:"ディアボロテナント(魔人形態)", rank:11, intel:"高い", percep:"五感(暗視)", habitat:"荒野・魔域", hp:104, mp:53, init:19, move:"20/20(飛行)", vit:"14(21)", mres:"14(21)", weakness:"純エネルギー属性ダメージ+3点", know:"24", knowval:"27", attacks:[{part:"牙(頭部)",hit:"15(22)",dmg:"2d+20",evd:"18(25)",def:"14"},{part:"武器(胴体)",hit:"14(21)",dmg:"2d+16",evd:"11(18)",def:"11"}], abilities:["○全身/強靭な皮膚","○胴体/飛翔","▶頭部/限定2回行動","▶頭部/魔人の視光II／必中","▶▶人間化 — 人間形態に変化。HP・MP最大まで回復。"], loot:["自動：アビスシャード(200G/―)×1d","2〜7：黒の宝玉(300G/金A)×1d","8〜12：漆黒の宝玉(2200G/金S)","13〜：暗黒の宝玉(4800G/金S)"], tags:"蛮族,多部位,飛行,魔法" },
+  { cat:"蛮族", name:"オーガバーサーカー", rank:11, intel:"低い", percep:"五感(暗視)", habitat:"さまざま", hp:103, mp:13, init:17, move:"19/―", vit:"16(23)", mres:"13(20)", weakness:"魔法ダメージ+2点", know:"15", knowval:"20", attacks:[{part:"武器",hit:"15(22)",dmg:"2d+18",evd:"12(19)",def:"13"}], abilities:["○連続攻撃II — 攻撃命中で同じ対象にもう1回攻撃可。2回目命中でも3回目は発生しない。","💬全力攻撃II — 打撃点+12点。リスクとして回避判定-2。「○連続攻撃II」の追加攻撃には最初の攻撃のみ適用。","▶▶練技 — 【マッスルベアー】【ビートルスキン】【キャップアイ】【ガゼルフット】"], loot:["2〜8：銀貨袋(200G/―)","9〜12：宝石(500G/金S)×1d","13〜：狂戦士の黄金瞳(4500G/金黒S)"], tags:"蛮族" },
+  { cat:"蛮族", name:"タノズベテラン", rank:11, intel:"人間並み", percep:"五感(暗視)", habitat:"海岸・川岸", hp:101, mp:61, init:18, move:"16/16(水中)", vit:"14(21)", mres:"14(21)", weakness:"物理ダメージ+2点", know:"18", knowval:"20", attacks:[{part:"ハサミ",hit:"14(21)",dmg:"2d+17",evd:"8(15)",def:"10"}], abilities:["○水中適性","▶妖精魔法10レベル／魔力12(19) — 使用属性：土・水・氷・風・雷。","○魔法適性 — 戦闘特技《マルチアクション》《ターゲッティング》《魔法自在》《魔法拡大／数》を習得しています。"], loot:["2〜6：強壮な爪(570G/赤A)","7〜9：朽ち砕く爪(1660G/赤S)","10〜：世界の牙(4400G/金S)"], tags:"蛮族,水中,魔法" },
+  { cat:"蛮族", name:"オーガウォーロード", rank:13, intel:"人間並み", percep:"五感(暗視)", habitat:"さまざま", hp:121, mp:69, init:20, move:"20/―", vit:"18(25)", mres:"18(25)", weakness:"物理ダメージ+2点", know:"16", knowval:"20", attacks:[{part:"武器",hit:"17(24)",dmg:"2d+15",evd:"14(21)",def:"16"}], abilities:["○複数直正＝2回","▶真語魔法10レベル／魔力14(21)","○魔法適性 — 戦闘特技《マルチアクション》《ターゲッティング》《魔法自在》《魔法拡大大すべて》《ワードブレイク》を習得しています。","💬魔力撃＝+14ダメージ"], loot:["9〜：金貨袋(1400G/―)","9〜12：豪華な装備品(500G/白A)×2d","13〜：王の宝剣(8000G/金黒白S)"], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"ブラッドトロール", rank:13, intel:"高い", percep:"五感(暗視)", habitat:"遺跡", hp:123, mp:88, init:18, move:"21/―", vit:"18(25)", mres:"16(23)", weakness:"魔法ダメージ+2点", know:"17", knowval:"20", attacks:[{part:"武器",hit:"15(22)",dmg:"2d+14",evd:"15(22)",def:"14"}], abilities:["▶神聖魔法13レベル／魔力17(24)","○魔法適性 — 戦闘特技《マルチアクション》《魔法拡大／数》《ワードブレイク》を習得しています。","💬魔力撃＝+17ダメージ","○細胞再生＝10点 — 手番終了時HP10点回復。HP0以下で失われる。太陽の下では無効。","○弱体化 — 太陽の下で命中・回避力-2ペナルティ。"], loot:["自動：トロールの血(500G/赤A)","2〜11：宝石(300G/金A)×1d","7〜11：奇妙な武器(3000G/黒白S)","12〜：奇妙な武器(6200G/金白S)"], tags:"蛮族,魔法" },
+  { cat:"蛮族", name:"ムルシエラゴ", rank:11, intel:"高い", percep:"五感(暗視)", habitat:"不明", hp:91, mp:77, init:18, move:"20/20(飛行)", vit:"14(21)", mres:"14(21)", weakness:"物理ダメージ+2点", know:"19", knowval:"22", attacks:[{part:"牙",hit:"13(20)",dmg:"2d+14",evd:"13(20)",def:"10"}], abilities:["○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正を得ます。","○守りの剃刃 — 「守りの剃」の影響範囲内にいる場合、自身の持つ「縁」を本来より2点高いものとして扱います。","▶真語魔法11レベル／魔力14(21)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《魔法拡大大すべて》《マルチアクション》《ルーンマスター》を習得しています。","○血の絆／14(21)／精神抵抗力／消滅 — 自身の体を深く抉ることで、相手の行動を縛り上げます。「射程：接触」「対象：1エリア（半径3m）／5」に「2d+14」点の闇属性の魔法ダメージを与えます。このダメージを与えた場合、対象は精神的な「絆」で縛られます。","▶コウモリ変身 — 自身の体を20cm程度のコウモリへと変化します。コウモリとして変化した場合、自身の行動能力はコウモリと同様（コウモリとして扱われます）。"],  loot:["自動：ムルシエラゴの煮血(2000G/赤S)","2〜9：なし","10〜12：金血の命宝(500G/白A)","13〜：由緒の指血鬼(5000G/白S)"], tags:"蛮族,飛行,魔法" },
+  { cat:"蛮族", name:"レッサーヴァンパイア", rank:11, intel:"高い", percep:"五感(暗視)", habitat:"さまざま", hp:99, mp:77, init:18, move:"18/36(飛行)", vit:"14(21)", mres:"14(21)", weakness:"銃武器ダメージ+3点", know:"12", knowval:"20", attacks:[{part:"爪",hit:"14(21)",dmg:"2d+14",evd:"13(20)",def:"11"}], abilities:["▶真語魔法・操霊魔法10レベル／魔力14(21)","▶真語魔法・操霊魔法8レベル／魔力11(18)","○祝福／13(20)／精神抵抗力／消滅 — 「射程：形状2(50m)／射撃」で、「対象：1体」を睨みつけます。対象は、10秒（1ラウンド）の間、自身がすべての補助動作と宣言特技の宣言が行えなくなります。さらに36（6ラウンド）の間、命中力・回避力判定に-2のペナルティ修正を受けます。","○吸血鬼の矛 — 自身の存在する乱戦エリア内の1体に飛びつきます。「2d+10」点の物理魔法ダメージを与えます。このダメージによってHPが0以下になった対象は、生命判定に-1のペナルティ修正を受け、特殊能力「○通常武器無効」を失います。ブラッドサッカー（⇒132頁）を指します。","○通常武器無効","○再生＝7点 — 手番終了時にHPが「7」点回復。HP0以下になると失われる。","▶吸血の身体 — 太陽の下いる限り、手番終了時に「7」点の魔法ダメージを受ける。「この魔物のHPが0以下になった対象は、生命判定に-1のペナルティ修正を受け、通常武器無効」・「○再生」の効果を失います。"], loot:["2〜10：なし","11〜12：金血の命宝(900G/白A)","13〜：由緒の指血鬼(3000G/白S)"], tags:"蛮族,飛行,魔法" },
+  { cat:"蛮族", name:"ガルーダ", rank:12, intel:"人間並み", percep:"五感", habitat:"山岳", hp:121, mp:26, init:19, move:"18/20(飛行)", vit:"15(22)", mres:"15(22)", weakness:"炎属性ダメージ+3点", know:"14", knowval:"19", attacks:[{part:"爪(頭部)",hit:"14(21)",dmg:"2d+13",evd:"14(21)",def:"5"},{part:"武器(胴体)",hit:"18(25)",dmg:"2d+19",evd:"13(20)",def:"9"},{part:"武器(翼)",hit:"14(21)",dmg:"2d+9",evd:"14(21)",def:"4"}], abilities:["○頭部/連続攻撃II — 攻撃命中で同じ対象にもう1回攻撃可。2回目命中でも3回目は発生しない。","▶頭部/練技 — 【キャッツアイ】【マッスルベアー】【ビートルスキン】の練技を使用します。","○胴体/飛翔 — 全部位で近接攻撃における命中力・回避力判定に+1のボーナス修正。「部位：翼」のいずれかのHPが0以下になった場合失われる。","▶胴体/嵐気のブレス／15(22)／生命抵抗力／半減 — 「射程：形状2(50m)／射撃」で「対象：1体」に炎を吐きかけ、「2d+12」点の風属性の魔法ダメージを与えます。この能力は連続した手番には使えません。","▶翼/切り狩ぐ爪 — 「射程：形状2(30m)／起点指定」で「対象：1体」の友の方向から翼の先の刃で1体を切り狩ぎます。対象に「射程：接触」の近距攻撃で物理ダメージを与えます。","○翼/飛翔II — すべての部位は、近接攻撃における命中力・回避力判定に+2のボーナス修正を得る。"], loot:["2〜5：なし","5〜11：きれいな刃(200G/金赤A)","12〜：嵐刃の羽(3500G/赤S)"], tags:"蛮族,多部位,飛行" },
+  { cat:"蛮族", name:"ケバラマルガウラ", rank:12, intel:"人間並み", percep:"五感(暗視)", habitat:"森・沼・湿地・魔域", hp:113, mp:107, init:19, move:"15/―", vit:"14(21)", mres:"16(23)", weakness:"炎属性ダメージ+3点", know:"19", knowval:"22", attacks:[{part:"牙",hit:"15(22)",dmg:"2d+15",evd:"13(20)",def:"9"}], abilities:["○毒無効","▶魔法(2系統)12レベル／魔力14(21)","○魔法適性 — 戦闘特技《マルチアクション》《ターゲッティング》《魔法収束》《鷹の目》《魔法拡大大すべて》《ルーンマスター》を習得しています。","▶毒／命中時 — 牙命中で対象に「8」点毒属性魔法ダメージ。"], loot:["2〜4：なし","5〜8：魔法文明の本(170G/白A)","9〜12：魔法書(500G/白A)","13〜：秘伝を記した魔法書(1500G/白S)"], tags:"蛮族,魔法,毒" },
+  { cat:"蛮族", name:"サキュバス", rank:12, intel:"人間並み", percep:"五感(暗視)", habitat:"さまざま", hp:96, mp:108, init:13, move:"20/40(飛行)", vit:"15(22)", mres:"17(24)", weakness:"魔法ダメージ+2点", know:"17", knowval:"20", attacks:[{part:"爪",hit:"13(20)",dmg:"2d+14",evd:"13(20)",def:"10"}], abilities:["○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正。","▶魔法(2系統)12レベル／魔力16(23)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《魔法拡大》《ワードブレイク》を習得しています。","▶淫夢／16(23)／精神抵抗力／消滅 — 「射程：接触」「対象：1体」を対象に夢を見せます。対象が選ばれ、対象のHPかMPに「2d」の炎の魔法系の魔法ダメージを与えます。このダメージを与えた場合、次のうちサキュバス自身が選べます。"], loot:["自動：淫魔の苦油(400G/赤A)","2〜8：魔魂(実)(3000G/赤S)","13〜：秘怨の苦魂(7000G/赤S)"], tags:"蛮族,飛行,魔法" },
+  { cat:"蛮族", name:"ヘカトンケイレス", rank:15, intel:"人間並み", percep:"五感(暗視)", habitat:"さまざま", hp:148, mp:35, init:20, move:"21/28(腕部)", vit:"21(28)", mres:"19(26)", weakness:"物理ダメージ+2点", know:"16", knowval:"22", attacks:[{part:"武器(上半身)",hit:"19(26)",dmg:"2d+12",evd:"19(26)",def:"12"},{part:"武器(上半身)",hit:"21(26)",dmg:"2d+12",evd:"19(26)",def:"12"},{part:"蹴り(下半身)",hit:"19(26)",dmg:"2d+21",evd:"21(28)",def:"15"},{part:"蹴り(下半身)",hit:"19(26)",dmg:"2d+21",evd:"21(28)",def:"15"}], abilities:["○武器鑑真・必中 — 腕を振り回し、自身の存在する乱戦エリア内の任意のすべてに「2d＋（腕の数＋5）」点の物理ダメージを与えます。また、この能力を使ったら、すべての「部位：上半身」の主動作が完了します。","○攻撃境界 — 腕を振り回し、1ラウンドに1体の対象に対して攻撃できる「部位：上半身」の数は、2つまでに制限されます。","▶全力攻撃II — 打撃点を+12点する。リスクとして、自身の回避力判定に-2のペナルティ修正を受けます。","○重装防護 — 「部位：下半身」の防護点の一つに、「部位：上半身」の防護点が+2されます。","○下半身/攻撃障害＝+4・なし — 大きさが攻撃を妨げます。「部位：下半身」は近接攻撃に対する回避力判定に+4のボーナス修正を得ます。「部位：下半身」のHPが0以下となった場合、この能力は失われます。","○両腕みつけ — 命中力判定に+4のボーナス修正を得ます。同時に、自身の打撃点が-8点されます。"], loot:["自動：なし","2〜7：なし","8〜12：金の腕(3600G/金S)","13〜：金の腕(18000G/金SS)"], tags:"蛮族,多部位" },
+  { cat:"蛮族", name:"オニクスバジリスク(人間形態)", rank:13, intel:"高い", percep:"五感", habitat:"砂漠・遺跡", hp:118, mp:91, init:18, move:"15/―", vit:"17(24)", mres:"16(23)", weakness:"水・氷属性ダメージ+3点", know:"17", knowval:"24", attacks:[{part:"武器",hit:"17(24)",dmg:"2d+14",evd:"15(22)",def:"14"}], abilities:["○毒無効・病気無効","▶真語魔法12レベル／魔力16(23)","○魔法適性 — 戦闘特技《マルチアクション》《魔法拡大すべて》《ワードブレイク》を習得しています。","▶黒魔場の視線／15(22)／精神抵抗力／消滅 — 石化進行（石化進行度か敏捷⇒-6）の効果。精神抵抗力判定の達成値が4点以上上回れば精神抵抗で続石に。1ラウンドに1度。","○停滞の視線／14(21)／精神抵抗力／消滅 — 射程：形状30m、対象に命中・回避力判定-2ペナルティを与える。","○毒の血流／16(23)／生命抵抗力／消滅 — 自身にダメージを与えたものは手番終了時「2d+6」点毒属性魔法ダメージ。","▶▶魔物化 — 魔物形態に変化。"], loot:["自動：オニクスバジリスクの血(1000G/赤S)","2〜5：なし","6〜11：黒魔場の瞳(1000G/金赤S)","12〜：停止の種(10000G/金赤SS)"], tags:"蛮族,魔法,毒" },
+  { cat:"蛮族", name:"オニクスバジリスク(魔物形態)", rank:14, intel:"低い", percep:"五感", habitat:"砂漠・遺跡", hp:126, mp:73, init:19, move:"12(多足)/―", vit:"17(24)", mres:"17(24)", weakness:"水・氷属性ダメージ+3点", know:"12", knowval:"20", attacks:[{part:"なし(右前郡)",hit:"18(25)",dmg:"2d+12",evd:"15(22)",def:"6"},{part:"なし(左前郡)",hit:"18(25)",dmg:"2d+12",evd:"15(22)",def:"6"},{part:"牛(頭郡)",hit:"17(24)",dmg:"2d+16",evd:"15(22)",def:"11"},{part:"爪尾(胴体)",hit:"15(22)",dmg:"2d+15",evd:"15(22)",def:"15"}], abilities:["○全身/毒無効・病気無効","▶右前郡/黒魔場の視線／16(23)／精神抵抗力／消滅","▶左前郡/停滞の視線","○頭郡/崩立ち — 胴体HP0以下で全部位回避力判定に-2ペナルティ。","▶▶繰り人形 — 人間形態に変化。HPとMP最大まで回復。"], loot:["自動：オニクスバジリスクの血(1000G/赤S)","2〜5：なし","6〜11：黒魔場の瞳(1000G/金赤S)","12〜：停止の種(10000G/金赤SS)"], tags:"蛮族,多部位,毒" },
+  { cat:"蛮族", name:"ボルグサプレッサー", rank:14, intel:"人間並み", percep:"五感(暗視)", habitat:"さまざま", hp:122, mp:7, init:21, move:"12(多足)/―", vit:"18(25)", mres:"16(23)", weakness:"物理ダメージ+2点", know:"19", knowval:"24", attacks:[{part:"武器",hit:"19(26)",dmg:"2d+18",evd:"16(23)",def:"7"}], abilities:["○2回攻撃＆双撃","○カウンター — 戦闘特技《カウンター》と同じ効果。","○近遠攻撃(腕部)／17(24)／生命抵抗力／消滅 — 「射程：接触」「対象：1体」を生命抵抗力で判定させます。続く10秒（1ラウンド）の間、命中力の判定に失敗させ、続く10秒（1ラウンド）の間、命中力の判定に失敗させます。","○近遠攻撃(腕部、半撃)／17(24)／精神抵抗力／消滅 — 近くの攻撃が命中した場合、対象を生命抵抗力で判定させます。続く10秒（1ラウンド）の間、命中力の判定に失敗させます。","▶抑圧の挙動／17(24)／精神抵抗力／消滅 — 「射程：自身」「対象：全エリア（半径6m）／5」で、対象の足元に面を落とします。"], loot:["自動：畜意の命令書(500G/白A)","5〜10：強羮な武器(500G/白A)","11〜：豪華な武器(3200G/黒白S)"], tags:"蛮族" },
+  { cat:"蛮族", name:"ディアボロキャプテン(人間形態)", rank:15, intel:"高い", percep:"五感(暗視)", habitat:"荒野・魔域", hp:132, mp:85, init:24, move:"25/25(飛行)", vit:"19(26)", mres:"19(26)", weakness:"純エネルギー属性ダメージ+3点", know:"23", knowval:"26", attacks:[{part:"武器(頭部)",hit:"19(26)",dmg:"2d+20",evd:"18(25)",def:"14"},{part:"武器(右腕)",hit:"21(28)",dmg:"2d+20",evd:"18(25)",def:"14"},{part:"武器(左腕)",hit:"21(28)",dmg:"2d+20",evd:"17(24)",def:"16"}], abilities:["○全身/強靭な皮膚 — 斬空・衝撃属性の物理・魔法ダメージを-3点する。","○全身/飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正。","○限定2回行動 — 1ラウンドに主動作を2回。ただし近距攻撃で、「💬掃き払いII」の宣言は禁止。","▶頭部/魔人の視光II／必中","💬掃き払いII — 自身の乱戦エリア内の任意5体を武器攻撃。","○魔人の視光II — を各1回ずつに限られます。","▶▶瞬時魔人化 — 魔人形態に変化。HPとMP最大まで回復。"], loot:["自動：アビスシャード(200G/―)×5","2〜5：漆黒の宝玉(2200G/金S)×2","6〜12：精霊の宝玉(4000G/金赤S)×2","13〜：奔流の宝玉(15500G/金赤SS)×2"], tags:"蛮族,多部位,飛行,魔法" },
+  { cat:"蛮族", name:"ディアボロキャプテン(魔人形態)", rank:16, intel:"高い", percep:"五感(暗視)", habitat:"荒野・魔域", hp:132, mp:85, init:24, move:"25/25(飛行)", vit:"20(27)", mres:"20(27)", weakness:"純エネルギー属性ダメージ+3点", know:"24", knowval:"27", attacks:[{part:"牙(頭部)",hit:"21(28)",dmg:"2d+22",evd:"18(25)",def:"14"},{part:"武器(右腕)",hit:"21(28)",dmg:"2d+22",evd:"18(25)",def:"14"},{part:"武器(左腕)",hit:"21(28)",dmg:"2d+20",evd:"17(24)",def:"16"}], abilities:["○全身/強靭な皮膚 — 斬空・衝撃属性の物理・魔法ダメージを-3点する。","○胴体/飛翔 — 全部位で近接攻撃における命中力・回避力判定に+1のボーナス修正。「部位：胴体」のHPが0以下で失われる。","○全身/限定2回行動","▶頭部/魔人の視光II／必中","○魔人の視光II — ディアボロキャプテン（人間形態）のものと同じ。","💬掃き払いII","○右腕・左腕/双撃 — 近距離攻撃可能なキャラクターを任意に5体まで武器での攻撃を行います。","▶▶人間化 — 人間形態に変化。HPとMP最大まで回復。"], loot:["自動：アビスシャード(200G/―)×5","2〜5：漆黒の宝玉(2200G/金S)×2","6〜12：精霊の宝玉(4000G/金赤S)×2","13〜：奔流の宝玉(15500G/金赤SS)×2"], tags:"蛮族,多部位,飛行,魔法" },
+  { cat:"蛮族", name:"ムルシエラゴラティーゴ", rank:15, intel:"人間並み", percep:"五感(暗視)", habitat:"不明", hp:128, mp:94, init:22, move:"25/25(飛行)", vit:"19(26)", mres:"19(26)", weakness:"物理ダメージ+2点", know:"19", knowval:"22", attacks:[{part:"牙",hit:"18(25)",dmg:"2d+19",evd:"18(25)",def:"16"}], abilities:["○飛行","▶真語魔法15レベル／魔力19(26)","○魔法適性 — 戦闘特技《ターゲッティング》《魔法収束》《魔法拡大大すべて》《マルチアクション》《ルーンマスター》を習得しています。","○複数宣言＝2回","○守りの剃刃","▶魔力撃＝+19ダメージ","💬掃き払いII","○血の絆／18(25)／精神抵抗力／消滅","▶コウモリ変身","自動：ムルシエラゴの煮血(2000G/赤S)×1d"], loot:["2〜6：なし","7〜：血族の煮血(5000G/赤S)"], tags:"蛮族,飛行,魔法" },
+  { cat:"蛮族", name:"サキュバスナイト", rank:16, intel:"高い", percep:"五感(暗視)", habitat:"さまざま", hp:122, mp:126, init:23, move:"23/46(飛行)", vit:"20(27)", mres:"20(27)", weakness:"魔法ダメージ+2点", know:"22", knowval:"26", attacks:[{part:"武器",hit:"20(27)",dmg:"2d+20",evd:"20(27)",def:"15"}], abilities:["○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正。","▶魔法(2系統)15レベル／魔力20(27) — 真語魔法と幻惑魔法のうち、いずれか2つの系統を15レベルで習得しています。","○魔法適性 — 戦闘特技《マルチアクション》《ターゲッティング》《魔法収束》《魔法拡大大すべて》《マルチアクション》を習得しています。","○複数宣言＝2回","💬魔力撃＝+20ダメージ","○痛恨撃 — 打撃点決定の2dの出目が10以上だった場合、打撃点をさらに「+12」点します。","▶淫夢／20(27)／精神抵抗力／消滅 — HPかMPに「2d」の魔法ダメージを与え、効果を選択。"], loot:["自動：淫魔の苦油(6700G/赤S)","2〜8：魔魂(実)(1000G/赤A)","9〜12：秘怨の苦魂(7000G/赤S)","13〜：妖感な夜魂(19000G/赤SS)"], tags:"蛮族,飛行,魔法" },
+  { cat:"蛮族", name:"ヴァンパイアテトラヘドロン", rank:17, intel:"高い", percep:"五感(暗視)", habitat:"さまざま", hp:144, mp:144, init:23, move:"18/36(飛行)", vit:"22(29)", mres:"22(29)", weakness:"純エネルギー属性ダメージ+3点", know:"19", knowval:"26", attacks:[{part:"牙",hit:"22(29)",dmg:"2d+30",evd:"21(28)",def:"20"}], abilities:["▶真語魔法・操霊魔法14レベル／魔力21(28)","○魔法適性 — 戦闘特技《マルチアクション》《ターゲッティング》《魔法収束》《魔法拡大（鷹の目）》《魔法拡大すべて》《ダブルキャスト》《ルーンマスター》《ワードブレイク》を習得しています。","○複数宣言＝2回","○通常武器無効","○知識と弱点値確認 — 21(28) — セージ知名度21以上（固定達成値26）で使えます。「この魔物に、知識点に対応する弱点値のダメージ」を与え続ける。","○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正。","○再生＝12点 — 手番終了時にHPが「12」点回復。HP0以下になると失われる。","○吸血の身体 — 太陽の下いる限り、手番終了時に「12」点の魔法ダメージ。命中・回避力判定に-2のペナルティ修正。さらに「通常武器無効」と「○再生」の効果を失います。","▶▶次世代の吸血鬼 — 「牙」の攻撃が命中した場合、前後の吸血鬼たちを呼び寄せます。「牙」の攻撃が命中し、10秒（1ラウンド）に1回しか使用できます。","○「マター氏族の吸血鬼」 — 「牙」の攻撃が命中した場合、その適用ダメージ分、この魔物のHPが回復します。「牙」の攻撃によってHPが0以下になった対象は、生命判定に-15のペナルティ修正を受け、「仮死」を受けた場合は「再生（3点）」を受けます。対象はその後自動的に「マッドブラッド（⇒137頁）」になります。"], loot:["自動：美しい正規体(6000G/金緑S)","2〜10：なし","11〜12：不思議な折鏡棒(3500G/金黒白S)","13〜：不意義の折鏡棒(16500G/金黒白SS)"], tags:"蛮族,飛行,魔法" },
+  { cat:"蛮族", name:"ドレイクカウント(人間形態)", rank:17, intel:"高い", percep:"五感(暗視)", habitat:"さまざま", hp:150, mp:90, init:23, move:"30/60(飛行)", vit:"23(30)", mres:"23(30)", weakness:"魔法ダメージ+2点", know:"18", knowval:"25", attacks:[{part:"武器",hit:"21(28)",dmg:"2d+21",evd:"21(28)",def:"21"}], abilities:["▶操霊魔法・操盤魔法15レベル／魔力21(28)","○魔法適性 — 戦闘特技《マルチアクション》《ターゲッティング》《魔法収束》《魔法拡大（鷹の目）》《魔法拡大すべて》《ダブルキャスト》《ワードブレイク》を習得しています。","○複数宣言＝2回","▶▶練技 — 【ヒットスキン】【キャッツアイ】【リカバリィ(5点回復)】の練技を使用します。","💬魔力撃＝+21ダメージ — 打撃点を+21点する。リスクとして、自身の生命・精神抵抗力判定に-2のペナルティ修正。","○飛行 — 近接攻撃における命中力・回避力判定に+1のボーナス修正。","▶▶電化 — 竜形態に変化。"], loot:["自動：牧草入りの指輪(3000G/金S)","2〜9：竜人の角(4200G/赤S)","10〜：美しい竜人の角(12600G/赤SS)"], tags:"蛮族,飛行,魔法" },
+  { cat:"蛮族", name:"ドレイクカウント(竜形態)", rank:18, intel:"高い", percep:"五感(暗視)", habitat:"さまざま", hp:150, mp:90, init:23, move:"30/60(飛行)", vit:"24(31)", mres:"24(31)", weakness:"魔法ダメージ+2点", know:"19", knowval:"26", attacks:[{part:"牙(胴体)",hit:"22(29)",dmg:"2d+22",evd:"22(29)",def:"22"},{part:"翼(翼×2)",hit:"22(29)",dmg:"2d+18",evd:"19(26)",def:"19"},{part:"翼(翼×2)",hit:"22(29)",dmg:"2d+18",evd:"19(26)",def:"19"}], abilities:["▶操霊魔法15レベル／魔力21(28)","○魔法適性 — 戦闘特技《マルチアクション》《ターゲッティング》《魔法収束》《魔法拡大（鷹の目）》《魔法拡大すべて》《ダブルキャスト》《ワードブレイク》を習得しています。","▶▶練技 — 【ヒットスキン】【キャッツアイ】【リカバリィ(9点回復)】【ジャイアントアーム】【スフィンクスノレッジ】","💬魔力撃＝+21ダメージ","▶光のブレス／24(31)／生命抵抗力／半減 — 「2d+25」点純エネルギー属性魔法ダメージ。連続した手番不可。","▶▶瞬時人間化 — 人間形態に変化。","○飛翔 — 全部位で近接攻撃における命中力・回避力判定に+1のボーナス修正。「部位：翼」のいずれかのHPが0以下になった場合失われる。","○翼/飛翔II — 翼の部位は近接攻撃における命中力・回避力判定に+2のボーナス修正。"], loot:["自動：牧草入りの指輪(3000G/金S)","2〜9：竜人の角(4200G/赤S)","10〜：高貴な竜人の角(12600G/赤SS)"], tags:"蛮族,多部位,飛行,魔法" },
 ];
 
-// 記号→ラベル・クラスの対応表
-const MARK_MAP = [
-  { mark:'▶▶', label:'補助動作', cls:'mark-補助動作', desc:'補助動作型', descDetail:'補助動作として実行する能力。特記がない限り、タイミングも回数も任意です。' },
-  { mark:'▶',  label:'主動作',   cls:'mark-主動作',   desc:'主動作型',   descDetail:'主動作として実行する能力。1手番に1回のみ使用でき、近接攻撃とも並立しません。' },
-  { mark:'○',  label:'常時',     cls:'mark-常時',     desc:'常時型',     descDetail:'常に効果があります。特定の条件で発動・停止するものも含みます。' },
-  { mark:'△',  label:'戦闘準備', cls:'mark-戦闘準備', desc:'戦闘準備型', descDetail:'「戦闘準備」で使用できる能力です。' },
-  { mark:'💬', label:'宣言',     cls:'mark-宣言',     desc:'宣言型',     descDetail:'宣言特技に準じる能力。1手番に1回のみ使用でき、複数の併用不可。1回の動作（攻撃など）にのみ効果が適用されます。' },
-];
-
-// テキスト用：記号→[ラベル]に変換
-function abilityMarkToText(raw) {
-  for (const {mark, label} of MARK_MAP) {
-    if (raw.startsWith(mark)) return '[' + label + '] ' + raw.slice(mark.length).trim();
-  }
-  return raw;
-}
-
-// HTML用：記号→クリッカブルバッジに変換
-function abilityMarkToHTML(raw) {
-  for (const {mark, label, cls} of MARK_MAP) {
-    if (raw.startsWith(mark)) {
-      const rest = raw.slice(mark.length).trim();
-      return `<span class="mark-label ${cls}" onclick="openMarkPopover(this,'${label}')">[${label}]</span>${rest}`;
-    }
-  }
-  return raw;
-}
-
-function formatAbility(raw, forHTML) {
-  const processed = forHTML ? abilityMarkToHTML(raw) : abilityMarkToText(raw);
-  // セパレータ検索は記号除去後のテキストで
-  // 先頭の記号を除去（▶▶は▶より先にチェック）
-  let plainRaw = raw;
-  for (const {mark} of MARK_MAP) {
-    if (plainRaw.startsWith(mark)) { plainRaw = plainRaw.slice(mark.length).trim(); break; }
-  }
-  const sep = plainRaw.indexOf(' — ');
-  if (sep === -1) {
-    if (forHTML) {
-      return `<b>【${processed}】</b>`;
-    }
-    return `【${processed}】`;
-  }
-  // タイトル部分（記号含む）
-  const titleEnd = processed.indexOf(' — ');
-  const titlePart = titleEnd !== -1 ? processed.slice(0, titleEnd).trim() : processed;
-  const desc = plainRaw.slice(sep + 3).trim();
-  // 説明文を約30文字で折り返す
-  const words = desc.split('');
-  let line = '', lines = [];
-  for (const ch of words) {
-    line += ch;
-    if (line.length >= 30 && '。、．，！？」』）]】'.includes(ch)) {
-      lines.push(line); line = '';
-    }
-  }
-  if (line) lines.push(line);
-  if (forHTML) {
-    return `<b>【${titlePart}】</b>\n${lines.join('\n')}`;
-  }
-  return `【${titlePart}】\n${lines.join('\n')}`;
-}
-
-// 文字幅カウント（日本語・絵文字=2、英数字=1）
 function strWidth(s) {
   let w = 0;
   for (const ch of String(s)) {
     const cp = ch.codePointAt(0);
-    // 絵文字・CJK統合漢字・全角記号など
-    if (cp > 0x2E7F) w += 2;
-    else w += 1;
+    if (cp > 0x2E7F) w += 2; else w += 1;
   }
   return w;
 }
-// 指定幅になるよう右側に全角スペースでパディング
 function padR(s, width) {
   const diff = width - strWidth(String(s));
   return String(s) + '　'.repeat(Math.max(0, Math.ceil(diff / 2)));
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function shardResBonus(n) {
+  if (n<=0) return 0; if (n<=5) return 1; if (n<=10) return 2; if (n<=15) return 3; return 4;
+}
+function addToStat(s, n) {
+  if (n===0) return String(s);
+  const both = String(s).match(/^(\d+)\((\d+)\)$/);
+  if (both) return `${parseInt(both[1])+n}(${parseInt(both[2])+n})`;
+  const single = String(s).match(/^(\d+)$/);
+  if (single) return String(parseInt(single[1])+n);
+  return String(s);
+}
+
+function formatAbility(raw, forHTML) {
+  let label=null, cls=null, rest=raw;
+  for (const m of MARK_MAP) {
+    if (raw.startsWith(m.mark)) { label=m.label; cls=m.cls; rest=raw.slice(m.mark.length).trim(); break; }
+  }
+  const sep = rest.indexOf(' — ');
+  if (forHTML) {
+    const badge = label ? `<span class="mark-label ${cls}" onclick="openMarkPopover(this,'${label}')">[${label}]</span>` : '';
+    if (sep===-1) return `${badge}【${esc(rest)}】`;
+    return `${badge}【${esc(rest.slice(0,sep).trim())}】\n${esc(rest.slice(sep+3).trim())}`;
+  } else {
+    const prefix = label ? `[${label}] ` : '';
+    if (sep===-1) return `${prefix}【${rest}】`;
+    const title=rest.slice(0,sep).trim(), desc=rest.slice(sep+3).trim();
+    const words=desc.split(''); let line='',lines=[];
+    for (const ch of words) { line+=ch; if (line.length>=30 && '。、．，！？」』）]】'.includes(ch)) { lines.push(line); line=''; } }
+    if (line) lines.push(line);
+    return `${prefix}【${title}】\n${lines.join('\n')}`;
+  }
 }
 
 function formatMonster(m) {
@@ -512,9 +533,8 @@ function formatMonster(m) {
     `${a.part}｜命中力 ${a.hit}　打撃点 ${a.dmg}　回避力 ${a.evd}　防護点 ${a.def}`
   ).join('\n');
   const abilityLines = m.abilities.length
-    ? m.abilities.map(formatAbility).join('\n\n')
-    : '【なし】';
-  const lootLines = m.loot.length ? m.loot.map(l => `　${l}`).join('\n') : '　なし';
+    ? m.abilities.map(ab=>formatAbility(ab,false)).join('\n\n') : '【なし】';
+  const lootLines = m.loot.length ? m.loot.map(l=>`　${l}`).join('\n') : '　なし';
   return `💠${m.cat}｜📛${padR(m.name,14)}🦋Lv：${padR(m.rank,6)}🏷️参照：
 📖知名度／弱点値：${padR(m.know+'/'+m.knowval,10)}🌀弱点：${m.weakness}
 🧠知能：${padR(m.intel||'―',18)}👁️知覚：${m.percep||'―'}
@@ -530,6 +550,44 @@ ${abilityLines}
 ${lootLines}`;
 }
 
+function renderFmtBlock(m) {
+  const atkLines = m.attacks.map(a =>
+    esc(`${a.part}｜命中力 ${a.hit}　打撃点 ${a.dmg}　回避力 ${a.evd}　防護点 ${a.def}`)
+  ).join('\n');
+  const lootLines = m.loot.length ? m.loot.map(l=>esc(`　${l}`)).join('\n') : '　なし';
+  const abilityLines = m.abilities.length
+    ? m.abilities.map(ab=>formatAbility(ab,true)).join('\n\n') : '【なし】';
+  const h = `💠${esc(m.cat)}｜📛${padR(m.name,14)}🦋Lv：${padR(m.rank,6)}🏷️参照：
+📖知名度／弱点値：${padR(m.know+'/'+m.knowval,10)}🌀弱点：${esc(m.weakness)}
+🧠知能：${padR(m.intel||'―',18)}👁️知覚：${esc(m.percep||'―')}
+⚜️先制：${padR(m.init,8)}👟移動：${padR(m.move,14)}🌗生命：${padR(m.vit,10)}🌓精神：${esc(m.mres)}
+
+⚔️【武器】
+${atkLines}
+
+❤️‍🔥【特殊能力】
+${abilityLines}
+
+💰️【戦利品】
+${lootLines}`;
+  return '<pre style="white-space:pre-wrap;font-family:inherit;line-height:1.7;">' + h + '</pre>';
+}
+
+let markPopOpen=false;
+function openMarkPopover(el,label){
+  const info=MARK_MAP.find(m=>m.label===label); if(!info)return;
+  const pop=document.getElementById('markPopover');
+  document.getElementById('markPopTitle').textContent=info.desc;
+  document.getElementById('markPopDesc').textContent=info.descDetail;
+  const rect=el.getBoundingClientRect(),pw=280;
+  let left=rect.left,top=rect.bottom+6;
+  if(left+pw>window.innerWidth-8)left=window.innerWidth-pw-8;
+  if(top+120>window.innerHeight)top=rect.top-120;
+  pop.style.left=left+'px';pop.style.top=top+'px';
+  pop.classList.add('visible');markPopOpen=true;
+}
+function closeMarkPopover(){document.getElementById('markPopover').classList.remove('visible');markPopOpen=false;}
+document.addEventListener('click',e=>{if(markPopOpen&&!e.target.closest('.mark-popover')&&!e.target.closest('.mark-label'))closeMarkPopover();});
 let currentFilter = 'all', currentSearch = '', currentMonster = null;
 
 function renderGrid() {
@@ -550,10 +608,10 @@ function renderGrid() {
     const rb = parseInt(String(b.rank).replace('〜','').replace('*','0')) || 0;
     return ra - rb;
   });
-  grid.innerHTML = filtered.map(m => `
+  grid.innerHTML = filtered.map((m, _fi) => `
     <div class="card" onclick="openPanel(${monsters.indexOf(m)})">
       <div class="card-head">
-        <div class="rbadge r${String(m.rank).replace('〜','').charAt(0)}">${m.rank}</div>
+        <div class="rbadge r${Math.min(parseInt(String(m.rank).replace('〜','')||'1'),13)}">${m.rank}</div>
         <div style="flex:1">
           <div class="card-name">${m.name}${m.isOriginal ? '<span class="badge-orig">オリジナル</span>' : ''}</div>
           <div class="card-cat">${m.cat}</div>
@@ -568,100 +626,6 @@ function renderGrid() {
       </div>
     </div>
   `).join('');
-}
-
-
-// ── 記号ラベル説明 ──
-const MARK_DESC = {
-  '常時':     { title:'○ 常時型', desc:'常に効果があります。特定の条件で発動・停止するものも含みます。' },
-  '主動作':   { title:'▶ 主動作型', desc:'主動作として実行する能力。1手番に1回のみ使用でき、近接攻撃とも並立しません。' },
-  '補助動作': { title:'▶▶ 補助動作型', desc:'補助動作として実行する能力。特記がない限り、タイミングも回数も任意です。' },
-  '戦闘準備': { title:'△ 戦闘準備型', desc:'「戦闘準備」で使用できる能力です。' },
-  '宣言':     { title:'💬 宣言型', desc:'宣言特技に準じる能力。1手番に1回のみ使用でき、複数の併用不可。1回の動作（攻撃など）にのみ効果が適用されます。' },
-};
-let markPopOpen = false;
-
-function openMarkPopover(el, label) {
-  const info = MARK_MAP.find(m => m.label === label);
-  if (!info) return;
-  const pop = document.getElementById('markPopover');
-  document.getElementById('markPopTitle').textContent = info.desc;
-  document.getElementById('markPopDesc').textContent = info.descDetail;
-
-  // 位置計算
-  const rect = el.getBoundingClientRect();
-  const pw = 280;
-  let left = rect.left;
-  let top  = rect.bottom + 6;
-  if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
-  if (top + 120 > window.innerHeight) top = rect.top - 120;
-  pop.style.left = left + 'px';
-  pop.style.top  = top + 'px';
-  pop.classList.add('visible');
-  markPopOpen = true;
-}
-function closeMarkPopover() {
-  document.getElementById('markPopover').classList.remove('visible');
-  markPopOpen = false;
-}
-// パネル外クリックで閉じる
-document.addEventListener('click', e => {
-  if (markPopOpen && !e.target.closest('.mark-popover') && !e.target.closest('.mark-label')) {
-    closeMarkPopover();
-  }
-});
-
-// fmt-blockをブロックごとに組み立てる
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function renderFmtBlock(m) {
-  // ヘッダ部分（プレーンテキストをエスケープ）
-  const atkLines = m.attacks.map(a =>
-    esc(`${a.part}｜命中力 ${a.hit}　打撃点 ${a.dmg}　回避力 ${a.evd}　防護点 ${a.def}`)
-  ).join('\n');
-  const lootLines = m.loot.length ? m.loot.map(l => esc(`　${l}`)).join('\n') : '　なし';
-
-  // 特殊能力：ラベルだけHTML、それ以外はエスケープ
-  const abilityLines = m.abilities.length
-    ? m.abilities.map(ab => {
-        // 記号を取り出してバッジHTML化、残りはエスケープ
-        for (const {mark, label, cls} of MARK_MAP) {
-          if (ab.startsWith(mark)) {
-            const rest = ab.slice(mark.length).trim();
-            const badge = `<span class="mark-label ${cls}" onclick="openMarkPopover(this,'${label}')">[${label}]</span>`;
-            // rest を formatAbility 同様に整形（エスケープ済み）
-            const sep = rest.indexOf(' — ');
-            if (sep === -1) return badge + esc(rest);
-            const title = esc(rest.slice(0, sep).trim());
-            const desc  = esc(rest.slice(sep + 3).trim());
-            return `${badge}【${title}】\n${desc}`;
-          }
-        }
-        // 記号なし
-        const sep = ab.indexOf(' — ');
-        if (sep === -1) return esc(ab);
-        return esc(`【${ab.slice(0,sep).trim()}】`) + '\n' + esc(ab.slice(sep+3).trim());
-      }).join('\n\n')
-    : '【なし】';
-
-  const headerLine = `💠${esc(m.cat)}｜📛${padR(m.name,14)}🦋Lv：${padR(m.rank,6)}🏷️参照：
-📖知名度／弱点値：${padR(m.know+'/'+m.knowval,10)}🌀弱点：${esc(m.weakness)}
-🧠知能：${padR(m.intel||'―',18)}👁️知覚：${esc(m.percep||'―')}
-⚜️先制：${padR(m.init,8)}👟移動：${padR(m.move,14)}🌗生命：${padR(m.vit,10)}🌓精神：${esc(m.mres)}`;
-
-  const html = `${headerLine}
-
-⚔️【武器】
-${atkLines}
-
-❤️‍🔥【特殊能力】
-${abilityLines}
-
-💰️【戦利品】
-${lootLines}`;
-
-  return '<pre style="white-space:pre-wrap;font-family:inherit;line-height:1.7;">' + html + '</pre>';
 }
 
 function openPanel(idx) {
@@ -939,22 +903,16 @@ function updateTekeyPreview() {
     : Array.from({length: count}, (_, i) => `${prefix}${tekeyTarget.name}${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i]}`);
   document.getElementById('tk_preview').innerHTML =
     `<span style="color:var(--text3)">送信するコマ：</span> ${names.join('、')}`;
-
-  // かけらプレビュー
   const shardDiv = document.getElementById('tk_shard_preview');
   if (shard > 0) {
     const m = tekeyTarget;
-    const resBonus = shardResBonus(shard);
-    const newHp  = (parseInt(m.hp) || 0) + shard * 5;
-    const rawMp  = String(m.mp) === '―' ? null : (parseInt(m.mp) || 0);
-    const newMp  = rawMp !== null ? rawMp + shard * 1 : '―';
-    const newVit  = addToStat(m.vit,  resBonus);
-    const newMres = addToStat(m.mres, resBonus);
-    shardDiv.style.display = 'block';
-    shardDiv.innerHTML = `⚔️ かけら×${shard}強化後：HP <b>${newHp}</b>　MP <b>${newMp}</b>　生命 <b>${newVit}</b>　精神 <b>${newMres}</b>　（抵抗+${resBonus}）`;
-  } else {
-    shardDiv.style.display = 'none';
-  }
+    const rb = shardResBonus(shard);
+    const newHp = (parseInt(m.hp)||0) + shard*5;
+    const rawMp = String(m.mp)==='―' ? null : (parseInt(m.mp)||0);
+    const newMp = rawMp !== null ? rawMp + shard : '―';
+    shardDiv.style.display='block';
+    shardDiv.innerHTML=`⚔️ かけら×${shard}強化後：HP <b>${newHp}</b>　MP <b>${newMp}</b>　生命 <b>${addToStat(m.vit,rb)}</b>　精神 <b>${addToStat(m.mres,rb)}</b>　（抵抗+${rb}）`;
+  } else { shardDiv.style.display='none'; }
 }
 document.addEventListener('input', e => {
   if (e.target.id === 'tk_count' || e.target.id === 'tk_shard') updateTekeyPreview();
@@ -993,24 +951,6 @@ async function uploadImageToStorage(file) {
   // 公開URLを組み立て
   const publicUrl = `${bucket}/o/${encodeURIComponent(filename)}?alt=media`;
   return publicUrl;
-}
-
-// ── 剣のかけら計算 ──
-function shardResBonus(n) {
-  if (n <= 0)  return 0;
-  if (n <= 5)  return 1;
-  if (n <= 10) return 2;
-  if (n <= 15) return 3;
-  return 4;
-}
-// "4(11)" や "4" に+nした文字列を返す
-function addToStat(s, n) {
-  if (n === 0) return String(s);
-  const both = String(s).match(/^(\d+)\((\d+)\)$/);
-  if (both) return `${parseInt(both[1])+n}(${parseInt(both[2])+n})`;
-  const single = String(s).match(/^(\d+)$/);
-  if (single) return String(parseInt(single[1])+n);
-  return String(s);
 }
 
 // statNum: "4(11)" → ()内を優先
@@ -1053,15 +993,13 @@ async function sendToTekey() {
   }
 
   // ステータス（生命/精神 表記に合わせる）
-  const shard = parseInt(document.getElementById('tk_shard').value) || 0;
-  const resBonus = shardResBonus(shard);
-  const hp   = (parseInt(m.hp) || 0) + shard * 5;
-  const mp   = String(m.mp) === '―' ? 0 : ((parseInt(m.mp) || 0) + shard * 1);
+  const hp   = parseInt(m.hp) || 0;
+  const mp   = String(m.mp) === '―' ? 0 : (parseInt(m.mp) || 0);
   const def  = m.attacks[0] ? (parseInt(m.attacks[0].def) || 0) : 0;
   const hit  = m.attacks[0] ? tekeyStatNum(m.attacks[0].hit) : '0';
   const evd  = m.attacks[0] ? tekeyStatNum(m.attacks[0].evd) : '0';
-  const vit  = tekeyStatNum(addToStat(m.vit,  resBonus));
-  const mres = tekeyStatNum(addToStat(m.mres, resBonus));
+  const vit  = tekeyStatNum(m.vit);
+  const mres = tekeyStatNum(m.mres);
   const init = parseInt(m.init) || 0;
   const values = `HP:${hp}:${hp},MP:${mp}:${mp},防護点:${def},命中:${hit},回避:${evd},生命:${vit},精神:${mres}`;
 
@@ -1069,10 +1007,9 @@ async function sendToTekey() {
   const info = formatMonster(m);
 
   const suffix = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const shardPrefix = shard > 0 ? '*' : '';
   const names  = count === 1
-    ? [shardPrefix + m.name]
-    : Array.from({length: count}, (_, i) => `${shardPrefix}${m.name}${suffix[i]}`);
+    ? [m.name]
+    : Array.from({length: count}, (_, i) => `${m.name}${suffix[i]}`);
 
   btn.textContent = '送信中...';
   let successCount = 0, failCount = 0;
