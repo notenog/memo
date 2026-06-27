@@ -757,7 +757,11 @@ $("#body").addEventListener("dblclick",e=>{
   sendLine(+line.dataset.idx);
 });
 $("#rail").addEventListener("click",e=>{ const it=e.target.closest(".rail-item,.rail-sub"); if(it) scrollToSec(+it.dataset.uid); });
-$("#rail").addEventListener("dblclick",e=>{ const it=e.target.closest(".rail-item,.rail-sub"); if(it) renameSection(+it.dataset.uid); });
+$("#rail").addEventListener("dblclick",e=>{
+  const it=e.target.closest(".rail-item,.rail-sub"); if(!it) return;
+  const uid=+it.dataset.uid; const span=it.querySelector(".rail-label");
+  if(span) inlineEdit(span, getSecTitle(uid), v=>setSecTitle(uid,v));
+});
 
 $("#tabs").addEventListener("click",e=>{
   if(e.target.closest(".tab-add")){ addTab(); return; }
@@ -765,7 +769,12 @@ $("#tabs").addEventListener("click",e=>{
   if(e.target.classList.contains("x")){ const id=+tab.dataset.id; if(id===state.activeId) delTab(); else { state.activeId=id; delTab(); } return; }
   selectTab(+tab.dataset.id);
 });
-$("#tabs").addEventListener("dblclick",e=>{ const tab=e.target.closest(".tab"); if(tab&&!e.target.classList.contains("x")) renameTab(+tab.dataset.id); });
+$("#tabs").addEventListener("dblclick",e=>{
+  const tab=e.target.closest(".tab"); if(!tab||e.target.classList.contains("x")) return;
+  const id=+tab.dataset.id; const p=state.palettes.find(x=>x.paletteID===id); if(!p) return;
+  const span=tab.querySelector(".lbl");
+  if(span) inlineEdit(span, p.label, v=>{ p.label=v.trim()||p.label; render(); });
+});
 
 $("#f_name").addEventListener("input",e=>{ const p=activeP(); if(p){ p.name=e.target.value; persist(); } });
 $("#f_color").addEventListener("input",e=>{ const p=activeP(); if(p){ p.textColor=e.target.value; persist(); } });
@@ -788,6 +797,8 @@ $("#file").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) retu
 $("#btnSettings").addEventListener("click",openSettings);
 $("#btnTheme").addEventListener("click",toggleTheme);
 $("#bodywrap").addEventListener("scroll",()=>requestAnimationFrame(updateSpy));
+$("#search").addEventListener("input",()=>{ if(!state.editMode) render(); });
+$("#searchClr").addEventListener("click",()=>{ $("#search").value=""; render(); $("#search").focus(); });
 $("#s_cancel").addEventListener("click",()=>$("#settings").classList.remove("open"));
 $("#s_save").addEventListener("click",saveSettings);
 $("#settings").addEventListener("click",e=>{ if(e.target.id==="settings") $("#settings").classList.remove("open"); });
