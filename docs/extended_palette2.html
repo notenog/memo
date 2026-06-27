@@ -559,8 +559,15 @@ async function doSend(message){
   message=(message||"").trim(); if(!message) return;
   if(!cfg("room")){ toast("ルームID未設定。接続設定を開いてね",true); openSettings(); return; }
   const p=activeP();
+  // inlineの @#色 はAPI経由だと解釈されないため、colorパラメータへ回し本文からは除去する
+  let color=((p&&p.textColor)||"").replace("#","")||undefined;
+  const cm=message.match(/@#([0-9a-fA-F]{3,6})\b/g);
+  if(cm&&cm.length){
+    color=cm[cm.length-1].slice(2);                       // 末尾(最後)の色を採用
+    message=message.replace(/\s*@#[0-9a-fA-F]{3,6}\b/g,"").trim();
+  }
+  if(!message){ toast("本文が空です（色コードのみ）",true); return; }
   const name=pickName(p?p.name:"");
-  const color=((p&&p.textColor)||"").replace("#","")||undefined;
   const bot=$("#f_bot").value.trim()||undefined;
   const r=await sendChat(sendSafe(message),{name,color,bot});
   if(r.ok) toast("送信しました");
