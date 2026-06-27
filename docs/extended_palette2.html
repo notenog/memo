@@ -19,7 +19,28 @@
     --link:#2f6fb3; --link-h:#245a93; --send:#2f8f5b; --send-h:#26794c;
     --danger:#c0392b; --radius:7px;
     --fs:14px;
+    --line-h:#eef5ff; --line-hbd:#cfe0f3; --guide:#e4e9ef; --sep:#e1e6ec;
+    --head-bg:#e7ebf1; --head-bg2:#eef1f5; --head-bgh:#dce2ea;
   }
+  body[data-theme="dark"]{
+    --hd:#2f4258; --hd-tx:#cfe0f3; --bg:#424242; --panel:#4c4c4c; --panel2:#3a3a3a;
+    --bd:#5b5b5b; --bd2:#6a6a6a; --tx:#e8eaed; --tx2:#b4bbc4; --tx3:#8b939d;
+    --link:#74b4f2; --link-h:#9ccbf7; --send:#3a9d64; --send-h:#46b173;
+    --line-h:#3c4a5a; --line-hbd:#4f6a8a; --guide:#5a5a5a; --sep:#525252;
+    --head-bg:#535353; --head-bg2:#4b4b4b; --head-bgh:#5d5d5d;
+  }
+  body[data-theme="dark"] .hd button{background:rgba(255,255,255,.12); border-color:#4a6a8a}
+  body[data-theme="dark"] .hd button:hover{background:rgba(255,255,255,.2)}
+  body[data-theme="dark"] .swatch,body[data-theme="dark"] #f_bot,
+  body[data-theme="dark"] .ident input[type=text],body[data-theme="dark"] #compose,
+  body[data-theme="dark"] #editArea,body[data-theme="dark"] .fg input{background:#3a3a3a; color:var(--tx)}
+  body[data-theme="dark"] .sheet{background:#3d3d3d}
+  body[data-theme="dark"] .callout.info{background:#243a52; border-color:#3a5a7e; border-left-color:#74b4f2; color:#bcd6f2}
+  body[data-theme="dark"] .callout.warn{background:#473a22; border-color:#6e5a30; border-left-color:#e0a83a; color:#e8cf9a}
+  body[data-theme="dark"] .callout.alert{background:#4a2a27; border-color:#7a3f39; border-left-color:#e8736a; color:#f0b9b2}
+  body[data-theme="dark"] .callout.success{background:#26412e; border-color:#3c6448; border-left-color:#5fbf7e; color:#aeddb9}
+  body[data-theme="dark"] .callout.note{background:#454545; border-color:#5a5a5a; border-left-color:#8b939d; color:#c9ced6}
+  body[data-theme="dark"] .callout code{background:#2c2c2c}
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
   body{font-family:-apple-system,"Segoe UI","Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;
@@ -66,12 +87,27 @@
 
   /* main */
   .main{flex:1 1 auto; display:flex; min-height:0}
-  .rail{flex:0 0 168px; border-right:1px solid var(--bd); background:var(--panel); overflow-y:auto; padding:8px 0}
-  .rail .cap{font-size:11px; color:var(--tx3); padding:2px 12px 6px}
-  .rail-item,.rail-sub{padding:5px 12px; color:var(--tx); cursor:pointer; user-select:none;
-       white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-  .rail-sub{padding-left:24px; color:var(--tx2); font-size:13px}
-  .rail-item:hover,.rail-sub:hover{background:#e9eef4}
+  .railcol{flex:0 0 192px; display:flex; flex-direction:column; min-height:0;
+           border-right:1px solid var(--bd); background:var(--panel)}
+  .railsearch{display:flex; gap:5px; padding:7px 8px; border-bottom:1px solid var(--bd)}
+  .railsearch input{flex:1; min-width:0; height:30px; padding:0 10px; border:1px solid var(--bd2);
+       border-radius:15px; background:var(--bg); color:var(--tx)}
+  .railsearch input:focus{outline:none; border-color:var(--link); box-shadow:0 0 0 2px var(--line-h)}
+  .railsearch button{width:28px; flex:0 0 auto; border:1px solid var(--bd2); background:var(--bg);
+       color:var(--tx3); border-radius:50%; font-size:15px; line-height:1}
+  .railsearch button:hover{color:var(--danger); border-color:var(--danger)}
+  .rail{flex:1 1 auto; overflow-y:auto; padding:6px 0}
+  mark{background:#ffe58a; color:inherit; border-radius:2px; padding:0 1px}
+  body[data-theme="dark"] mark{background:#8a7320; color:#fff}
+  .rail .cap{font-size:11px; color:var(--tx3); padding:4px 12px 7px; letter-spacing:.03em}
+  .rail-item,.rail-sub{padding:6px 12px; color:var(--tx); cursor:pointer; user-select:none;
+       white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-left:3px solid transparent}
+  .rail-item{font-weight:600; border-top:1px solid var(--sep)}
+  .rail .cap + .rail-item{border-top:none}
+  .rail-sub{padding-left:28px; color:var(--tx2); font-size:13px; position:relative}
+  .rail-sub::before{content:"\2514"; position:absolute; left:15px; color:var(--tx3); font-size:11px}
+  .rail-item:hover,.rail-sub:hover{background:var(--line-h)}
+  .rail-item.active,.rail-sub.active{border-left-color:var(--link); background:var(--line-h); color:var(--link-h)}
   .rail-empty{color:var(--tx3); font-size:12px; padding:10px 12px; line-height:1.6}
   .rail-empty span{color:var(--bd2)}
 
@@ -80,28 +116,35 @@
             padding:10px; line-height:1.6; resize:none; font-family:"SFMono-Regular",Consolas,"Noto Sans JP",monospace}
 
   .sec{margin:2px 0 4px}
-  .sec-head{display:flex; align-items:center; gap:6px; padding:5px 6px; cursor:pointer; user-select:none;
-            color:var(--tx); font-weight:600; border-radius:5px}
-  .sec-head:hover{background:var(--panel)}
-  .sec-l2>.sec-head{font-weight:500; color:var(--tx2)}
-  .sec-body{padding-left:14px; border-left:2px solid #e4e9ef; margin-left:7px}
+  #body > .sec-l1{border-top:1px solid var(--sep); padding-top:5px; margin-top:7px}
+  #body > .sec-l1:first-child{border-top:none; padding-top:0; margin-top:2px}
+  .sec-head{display:flex; align-items:center; gap:6px; padding:5px 8px; cursor:pointer; user-select:none;
+            color:var(--tx); font-weight:600; background:var(--head-bg); border-bottom:1px solid var(--sep)}
+  .sec-head:hover{background:var(--head-bgh)}
+  .sec-l2>.sec-head{font-weight:500; color:var(--tx2); background:var(--head-bg2); border-bottom-style:dashed}
+  .sec-body{padding-left:14px; margin-left:7px}
   .sec.collapsed>.sec-body{display:none}
   .caret{font-size:11px; color:var(--tx3); transition:transform .1s; display:inline-block}
   .sec.collapsed>.sec-head .caret{transform:rotate(-90deg)}
 
-  .line{padding:4px 8px; margin:2px 0; border:1px solid transparent; border-radius:5px; cursor:pointer;
-        line-height:1.5; white-space:pre-wrap; word-break:break-word}
-  .line:hover{background:#eef5ff; border-color:#cfe0f3}
+  .line{padding:3px 8px; margin:1px 0; border:1px solid transparent; border-radius:5px; cursor:pointer;
+        line-height:1.42; white-space:pre-wrap; word-break:break-word}
+  .line:hover{background:var(--line-h); border-color:var(--line-hbd)}
   .line .atcmd{color:var(--tx3); font-size:.85em}
   .line .conv{color:#c98a00; font-size:.8em; margin-left:6px; cursor:help}
   ruby rt{font-size:.6em; color:var(--tx2)}
 
   .paramdef{padding:3px 8px; margin:1px 0; color:var(--tx3); font-size:12.5px; font-family:Consolas,monospace}
-  .blank{height:7px}
+  .blank{height:5px}
 
-  .callout{margin:6px 0; border:1px solid var(--bd); border-left:4px solid var(--tx3);
-           border-radius:5px; padding:8px 12px; background:var(--panel); line-height:1.6}
-  .callout .co-ttl{font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; opacity:.8; margin-bottom:3px}
+  .callout{margin:5px 0; border:1px solid var(--bd); border-left:4px solid var(--tx3);
+           border-radius:5px; padding:6px 12px; background:var(--panel); line-height:1.55}
+  .co-head{display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none}
+  .co-caret{font-size:10px; opacity:.7; transition:transform .1s}
+  .callout.collapsed .co-caret{transform:rotate(-90deg)}
+  .callout .co-ttl{font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; opacity:.85}
+  .co-body{margin-top:4px}
+  .callout.collapsed .co-body{display:none}
   .callout ul{margin:4px 0; padding-left:20px}
   .callout code{background:#e7ebf0; padding:1px 5px; border-radius:4px; font-size:.9em}
   .callout.info{background:#e8f1fb; border-color:#9cc4ee; border-left-color:#2f6fb3; color:#1d4a78}
@@ -110,16 +153,20 @@
   .callout.success{background:#eaf6ec; border-color:#aedcb6; border-left-color:#2e7d46; color:#1f5a31}
   .callout.note{background:#f2f4f7; border-color:#dde2e8; border-left-color:#8a95a1; color:#3c4651}
 
+  .inline-edit{font:inherit; padding:1px 5px; border:1px solid var(--link); border-radius:5px;
+       background:var(--bg); color:var(--tx); width:130px; max-width:150px}
+
   /* action bar */
   .actions{display:flex; align-items:center; gap:4px; padding:7px 12px; border-top:1px solid var(--bd);
            background:var(--panel); flex:0 0 auto; flex-wrap:wrap}
-  .actions .lk{background:none; border:none; color:var(--link); padding:5px 8px; border-radius:5px}
-  .actions .lk:hover{background:#e7eef6; color:var(--link-h)}
+  .actions .lk{background:var(--bg); border:1px solid var(--bd2); color:var(--link); padding:5px 13px; border-radius:16px; font-size:13px; line-height:1.2}
+  .actions .lk:hover{background:var(--line-h); border-color:var(--link); color:var(--link-h)}
   .actions .lk.danger{color:var(--danger)}
-  .actions .lk:disabled{color:var(--tx3); cursor:default; background:none}
-  .actions .sep{width:1px; align-self:stretch; background:var(--bd); margin:2px 4px}
+  .actions .lk.danger:hover{background:var(--line-h); border-color:var(--danger); color:var(--danger)}
+  .actions .lk:disabled{background:var(--panel); border-color:var(--bd); color:var(--tx3); cursor:default}
+  .actions .sep{width:1px; align-self:stretch; background:var(--bd); margin:2px 5px}
   .actions .sp{flex:1}
-  .actions .lk.on{background:#dde9f5; color:var(--link-h)}
+  .actions .lk.on{background:var(--line-h); border-color:var(--link); color:var(--link-h)}
 
   /* settings modal */
   .modal{position:fixed; inset:0; background:rgba(20,28,38,.42); display:none; align-items:center; justify-content:center; z-index:50}
@@ -147,6 +194,7 @@
 <div class="hd">
   <span class="ttl">拡張パレット2</span>
   <span class="sp"></span>
+  <button id="btnTheme" title="背景を切替（ライト/ダーク）">🌙 ダーク</button>
   <button id="btnSettings">⚙ 接続設定</button>
 </div>
 
@@ -172,7 +220,13 @@
 </div>
 
 <div class="main">
-  <div class="rail" id="rail"></div>
+  <div class="railcol">
+    <div class="railsearch">
+      <input type="text" id="search" placeholder="本文を検索">
+      <button id="searchClr" title="クリア">×</button>
+    </div>
+    <div class="rail" id="rail"></div>
+  </div>
   <div class="bodywrap" id="bodywrap">
     <div id="body"></div>
     <textarea id="editArea" style="display:none"></textarea>
@@ -274,7 +328,7 @@ function parseStock(stock){
     // callout open: ':::xxx' or bare ':::'
     if(/^:::(.+)$/.test(ln) || ln.trim()===":::"){
       const v = ln.replace(/^:::/,"").trim();
-      callout = {type:"callout", variant:v, lines:[]};
+      callout = {type:"callout", variant:v, lines:[], uid:++_uid};
       return;
     }
     // headings
@@ -342,21 +396,33 @@ function calloutClass(v){
   if(/\b(success|done|ok)\b/.test(t)) return "success";
   return "note";
 }
+function calloutMeta(variant){
+  const v=variant||"";
+  const hm=v.match(/#([0-9a-fA-F]{3,6})\b/);
+  const color=hm?("#"+hm[1]):null;
+  const label=v.replace(/#[0-9a-fA-F]{3,6}\b/,"").trim();
+  return {cls: color?"note":calloutClass(label), label, color};
+}
 function renderCallout(node){
-  const cls=calloutClass(node.variant);
-  const wrap=el("callout "+cls);
-  if(node.variant) wrap.appendChild(el("co-ttl", esc(node.variant)));
+  const {cls,label,color}=calloutMeta(node.variant);
+  const wrap=el("callout "+cls); wrap.id="co-"+node.uid; wrap.dataset.uid=node.uid;
+  if(color) wrap.style.borderLeftColor=color;
+  const head=el("co-head","<span class='co-caret'>▾</span><span class='co-ttl'>"+esc(label||"メモ")+"</span>");
+  if(color) head.querySelector(".co-ttl").style.color=color;
+  wrap.appendChild(head);
+  const body=el("co-body");
   let ul=null;
   node.lines.forEach(ln=>{
     if(/^\s*[-*]\s+/.test(ln)){
-      if(!ul){ ul=document.createElement("ul"); wrap.appendChild(ul); }
+      if(!ul){ ul=document.createElement("ul"); body.appendChild(ul); }
       const li=document.createElement("li"); li.innerHTML=mdInline(ln.replace(/^\s*[-*]\s+/,"")); ul.appendChild(li); return;
     }
     ul=null;
-    if(ln.trim()===""){ wrap.appendChild(el(null,"")); return; }
-    if(/^#{1,4}\s+/.test(ln)){ const h=el(null,"<strong>"+mdInline(ln.replace(/^#{1,4}\s+/,""))+"</strong>"); wrap.appendChild(h); return; }
-    wrap.appendChild(el(null, mdInline(ln)));
+    if(ln.trim()===""){ body.appendChild(el(null,"")); return; }
+    if(/^#{1,4}\s+/.test(ln)){ body.appendChild(el(null,"<strong>"+mdInline(ln.replace(/^#{1,4}\s+/,""))+"</strong>")); return; }
+    body.appendChild(el(null, mdInline(ln)));
   });
+  wrap.appendChild(body);
   return wrap;
 }
 
@@ -430,6 +496,8 @@ function render(){
     ed.style.display="none"; body.style.display="block"; body.innerHTML="";
     renderNodes(tree, body); renderRail(tree);
     $("#btnEdit").classList.remove("on");
+    applySearch($("#search").value);
+    requestAnimationFrame(updateSpy);
   }
   persist();
 }
@@ -480,18 +548,63 @@ function sendLine(idx){
 
 /* ---------- section editing ---------- */
 function setStock(p, lines){ p.stock=lines.join("\n"); render(); }
-function renameSection(uid){
-  const p=activeP(); const info=secMap[uid]; if(!info) return;
-  const lines=p.stock.split("\n"); const cur=lines[info.lineIndex]||"";
-  const title=cur.replace(/^#{3,4}/,"");
-  const nv=prompt("見出し名を変更", title.trim());
-  if(nv==null) return;
-  lines[info.lineIndex]=(info.level===2?"####":"###")+nv;
+function getSecTitle(uid){
+  const p=activeP(); const info=secMap[uid]; if(!p||!info) return "";
+  return (p.stock.split("\n")[info.lineIndex]||"").replace(/^#{3,4}/,"").trim();
+}
+function setSecTitle(uid, val){
+  const p=activeP(); const info=secMap[uid]; if(!p||!info) return;
+  const lines=p.stock.split("\n");
+  lines[info.lineIndex]=(info.level===2?"####":"###")+val.trim();
   setStock(p, lines);
+}
+function inlineEdit(spanEl, initial, commit){
+  const inp=document.createElement("input"); inp.type="text"; inp.className="inline-edit"; inp.value=initial;
+  spanEl.replaceWith(inp); inp.focus(); inp.select();
+  let done=false;
+  const fin=save=>{ if(done) return; done=true; if(save) commit(inp.value); else render(); };
+  inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){e.preventDefault(); fin(true);} else if(e.key==="Escape"){e.preventDefault(); fin(false);} });
+  inp.addEventListener("blur",()=>fin(true));
 }
 function scrollToSec(uid){
   const sec=document.getElementById("sec-"+uid);
   if(sec){ sec.classList.remove("collapsed"); sec.scrollIntoView({behavior:"smooth",block:"start"}); }
+}
+
+/* ---------- search (本文参照) ---------- */
+function highlightEl(node, q){
+  const w=document.createTreeWalker(node, NodeFilter.SHOW_TEXT); const ns=[];
+  while(w.nextNode()) ns.push(w.currentNode);
+  ns.forEach(n=>{
+    const t=n.nodeValue, lo=t.toLowerCase(); let i=lo.indexOf(q);
+    if(i<0) return;
+    const frag=document.createDocumentFragment(); let last=0;
+    while(i>=0){
+      frag.appendChild(document.createTextNode(t.slice(last,i)));
+      const mk=document.createElement("mark"); mk.textContent=t.slice(i,i+q.length); frag.appendChild(mk);
+      last=i+q.length; i=lo.indexOf(q,last);
+    }
+    frag.appendChild(document.createTextNode(t.slice(last)));
+    n.parentNode.replaceChild(frag,n);
+  });
+}
+function applySearch(query){
+  const q=(query||"").trim().toLowerCase();
+  const body=$("#body"); if(!body) return;
+  if(!q){ body.querySelectorAll(".sec,.line,.callout,.paramdef,.blank").forEach(e=>e.style.display=""); return; }
+  body.querySelectorAll(".blank").forEach(e=>e.style.display="none");
+  body.querySelectorAll(".line,.callout,.paramdef").forEach(le=>{
+    const hit=le.textContent.toLowerCase().includes(q);
+    le.classList.toggle("hit",hit); le.style.display=hit?"":"none";
+    if(hit) highlightEl(le,q);
+  });
+  body.querySelectorAll(".sec").forEach(sec=>{
+    const ttl=sec.querySelector(":scope > .sec-head .sec-title");
+    const headHit = ttl && ttl.textContent.toLowerCase().includes(q);
+    const anyHit = headHit || sec.querySelector(".line.hit,.callout.hit,.paramdef.hit");
+    sec.style.display = anyHit ? "" : "none";
+    if(anyHit){ sec.classList.remove("collapsed"); if(headHit && ttl) highlightEl(ttl,q); }
+  });
 }
 
 /* ---------- expand/collapse ---------- */
@@ -596,6 +709,29 @@ function saveSettings(){
   $("#settings").classList.remove("open"); toast("設定を保存しました");
 }
 
+/* ---------- theme ---------- */
+function applyTheme(t){
+  const dark = t==="dark";
+  document.body.dataset.theme = dark?"dark":"";
+  setCfg("ep2_theme", dark?"dark":"light");
+  $("#btnTheme").textContent = dark ? "☀ ライト" : "🌙 ダーク";
+}
+function toggleTheme(){ applyTheme(document.body.dataset.theme==="dark"?"light":"dark"); }
+
+/* ---------- rail scroll-spy ---------- */
+function updateSpy(){
+  if(state.editMode) return;
+  const wrap=$("#bodywrap"); if(!wrap) return;
+  const top=wrap.getBoundingClientRect().top;
+  let curUid=null;
+  const secs=$("#body").querySelectorAll(".sec[id]");
+  secs.forEach(sec=>{ if(sec.getBoundingClientRect().top - top <= 44) curUid=sec.dataset.uid; });
+  if(curUid==null && secs.length) curUid=secs[0].dataset.uid;
+  $("#rail").querySelectorAll(".rail-item,.rail-sub").forEach(it=>{
+    it.classList.toggle("active", it.dataset.uid===curUid);
+  });
+}
+
 /* ---------- toast ---------- */
 let toT=null;
 function toast(msg,err){ const t=$("#toast"); t.textContent=msg; t.className="show"+(err?" err":"");
@@ -605,6 +741,8 @@ function toast(msg,err){ const t=$("#toast"); t.textContent=msg; t.className="sh
 let clickTimer=null;
 $("#body").addEventListener("click",e=>{
   if(state.editMode) return;
+  const coh=e.target.closest(".co-head");
+  if(coh){ coh.closest(".callout").classList.toggle("collapsed"); return; }
   const head=e.target.closest(".sec-head");
   if(head){ const sec=head.closest(".sec"); sec.classList.toggle("collapsed"); rememberExpand(); return; }
   const line=e.target.closest(".line"); if(!line) return;
@@ -648,6 +786,8 @@ $("#btnClean").addEventListener("click",()=>{ commitEdit(); download("tekey-pale
 $("#file").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>loadJSON(r.result); r.readAsText(f); e.target.value=""; });
 
 $("#btnSettings").addEventListener("click",openSettings);
+$("#btnTheme").addEventListener("click",toggleTheme);
+$("#bodywrap").addEventListener("scroll",()=>requestAnimationFrame(updateSpy));
 $("#s_cancel").addEventListener("click",()=>$("#settings").classList.remove("open"));
 $("#s_save").addEventListener("click",saveSettings);
 $("#settings").addEventListener("click",e=>{ if(e.target.id==="settings") $("#settings").classList.remove("open"); });
@@ -683,6 +823,7 @@ function seed(){
   state.activeId=1;
 }
 $("#f_bot").value=cfg("ep2_bot");
+applyTheme(cfg("ep2_theme")||"light");
 if(!restore()) seed();
 render();
 if(!cfg("room")) setTimeout(openSettings,400);
