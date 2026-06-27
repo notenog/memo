@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>拡張パレット2</title>
+<!--
+  拡張パレット2 — Tekey チャットパレットの外部移植ツール
+  - Tekeyのチャットパレット書き出しJSON({"palettes":[...]})を相互運用
+  - stockは純Tekeyテキストのまま保持（往復を壊さない）
+  - 送信行はWYSIWYG（長文・記号もそのまま。送信時のみ《》／→[]/に安全変換）
+  - ::: ブロックは「送信しない自分用メモ(カンペ)」としてcallout表示。markdown可
+  - 送信はFirebase Functions(tekeyProxy2)経由。endpoint/room等は設定に保存(localStorage)
+-->
+<style>
+  :root{
+    --hd:#d4e6f7; --hd-tx:#274b6d; --bg:#ffffff; --panel:#f7f8fa; --panel2:#eef1f4;
+    --bd:#d9dee4; --bd2:#c5cdd6; --tx:#1f2933; --tx2:#5b6772; --tx3:#8a95a1;
+    --link:#2f6fb3; --link-h:#245a93; --send:#2f8f5b; --send-h:#26794c;
+    --danger:#c0392b; --radius:7px;
+    --fs:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,"Segoe UI","Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;
+       font-size:var(--fs); color:var(--tx); background:var(--bg);
+       display:flex; flex-direction:column; height:100vh; overflow:hidden}
+  button{font:inherit; cursor:pointer}
+  input,select,textarea{font:inherit; color:var(--tx)}
+
+  /* header */
+  .hd{display:flex; align-items:center; gap:10px; background:var(--hd); color:var(--hd-tx);
+      padding:7px 12px; border-bottom:1px solid var(--bd); flex:0 0 auto}
+  .hd .ttl{font-weight:600; font-size:15px}
+  .hd .sp{flex:1}
+  .hd button{background:rgba(255,255,255,.55); border:1px solid #b9d2ea; color:var(--hd-tx);
+      border-radius:var(--radius); padding:4px 10px}
+  .hd button:hover{background:#fff}
+
+  /* tabs */
+  .tabs{display:flex; align-items:flex-end; gap:2px; background:var(--panel2);
+        padding:5px 8px 0; border-bottom:1px solid var(--bd); flex:0 0 auto; overflow-x:auto}
+  .tab{padding:5px 14px; border:1px solid var(--bd); border-bottom:none; background:var(--panel);
+       border-radius:6px 6px 0 0; color:var(--tx2); white-space:nowrap; user-select:none}
+  .tab:hover{background:#fbfcfd}
+  .tab.on{background:#fff; color:var(--tx); font-weight:600; box-shadow:inset 0 2px 0 var(--link)}
+  .tab .x{margin-left:7px; color:var(--tx3); font-weight:400}
+  .tab .x:hover{color:var(--danger)}
+  .tab-add{padding:4px 10px; color:var(--link); background:none; border:none; align-self:center}
+
+  /* identity + compose */
+  .ident{display:flex; align-items:center; gap:10px; padding:8px 12px; border-bottom:1px solid var(--bd);
+         flex:0 0 auto; flex-wrap:wrap}
+  .ident label{color:var(--tx2); font-size:12px}
+  .ident input[type=text]{height:30px; padding:0 8px; border:1px solid var(--bd); border-radius:var(--radius)}
+  #f_name{width:120px; font-weight:600}
+  .swatch{width:30px; height:30px; padding:0; border:1px solid var(--bd); border-radius:var(--radius); background:none}
+  #f_bot{height:30px; padding:0 8px; border:1px solid var(--bd); border-radius:var(--radius); width:150px}
+
+  .compose{display:flex; gap:8px; padding:8px 12px; border-bottom:1px solid var(--bd); flex:0 0 auto; align-items:stretch}
+  #compose{flex:1; min-height:38px; max-height:140px; padding:8px 10px; border:1px solid var(--bd2);
+           border-radius:var(--radius); resize:vertical; line-height:1.45}
+  #compose:focus{outline:none; border-color:var(--link); box-shadow:0 0 0 2px #cfe0f3}
+  .btn-send{background:var(--send); color:#fff; border:none; border-radius:var(--radius); padding:0 18px; font-weight:600; min-width:74px}
+  .btn-send:hover{background:var(--send-h)}
+
+  /* main */
+  .main{flex:1 1 auto; display:flex; min-height:0}
+  .rail{flex:0 0 168px; border-right:1px solid var(--bd); background:var(--panel); overflow-y:auto; padding:8px 0}
+  .rail .cap{font-size:11px; color:var(--tx3); padding:2px 12px 6px}
+  .rail-item,.rail-sub{padding:5px 12px; color:var(--tx); cursor:pointer; user-select:none;
+       white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .rail-sub{padding-left:24px; color:var(--tx2); font-size:13px}
+  .rail-item:hover,.rail-sub:hover{background:#e9eef4}
+  .rail-empty{color:var(--tx3); font-size:12px; padding:10px 12px; line-height:1.6}
+  .rail-empty span{color:var(--bd2)}
+
+  .bodywrap{flex:1 1 auto; overflow-y:auto; padding:10px 14px}
+  #editArea{width:100%; height:100%; min-height:300px; border:1px solid var(--bd2); border-radius:var(--radius);
+            padding:10px; line-height:1.6; resize:none; font-family:"SFMono-Regular",Consolas,"Noto Sans JP",monospace}
+
+  .sec{margin:2px 0 4px}
+  .sec-head{display:flex; align-items:center; gap:6px; padding:5px 6px; cursor:pointer; user-select:none;
+            color:var(--tx); font-weight:600; border-radius:5px}
+  .sec-head:hover{background:var(--panel)}
+  .sec-l2>.sec-head{font-weight:500; color:var(--tx2)}
+  .sec-body{padding-left:14px; border-left:2px solid #e4e9ef; margin-left:7px}
+  .sec.collapsed>.sec-body{display:none}
+  .caret{font-size:11px; color:var(--tx3); transition:transform .1s; display:inline-block}
+  .sec.collapsed>.sec-head .caret{transform:rotate(-90deg)}
+
+  .line{padding:4px 8px; margin:2px 0; border:1px solid transparent; border-radius:5px; cursor:pointer;
+        line-height:1.5; white-space:pre-wrap; word-break:break-word}
+  .line:hover{background:#eef5ff; border-color:#cfe0f3}
+  .line .atcmd{color:var(--tx3); font-size:.85em}
+  .line .conv{color:#c98a00; font-size:.8em; margin-left:6px; cursor:help}
+  ruby rt{font-size:.6em; color:var(--tx2)}
+
+  .paramdef{padding:3px 8px; margin:1px 0; color:var(--tx3); font-size:12.5px; font-family:Consolas,monospace}
+  .blank{height:7px}
+
+  .callout{margin:6px 0; border:1px solid var(--bd); border-left:4px solid var(--tx3);
+           border-radius:5px; padding:8px 12px; background:var(--panel); line-height:1.6}
+  .callout .co-ttl{font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; opacity:.8; margin-bottom:3px}
+  .callout ul{margin:4px 0; padding-left:20px}
+  .callout code{background:#e7ebf0; padding:1px 5px; border-radius:4px; font-size:.9em}
+  .callout.info{background:#e8f1fb; border-color:#9cc4ee; border-left-color:#2f6fb3; color:#1d4a78}
+  .callout.warn{background:#fdf4e3; border-color:#f0d59a; border-left-color:#c98a00; color:#7a5500}
+  .callout.alert{background:#fdeceb; border-color:#f0b2ac; border-left-color:#c0392b; color:#8a261b}
+  .callout.success{background:#eaf6ec; border-color:#aedcb6; border-left-color:#2e7d46; color:#1f5a31}
+  .callout.note{background:#f2f4f7; border-color:#dde2e8; border-left-color:#8a95a1; color:#3c4651}
+
+  /* action bar */
+  .actions{display:flex; align-items:center; gap:4px; padding:7px 12px; border-top:1px solid var(--bd);
+           background:var(--panel); flex:0 0 auto; flex-wrap:wrap}
+  .actions .lk{background:none; border:none; color:var(--link); padding:5px 8px; border-radius:5px}
+  .actions .lk:hover{background:#e7eef6; color:var(--link-h)}
+  .actions .lk.danger{color:var(--danger)}
+  .actions .lk:disabled{color:var(--tx3); cursor:default; background:none}
+  .actions .sep{width:1px; align-self:stretch; background:var(--bd); margin:2px 4px}
+  .actions .sp{flex:1}
+  .actions .lk.on{background:#dde9f5; color:var(--link-h)}
+
+  /* settings modal */
+  .modal{position:fixed; inset:0; background:rgba(20,28,38,.42); display:none; align-items:center; justify-content:center; z-index:50}
+  .modal.open{display:flex}
+  .sheet{background:#fff; border-radius:10px; width:420px; max-width:92vw; padding:18px 20px; box-shadow:0 12px 40px rgba(0,0,0,.25)}
+  .sheet h2{margin:0 0 4px; font-size:16px}
+  .sheet p.sub{margin:0 0 14px; color:var(--tx2); font-size:12.5px}
+  .fg{margin-bottom:11px}
+  .fg label{display:block; font-size:12px; color:var(--tx2); margin-bottom:3px}
+  .fg input{width:100%; height:34px; padding:0 9px; border:1px solid var(--bd); border-radius:var(--radius)}
+  .sheet .row{display:flex; gap:8px; justify-content:flex-end; margin-top:16px}
+  .sheet .row button{padding:7px 16px; border-radius:var(--radius); border:1px solid var(--bd)}
+  .sheet .ok{background:var(--link); color:#fff; border-color:var(--link)}
+
+  /* toast */
+  #toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(20px);
+         background:#2b3642; color:#fff; padding:9px 18px; border-radius:20px; font-size:13px;
+         opacity:0; transition:.2s; pointer-events:none; z-index:60}
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  #toast.err{background:#b23b30}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <span class="ttl">拡張パレット2</span>
+  <span class="sp"></span>
+  <button id="btnSettings">⚙ 接続設定</button>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="ident">
+  <label>名前</label>
+  <input type="text" id="f_name" placeholder="送信者名">
+  <label>色</label>
+  <input type="color" id="f_color" class="swatch" value="#000000" title="このタブの既定色(textColor)">
+  <label>システム(bot)</label>
+  <input type="text" id="f_bot" list="botlist" placeholder="未指定=素テキスト">
+  <datalist id="botlist">
+    <option value="SwordWorld2_5"><option value="SwordWorld2_0"><option value="Cthulhu7th">
+    <option value="Cthulhu"><option value="ShinobiGami"><option value="Insane"><option value="DoubleCross">
+    <option value="NjslyrBattle"><option value="Emoklore"><option value="StellarKnights"><option value="Arianrhod">
+  </datalist>
+</div>
+
+<div class="compose">
+  <textarea id="compose" placeholder="送信予定（編集可能）— クリックでここへ／ダブルクリックで即送信"></textarea>
+  <button class="btn-send" id="btnSend">送信</button>
+</div>
+
+<div class="main">
+  <div class="rail" id="rail"></div>
+  <div class="bodywrap" id="bodywrap">
+    <div id="body"></div>
+    <textarea id="editArea" style="display:none"></textarea>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="lk" id="btnExpand">広げる</button>
+  <button class="lk" id="btnCollapse">狭める</button>
+  <span class="sep"></span>
+  <button class="lk" id="btnAddTab">タブ追加</button>
+  <button class="lk danger" id="btnDelTab">タブ削除</button>
+  <button class="lk" id="btnUndoDel" disabled>削除戻し</button>
+  <span class="sp"></span>
+  <button class="lk on" id="btnEdit">編集</button>
+  <span class="sep"></span>
+  <button class="lk" id="btnLoad">ロード</button>
+  <button class="lk" id="btnSave">セーブ</button>
+  <button class="lk" id="btnClean">クリーン出力</button>
+  <input type="file" id="file" accept=".json,application/json" style="display:none">
+</div>
+
+<div class="modal" id="settings">
+  <div class="sheet">
+    <h2>接続設定</h2>
+    <p class="sub">Tekey API（Firebase tekeyProxy2 経由）への接続情報。room/pass/tab/送信者名は他ツールと共有されます。</p>
+    <div class="fg"><label>ルームID</label><input type="text" id="s_room" placeholder="TekeyのルームURL末尾"></div>
+    <div class="fg"><label>ルームパスワード</label><input type="text" id="s_pass" placeholder="設定されている場合のみ"></div>
+    <div class="fg"><label>送信先タブ名（省略可）</label><input type="text" id="s_tab" placeholder="省略時は最左端タブ"></div>
+    <div class="fg"><label>送信者名フォールバック（省略可）</label><input type="text" id="s_name" placeholder="例：GM"></div>
+    <div class="fg"><label>エンドポイントURL</label><input type="text" id="s_ep" placeholder="https://...cloudfunctions.net/tekeyProxy2"></div>
+    <div class="row">
+      <button id="s_cancel">閉じる</button>
+      <button class="ok" id="s_save">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+const DEFAULT_EP = "https://us-central1-trpgnog.cloudfunctions.net/tekeyProxy2";
+
+/* ---------- config (localStorage) ---------- */
+const cfg = k => localStorage.getItem(k) || "";
+const setCfg = (k,v) => localStorage.setItem(k, v);
+
+/* ---------- state ---------- */
+let state = { palettes:[], activeId:null, editMode:false, lastDeleted:null };
+let lineMap = {};            // lineIndex -> raw text (current tab)
+let curParams = {};          // {name: value}
+let secMap = {};             // uid -> {lineIndex, level}
+let expand = {};             // {paletteID: {uid:bool}} UI expand memory
+
+const $ = s => document.querySelector(s);
+const el = (c,h) => { const d=document.createElement("div"); if(c)d.className=c; if(h!=null)d.innerHTML=h; return d; };
+const esc = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+function activeP(){ return state.palettes.find(p=>p.paletteID===state.activeId) || null; }
+
+/* ---------- persistence ---------- */
+function persist(){
+  try{ localStorage.setItem("ep2_palettes", JSON.stringify({palettes:state.palettes, activeId:state.activeId})); }catch(e){}
+}
+function restore(){
+  try{
+    const raw = localStorage.getItem("ep2_palettes");
+    if(raw){ const o=JSON.parse(raw); if(o.palettes&&o.palettes.length){ state.palettes=o.palettes; state.activeId=o.activeId||o.palettes[0].paletteID; return true; } }
+  }catch(e){}
+  return false;
+}
+
+/* ---------- text helpers ---------- */
+const sendSafe = s => s.replace(/《/g,"[").replace(/》/g,"]").replace(/／/g,"/");
+function expandParams(t){ return t.replace(/\{([^{}]+)\}/g,(m,k)=> (k in curParams)? curParams[k] : m); }
+function resolveSend(raw){
+  let t = expandParams(raw);
+  t = t.replace(/\\n/g,"\n");   // literal backslash-n -> 改行
+  return t;
+}
+
+/* ---------- parser: stock -> tree ---------- */
+let _uid = 0;
+function parseStock(stock){
+  _uid = 0; curParams = {}; lineMap = {}; secMap = {};
+  const lines = (stock||"").split("\n");
+  const root = [];
+  const stack = [{level:0, children:root}];
+  const top = () => stack[stack.length-1];
+  let callout = null;
+
+  lines.forEach((ln, idx)=>{
+    if(callout){
+      if(ln.trim()===":::"){ top().children.push(callout); callout=null; }
+      else callout.lines.push(ln);
+      return;
+    }
+    // callout open: ':::xxx' or bare ':::'
+    if(/^:::(.+)$/.test(ln) || ln.trim()===":::"){
+      const v = ln.replace(/^:::/,"").trim();
+      callout = {type:"callout", variant:v, lines:[]};
+      return;
+    }
+    // headings
+    let m;
+    if((m=ln.match(/^####(.*)$/))){
+      const title=m[1];
+      if(title.trim()===""){ if(top().level===2) stack.pop(); }
+      else{
+        while(top().level>=2) stack.pop();
+        const uid=++_uid; secMap[uid]={lineIndex:idx,level:2};
+        const sec={type:"section",level:2,title,uid,children:[]};
+        top().children.push(sec); stack.push(sec);
+      }
+      return;
+    }
+    if((m=ln.match(/^###(.*)$/))){
+      const title=m[1];
+      if(title.trim()===""){ while(top().level>=2) stack.pop(); if(top().level===1) stack.pop(); }
+      else{
+        while(top().level>=1) stack.pop();
+        const uid=++_uid; secMap[uid]={lineIndex:idx,level:1};
+        const sec={type:"section",level:1,title,uid,children:[]};
+        top().children.push(sec); stack.push(sec);
+      }
+      return;
+    }
+    // param def
+    if((m=ln.match(/^\/\/\s*([^=]+?)\s*=\s*(.*)$/))){
+      const name=m[1].trim(), val=m[2];
+      curParams[name]=val;
+      top().children.push({type:"param", name, val});
+      return;
+    }
+    if(ln.trim()===""){ top().children.push({type:"blank"}); return; }
+    // sendable line
+    lineMap[idx]=ln;
+    top().children.push({type:"line", raw:ln, idx});
+  });
+  return root;
+}
+
+/* ---------- inline render ---------- */
+function renderLine(raw){
+  let s = esc(raw), color=null;
+  const cm = raw.match(/@#([0-9a-fA-F]{3,6})\b/); if(cm) color="#"+cm[1];
+  s = s.replace(/\|([^|《\n]+)《([^》\n]+)》/g,"<ruby>$1<rt>$2</rt></ruby>");
+  s = s.replace(/\\n/g,"<br>");
+  s = s.replace(/(@#[0-9a-fA-F]{3,6}\b|@\[[^\]]*\][^\s@]*|@全停止)/g,'<span class="atcmd">$1</span>');
+  const conv = /[《》／]/.test(raw) ? '<span class="conv" title="送信時に [ ] / へ自動変換されます">⇄</span>' : "";
+  return {html:s+conv, color};
+}
+function mdInline(s){
+  s=esc(s);
+  s=s.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>");
+  s=s.replace(/\*([^*]+)\*/g,"<em>$1</em>");
+  s=s.replace(/~~([^~]+)~~/g,"<del>$1</del>");
+  s=s.replace(/`([^`]+)`/g,"<code>$1</code>");
+  return s;
+}
+function calloutClass(v){
+  const t=(v||"").toLowerCase();
+  if(/\b(info|tip)\b/.test(t)) return "info";
+  if(/\b(warn|warning|caution)\b/.test(t)) return "warn";
+  if(/\b(alert|danger|error|stop)\b/.test(t)) return "alert";
+  if(/\b(success|done|ok)\b/.test(t)) return "success";
+  return "note";
+}
+function renderCallout(node){
+  const cls=calloutClass(node.variant);
+  const wrap=el("callout "+cls);
+  if(node.variant) wrap.appendChild(el("co-ttl", esc(node.variant)));
+  let ul=null;
+  node.lines.forEach(ln=>{
+    if(/^\s*[-*]\s+/.test(ln)){
+      if(!ul){ ul=document.createElement("ul"); wrap.appendChild(ul); }
+      const li=document.createElement("li"); li.innerHTML=mdInline(ln.replace(/^\s*[-*]\s+/,"")); ul.appendChild(li); return;
+    }
+    ul=null;
+    if(ln.trim()===""){ wrap.appendChild(el(null,"")); return; }
+    if(/^#{1,4}\s+/.test(ln)){ const h=el(null,"<strong>"+mdInline(ln.replace(/^#{1,4}\s+/,""))+"</strong>"); wrap.appendChild(h); return; }
+    wrap.appendChild(el(null, mdInline(ln)));
+  });
+  return wrap;
+}
+
+/* ---------- tree render ---------- */
+function renderNodes(nodes, parent){
+  const p = activeP();
+  nodes.forEach(n=>{
+    if(n.type==="section"){
+      const sec=el("sec sec-l"+n.level); sec.id="sec-"+n.uid; sec.dataset.uid=n.uid;
+      const collapsed = expand[p.paletteID] && expand[p.paletteID][n.uid]===false;
+      if(collapsed) sec.classList.add("collapsed");
+      const head=el("sec-head"); head.dataset.uid=n.uid;
+      head.innerHTML='<span class="caret">▾</span><span class="sec-title">'+esc(n.title.trim()||"(無題)")+'</span>';
+      const bdy=el("sec-body");
+      renderNodes(n.children, bdy);
+      sec.appendChild(head); sec.appendChild(bdy); parent.appendChild(sec);
+    } else if(n.type==="line"){
+      const {html,color}=renderLine(n.raw);
+      const d=el("line", html); d.dataset.idx=n.idx; if(color) d.style.color=color;
+      parent.appendChild(d);
+    } else if(n.type==="param"){
+      parent.appendChild(el("paramdef", esc("// "+n.name+" = "+n.val)));
+    } else if(n.type==="callout"){
+      parent.appendChild(renderCallout(n));
+    } else if(n.type==="blank"){
+      parent.appendChild(el("blank"));
+    }
+  });
+}
+function renderRail(tree){
+  const rail=$("#rail"); rail.innerHTML="";
+  const secs=tree.filter(n=>n.type==="section");
+  if(!secs.length){ rail.appendChild(el("rail-empty","見出しなし<br><span>### で見出しを作成</span>")); return; }
+  rail.appendChild(el("cap","見出し一覧"));
+  secs.forEach(sec=>{
+    const it=el("rail-item"); it.dataset.uid=sec.uid; it.title="クリック:移動 / ダブルクリック:名前変更";
+    it.innerHTML='<span class="rail-label">'+esc(sec.title.trim()||"(無題)")+"</span>";
+    rail.appendChild(it);
+    sec.children.filter(c=>c.type==="section").forEach(sub=>{
+      const si=el("rail-sub"); si.dataset.uid=sub.uid; si.title="クリック:移動 / ダブルクリック:名前変更";
+      si.innerHTML='<span class="rail-label">'+esc(sub.title.trim()||"(無題)")+"</span>";
+      rail.appendChild(si);
+    });
+  });
+}
+
+/* ---------- render entry ---------- */
+function renderTabs(){
+  const t=$("#tabs"); t.innerHTML="";
+  state.palettes.forEach(p=>{
+    const d=el("tab"+(p.paletteID===state.activeId?" on":"")); d.dataset.id=p.paletteID;
+    d.innerHTML="<span class='lbl'>"+esc(p.label||"?")+"</span>"+(state.palettes.length>1?"<span class='x' title='このタブを削除'>×</span>":"");
+    t.appendChild(d);
+  });
+  const add=document.createElement("button"); add.className="tab-add"; add.id="tabAddInline"; add.textContent="＋"; add.title="タブ追加";
+  t.appendChild(add);
+}
+function render(){
+  const p=activeP();
+  renderTabs();
+  if(!p){ $("#body").innerHTML=""; $("#rail").innerHTML=""; return; }
+  $("#f_name").value=p.name||"";
+  $("#f_color").value=/^#[0-9a-fA-F]{6}$/.test(p.textColor||"")?p.textColor:"#000000";
+  const tree=parseStock(p.stock||"");
+  const body=$("#body"), ed=$("#editArea");
+  if(state.editMode){
+    body.style.display="none"; ed.style.display="block"; ed.value=p.stock||"";
+    $("#rail").innerHTML=""; $("#rail").appendChild(el("rail-empty","編集モード中"));
+    $("#btnEdit").classList.add("on");
+  }else{
+    ed.style.display="none"; body.style.display="block"; body.innerHTML="";
+    renderNodes(tree, body); renderRail(tree);
+    $("#btnEdit").classList.remove("on");
+  }
+  persist();
+}
+
+/* ---------- send ---------- */
+function pickName(palName){
+  const a=(palName||"").replace(/[\s\u3000]/g,"");
+  const b=(cfg("senderName")||"").replace(/[\s\u3000]/g,"");
+  const raw = a.length? (palName||"").trim() : b.length? (cfg("senderName")||"").trim() : null;
+  return raw || "\u3164";   // U+3164 fallback
+}
+async function sendChat(message,{name,color,bot}={}){
+  const ep=cfg("ep2_endpoint")||DEFAULT_EP;
+  const room=cfg("room"), password=cfg("pass"), tab=cfg("tab");
+  if(!room) return {ok:false, why:"noroom"};
+  const body={command:"sendChat", room, password, message};
+  if(name) body.name=name;
+  if(tab) body.tab=tab;
+  if(color) body.color=color;
+  if(bot) body.bot=bot;
+  try{
+    const res=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    return {ok:res.ok, status:res.status};
+  }catch(e){ return {ok:false, why:"net"}; }
+}
+async function doSend(message){
+  message=(message||"").trim(); if(!message) return;
+  if(!cfg("room")){ toast("ルームID未設定。接続設定を開いてね",true); openSettings(); return; }
+  const p=activeP();
+  const name=pickName(p?p.name:"");
+  const color=((p&&p.textColor)||"").replace("#","")||undefined;
+  const bot=$("#f_bot").value.trim()||undefined;
+  const r=await sendChat(sendSafe(message),{name,color,bot});
+  if(r.ok) toast("送信しました");
+  else if(r.why==="noroom") toast("ルームID未設定",true);
+  else if(r.why==="net") toast("接続失敗（エンドポイント/CORSを確認）",true);
+  else toast("送信失敗（"+(r.status||"?")+"）名前や記号(《》／)を確認",true);
+}
+function stageLine(idx){
+  const raw=lineMap[idx]; if(raw==null) return;
+  $("#compose").value=resolveSend(raw);
+  $("#compose").focus();
+}
+function sendLine(idx){
+  const raw=lineMap[idx]; if(raw==null) return;
+  doSend(resolveSend(raw));
+}
+
+/* ---------- section editing ---------- */
+function setStock(p, lines){ p.stock=lines.join("\n"); render(); }
+function renameSection(uid){
+  const p=activeP(); const info=secMap[uid]; if(!info) return;
+  const lines=p.stock.split("\n"); const cur=lines[info.lineIndex]||"";
+  const title=cur.replace(/^#{3,4}/,"");
+  const nv=prompt("見出し名を変更", title.trim());
+  if(nv==null) return;
+  lines[info.lineIndex]=(info.level===2?"####":"###")+nv;
+  setStock(p, lines);
+}
+function scrollToSec(uid){
+  const sec=document.getElementById("sec-"+uid);
+  if(sec){ sec.classList.remove("collapsed"); sec.scrollIntoView({behavior:"smooth",block:"start"}); }
+}
+
+/* ---------- expand/collapse ---------- */
+function rememberExpand(){
+  const p=activeP(); if(!p) return; const m=expand[p.paletteID]={};
+  $("#body").querySelectorAll(".sec").forEach(s=>{ m[s.dataset.uid]=!s.classList.contains("collapsed"); });
+}
+function setAll(open){
+  $("#body").querySelectorAll(".sec").forEach(s=>s.classList.toggle("collapsed",!open));
+  rememberExpand();
+}
+
+/* ---------- tabs ---------- */
+function selectTab(id){ if(state.editMode) commitEdit(); state.activeId=id; render(); }
+function addTab(){
+  const ids=state.palettes.map(p=>p.paletteID); const nid=(ids.length?Math.max(...ids):0)+1;
+  const nlabel=String(state.palettes.length+1);
+  const base=activeP();
+  state.palettes.push({paletteID:nid, order:state.palettes.length, label:nlabel,
+    name:base?base.name:"", stock:"", textColor:"#000000", isSearchOn:true, expandeds:[]});
+  state.activeId=nid; render();
+}
+function delTab(){
+  if(state.palettes.length<=1){ toast("最後のタブは削除できません",true); return; }
+  const p=activeP(); if(!confirm("タブ「"+p.label+"」を削除しますか？")) return;
+  const i=state.palettes.findIndex(x=>x.paletteID===p.paletteID);
+  state.lastDeleted={pal:p, index:i};
+  state.palettes.splice(i,1);
+  state.activeId=state.palettes[Math.max(0,i-1)].paletteID;
+  $("#btnUndoDel").disabled=false; render();
+}
+function undoDel(){
+  if(!state.lastDeleted) return;
+  const {pal,index}=state.lastDeleted;
+  state.palettes.splice(Math.min(index,state.palettes.length),0,pal);
+  state.activeId=pal.paletteID; state.lastDeleted=null; $("#btnUndoDel").disabled=true; render();
+}
+function renameTab(id){
+  const p=state.palettes.find(x=>x.paletteID===id); if(!p) return;
+  const nv=prompt("タブ名を変更", p.label); if(nv==null) return;
+  p.label=nv.trim()||p.label; render();
+}
+
+/* ---------- edit mode ---------- */
+function commitEdit(){
+  if(!state.editMode) return;
+  const p=activeP(); if(p) p.stock=$("#editArea").value;
+  state.editMode=false;
+}
+function toggleEdit(){
+  if(state.editMode){ commitEdit(); }
+  else{ rememberExpand(); state.editMode=true; }
+  render();
+}
+
+/* ---------- save / load ---------- */
+function exportPalettes(strip){
+  const out={palettes: state.palettes.map((p,i)=>({
+    paletteID:p.paletteID, order:i, label:p.label, name:p.name||"",
+    stock: strip? stripCallouts(p.stock||"") : (p.stock||""),
+    textColor:p.textColor||"#000000", isSearchOn:p.isSearchOn!==false, expandeds:[]
+  }))};
+  return JSON.stringify(out, null, 2);
+}
+function stripCallouts(stock){
+  const lines=(stock||"").split("\n"); const out=[]; let inC=false;
+  for(const ln of lines){
+    if(inC){ if(ln.trim()===":::") inC=false; continue; }
+    if(/^:::(.+)$/.test(ln) || ln.trim()===":::"){ inC=true; continue; }
+    out.push(ln);
+  }
+  return out.join("\n");
+}
+function download(name, text){
+  const b=new Blob([text],{type:"application/json"}); const u=URL.createObjectURL(b);
+  const a=document.createElement("a"); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
+}
+function loadJSON(text){
+  let o; try{ o=JSON.parse(text); }catch(e){ toast("JSONの読み込みに失敗",true); return; }
+  if(!o||!Array.isArray(o.palettes)){ toast("Tekeyパレット形式ではありません",true); return; }
+  state.palettes=o.palettes.map((p,i)=>({
+    paletteID: p.paletteID!=null?p.paletteID:(i+1), order:p.order!=null?p.order:i,
+    label:p.label!=null?String(p.label):String(i+1), name:p.name||"",
+    stock:p.stock||"", textColor:p.textColor||"#000000",
+    isSearchOn:p.isSearchOn!==false, expandeds:p.expandeds||[]
+  }));
+  state.activeId=state.palettes[0].paletteID; state.editMode=false; expand={};
+  render(); toast(state.palettes.length+"タブを読み込みました");
+}
+
+/* ---------- settings modal ---------- */
+function openSettings(){
+  $("#s_room").value=cfg("room"); $("#s_pass").value=cfg("pass");
+  $("#s_tab").value=cfg("tab"); $("#s_name").value=cfg("senderName");
+  $("#s_ep").value=cfg("ep2_endpoint")||DEFAULT_EP;
+  $("#settings").classList.add("open");
+}
+function saveSettings(){
+  setCfg("room",$("#s_room").value.trim()); setCfg("pass",$("#s_pass").value.trim());
+  setCfg("tab",$("#s_tab").value.trim()); setCfg("senderName",$("#s_name").value.trim());
+  setCfg("ep2_endpoint",$("#s_ep").value.trim()||DEFAULT_EP);
+  $("#settings").classList.remove("open"); toast("設定を保存しました");
+}
+
+/* ---------- toast ---------- */
+let toT=null;
+function toast(msg,err){ const t=$("#toast"); t.textContent=msg; t.className="show"+(err?" err":"");
+  clearTimeout(toT); toT=setTimeout(()=>t.className="",2200); }
+
+/* ---------- events ---------- */
+let clickTimer=null;
+$("#body").addEventListener("click",e=>{
+  if(state.editMode) return;
+  const head=e.target.closest(".sec-head");
+  if(head){ const sec=head.closest(".sec"); sec.classList.toggle("collapsed"); rememberExpand(); return; }
+  const line=e.target.closest(".line"); if(!line) return;
+  if(clickTimer) return;
+  const idx=+line.dataset.idx;
+  clickTimer=setTimeout(()=>{ clickTimer=null; stageLine(idx); },230);
+});
+$("#body").addEventListener("dblclick",e=>{
+  if(state.editMode) return;
+  const line=e.target.closest(".line"); if(!line) return;
+  if(clickTimer){ clearTimeout(clickTimer); clickTimer=null; }
+  sendLine(+line.dataset.idx);
+});
+$("#rail").addEventListener("click",e=>{ const it=e.target.closest(".rail-item,.rail-sub"); if(it) scrollToSec(+it.dataset.uid); });
+$("#rail").addEventListener("dblclick",e=>{ const it=e.target.closest(".rail-item,.rail-sub"); if(it) renameSection(+it.dataset.uid); });
+
+$("#tabs").addEventListener("click",e=>{
+  if(e.target.closest(".tab-add")){ addTab(); return; }
+  const tab=e.target.closest(".tab"); if(!tab) return;
+  if(e.target.classList.contains("x")){ const id=+tab.dataset.id; if(id===state.activeId) delTab(); else { state.activeId=id; delTab(); } return; }
+  selectTab(+tab.dataset.id);
+});
+$("#tabs").addEventListener("dblclick",e=>{ const tab=e.target.closest(".tab"); if(tab&&!e.target.classList.contains("x")) renameTab(+tab.dataset.id); });
+
+$("#f_name").addEventListener("input",e=>{ const p=activeP(); if(p){ p.name=e.target.value; persist(); } });
+$("#f_color").addEventListener("input",e=>{ const p=activeP(); if(p){ p.textColor=e.target.value; persist(); } });
+$("#f_bot").addEventListener("change",e=>setCfg("ep2_bot",e.target.value.trim()));
+
+$("#btnSend").addEventListener("click",()=>doSend($("#compose").value));
+$("#compose").addEventListener("keydown",e=>{ if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){ e.preventDefault(); doSend($("#compose").value);} });
+
+$("#btnExpand").addEventListener("click",()=>setAll(true));
+$("#btnCollapse").addEventListener("click",()=>setAll(false));
+$("#btnAddTab").addEventListener("click",addTab);
+$("#btnDelTab").addEventListener("click",delTab);
+$("#btnUndoDel").addEventListener("click",undoDel);
+$("#btnEdit").addEventListener("click",toggleEdit);
+$("#btnLoad").addEventListener("click",()=>$("#file").click());
+$("#btnSave").addEventListener("click",()=>{ commitEdit(); download("tekey-palette.json", exportPalettes(false)); });
+$("#btnClean").addEventListener("click",()=>{ commitEdit(); download("tekey-palette-clean.json", exportPalettes(true)); });
+$("#file").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>loadJSON(r.result); r.readAsText(f); e.target.value=""; });
+
+$("#btnSettings").addEventListener("click",openSettings);
+$("#s_cancel").addEventListener("click",()=>$("#settings").classList.remove("open"));
+$("#s_save").addEventListener("click",saveSettings);
+$("#settings").addEventListener("click",e=>{ if(e.target.id==="settings") $("#settings").classList.remove("open"); });
+
+/* ---------- boot ---------- */
+function seed(){
+  state.palettes=[{paletteID:1,order:0,label:"1",name:"GM",textColor:"#000000",isSearchOn:true,expandeds:[],
+    stock:["###使い方",
+      "クリックで上の送信予定へ（編集できます）",
+      "ダブルクリックでそのまま送信",
+      ":::note info",
+      "これは自分用メモ（カンペ）。**送信されません**。",
+      "~~取り消し~~ や `コード`、箇条書きも使えます。",
+      "- 戦況メモ",
+      "- 次の展開",
+      ":::",
+      "###",
+      "###戦闘",
+      "2d6+5 [命中] @#d83a2f",
+      "2d6+3 [ダメージ]",
+      "####必殺技",
+      "3d6+10 [全力] @#1a73e8",
+      "####",
+      "###",
+      "###能力判定",
+      "1d100<=({STR}*5) 筋力判定",
+      "// STR=12",
+      "###",
+      "###定型文",
+      "こんばんは、よろしくお願いします。",
+      "判定の前にひと呼吸。\\n落ち着いていきましょう。",
+      "###"].join("\n")}];
+  state.activeId=1;
+}
+$("#f_bot").value=cfg("ep2_bot");
+if(!restore()) seed();
+render();
+if(!cfg("room")) setTimeout(openSettings,400);
+</script>
+</body>
+</html>
