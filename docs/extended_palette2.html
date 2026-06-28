@@ -266,7 +266,12 @@
   .rail-sub::before{content:"\2514"; position:absolute; left:15px; color:var(--tx3); font-size:11px}
   .rail-item:hover,.rail-sub:hover{background:var(--line-h)}
   .rail-item.active,.rail-sub.active{border-left-color:var(--link); background:var(--line-h); color:var(--link-h)}
-  .rail-pinned{border-left-color:var(--link-hbd, var(--bd2))}
+  .rail-pinned{background:var(--bg); border-left-color:var(--line-hbd)}
+  .rail-pinned:hover{background:var(--bg)}
+  .pinpanel{margin:2px 0 12px; border:1px solid var(--line-hbd); border-radius:10px; background:var(--bg); overflow:hidden}
+  .pinpanel-cap{font-size:11px; color:var(--link-h); font-weight:600; padding:6px 10px; background:var(--line-h); letter-spacing:.03em; border-bottom:1px solid var(--line-hbd)}
+  .pinpanel .pinned-sec{border-top:1px solid var(--sep)}
+  .pinpanel-cap + .pinned-sec{border-top:none}
   .rail-empty{color:var(--tx3); font-size:12px; padding:10px 12px; line-height:1.6}
   .rail-empty span{color:var(--bd2)}
 
@@ -476,7 +481,17 @@ function restore(){
 
 /* ---------- text helpers ---------- */
 const sendSafe = s => s.replace(/《/g,"[").replace(/》/g,"]").replace(/／/g,"/");
-function expandParams(t){ return t.replace(/\{([^{}]+)\}/g,(m,k)=> (k in curParams)? curParams[k] : m); }
+function allParams(){
+  const map={};
+  state.palettes.forEach(p=>{
+    (p.stock||"").split("\n").forEach(ln=>{
+      const m=ln.match(/^\/\/\s*([^=]+?)\s*=\s*(.*)$/);
+      if(m) map[m[1].trim()]=m[2];
+    });
+  });
+  return map;
+}
+function expandParams(t){ const map={...allParams(), ...curParams}; return t.replace(/\{([^{}]+)\}/g,(m,k)=> (k in map)? map[k] : m); }
 function resolveSend(raw){
   let t = expandParams(raw);
   t = t.replace(/\\n/g,"\n");   // literal backslash-n -> 改行
@@ -628,8 +643,30 @@ function renderNodes(nodes, parent){
 }
 function loadPins(){ try{ const a=JSON.parse(localStorage.getItem("ep2_pins")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
 function savePins(a){ try{ localStorage.setItem("ep2_pins", JSON.stringify(a)); }catch(e){} }
-function togglePin(tabId, title){ const k=cardKey(tabId,(title||"").trim()); let a=loadPins(); a=a.includes(k)?a.filter(x=>x!==k):a.concat(k); savePins(a); refreshRail(); }
-function refreshRail(){ const p=activeP(); if(!p||state.editMode) return; renderRail(parseStock(p.stock||"")); requestAnimationFrame(updateSpy); }
+function togglePin(tabId, title){ const k=cardKey(tabId,(title||"").trim()); let a=loadPins(); a=a.includes(k)?a.filter(x=>x!==k):a.concat(k); savePins(a); refreshPins(); }
+function refreshPins(){ const p=activeP(); if(!p||state.editMode) return; const tree=parseStock(p.stock||""); renderRail(tree); renderPinPanel(tree); requestAnimationFrame(updateSpy); }
+function renderPinPanel(tree){
+  const body=$("#body"); if(!body) return;
+  const old=body.querySelector(".pinpanel"); if(old) old.remove();
+  const pins=loadPins(); const tab=state.activeId;
+  const isPin=t=>pins.includes(cardKey(tab,(t||"").trim()));
+  const uids=[];
+  tree.filter(n=>n.type==="section").forEach(sec=>{
+    if(isPin(sec.title)) uids.push(sec.uid);
+    sec.children.filter(c=>c.type==="section").forEach(sub=>{ if(isPin(sub.title)) uids.push(sub.uid); });
+  });
+  if(!uids.length) return;
+  const panel=el("pinpanel"); panel.appendChild(el("pinpanel-cap","📌 ピン留め"));
+  uids.forEach(uid=>{
+    const src=body.querySelector('.sec[data-uid="'+uid+'"]'); if(!src) return;
+    const cl=src.cloneNode(true);
+    cl.removeAttribute("id"); cl.removeAttribute("data-uid"); cl.classList.remove("collapsed"); cl.classList.add("pinned-sec");
+    cl.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
+    cl.querySelectorAll("[data-uid]").forEach(n=>n.removeAttribute("data-uid"));
+    panel.appendChild(cl);
+  });
+  body.insertBefore(panel, body.firstChild);
+}
 function railItemHTML(title, pinned){
   return '<span class="rail-label">'+esc(title||"(無題)")+'</span><button class="rail-pin'+(pinned?" on":"")+'" title="'+(pinned?"ピンを外す":"ピン留め")+'">📌</button>';
 }
@@ -689,7 +726,7 @@ function renderActiveBody(){
     $("#btnEdit").classList.add("on");
   }else{
     ed.style.display="none"; body.style.display="block"; body.innerHTML="";
-    renderNodes(tree, body); renderRail(tree);
+    renderNodes(tree, body); renderRail(tree); renderPinPanel(tree);
     $("#btnEdit").classList.remove("on");
     applySearch($("#search").value);
     requestAnimationFrame(updateSpy);
