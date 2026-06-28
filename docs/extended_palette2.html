@@ -21,6 +21,7 @@
     --fs:14px;
     --line-h:#eef5ff; --line-hbd:#cfe0f3; --guide:#e4e9ef; --sep:#e1e6ec;
     --head-bg:#e7ebf1; --head-bg2:#eef1f5; --head-bgh:#dce2ea;
+    --grid:#e9edf2; --grid2:#dde3ea;
   }
   body[data-theme="dark"]{
     --hd:#2f4258; --hd-tx:#cfe0f3; --bg:#424242; --panel:#4c4c4c; --panel2:#3a3a3a;
@@ -28,6 +29,7 @@
     --link:#74b4f2; --link-h:#9ccbf7; --send:#3a9d64; --send-h:#46b173;
     --line-h:#3c4a5a; --line-hbd:#4f6a8a; --guide:#5a5a5a; --sep:#525252;
     --head-bg:#535353; --head-bg2:#4b4b4b; --head-bgh:#5d5d5d;
+    --grid:#4a4a4a; --grid2:#545454;
   }
   body[data-theme="dark"] .hd button{background:rgba(255,255,255,.12); border-color:#4a6a8a}
   body[data-theme="dark"] .hd button:hover{background:rgba(255,255,255,.2)}
@@ -117,10 +119,18 @@
   #boardbar{display:flex; gap:6px; padding:8px 12px; border-bottom:1px solid var(--bd); flex:0 0 auto}
   #boardbar .bm{padding:5px 13px; border:1px solid var(--bd2); border-radius:16px; background:var(--bg); color:var(--link); cursor:pointer; font-size:13px}
   #boardbar .bm.on{background:var(--line-h); border-color:var(--link); color:var(--link-h)}
+  #boardbar .bm-hint{margin-left:auto; align-self:center; font-size:11px; color:var(--tx3)}
   #boardcontent{flex:1 1 auto; min-height:0; min-width:0; overflow:auto}
   #boardcontent.kanban{display:flex; gap:12px; padding:12px; align-items:flex-start}
   #boardcontent.flow{position:relative}
-  #fcanvas{position:relative; width:2400px; height:1500px}
+  #fcanvas{position:relative; width:2400px; height:1500px;
+        background-color:var(--bg);
+        background-image:
+          linear-gradient(var(--grid2) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid2) 1px, transparent 1px),
+          linear-gradient(var(--grid) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+        background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px}
   .fsvg{position:absolute; left:0; top:0; width:2400px; height:1500px; overflow:visible}
   .fsvg .flink{stroke:var(--tx3); stroke-width:2; fill:none; pointer-events:none}
   .fsvg marker path{fill:var(--tx3)}
@@ -128,10 +138,18 @@
   .fsvg .ftemp{stroke:var(--link); stroke-width:2; stroke-dasharray:5 4; fill:none; pointer-events:none}
   .fcard{position:absolute; width:182px; background:var(--bg); border:1px solid var(--bd2); border-left-width:4px;
          border-radius:8px; padding:8px 10px; cursor:grab; z-index:1; user-select:none; touch-action:none;
-         box-shadow:0 1px 4px rgba(0,0,0,.08)}
+         box-shadow:0 1px 5px rgba(0,0,0,.12)}
   .fcard:hover{border-color:var(--link)}
-  .fcard .fhandle{position:absolute; right:-7px; top:50%; transform:translateY(-50%); width:14px; height:14px;
-         border-radius:50%; background:var(--link); border:2px solid var(--bg); cursor:crosshair}
+  .fcard .fhandle{position:absolute; left:50%; transform:translateX(-50%); width:15px; height:15px;
+         border-radius:50%; background:var(--link); border:2px solid var(--bg); cursor:crosshair; opacity:.55}
+  .fcard:hover .fhandle{opacity:1}
+  .fcard .fhandle-t{top:-9px}
+  .fcard .fhandle-b{bottom:-9px}
+  .fcard .fdel{position:absolute; top:-8px; right:-8px; width:19px; height:19px; border-radius:50%;
+         border:1px solid var(--bd2); background:var(--bg); color:var(--tx3); cursor:pointer; line-height:1;
+         font-size:12px; padding:0; opacity:0; box-shadow:0 1px 3px rgba(0,0,0,.15)}
+  .fcard:hover .fdel{opacity:1}
+  .fcard .fdel:hover{color:var(--danger); border-color:var(--danger)}
   .bcol{flex:0 0 224px; display:flex; flex-direction:column; max-height:100%;
         background:var(--panel); border:1px solid var(--bd); border-radius:10px}
   .bcol-head{padding:8px 12px; font-weight:600; color:var(--tx); border-bottom:1px solid var(--bd);
@@ -834,6 +852,11 @@ function renderBoard(){
   const bar=el("boardbar"); bar.id="boardbar";
   bar.innerHTML="<button id='bmKanban' class='bm"+(mode==="kanban"?" on":"")+"'>▦ カンバン</button>"+
                 "<button id='bmFlow' class='bm"+(mode==="flow"?" on":"")+"'>⤳ フロー</button>";
+  if(mode==="flow"){
+    const cards=currentCards(); const n=loadFlow().hidden.filter(k=>cards[k]).length;
+    if(n) bar.innerHTML+="<button id='fRestore' class='bm'>非表示 "+n+" 枚 ↺戻す</button>";
+    bar.innerHTML+="<span class='bm-hint'>カードドラッグで移動 ・上下の○からドラッグで接続 ・線クリックで削除</span>";
+  }
   board.appendChild(bar);
   const content=el(mode==="flow"?"flow":"kanban"); content.id="boardcontent";
   board.appendChild(content);
@@ -870,37 +893,46 @@ function renderKanban(content){
 
 /* ----- flow (free canvas) ----- */
 const SVGNS="http://www.w3.org/2000/svg";
-function loadFlow(){ try{ const o=JSON.parse(localStorage.getItem("ep2_flow")||"null"); if(o&&o.pos&&Array.isArray(o.links)) return o; }catch(e){} return {pos:{}, links:[]}; }
+function loadFlow(){ try{ const o=JSON.parse(localStorage.getItem("ep2_flow")||"null"); if(o&&o.pos&&Array.isArray(o.links)) return {pos:o.pos, links:o.links, hidden:Array.isArray(o.hidden)?o.hidden:[]}; }catch(e){} return {pos:{}, links:[], hidden:[]}; }
 function saveFlow(f){ try{ localStorage.setItem("ep2_flow", JSON.stringify(f)); }catch(e){} }
 function saveFlowPos(key,x,y){ const f=loadFlow(); f.pos[key]={x:Math.round(x),y:Math.round(y)}; saveFlow(f); }
 function addLink(from,to){ const f=loadFlow(); if(from===to) return; if(f.links.some(l=>l.from===from&&l.to===to)) return; f.links.push({from,to}); saveFlow(f); redrawLinks(); }
 function deleteLink(idx){ const f=loadFlow(); f.links.splice(idx,1); saveFlow(f); redrawLinks(); }
+function hideFlowCard(key){ const f=loadFlow(); if(!f.hidden.includes(key)) f.hidden.push(key); saveFlow(f); renderBoard(); }
+function restoreFlowCards(){ const f=loadFlow(); f.hidden=[]; saveFlow(f); renderBoard(); }
+function flowCardEl(key){ const c=$("#fcanvas"); if(!c) return null; return [...c.querySelectorAll(".fcard")].find(el=>el.dataset.key===key)||null; }
 function renderFlow(content){
   const cards=currentCards(); const meta=loadCardMeta();
   const f=loadFlow();
   // prune & auto-place
   Object.keys(f.pos).forEach(k=>{ if(!cards[k]) delete f.pos[k]; });
   f.links=f.links.filter(l=>cards[l.from]&&cards[l.to]);
+  f.hidden=f.hidden.filter(k=>cards[k]);
+  const hid=new Set(f.hidden);
   let gi=0;
-  Object.keys(cards).forEach(k=>{ if(!f.pos[k]) f.pos[k]={x:30+(gi%5)*210, y:30+Math.floor(gi/5)*120}; gi++; });
+  Object.keys(cards).forEach(k=>{ if(!f.pos[k]) f.pos[k]={x:30+(gi%5)*210, y:30+Math.floor(gi/5)*130}; gi++; });
   saveFlow(f);
   const canvas=el("fcanvas"); canvas.id="fcanvas";
   const svg=document.createElementNS(SVGNS,"svg"); svg.id="fsvg"; svg.setAttribute("class","fsvg");
   svg.innerHTML="<defs><marker id='fa' markerWidth='9' markerHeight='9' refX='7' refY='3' orient='auto'><path d='M0,0 L7,3 L0,6 Z'/></marker></defs>";
   canvas.appendChild(svg);
   Object.keys(cards).forEach(k=>{
+    if(hid.has(k)) return;
     const card=cards[k]; const pos=f.pos[k]; const m=meta[k]||{};
     const cd=el("fcard"); cd.dataset.key=k; cd.style.left=pos.x+"px"; cd.style.top=pos.y+"px";
     const clr=m.color||repColor(card.lines); if(clr) cd.style.borderLeftColor=clr;
-    let h="<div class='bcard-ttl'>"+esc(card.title)+"</div>";
+    let h="<div class='fhandle fhandle-t' title='ドラッグで接続'></div>";
+    h+="<button class='fdel' title='フローから外す'>×</button>";
+    h+="<div class='bcard-ttl'>"+esc(card.title)+"</div>";
     if(m.tags&&m.tags.length) h+="<div class='bcard-tags'>"+m.tags.map(t=>"<span class='tag'>"+esc(t)+"</span>").join("")+"</div>";
-    h+="<div class='bcard-meta'>"+esc("元:"+labelOf(card.homeTab))+"</div><div class='fhandle' title='ドラッグで接続'></div>";
+    h+="<div class='bcard-meta'>"+esc("元:"+labelOf(card.homeTab))+"</div>";
+    h+="<div class='fhandle fhandle-b' title='ドラッグで接続'></div>";
     cd.innerHTML=h; canvas.appendChild(cd);
   });
   content.appendChild(canvas);
   redrawLinks();
 }
-function cardBox(elm){ const hw=elm.offsetWidth/2, hh=elm.offsetHeight/2; return {cx:elm.offsetLeft+hw, cy:elm.offsetTop+hh, hw, hh}; }
+function cardBox(elm){ if(!elm) return null; const hw=elm.offsetWidth/2, hh=elm.offsetHeight/2; return {cx:elm.offsetLeft+hw, cy:elm.offsetTop+hh, hw, hh}; }
 function edgePoint(from, box){
   const dx=from.x-box.cx, dy=from.y-box.cy;
   if(!dx&&!dy) return {x:box.cx,y:box.cy};
@@ -911,14 +943,13 @@ function mkLine(cls,p1,p2,marker){ const l=document.createElementNS(SVGNS,"line"
   l.setAttribute("x1",p1.x); l.setAttribute("y1",p1.y); l.setAttribute("x2",p2.x); l.setAttribute("y2",p2.y);
   if(marker) l.setAttribute("marker-end","url(#fa)"); return l; }
 function redrawLinks(){
-  const svg=$("#fsvg"); if(!svg) return; const canvas=$("#fcanvas");
+  const svg=$("#fsvg"); if(!svg) return;
   [...svg.querySelectorAll(".flink,.flinkhit")].forEach(n=>n.remove());
-  const f=loadFlow();
+  const f=loadFlow(); const hid=new Set(f.hidden);
   f.links.forEach((lk,i)=>{
-    const a=canvas.querySelector('.fcard[data-key="'+(window.CSS&&CSS.escape?CSS.escape(lk.from):lk.from)+'"]');
-    const b=canvas.querySelector('.fcard[data-key="'+(window.CSS&&CSS.escape?CSS.escape(lk.to):lk.to)+'"]');
-    if(!a||!b) return;
-    const ba=cardBox(a), bb=cardBox(b);
+    if(hid.has(lk.from)||hid.has(lk.to)) return;
+    const a=flowCardEl(lk.from), b=flowCardEl(lk.to);
+    const ba=cardBox(a), bb=cardBox(b); if(!ba||!bb) return;
     const p1=edgePoint({x:bb.cx,y:bb.cy}, ba), p2=edgePoint({x:ba.cx,y:ba.cy}, bb);
     const hit=mkLine("flinkhit",p1,p2,false); hit.dataset.idx=i;
     svg.appendChild(hit); svg.appendChild(mkLine("flink",p1,p2,true));
@@ -1246,6 +1277,8 @@ $("#board").addEventListener("drop",e=>{
 $("#board").addEventListener("click",e=>{
   if(e.target.closest("#bmKanban")){ if(boardLayout()!=="kanban") setBoardLayout("kanban"); return; }
   if(e.target.closest("#bmFlow")){ if(boardLayout()!=="flow") setBoardLayout("flow"); return; }
+  if(e.target.closest("#fRestore")){ restoreFlowCards(); return; }
+  const fdel=e.target.closest(".fdel"); if(fdel){ const fc=fdel.closest(".fcard"); if(fc) hideFlowCard(fc.dataset.key); return; }
   if(e.target.closest("#bcolAdd")){ addColumn(); return; }
   const del=e.target.closest(".bcol-del"); if(del){ const c=del.closest(".bcol"); if(confirm("この列を削除しますか？（カードは元タブの列へ戻ります）")) deleteColumn(del.dataset.col); return; }
   const hit=e.target.closest(".flinkhit"); if(hit){ if(confirm("この接続を削除しますか？")) deleteLink(+hit.dataset.idx); return; }
@@ -1262,12 +1295,13 @@ $("#board").addEventListener("click",e=>{
 let fDrag=null;
 $("#board").addEventListener("pointerdown",e=>{
   if(boardLayout()!=="flow" || e.button!==0) return;
+  if(e.target.closest(".fdel")) return;
   const card=e.target.closest(".fcard"); if(!card) return;
   const canvas=$("#fcanvas"); const cr=canvas.getBoundingClientRect();
   if(e.target.closest(".fhandle")){
     const box=cardBox(card); const start={x:box.cx,y:box.cy};
     const temp=mkLine("ftemp",start,start,false); $("#fsvg").appendChild(temp);
-    fDrag={mode:"link", from:card.dataset.key, temp};
+    fDrag={mode:"link", from:card.dataset.key, fromEl:card, temp};
   } else {
     fDrag={mode:"move", key:card.dataset.key, card, moved:false, sx:e.clientX, sy:e.clientY,
       dx:e.clientX-cr.left-card.offsetLeft, dy:e.clientY-cr.top-card.offsetTop};
@@ -1284,8 +1318,8 @@ document.addEventListener("pointermove",e=>{
     if(Math.abs(e.clientX-fDrag.sx)>4||Math.abs(e.clientY-fDrag.sy)>4) fDrag.moved=true;
     redrawLinks();
   } else if(fDrag.mode==="link" && fDrag.temp){
-    const from=$('#fcanvas .fcard[data-key="'+(window.CSS&&CSS.escape?CSS.escape(fDrag.from):fDrag.from)+'"]');
-    const box=cardBox(from); const px=e.clientX-cr.left, py=e.clientY-cr.top;
+    const box=cardBox(fDrag.fromEl); if(!box) return;
+    const px=e.clientX-cr.left, py=e.clientY-cr.top;
     const p1=edgePoint({x:px,y:py},box);
     fDrag.temp.setAttribute("x1",p1.x); fDrag.temp.setAttribute("y1",p1.y);
     fDrag.temp.setAttribute("x2",px); fDrag.temp.setAttribute("y2",py);
