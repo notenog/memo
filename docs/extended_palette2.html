@@ -137,7 +137,7 @@
   .fsvg .flinkhit{stroke:transparent; stroke-width:14; pointer-events:stroke; cursor:pointer}
   .fsvg .ftemp{stroke:var(--link); stroke-width:2; stroke-dasharray:5 4; fill:none; pointer-events:none}
   .fcard{position:absolute; width:182px; background:var(--bg); border:1px solid var(--bd2); border-left-width:4px;
-         border-radius:8px; padding:8px 10px; cursor:grab; z-index:1; user-select:none; touch-action:none;
+         border-radius:8px; padding:8px 10px; cursor:grab; z-index:2; user-select:none; touch-action:none;
          box-shadow:0 1px 5px rgba(0,0,0,.12)}
   .fcard:hover{border-color:var(--link)}
   .fcard .fhandle{position:absolute; left:50%; transform:translateX(-50%); width:15px; height:15px;
@@ -150,6 +150,23 @@
          font-size:12px; padding:0; opacity:0; box-shadow:0 1px 3px rgba(0,0,0,.15)}
   .fcard:hover .fdel{opacity:1}
   .fcard .fdel:hover{color:var(--danger); border-color:var(--danger)}
+  .bcard.dim,.fcard.dim{opacity:.16}
+  #tagbar{display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:6px 12px; border-bottom:1px solid var(--bd); flex:0 0 auto}
+  #tagbar .tagbar-lbl{font-size:11px; color:var(--tx3); margin-right:2px}
+  .tfchip{font-size:12px; padding:2px 11px; border-radius:12px; border:1px solid var(--bd2); background:var(--bg); color:var(--tx2); cursor:pointer}
+  .tfchip:hover{border-color:var(--link)}
+  .tfchip.on{background:var(--link); border-color:var(--link); color:#fff}
+  .tfchip.tfclear{color:var(--danger)}
+  .fzone{position:absolute; z-index:1; pointer-events:none; border:1.5px dashed var(--bd2); border-radius:10px;
+        background:color-mix(in srgb, var(--link) 7%, transparent)}
+  .fzone-head{position:absolute; top:0; left:0; right:0; height:24px; display:flex; align-items:center; gap:4px;
+        padding:0 6px 0 10px; cursor:grab; pointer-events:auto; background:color-mix(in srgb, var(--link) 12%, transparent); border-radius:9px 9px 0 0}
+  .fzone-head:active{cursor:grabbing}
+  .fzone-name{flex:1 1 auto; font-size:12px; font-weight:600; color:var(--tx2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .fzone-del{flex:0 0 auto; width:17px; height:17px; border-radius:50%; border:none; background:transparent; color:var(--tx3); cursor:pointer; font-size:12px; line-height:1; padding:0}
+  .fzone-del:hover{color:var(--danger)}
+  .fzone-rz{position:absolute; right:0; bottom:0; width:16px; height:16px; cursor:nwse-resize; pointer-events:auto;
+        background:linear-gradient(135deg, transparent 50%, var(--bd2) 50%); border-radius:0 0 9px 0}
   .bcol{flex:0 0 224px; display:flex; flex-direction:column; max-height:100%;
         background:var(--panel); border:1px solid var(--bd); border-radius:10px}
   .bcol-head{padding:8px 12px; font-weight:600; color:var(--tx); border-bottom:1px solid var(--bd);
@@ -853,14 +870,28 @@ function renderBoard(){
   bar.innerHTML="<button id='bmKanban' class='bm"+(mode==="kanban"?" on":"")+"'>▦ カンバン</button>"+
                 "<button id='bmFlow' class='bm"+(mode==="flow"?" on":"")+"'>⤳ フロー</button>";
   if(mode==="flow"){
+    bar.innerHTML+="<button id='addZone' class='bm'>＋エリア</button>";
     const cards=currentCards(); const n=loadFlow().hidden.filter(k=>cards[k]).length;
     if(n) bar.innerHTML+="<button id='fRestore' class='bm'>非表示 "+n+" 枚 ↺戻す</button>";
-    bar.innerHTML+="<span class='bm-hint'>カードドラッグで移動 ・上下の○からドラッグで接続 ・線クリックで削除</span>";
+    bar.innerHTML+="<span class='bm-hint'>カードドラッグで移動 ・上下の○から接続 ・線クリックで削除</span>";
   }
   board.appendChild(bar);
+  // tag filter bar
+  const tags=allTags();
+  const af=loadTagFilter().filter(t=>tags.includes(t));
+  if(af.length!==loadTagFilter().length) saveTagFilter(af);
+  if(tags.length){
+    const active=af;
+    const tb=el("tagbar"); tb.id="tagbar";
+    let th="<span class='tagbar-lbl'>絞り込み</span>";
+    tags.forEach(t=> th+="<button class='tfchip"+(active.includes(t)?" on":"")+"' data-tag='"+esc(t)+"'>"+esc(t)+"</button>");
+    if(active.length) th+="<button id='tfClear' class='tfchip tfclear'>クリア</button>";
+    tb.innerHTML=th; board.appendChild(tb);
+  }
   const content=el(mode==="flow"?"flow":"kanban"); content.id="boardcontent";
   board.appendChild(content);
   if(mode==="flow") renderFlow(content); else renderKanban(content);
+  applyTagFilter();
 }
 function renderKanban(content){
   const {b, cards}=syncBoard();
@@ -893,7 +924,7 @@ function renderKanban(content){
 
 /* ----- flow (free canvas) ----- */
 const SVGNS="http://www.w3.org/2000/svg";
-function loadFlow(){ try{ const o=JSON.parse(localStorage.getItem("ep2_flow")||"null"); if(o&&o.pos&&Array.isArray(o.links)) return {pos:o.pos, links:o.links, hidden:Array.isArray(o.hidden)?o.hidden:[]}; }catch(e){} return {pos:{}, links:[], hidden:[]}; }
+function loadFlow(){ try{ const o=JSON.parse(localStorage.getItem("ep2_flow")||"null"); if(o&&o.pos&&Array.isArray(o.links)) return {pos:o.pos, links:o.links, hidden:Array.isArray(o.hidden)?o.hidden:[], zones:Array.isArray(o.zones)?o.zones:[]}; }catch(e){} return {pos:{}, links:[], hidden:[], zones:[]}; }
 function saveFlow(f){ try{ localStorage.setItem("ep2_flow", JSON.stringify(f)); }catch(e){} }
 function saveFlowPos(key,x,y){ const f=loadFlow(); f.pos[key]={x:Math.round(x),y:Math.round(y)}; saveFlow(f); }
 function addLink(from,to){ const f=loadFlow(); if(from===to) return; if(f.links.some(l=>l.from===from&&l.to===to)) return; f.links.push({from,to}); saveFlow(f); redrawLinks(); }
@@ -901,6 +932,24 @@ function deleteLink(idx){ const f=loadFlow(); f.links.splice(idx,1); saveFlow(f)
 function hideFlowCard(key){ const f=loadFlow(); if(!f.hidden.includes(key)) f.hidden.push(key); saveFlow(f); renderBoard(); }
 function restoreFlowCards(){ const f=loadFlow(); f.hidden=[]; saveFlow(f); renderBoard(); }
 function flowCardEl(key){ const c=$("#fcanvas"); if(!c) return null; return [...c.querySelectorAll(".fcard")].find(el=>el.dataset.key===key)||null; }
+/* zones (area boxes) */
+function addZone(){ const f=loadFlow(); f.zones.push({id:"z_"+Date.now()+"_"+Math.floor(Math.random()*1e4), x:40,y:40,w:380,h:260,name:"エリア"}); saveFlow(f); renderBoard(); }
+function updateZone(id,patch){ const f=loadFlow(); const z=f.zones.find(z=>z.id===id); if(z){ Object.assign(z,patch); saveFlow(f); } }
+function renameZone(id,name){ const f=loadFlow(); const z=f.zones.find(z=>z.id===id); if(z){ z.name=(name||"").trim()||z.name; saveFlow(f); renderBoard(); } }
+function deleteZone(id){ const f=loadFlow(); f.zones=f.zones.filter(z=>z.id!==id); saveFlow(f); renderBoard(); }
+/* tag filter (focus) */
+function loadTagFilter(){ try{ const a=JSON.parse(localStorage.getItem("ep2_tagfilter")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function saveTagFilter(a){ try{ localStorage.setItem("ep2_tagfilter", JSON.stringify(a)); }catch(e){} }
+function toggleTagFilter(t){ let a=loadTagFilter(); a=a.includes(t)?a.filter(x=>x!==t):a.concat(t); saveTagFilter(a); renderBoard(); }
+function clearTagFilter(){ saveTagFilter([]); renderBoard(); }
+function allTags(){ const s=new Set(); const m=loadCardMeta(); const cards=currentCards(); Object.keys(m).forEach(k=>{ if(cards[k]&&m[k].tags) m[k].tags.forEach(t=>s.add(t)); }); return [...s].sort(); }
+function cardMatchesFilter(key){ const a=loadTagFilter(); if(!a.length) return true; const m=loadCardMeta()[key]; const tags=(m&&m.tags)||[]; return a.some(t=>tags.includes(t)); }
+function applyTagFilter(){
+  const on=loadTagFilter().length>0;
+  document.querySelectorAll("#boardcontent .bcard, #boardcontent .fcard").forEach(cd=>{
+    cd.classList.toggle("dim", on && !cardMatchesFilter(cd.dataset.key));
+  });
+}
 function renderFlow(content){
   const cards=currentCards(); const meta=loadCardMeta();
   const f=loadFlow();
@@ -913,6 +962,12 @@ function renderFlow(content){
   Object.keys(cards).forEach(k=>{ if(!f.pos[k]) f.pos[k]={x:30+(gi%5)*210, y:30+Math.floor(gi/5)*130}; gi++; });
   saveFlow(f);
   const canvas=el("fcanvas"); canvas.id="fcanvas";
+  (f.zones||[]).forEach(z=>{
+    const zd=el("fzone"); zd.dataset.id=z.id;
+    zd.style.left=z.x+"px"; zd.style.top=z.y+"px"; zd.style.width=z.w+"px"; zd.style.height=z.h+"px";
+    zd.innerHTML="<div class='fzone-head'><span class='fzone-name'>"+esc(z.name)+"</span><button class='fzone-del' title='エリア削除'>×</button></div><div class='fzone-rz' title='ドラッグでリサイズ'></div>";
+    canvas.appendChild(zd);
+  });
   const svg=document.createElementNS(SVGNS,"svg"); svg.id="fsvg"; svg.setAttribute("class","fsvg");
   svg.innerHTML="<defs><marker id='fa' markerWidth='9' markerHeight='9' refX='7' refY='3' orient='auto'><path d='M0,0 L7,3 L0,6 Z'/></marker></defs>";
   canvas.appendChild(svg);
@@ -925,7 +980,6 @@ function renderFlow(content){
     h+="<button class='fdel' title='フローから外す'>×</button>";
     h+="<div class='bcard-ttl'>"+esc(card.title)+"</div>";
     if(m.tags&&m.tags.length) h+="<div class='bcard-tags'>"+m.tags.map(t=>"<span class='tag'>"+esc(t)+"</span>").join("")+"</div>";
-    h+="<div class='bcard-meta'>"+esc("元:"+labelOf(card.homeTab))+"</div>";
     h+="<div class='fhandle fhandle-b' title='ドラッグで接続'></div>";
     cd.innerHTML=h; canvas.appendChild(cd);
   });
@@ -1275,9 +1329,12 @@ $("#board").addEventListener("drop",e=>{
   }
 });
 $("#board").addEventListener("click",e=>{
+  const tf=e.target.closest(".tfchip"); if(tf){ if(tf.id==="tfClear") clearTagFilter(); else toggleTagFilter(tf.dataset.tag); return; }
   if(e.target.closest("#bmKanban")){ if(boardLayout()!=="kanban") setBoardLayout("kanban"); return; }
   if(e.target.closest("#bmFlow")){ if(boardLayout()!=="flow") setBoardLayout("flow"); return; }
+  if(e.target.closest("#addZone")){ addZone(); return; }
   if(e.target.closest("#fRestore")){ restoreFlowCards(); return; }
+  const zdel=e.target.closest(".fzone-del"); if(zdel){ const z=zdel.closest(".fzone"); if(z&&confirm("このエリアを削除しますか？（カードは残ります）")) deleteZone(z.dataset.id); return; }
   const fdel=e.target.closest(".fdel"); if(fdel){ const fc=fdel.closest(".fcard"); if(fc) hideFlowCard(fc.dataset.key); return; }
   if(e.target.closest("#bcolAdd")){ addColumn(); return; }
   const del=e.target.closest(".bcol-del"); if(del){ const c=del.closest(".bcol"); if(confirm("この列を削除しますか？（カードは元タブの列へ戻ります）")) deleteColumn(del.dataset.col); return; }
@@ -1295,9 +1352,19 @@ $("#board").addEventListener("click",e=>{
 let fDrag=null;
 $("#board").addEventListener("pointerdown",e=>{
   if(boardLayout()!=="flow" || e.button!==0) return;
-  if(e.target.closest(".fdel")) return;
-  const card=e.target.closest(".fcard"); if(!card) return;
-  const canvas=$("#fcanvas"); const cr=canvas.getBoundingClientRect();
+  if(e.target.closest(".fdel")||e.target.closest(".fzone-del")) return;
+  const canvas=$("#fcanvas"); if(!canvas) return; const cr=canvas.getBoundingClientRect();
+  const card=e.target.closest(".fcard");
+  if(!card){
+    const zone=e.target.closest(".fzone"); if(!zone) return;
+    const z=loadFlow().zones.find(x=>x.id===zone.dataset.id); if(!z) return;
+    if(e.target.closest(".fzone-rz")){
+      fDrag={mode:"zresize", id:z.id, zone, startW:z.w, startH:z.h, sx:e.clientX, sy:e.clientY};
+    } else if(e.target.closest(".fzone-head")){
+      fDrag={mode:"zmove", id:z.id, zone, dx:e.clientX-cr.left-z.x, dy:e.clientY-cr.top-z.y};
+    } else return;
+    e.preventDefault(); return;
+  }
   if(e.target.closest(".fhandle")){
     const box=cardBox(card); const start={x:box.cx,y:box.cy};
     const temp=mkLine("ftemp",start,start,false); $("#fsvg").appendChild(temp);
@@ -1323,6 +1390,12 @@ document.addEventListener("pointermove",e=>{
     const p1=edgePoint({x:px,y:py},box);
     fDrag.temp.setAttribute("x1",p1.x); fDrag.temp.setAttribute("y1",p1.y);
     fDrag.temp.setAttribute("x2",px); fDrag.temp.setAttribute("y2",py);
+  } else if(fDrag.mode==="zmove"){
+    let x=Math.max(0, e.clientX-cr.left-fDrag.dx), y=Math.max(0, e.clientY-cr.top-fDrag.dy);
+    fDrag.zone.style.left=x+"px"; fDrag.zone.style.top=y+"px"; fDrag.lastX=x; fDrag.lastY=y;
+  } else if(fDrag.mode==="zresize"){
+    let w=Math.max(140, fDrag.startW+(e.clientX-fDrag.sx)), h=Math.max(90, fDrag.startH+(e.clientY-fDrag.sy));
+    fDrag.zone.style.width=w+"px"; fDrag.zone.style.height=h+"px"; fDrag.lastW=w; fDrag.lastH=h;
   }
 });
 document.addEventListener("pointerup",e=>{
@@ -1339,10 +1412,26 @@ document.addEventListener("pointerup",e=>{
     if(fDrag.temp) fDrag.temp.remove();
     const tgt=document.elementFromPoint(e.clientX,e.clientY); const tc=tgt&&tgt.closest&&tgt.closest(".fcard");
     if(tc && tc.dataset.key!==fDrag.from) addLink(fDrag.from, tc.dataset.key);
+  } else if(fDrag.mode==="zmove"){
+    if(fDrag.lastX!=null) updateZone(fDrag.id,{x:Math.round(fDrag.lastX), y:Math.round(fDrag.lastY)});
+  } else if(fDrag.mode==="zresize"){
+    if(fDrag.lastW!=null) updateZone(fDrag.id,{w:Math.round(fDrag.lastW), h:Math.round(fDrag.lastH)});
   }
   fDrag=null;
 });
 $("#board").addEventListener("dblclick",e=>{
+  const zname=e.target.closest(".fzone-name");
+  if(zname){
+    const zone=zname.closest(".fzone"); const id=zone.dataset.id;
+    const z=loadFlow().zones.find(x=>x.id===id); if(!z) return;
+    const inp=document.createElement("input"); inp.className="inline-edit"; inp.value=z.name;
+    zname.replaceWith(inp); inp.focus(); inp.select();
+    let done=false; const fin=s=>{ if(done)return; done=true; if(s) renameZone(id, inp.value); else renderBoard(); };
+    inp.addEventListener("pointerdown",ev=>ev.stopPropagation());
+    inp.addEventListener("keydown",ev=>{ ev.stopPropagation(); if(ev.key==="Enter"){ev.preventDefault();fin(true);} else if(ev.key==="Escape"){ev.preventDefault();fin(false);} });
+    inp.addEventListener("blur",()=>fin(true));
+    return;
+  }
   const name=e.target.closest(".bcol-name"); if(!name) return;
   const head=name.closest(".bcol-head"); const col=head.dataset.col;
   const b=loadBoard(); const cobj=b&&b.cols.find(c=>c.id===col);
