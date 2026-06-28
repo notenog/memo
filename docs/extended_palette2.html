@@ -159,6 +159,10 @@
   .fsvg marker path{fill:var(--tx3)}
   .fsvg .flinkhit{stroke:transparent; stroke-width:14; pointer-events:stroke; cursor:pointer}
   .fsvg .ftemp{stroke:var(--link); stroke-width:2; stroke-dasharray:5 4; fill:none; pointer-events:none}
+  .flabel{position:absolute; transform:translate(-50%,-50%); z-index:3; pointer-events:auto; cursor:pointer;
+        background:var(--bg); border:1px solid var(--bd2); border-radius:9px; padding:1px 8px; font-size:11px;
+        color:var(--tx2); white-space:nowrap; max-width:160px; overflow:hidden; text-overflow:ellipsis; box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .flabel:hover{border-color:var(--link); color:var(--link)}
   .fcard{position:absolute; width:182px; background:var(--bg); border:1px solid var(--bd2); border-left-width:4px;
          border-radius:8px; padding:8px 10px; cursor:grab; z-index:2; user-select:none; touch-action:none;
          box-shadow:0 1px 5px rgba(0,0,0,.12)}
@@ -972,7 +976,7 @@ function renderBoard(){
     bar.innerHTML+="<button id='addZone' class='bm'>＋エリア</button>";
     const cards=currentCards(); const n=loadFlow().hidden.filter(k=>cards[k]).length;
     if(n) bar.innerHTML+="<button id='fRestore' class='bm'>非表示 "+n+" 枚 ↺戻す</button>";
-    bar.innerHTML+="<span class='bm-hint'>カードドラッグで移動 ・上下の○から接続 ・線クリックで削除</span>";
+    bar.innerHTML+="<span class='bm-hint'>カードドラッグで移動 ・上下の○から接続 ・線クリックでラベル ・線を右クリックで削除</span>";
   }
   if(mode==="timeline"){
     bar.innerHTML+="<button id='tbandAdd' class='bm'>＋帯を追加</button>";
@@ -1143,8 +1147,9 @@ function mkLine(cls,p1,p2,marker){ const l=document.createElementNS(SVGNS,"line"
   l.setAttribute("x1",p1.x); l.setAttribute("y1",p1.y); l.setAttribute("x2",p2.x); l.setAttribute("y2",p2.y);
   if(marker) l.setAttribute("marker-end","url(#fa)"); return l; }
 function redrawLinks(){
-  const svg=$("#fsvg"); if(!svg) return;
+  const svg=$("#fsvg"); if(!svg) return; const canvas=$("#fcanvas");
   [...svg.querySelectorAll(".flink,.flinkhit")].forEach(n=>n.remove());
+  if(canvas) [...canvas.querySelectorAll(".flabel")].forEach(n=>n.remove());
   const f=loadFlow(); const hid=new Set(f.hidden);
   f.links.forEach((lk,i)=>{
     if(hid.has(lk.from)||hid.has(lk.to)) return;
@@ -1153,7 +1158,19 @@ function redrawLinks(){
     const p1=edgePoint({x:bb.cx,y:bb.cy}, ba), p2=edgePoint({x:ba.cx,y:ba.cy}, bb);
     const hit=mkLine("flinkhit",p1,p2,false); hit.dataset.idx=i;
     svg.appendChild(hit); svg.appendChild(mkLine("flink",p1,p2,true));
+    if(lk.label && canvas){
+      const chip=el("flabel"); chip.dataset.idx=i; chip.textContent=lk.label;
+      chip.style.left=((p1.x+p2.x)/2)+"px"; chip.style.top=((p1.y+p2.y)/2)+"px";
+      canvas.appendChild(chip);
+    }
   });
+}
+function editLinkLabel(idx){
+  const f=loadFlow(); const lk=f.links[idx]; if(!lk) return;
+  const v=prompt("矢印のラベル（空欄で削除）", lk.label||"");
+  if(v===null) return;
+  if(v.trim()) lk.label=v.trim(); else delete lk.label;
+  saveFlow(f); redrawLinks();
 }
 function setBoard(on){
   state.board=on;
@@ -1533,7 +1550,8 @@ $("#board").addEventListener("click",e=>{
   const fdel=e.target.closest(".fdel"); if(fdel){ const fc=fdel.closest(".fcard"); if(fc) hideFlowCard(fc.dataset.key); return; }
   if(e.target.closest("#bcolAdd")){ addColumn(); return; }
   const del=e.target.closest(".bcol-del"); if(del){ const c=del.closest(".bcol"); if(confirm("この列を削除しますか？（カードは元タブの列へ戻ります）")) deleteColumn(del.dataset.col); return; }
-  const hit=e.target.closest(".flinkhit"); if(hit){ if(confirm("この接続を削除しますか？")) deleteLink(+hit.dataset.idx); return; }
+  const hit=e.target.closest(".flinkhit"); if(hit){ editLinkLabel(+hit.dataset.idx); return; }
+  const fl=e.target.closest(".flabel"); if(fl){ editLinkLabel(+fl.dataset.idx); return; }
   const card=e.target.closest(".bcard"); if(!card) return;
   const cur=currentCards()[card.dataset.key]; if(!cur) return;
   setBoard(false); selectTab(cur.homeTab);
@@ -1686,6 +1704,8 @@ function openBandMenu(id, x, y){
 }
 function closeCardMenu(){ const m=$("#ctxmenu"); m.style.display="none"; m.innerHTML=""; m.dataset.key=""; m.dataset.zid=""; m.dataset.bandid=""; m.dataset.tagname=""; }
 $("#board").addEventListener("contextmenu",e=>{
+  const hit=e.target.closest(".flinkhit"); if(hit){ e.preventDefault(); if(confirm("この接続を削除しますか？")) deleteLink(+hit.dataset.idx); return; }
+  const fl=e.target.closest(".flabel"); if(fl){ e.preventDefault(); if(confirm("この接続を削除しますか？")) deleteLink(+fl.dataset.idx); return; }
   const tfc=e.target.closest(".tfchip");
   if(tfc && tfc.dataset.tag){ e.preventDefault(); openTagMenu(tfc.dataset.tag, e.clientX, e.clientY); return; }
   const card=e.target.closest(".bcard,.fcard");
