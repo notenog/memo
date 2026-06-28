@@ -268,8 +268,14 @@
   .rail-item.active,.rail-sub.active{border-left-color:var(--link); background:var(--line-h); color:var(--link-h)}
   .rail-pinned{background:var(--bg); border-left-color:var(--line-hbd)}
   .rail-pinned:hover{background:var(--bg)}
-  .pinpanel{margin:2px 0 12px; border:1px solid var(--line-hbd); border-radius:10px; background:var(--bg); overflow:hidden}
-  .pinpanel-cap{font-size:11px; color:var(--link-h); font-weight:600; padding:6px 10px; background:var(--line-h); letter-spacing:.03em; border-bottom:1px solid var(--line-hbd)}
+  .pinpanel{position:sticky; top:0; z-index:5; margin:0 0 12px; border:1px solid var(--line-hbd); border-radius:10px;
+        background:var(--bg); max-height:52vh; overflow:auto; box-shadow:0 4px 10px rgba(0,0,0,.10)}
+  .pinpanel-cap{position:sticky; top:0; z-index:1; display:flex; align-items:center; gap:6px; cursor:pointer;
+        font-size:11px; color:var(--link-h); font-weight:600; padding:6px 10px; background:var(--line-h); letter-spacing:.03em; border-bottom:1px solid var(--line-hbd)}
+  .pinpanel-cap .pp-caret{font-size:10px; transition:transform .1s}
+  .pinpanel.collapsed{max-height:none; overflow:visible}
+  .pinpanel.collapsed .pp-caret{transform:rotate(-90deg)}
+  .pinpanel.collapsed .pinned-sec{display:none}
   .pinpanel .pinned-sec{border-top:1px solid var(--sep)}
   .pinpanel-cap + .pinned-sec{border-top:none}
   .rail-empty{color:var(--tx3); font-size:12px; padding:10px 12px; line-height:1.6}
@@ -642,6 +648,8 @@ function renderNodes(nodes, parent){
   });
 }
 function loadPins(){ try{ const a=JSON.parse(localStorage.getItem("ep2_pins")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function loadPinFold(){ return localStorage.getItem("ep2_pinfold")==="1"; }
+function savePinFold(v){ try{ localStorage.setItem("ep2_pinfold", v?"1":"0"); }catch(e){} }
 function savePins(a){ try{ localStorage.setItem("ep2_pins", JSON.stringify(a)); }catch(e){} }
 function togglePin(tabId, title){ const k=cardKey(tabId,(title||"").trim()); let a=loadPins(); a=a.includes(k)?a.filter(x=>x!==k):a.concat(k); savePins(a); refreshPins(); }
 function refreshPins(){ const p=activeP(); if(!p||state.editMode) return; const tree=parseStock(p.stock||""); renderRail(tree); renderPinPanel(tree); requestAnimationFrame(updateSpy); }
@@ -656,7 +664,8 @@ function renderPinPanel(tree){
     sec.children.filter(c=>c.type==="section").forEach(sub=>{ if(isPin(sub.title)) uids.push(sub.uid); });
   });
   if(!uids.length) return;
-  const panel=el("pinpanel"); panel.appendChild(el("pinpanel-cap","📌 ピン留め"));
+  const panel=el("pinpanel"); if(loadPinFold()) panel.classList.add("collapsed");
+  panel.appendChild(el("pinpanel-cap","<span class='pp-caret'>▾</span><span>📌 ピン留め</span>"));
   uids.forEach(uid=>{
     const src=body.querySelector('.sec[data-uid="'+uid+'"]'); if(!src) return;
     const cl=src.cloneNode(true);
@@ -1445,6 +1454,8 @@ function toast(msg,err){ const t=$("#toast"); t.textContent=msg; t.className="sh
 let clickTimer=null;
 $("#body").addEventListener("click",e=>{
   if(state.editMode) return;
+  const ppc=e.target.closest(".pinpanel-cap");
+  if(ppc){ const panel=ppc.closest(".pinpanel"); panel.classList.toggle("collapsed"); savePinFold(panel.classList.contains("collapsed")); return; }
   const coh=e.target.closest(".co-head");
   if(coh){ coh.closest(".callout").classList.toggle("collapsed"); return; }
   const head=e.target.closest(".sec-head");
