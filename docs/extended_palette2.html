@@ -160,8 +160,8 @@
   .fsvg .flinkhit{stroke:transparent; stroke-width:14; pointer-events:stroke; cursor:pointer}
   .fsvg .ftemp{stroke:var(--link); stroke-width:2; stroke-dasharray:5 4; fill:none; pointer-events:none}
   .flabel{position:absolute; transform:translate(-50%,-50%); z-index:3; pointer-events:auto; cursor:pointer;
-        background:var(--bg); border:1px solid var(--bd2); border-radius:9px; padding:1px 8px; font-size:11px;
-        color:var(--tx2); white-space:nowrap; max-width:160px; overflow:hidden; text-overflow:ellipsis; box-shadow:0 1px 3px rgba(0,0,0,.12)}
+        background:var(--bg); border:1px solid var(--bd2); border-radius:9px; padding:2px 10px; font-size:13px; font-weight:600;
+        color:var(--tx2); white-space:nowrap; max-width:200px; overflow:hidden; text-overflow:ellipsis; box-shadow:0 1px 3px rgba(0,0,0,.12)}
   .flabel:hover{border-color:var(--link); color:var(--link)}
   .fcard{position:absolute; width:182px; background:var(--bg); border:1px solid var(--bd2); border-left-width:4px;
          border-radius:8px; padding:8px 10px; cursor:grab; z-index:2; user-select:none; touch-action:none;
@@ -196,9 +196,6 @@
   .fzone.locked .fzone-rz{display:none}
   .fzone-del{flex:0 0 auto; width:17px; height:17px; border-radius:50%; border:none; background:transparent; color:var(--tx3); cursor:pointer; font-size:12px; line-height:1; padding:0}
   .fzone-del:hover{color:var(--danger)}
-  .fzone-col{flex:0 0 auto; width:18px; height:18px; border:none; background:transparent; color:var(--tx2); cursor:pointer; font-size:11px; line-height:1; padding:0; pointer-events:auto}
-  .fzone.zcollapsed{overflow:hidden}
-  .fzone.zcollapsed .fzone-rz{display:none}
   .fzone-rz{position:absolute; right:0; bottom:0; width:16px; height:16px; cursor:nwse-resize; pointer-events:auto;
         background:linear-gradient(135deg, transparent 50%, var(--zc, var(--bd2)) 50%); border-radius:0 0 9px 0}
   .bcol{flex:0 0 224px; display:flex; flex-direction:column; max-height:100%;
@@ -256,13 +253,20 @@
   body[data-theme="dark"] mark{background:#8a7320; color:#fff}
   .rail .cap{font-size:11px; color:var(--tx3); padding:4px 12px 7px; letter-spacing:.03em}
   .rail-item,.rail-sub{padding:6px 12px; color:var(--tx); cursor:pointer; user-select:none;
-       white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-left:3px solid transparent}
+       display:flex; align-items:center; gap:6px; border-left:3px solid transparent}
+  .rail-label{flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .rail-pin{flex:0 0 auto; border:none; background:none; cursor:pointer; font-size:12px; line-height:1; padding:0 2px;
+       opacity:0; filter:grayscale(1) opacity(.6)}
+  .rail-item:hover .rail-pin,.rail-sub:hover .rail-pin{opacity:1}
+  .rail-pin.on{opacity:1; filter:none}
+  .rail-pin:hover{transform:scale(1.15)}
   .rail-item{font-weight:600; border-top:1px solid var(--sep)}
   .rail .cap + .rail-item{border-top:none}
   .rail-sub{padding-left:28px; color:var(--tx2); font-size:13px; position:relative}
   .rail-sub::before{content:"\2514"; position:absolute; left:15px; color:var(--tx3); font-size:11px}
   .rail-item:hover,.rail-sub:hover{background:var(--line-h)}
   .rail-item.active,.rail-sub.active{border-left-color:var(--link); background:var(--line-h); color:var(--link-h)}
+  .rail-pinned{border-left-color:var(--link-hbd, var(--bd2))}
   .rail-empty{color:var(--tx3); font-size:12px; padding:10px 12px; line-height:1.6}
   .rail-empty span{color:var(--bd2)}
 
@@ -622,18 +626,39 @@ function renderNodes(nodes, parent){
     }
   });
 }
+function loadPins(){ try{ const a=JSON.parse(localStorage.getItem("ep2_pins")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function savePins(a){ try{ localStorage.setItem("ep2_pins", JSON.stringify(a)); }catch(e){} }
+function togglePin(tabId, title){ const k=cardKey(tabId,(title||"").trim()); let a=loadPins(); a=a.includes(k)?a.filter(x=>x!==k):a.concat(k); savePins(a); refreshRail(); }
+function refreshRail(){ const p=activeP(); if(!p||state.editMode) return; renderRail(parseStock(p.stock||"")); requestAnimationFrame(updateSpy); }
+function railItemHTML(title, pinned){
+  return '<span class="rail-label">'+esc(title||"(無題)")+'</span><button class="rail-pin'+(pinned?" on":"")+'" title="'+(pinned?"ピンを外す":"ピン留め")+'">📌</button>';
+}
 function renderRail(tree){
   const rail=$("#rail"); rail.innerHTML="";
   const secs=tree.filter(n=>n.type==="section");
   if(!secs.length){ rail.appendChild(el("rail-empty","見出しなし<br><span>### で見出しを作成</span>")); return; }
+  const pins=loadPins(); const tab=state.activeId;
+  const isPin=t=>pins.includes(cardKey(tab,(t||"").trim()));
+  // pinned quick-access group
+  const pinned=[];
+  secs.forEach(sec=>{ if(isPin(sec.title)) pinned.push(sec);
+    sec.children.filter(c=>c.type==="section").forEach(sub=>{ if(isPin(sub.title)) pinned.push(sub); }); });
+  if(pinned.length){
+    rail.appendChild(el("cap","📌 ピン留め"));
+    pinned.forEach(sec=>{
+      const it=el("rail-item rail-pinned"); it.dataset.uid=sec.uid; it.title="クリック:移動";
+      it.innerHTML=railItemHTML(sec.title.trim(), true);
+      rail.appendChild(it);
+    });
+  }
   rail.appendChild(el("cap","見出し一覧"));
   secs.forEach(sec=>{
     const it=el("rail-item"); it.dataset.uid=sec.uid; it.title="クリック:移動 / ダブルクリック:名前変更";
-    it.innerHTML='<span class="rail-label">'+esc(sec.title.trim()||"(無題)")+"</span>";
+    it.innerHTML=railItemHTML(sec.title.trim(), isPin(sec.title));
     rail.appendChild(it);
     sec.children.filter(c=>c.type==="section").forEach(sub=>{
       const si=el("rail-sub"); si.dataset.uid=sub.uid; si.title="クリック:移動 / ダブルクリック:名前変更";
-      si.innerHTML='<span class="rail-label">'+esc(sub.title.trim()||"(無題)")+"</span>";
+      si.innerHTML=railItemHTML(sub.title.trim(), isPin(sub.title));
       rail.appendChild(si);
     });
   });
@@ -1055,7 +1080,6 @@ function renameZone(id,name){ const f=loadFlow(); const z=f.zones.find(z=>z.id==
 function deleteZone(id){ const f=loadFlow(); f.zones=f.zones.filter(z=>z.id!==id); saveFlow(f); renderBoard(); }
 function setZoneColor(id,color){ const f=loadFlow(); const z=f.zones.find(z=>z.id===id); if(z){ if(color) z.color=color; else delete z.color; saveFlow(f); renderBoard(); } }
 function toggleZoneLock(id){ const f=loadFlow(); const z=f.zones.find(z=>z.id===id); if(z){ z.locked=!z.locked; saveFlow(f); renderBoard(); } }
-function toggleZoneCollapse(id){ const f=loadFlow(); const z=f.zones.find(z=>z.id===id); if(z){ z.collapsed=!z.collapsed; saveFlow(f); renderBoard(); } }
 /* tag filter (focus) */
 function loadTagFilter(){ try{ const a=JSON.parse(localStorage.getItem("ep2_tagfilter")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
 function saveTagFilter(a){ try{ localStorage.setItem("ep2_tagfilter", JSON.stringify(a)); }catch(e){} }
@@ -1073,13 +1097,13 @@ let boardSearch="";
 function cardMatchesSearch(key){ const q=boardSearch.trim().toLowerCase(); if(!q) return true; const c=currentCards()[key]; if(!c) return false;
   if((c.title||"").toLowerCase().includes(q)) return true;
   const m=loadCardMeta()[key]; if(m&&m.tags&&m.tags.some(t=>t.toLowerCase().includes(q))) return true; return false; }
-const BOARD_KEYS=["ep2_board","ep2_cardmeta","ep2_flow","ep2_timeline","ep2_boardlayout","ep2_tagfilter","ep2_tagcolors"];
+const BOARD_KEYS=["ep2_board","ep2_cardmeta","ep2_flow","ep2_timeline","ep2_boardlayout","ep2_tagfilter","ep2_tagcolors","ep2_pins"];
 function exportBoard(){ const o={_type:"ep2-board", v:1}; BOARD_KEYS.forEach(k=>{ const v=localStorage.getItem(k); if(v!=null) o[k]=v; });
   download("ep2-board-"+new Date().toISOString().slice(0,10)+".json", JSON.stringify(o,null,2)); toast("盤面を書き出しました"); }
 function importBoard(text){ let o; try{ o=JSON.parse(text); }catch(e){ toast("読み込み失敗：JSONを解析できません", true); return; }
   if(!o || o._type!=="ep2-board"){ if(!confirm("ep2の盤面ファイルではないかもしれません。読み込みますか？")) return; }
   BOARD_KEYS.forEach(k=>{ if(typeof o[k]==="string") localStorage.setItem(k, o[k]); });
-  boardSearch=""; renderBoard(); toast("盤面を読み込みました"); }
+  boardSearch=""; render(); renderBoard(); toast("盤面を読み込みました"); }
 function openTagMenu(tag, x, y){
   const menu=$("#ctxmenu"); const cur=loadTagColors()[tag];
   let h="<div class='ctx-sec'>タグ「"+esc(tag)+"」の色</div><div class='ctx-colors'>";
@@ -1110,12 +1134,10 @@ function renderFlow(content){
   const canvas=el("fcanvas"); canvas.id="fcanvas";
   (f.zones||[]).forEach(z=>{
     const zd=el("fzone"); zd.dataset.id=z.id;
-    zd.style.left=z.x+"px"; zd.style.top=z.y+"px"; zd.style.width=z.w+"px";
-    zd.style.height=(z.collapsed?26:z.h)+"px";
+    zd.style.left=z.x+"px"; zd.style.top=z.y+"px"; zd.style.width=z.w+"px"; zd.style.height=z.h+"px";
     if(z.color) zd.style.setProperty("--zc", z.color);
     if(z.locked) zd.classList.add("locked");
-    if(z.collapsed) zd.classList.add("zcollapsed");
-    zd.innerHTML="<div class='fzone-head'><button class='fzone-col' title='折りたたみ'>"+(z.collapsed?"▸":"▾")+"</button><span class='fzone-name'>"+esc(z.name)+"</span><button class='fzone-del' title='エリア削除'>×</button></div><div class='fzone-rz' title='ドラッグでリサイズ'></div>";
+    zd.innerHTML="<div class='fzone-head'><span class='fzone-name'>"+esc(z.name)+"</span><button class='fzone-del' title='エリア削除'>×</button></div><div class='fzone-rz' title='ドラッグでリサイズ'></div>";
     canvas.appendChild(zd);
   });
   const svg=document.createElementNS(SVGNS,"svg"); svg.id="fsvg"; svg.setAttribute("class","fsvg");
@@ -1401,9 +1423,13 @@ $("#body").addEventListener("dblclick",e=>{
   if(clickTimer){ clearTimeout(clickTimer); clickTimer=null; }
   sendLine(+line.dataset.idx);
 });
-$("#rail").addEventListener("click",e=>{ const it=e.target.closest(".rail-item,.rail-sub"); if(it) scrollToSec(+it.dataset.uid); });
+$("#rail").addEventListener("click",e=>{
+  const pin=e.target.closest(".rail-pin");
+  if(pin){ e.stopPropagation(); const it=pin.closest(".rail-item,.rail-sub"); if(it) togglePin(state.activeId, getSecTitle(+it.dataset.uid)); return; }
+  const it=e.target.closest(".rail-item,.rail-sub"); if(it) scrollToSec(+it.dataset.uid);
+});
 $("#rail").addEventListener("dblclick",e=>{
-  const it=e.target.closest(".rail-item,.rail-sub"); if(!it) return;
+  const it=e.target.closest(".rail-item,.rail-sub"); if(!it||it.classList.contains("rail-pinned")) return;
   const uid=+it.dataset.uid; const span=it.querySelector(".rail-label");
   if(span) inlineEdit(span, getSecTitle(uid), v=>setSecTitle(uid,v));
 });
@@ -1444,7 +1470,12 @@ document.addEventListener("keydown",e=>{
   const tag=(e.target.tagName||"").toLowerCase();
   if(tag==="input"||tag==="textarea"||e.target.isContentEditable) return;
   if(e.ctrlKey||e.metaKey||e.altKey) return;
-  if(e.key==="b"||e.key==="B"){ setBoard(!state.board); }
+  if(e.key==="b"||e.key==="B"){ setBoard(!state.board); return; }
+  if(state.board && (e.key==="ArrowLeft"||e.key==="ArrowRight")){
+    const modes=["kanban","flow","timeline"]; let i=modes.indexOf(boardLayout());
+    i=(i + (e.key==="ArrowRight"?1:-1) + modes.length) % modes.length;
+    setBoardLayout(modes[i]); e.preventDefault();
+  }
 });
 
 $("#btnSettings").addEventListener("click",openSettings);
@@ -1545,7 +1576,6 @@ $("#board").addEventListener("click",e=>{
   const tdel=e.target.closest(".tband-del"); if(tdel){ const tb=tdel.closest(".tband"); if(tb) deleteBand(tb.dataset.band); return; }
   if(e.target.closest("#addZone")){ addZone(); return; }
   if(e.target.closest("#fRestore")){ restoreFlowCards(); return; }
-  const zcol=e.target.closest(".fzone-col"); if(zcol){ const z=zcol.closest(".fzone"); if(z) toggleZoneCollapse(z.dataset.id); return; }
   const zdel=e.target.closest(".fzone-del"); if(zdel){ const z=zdel.closest(".fzone"); if(z&&confirm("このエリアを削除しますか？（カードは残ります）")) deleteZone(z.dataset.id); return; }
   const fdel=e.target.closest(".fdel"); if(fdel){ const fc=fdel.closest(".fcard"); if(fc) hideFlowCard(fc.dataset.key); return; }
   if(e.target.closest("#bcolAdd")){ addColumn(); return; }
@@ -1572,7 +1602,7 @@ $("#board").addEventListener("input",e=>{
 });
 $("#board").addEventListener("pointerdown",e=>{
   if(boardLayout()!=="flow" || e.button!==0) return;
-  if(e.target.closest(".fdel")||e.target.closest(".fzone-del")||e.target.closest(".fzone-col")) return;
+  if(e.target.closest(".fdel")||e.target.closest(".fzone-del")) return;
   const canvas=$("#fcanvas"); if(!canvas) return; const cr=canvas.getBoundingClientRect();
   const card=e.target.closest(".fcard");
   if(!card){
