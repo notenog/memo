@@ -120,16 +120,22 @@
   #boardbar .bm{padding:5px 13px; border:1px solid var(--bd2); border-radius:16px; background:var(--bg); color:var(--link); cursor:pointer; font-size:13px}
   #boardbar .bm.on{background:var(--line-h); border-color:var(--link); color:var(--link-h)}
   #boardbar .bm-hint{margin-left:auto; align-self:center; font-size:11px; color:var(--tx3)}
+  #boardbar .bm-search{margin-left:auto; width:140px; height:27px; padding:0 10px; border:1px solid var(--bd2); border-radius:14px; background:var(--bg); color:var(--tx); font-size:12px}
+  #boardbar .bm-search:focus{outline:none; border-color:var(--link)}
+  #boardbar .bm-io{margin-left:0}
   #boardcontent{flex:1 1 auto; min-height:0; min-width:0; overflow:auto}
   #boardcontent.kanban{display:flex; gap:12px; padding:12px; align-items:flex-start}
   #boardcontent.flow{position:relative}
   #boardcontent.timeline{display:flex; flex-direction:column; gap:10px; padding:12px; align-items:stretch}
-  .tband{border:1px solid var(--bd); border-radius:10px; background:var(--panel)}
+  .tband{border:1px solid var(--bd); border-left:3px solid var(--bc, var(--bd)); border-radius:10px; background:var(--panel)}
   .tband.dragover{outline:2px dashed var(--link); outline-offset:-3px}
   .tband.coldragover{outline:2px solid var(--link); outline-offset:-3px}
   .tband.coldrag{opacity:.5}
-  .tband-head{display:flex; align-items:center; gap:6px; padding:6px 10px; border-bottom:1px solid var(--bd)}
+  .tband-head{display:flex; align-items:center; gap:6px; padding:6px 10px; border-bottom:1px solid var(--bd); background:color-mix(in srgb, var(--bc, transparent) 13%, transparent); border-radius:0 9px 0 0}
   .tband-grip{cursor:grab; color:var(--tx3); font-size:15px; user-select:none; flex:0 0 auto}
+  .tband-col{flex:0 0 auto; width:20px; height:20px; border:none; background:transparent; color:var(--tx2); cursor:pointer; font-size:11px; line-height:1; padding:0}
+  .tband-cnt{flex:0 0 auto; font-size:11px; color:var(--tx3); padding:0 2px}
+  .tband.tcollapsed .tband-head{border-bottom:none}
   .tband-grip:active{cursor:grabbing}
   .tband-label{flex:1 1 auto; min-width:0; border:1px solid transparent; background:transparent; color:var(--tx); font-weight:600; font-size:14px; padding:4px 7px; border-radius:6px}
   .tband-label:hover{border-color:var(--bd2)}
@@ -186,6 +192,9 @@
   .fzone.locked .fzone-rz{display:none}
   .fzone-del{flex:0 0 auto; width:17px; height:17px; border-radius:50%; border:none; background:transparent; color:var(--tx3); cursor:pointer; font-size:12px; line-height:1; padding:0}
   .fzone-del:hover{color:var(--danger)}
+  .fzone-col{flex:0 0 auto; width:18px; height:18px; border:none; background:transparent; color:var(--tx2); cursor:pointer; font-size:11px; line-height:1; padding:0; pointer-events:auto}
+  .fzone.zcollapsed{overflow:hidden}
+  .fzone.zcollapsed .fzone-rz{display:none}
   .fzone-rz{position:absolute; right:0; bottom:0; width:16px; height:16px; cursor:nwse-resize; pointer-events:auto;
         background:linear-gradient(135deg, transparent 50%, var(--zc, var(--bd2)) 50%); border-radius:0 0 9px 0}
   .bcol{flex:0 0 224px; display:flex; flex-direction:column; max-height:100%;
@@ -402,6 +411,7 @@
   <button class="lk" id="btnSave">セーブ</button>
   <button class="lk" id="btnClean">クリーン出力</button>
   <input type="file" id="file" accept=".json,application/json" style="display:none">
+  <input type="file" id="boardFile" accept=".json,application/json" style="display:none">
 </div>
 
 <div class="modal" id="settings">
@@ -904,6 +914,8 @@ function syncTimeline(){
 }
 function addBand(){ const t=loadTimeline()||seedTimeline(); const band={id:"tb_"+Date.now()+"_"+Math.floor(Math.random()*1e4), label:"", cards:[]}; const ui=t.bands.findIndex(b=>b.id==="unsorted"); if(ui<0) t.bands.push(band); else t.bands.splice(ui,0,band); saveTimeline(t); renderBoard(); }
 function setBandLabel(id,label){ const t=loadTimeline(); if(!t) return; const b=t.bands.find(b=>b.id===id); if(b){ b.label=label; saveTimeline(t); } }
+function setBandColor(id,color){ const t=loadTimeline(); if(!t) return; const b=t.bands.find(b=>b.id===id); if(b){ if(color) b.color=color; else delete b.color; saveTimeline(t); renderBoard(); } }
+function toggleBandCollapse(id){ const t=loadTimeline(); if(!t) return; const b=t.bands.find(b=>b.id===id); if(b){ b.collapsed=!b.collapsed; saveTimeline(t); renderBoard(); } }
 function deleteBand(id){ const t=loadTimeline(); if(!t) return; const b=t.bands.find(x=>x.id===id); if(!b||b.id==="unsorted") return; const uns=t.bands.find(x=>x.id==="unsorted"); if(uns) uns.cards.push(...b.cards); t.bands=t.bands.filter(x=>x.id!==id); saveTimeline(t); renderBoard(); }
 function moveTimelineCard(key,bandId,idx){ const t=loadTimeline(); if(!t) return; t.bands.forEach(b=>b.cards=b.cards.filter(k=>k!==key)); const b=t.bands.find(x=>x.id===bandId); if(!b) return; b.cards.splice(idx,0,key); saveTimeline(t); renderBoard(); }
 function moveTimelineBand(id,beforeId){
@@ -921,25 +933,32 @@ function renderTimeline(content){
   t.bands.forEach(b=>{
     const uns = b.id==="unsorted";
     const band=el("tband"); band.dataset.band=b.id;
+    if(b.color) band.style.setProperty("--bc", b.color);
+    if(b.collapsed) band.classList.add("tcollapsed");
     const head=el("tband-head");
-    head.innerHTML="<span class='tband-grip' draggable='true' title='ドラッグで並べ替え'>⠿</span>"+
+    head.innerHTML="<button class='tband-col' title='折りたたみ'>"+(b.collapsed?"▸":"▾")+"</button>"+
+      "<span class='tband-grip' draggable='true' title='ドラッグで並べ替え'>⠿</span>"+
       (uns ? "<span class='tband-uns'>未割当</span>"
-           : "<input class='tband-label' value=\""+esc(b.label)+"\" placeholder='時間・フェーズなど（編集可）'>"+
-             "<button class='tband-del' title='帯を削除（カードは未割当へ）'>×</button>");
+           : "<input class='tband-label' value=\""+esc(b.label)+"\" placeholder='時間・フェーズなど（編集可）'>")+
+      "<span class='tband-cnt'>"+b.cards.length+"</span>"+
+      (uns ? "" : "<button class='tband-del' title='帯を削除（カードは未割当へ）'>×</button>");
     band.appendChild(head);
-    const list=el("tband-list"); list.dataset.band=b.id;
-    if(!b.cards.length) list.appendChild(el("bcol-empty","（空）"));
-    b.cards.forEach(k=>{
-      const card=cards[k]; if(!card) return; const m=meta[k]||{};
-      const cd=el("bcard"); cd.draggable=true; cd.dataset.key=k;
-      const clr=m.color||repColor(card.lines); if(clr) cd.style.borderLeftColor=clr;
-      const subs=card.lines.filter(l=>/^####(.+)$/.test(l)).length;
-      let h="<div class='bcard-ttl'>"+esc(card.title)+"</div>";
-      if(m.tags&&m.tags.length) h+="<div class='bcard-tags'>"+m.tags.map(tg=>"<span class='tag'>"+esc(tg)+"</span>").join("")+"</div>";
-      h+="<div class='bcard-meta'>"+esc(countSendable(card.lines)+"行"+(subs?" ・小"+subs:""))+"</div>";
-      cd.innerHTML=h; list.appendChild(cd);
-    });
-    band.appendChild(list); content.appendChild(band);
+    if(!b.collapsed){
+      const list=el("tband-list"); list.dataset.band=b.id;
+      if(!b.cards.length) list.appendChild(el("bcol-empty","（空）"));
+      b.cards.forEach(k=>{
+        const card=cards[k]; if(!card) return; const m=meta[k]||{};
+        const cd=el("bcard"); cd.draggable=true; cd.dataset.key=k;
+        const clr=m.color||repColor(card.lines); if(clr) cd.style.borderLeftColor=clr;
+        const subs=card.lines.filter(l=>/^####(.+)$/.test(l)).length;
+        let h="<div class='bcard-ttl'>"+esc(card.title)+"</div>";
+        if(m.tags&&m.tags.length) h+="<div class='bcard-tags'>"+m.tags.map(tg=>tagChip(tg)).join("")+"</div>";
+        h+="<div class='bcard-meta'>"+esc(countSendable(card.lines)+"行"+(subs?" ・小"+subs:""))+"</div>";
+        cd.innerHTML=h; list.appendChild(cd);
+      });
+      band.appendChild(list);
+    }
+    content.appendChild(band);
   });
 }
 function renderBoard(){
@@ -959,16 +978,23 @@ function renderBoard(){
     bar.innerHTML+="<button id='tbandAdd' class='bm'>＋帯を追加</button>";
     bar.innerHTML+="<span class='bm-hint'>帯ラベルは直接編集 ・⠿で帯を並べ替え ・カードをドラッグで移動</span>";
   }
+  bar.innerHTML+="<input id='boardSearch' class='bm-search' placeholder='🔍 カード検索'>";
+  bar.innerHTML+="<button id='boardExport' class='bm bm-io' title='盤面を書き出し'>⤓書出</button>";
+  bar.innerHTML+="<button id='boardImport' class='bm bm-io' title='盤面を読み込み'>⤒読込</button>";
   board.appendChild(bar);
+  const sb=bar.querySelector("#boardSearch"); if(sb) sb.value=boardSearch;
   // tag filter bar
   const tags=allTags();
   const af=loadTagFilter().filter(t=>tags.includes(t));
   if(af.length!==loadTagFilter().length) saveTagFilter(af);
   if(tags.length){
-    const active=af;
+    const active=af; const tc=loadTagColors();
     const tb=el("tagbar"); tb.id="tagbar";
-    let th="<span class='tagbar-lbl'>絞り込み</span>";
-    tags.forEach(t=> th+="<button class='tfchip"+(active.includes(t)?" on":"")+"' data-tag='"+esc(t)+"'>"+esc(t)+"</button>");
+    let th="<span class='tagbar-lbl'>絞り込み（右クリックで色）</span>";
+    tags.forEach(t=>{ const c=tc[t]; const on=active.includes(t);
+      let st=""; if(on&&c) st=" style=\"background:"+c+";border-color:"+c+";color:#fff\"";
+      else if(!on&&c) st=" style=\"border-color:"+c+";color:"+c+"\"";
+      th+="<button class='tfchip"+(on?" on":"")+"'"+st+" data-tag='"+esc(t)+"'>"+esc(t)+"</button>"; });
     if(active.length) th+="<button id='tfClear' class='tfchip tfclear'>クリア</button>";
     tb.innerHTML=th; board.appendChild(tb);
   }
@@ -998,7 +1024,7 @@ function renderKanban(content){
       const subs=card.lines.filter(l=>/^####(.+)$/.test(l)).length;
       const moved = card.homeTab!==c.tabId ? " ・元:"+labelOf(card.homeTab) : "";
       let h="<div class='bcard-ttl'>"+esc(card.title)+"</div>";
-      if(m.tags&&m.tags.length) h+="<div class='bcard-tags'>"+m.tags.map(t=>"<span class='tag'>"+esc(t)+"</span>").join("")+"</div>";
+      if(m.tags&&m.tags.length) h+="<div class='bcard-tags'>"+m.tags.map(t=>tagChip(t)).join("")+"</div>";
       h+="<div class='bcard-meta'>"+esc(countSendable(card.lines)+"行"+(subs?" ・小"+subs:"")+moved)+"</div>";
       cd.innerHTML=h;
       list.appendChild(cd);
@@ -1025,6 +1051,7 @@ function renameZone(id,name){ const f=loadFlow(); const z=f.zones.find(z=>z.id==
 function deleteZone(id){ const f=loadFlow(); f.zones=f.zones.filter(z=>z.id!==id); saveFlow(f); renderBoard(); }
 function setZoneColor(id,color){ const f=loadFlow(); const z=f.zones.find(z=>z.id===id); if(z){ if(color) z.color=color; else delete z.color; saveFlow(f); renderBoard(); } }
 function toggleZoneLock(id){ const f=loadFlow(); const z=f.zones.find(z=>z.id===id); if(z){ z.locked=!z.locked; saveFlow(f); renderBoard(); } }
+function toggleZoneCollapse(id){ const f=loadFlow(); const z=f.zones.find(z=>z.id===id); if(z){ z.collapsed=!z.collapsed; saveFlow(f); renderBoard(); } }
 /* tag filter (focus) */
 function loadTagFilter(){ try{ const a=JSON.parse(localStorage.getItem("ep2_tagfilter")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
 function saveTagFilter(a){ try{ localStorage.setItem("ep2_tagfilter", JSON.stringify(a)); }catch(e){} }
@@ -1032,10 +1059,37 @@ function toggleTagFilter(t){ let a=loadTagFilter(); a=a.includes(t)?a.filter(x=>
 function clearTagFilter(){ saveTagFilter([]); renderBoard(); }
 function allTags(){ const s=new Set(); const m=loadCardMeta(); const cards=currentCards(); Object.keys(m).forEach(k=>{ if(cards[k]&&m[k].tags) m[k].tags.forEach(t=>s.add(t)); }); return [...s].sort(); }
 function cardMatchesFilter(key){ const a=loadTagFilter(); if(!a.length) return true; const m=loadCardMeta()[key]; const tags=(m&&m.tags)||[]; return a.some(t=>tags.includes(t)); }
+function loadTagColors(){ try{ return JSON.parse(localStorage.getItem("ep2_tagcolors")||"{}")||{}; }catch(e){ return {}; } }
+function saveTagColors(m){ try{ localStorage.setItem("ep2_tagcolors", JSON.stringify(m)); }catch(e){} }
+function setTagColor(tag,color){ const m=loadTagColors(); if(color) m[tag]=color; else delete m[tag]; saveTagColors(m); renderBoard(); }
+function tagChip(tag){ const c=loadTagColors()[tag];
+  const st = c ? " style=\"background:color-mix(in srgb,"+c+" 16%,transparent);border-color:"+c+";color:"+c+"\"" : "";
+  return "<span class='tag'"+st+">"+esc(tag)+"</span>"; }
+let boardSearch="";
+function cardMatchesSearch(key){ const q=boardSearch.trim().toLowerCase(); if(!q) return true; const c=currentCards()[key]; if(!c) return false;
+  if((c.title||"").toLowerCase().includes(q)) return true;
+  const m=loadCardMeta()[key]; if(m&&m.tags&&m.tags.some(t=>t.toLowerCase().includes(q))) return true; return false; }
+const BOARD_KEYS=["ep2_board","ep2_cardmeta","ep2_flow","ep2_timeline","ep2_boardlayout","ep2_tagfilter","ep2_tagcolors"];
+function exportBoard(){ const o={_type:"ep2-board", v:1}; BOARD_KEYS.forEach(k=>{ const v=localStorage.getItem(k); if(v!=null) o[k]=v; });
+  download("ep2-board-"+new Date().toISOString().slice(0,10)+".json", JSON.stringify(o,null,2)); toast("盤面を書き出しました"); }
+function importBoard(text){ let o; try{ o=JSON.parse(text); }catch(e){ toast("読み込み失敗：JSONを解析できません", true); return; }
+  if(!o || o._type!=="ep2-board"){ if(!confirm("ep2の盤面ファイルではないかもしれません。読み込みますか？")) return; }
+  BOARD_KEYS.forEach(k=>{ if(typeof o[k]==="string") localStorage.setItem(k, o[k]); });
+  boardSearch=""; renderBoard(); toast("盤面を読み込みました"); }
+function openTagMenu(tag, x, y){
+  const menu=$("#ctxmenu"); const cur=loadTagColors()[tag];
+  let h="<div class='ctx-sec'>タグ「"+esc(tag)+"」の色</div><div class='ctx-colors'>";
+  CARD_COLORS.forEach(c=> h+="<button class='ctx-sw' data-color='"+c+"' style='background:"+c+"' title='"+c+"'></button>");
+  h+="<button class='ctx-sw ctx-none' data-color='' title='色なし'>×</button></div>";
+  menu.innerHTML=h; menu.dataset.tagname=tag; menu.dataset.key=""; menu.dataset.zid=""; menu.dataset.bandid="";
+  menu.style.display="block";
+  menu.style.left=Math.min(x, innerWidth-186)+"px";
+  menu.style.top=Math.min(y, innerHeight-120)+"px";
+}
 function applyTagFilter(){
-  const on=loadTagFilter().length>0;
   document.querySelectorAll("#boardcontent .bcard, #boardcontent .fcard").forEach(cd=>{
-    cd.classList.toggle("dim", on && !cardMatchesFilter(cd.dataset.key));
+    const ok = cardMatchesFilter(cd.dataset.key) && cardMatchesSearch(cd.dataset.key);
+    cd.classList.toggle("dim", !ok);
   });
 }
 function renderFlow(content){
@@ -1052,10 +1106,12 @@ function renderFlow(content){
   const canvas=el("fcanvas"); canvas.id="fcanvas";
   (f.zones||[]).forEach(z=>{
     const zd=el("fzone"); zd.dataset.id=z.id;
-    zd.style.left=z.x+"px"; zd.style.top=z.y+"px"; zd.style.width=z.w+"px"; zd.style.height=z.h+"px";
+    zd.style.left=z.x+"px"; zd.style.top=z.y+"px"; zd.style.width=z.w+"px";
+    zd.style.height=(z.collapsed?26:z.h)+"px";
     if(z.color) zd.style.setProperty("--zc", z.color);
     if(z.locked) zd.classList.add("locked");
-    zd.innerHTML="<div class='fzone-head'><span class='fzone-name'>"+esc(z.name)+"</span><button class='fzone-del' title='エリア削除'>×</button></div><div class='fzone-rz' title='ドラッグでリサイズ'></div>";
+    if(z.collapsed) zd.classList.add("zcollapsed");
+    zd.innerHTML="<div class='fzone-head'><button class='fzone-col' title='折りたたみ'>"+(z.collapsed?"▸":"▾")+"</button><span class='fzone-name'>"+esc(z.name)+"</span><button class='fzone-del' title='エリア削除'>×</button></div><div class='fzone-rz' title='ドラッグでリサイズ'></div>";
     canvas.appendChild(zd);
   });
   const svg=document.createElementNS(SVGNS,"svg"); svg.id="fsvg"; svg.setAttribute("class","fsvg");
@@ -1069,7 +1125,7 @@ function renderFlow(content){
     let h="<div class='fhandle fhandle-t' title='ドラッグで接続'></div>";
     h+="<button class='fdel' title='フローから外す'>×</button>";
     h+="<div class='bcard-ttl'>"+esc(card.title)+"</div>";
-    if(m.tags&&m.tags.length) h+="<div class='bcard-tags'>"+m.tags.map(t=>"<span class='tag'>"+esc(t)+"</span>").join("")+"</div>";
+    if(m.tags&&m.tags.length) h+="<div class='bcard-tags'>"+m.tags.map(t=>tagChip(t)).join("")+"</div>";
     h+="<div class='fhandle fhandle-b' title='ドラッグで接続'></div>";
     cd.innerHTML=h; canvas.appendChild(cd);
   });
@@ -1365,6 +1421,14 @@ $("#btnLoad").addEventListener("click",()=>$("#file").click());
 $("#btnSave").addEventListener("click",()=>{ commitEdit(); download("tekey-palette.json", exportPalettes(false)); });
 $("#btnClean").addEventListener("click",()=>{ commitEdit(); download("tekey-palette-clean.json", exportPalettes(true)); });
 $("#file").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>loadJSON(r.result); r.readAsText(f); e.target.value=""; });
+$("#boardFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>importBoard(r.result); r.readAsText(f); e.target.value=""; });
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){ const m=$("#ctxmenu"); if(m&&m.style.display==="block"){ closeCardMenu(); return; } if(state.board){ setBoard(false); } return; }
+  const tag=(e.target.tagName||"").toLowerCase();
+  if(tag==="input"||tag==="textarea"||e.target.isContentEditable) return;
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  if(e.key==="b"||e.key==="B"){ setBoard(!state.board); }
+});
 
 $("#btnSettings").addEventListener("click",openSettings);
 $("#btnTheme").addEventListener("click",toggleTheme);
@@ -1454,13 +1518,17 @@ $("#board").addEventListener("drop",e=>{
 });
 $("#board").addEventListener("click",e=>{
   const tf=e.target.closest(".tfchip"); if(tf){ if(tf.id==="tfClear") clearTagFilter(); else toggleTagFilter(tf.dataset.tag); return; }
+  if(e.target.closest("#boardExport")){ exportBoard(); return; }
+  if(e.target.closest("#boardImport")){ $("#boardFile").click(); return; }
   if(e.target.closest("#bmKanban")){ if(boardLayout()!=="kanban") setBoardLayout("kanban"); return; }
   if(e.target.closest("#bmFlow")){ if(boardLayout()!=="flow") setBoardLayout("flow"); return; }
   if(e.target.closest("#bmTimeline")){ if(boardLayout()!=="timeline") setBoardLayout("timeline"); return; }
+  const tcol=e.target.closest(".tband-col"); if(tcol){ const tb=tcol.closest(".tband"); if(tb) toggleBandCollapse(tb.dataset.band); return; }
   if(e.target.closest("#tbandAdd")){ addBand(); return; }
   const tdel=e.target.closest(".tband-del"); if(tdel){ const tb=tdel.closest(".tband"); if(tb) deleteBand(tb.dataset.band); return; }
   if(e.target.closest("#addZone")){ addZone(); return; }
   if(e.target.closest("#fRestore")){ restoreFlowCards(); return; }
+  const zcol=e.target.closest(".fzone-col"); if(zcol){ const z=zcol.closest(".fzone"); if(z) toggleZoneCollapse(z.dataset.id); return; }
   const zdel=e.target.closest(".fzone-del"); if(zdel){ const z=zdel.closest(".fzone"); if(z&&confirm("このエリアを削除しますか？（カードは残ります）")) deleteZone(z.dataset.id); return; }
   const fdel=e.target.closest(".fdel"); if(fdel){ const fc=fdel.closest(".fcard"); if(fc) hideFlowCard(fc.dataset.key); return; }
   if(e.target.closest("#bcolAdd")){ addColumn(); return; }
@@ -1481,9 +1549,12 @@ $("#board").addEventListener("change",e=>{
   const lab=e.target.closest("input.tband-label"); if(!lab) return;
   const band=lab.closest(".tband"); if(band) setBandLabel(band.dataset.band, lab.value);
 });
+$("#board").addEventListener("input",e=>{
+  if(e.target.id==="boardSearch"){ boardSearch=e.target.value; applyTagFilter(); }
+});
 $("#board").addEventListener("pointerdown",e=>{
   if(boardLayout()!=="flow" || e.button!==0) return;
-  if(e.target.closest(".fdel")||e.target.closest(".fzone-del")) return;
+  if(e.target.closest(".fdel")||e.target.closest(".fzone-del")||e.target.closest(".fzone-col")) return;
   const canvas=$("#fcanvas"); if(!canvas) return; const cr=canvas.getBoundingClientRect();
   const card=e.target.closest(".fcard");
   if(!card){
@@ -1585,7 +1656,7 @@ function openCardMenu(key, x, y){
   h+="<div class='ctx-sec'>タグ</div>";
   if(m.tags&&m.tags.length) h+="<div class='ctx-tags'>"+m.tags.map(t=>"<span class='tag'>"+esc(t)+"<button class='ctx-tagdel' data-tag='"+esc(t)+"'>×</button></span>").join("")+"</div>";
   h+="<input class='ctx-tagin' placeholder='タグを追加 (Enter)'>";
-  menu.innerHTML=h; menu.dataset.key=key; menu.dataset.zid=""; menu.dataset.x=x; menu.dataset.y=y;
+  menu.innerHTML=h; menu.dataset.key=key; menu.dataset.zid=""; menu.dataset.bandid=""; menu.dataset.tagname=""; menu.dataset.x=x; menu.dataset.y=y;
   menu.style.display="block";
   menu.style.left=Math.min(x, innerWidth-186)+"px";
   menu.style.top=Math.min(y, innerHeight-200)+"px";
@@ -1598,20 +1669,41 @@ function openZoneMenu(id, x, y){
   CARD_COLORS.forEach(c=> h+="<button class='ctx-sw' data-color='"+c+"' style='background:"+c+"' title='"+c+"'></button>");
   h+="<button class='ctx-sw ctx-none' data-color='' title='色なし'>×</button></div>";
   h+="<button class='ctx-lock'>"+(z.locked?"🔓 固定を解除":"🔒 固定する")+"</button>";
-  menu.innerHTML=h; menu.dataset.zid=id; menu.dataset.key="";
+  menu.innerHTML=h; menu.dataset.zid=id; menu.dataset.key=""; menu.dataset.bandid=""; menu.dataset.tagname="";
   menu.style.display="block";
   menu.style.left=Math.min(x, innerWidth-186)+"px";
   menu.style.top=Math.min(y, innerHeight-160)+"px";
 }
-function closeCardMenu(){ const m=$("#ctxmenu"); m.style.display="none"; m.innerHTML=""; m.dataset.key=""; m.dataset.zid=""; }
+function openBandMenu(id, x, y){
+  const menu=$("#ctxmenu");
+  let h="<div class='ctx-sec'>帯の色</div><div class='ctx-colors'>";
+  CARD_COLORS.forEach(c=> h+="<button class='ctx-sw' data-color='"+c+"' style='background:"+c+"' title='"+c+"'></button>");
+  h+="<button class='ctx-sw ctx-none' data-color='' title='色なし'>×</button></div>";
+  menu.innerHTML=h; menu.dataset.bandid=id; menu.dataset.key=""; menu.dataset.zid=""; menu.dataset.tagname="";
+  menu.style.display="block";
+  menu.style.left=Math.min(x, innerWidth-186)+"px";
+  menu.style.top=Math.min(y, innerHeight-120)+"px";
+}
+function closeCardMenu(){ const m=$("#ctxmenu"); m.style.display="none"; m.innerHTML=""; m.dataset.key=""; m.dataset.zid=""; m.dataset.bandid=""; m.dataset.tagname=""; }
 $("#board").addEventListener("contextmenu",e=>{
+  const tfc=e.target.closest(".tfchip");
+  if(tfc && tfc.dataset.tag){ e.preventDefault(); openTagMenu(tfc.dataset.tag, e.clientX, e.clientY); return; }
   const card=e.target.closest(".bcard,.fcard");
   if(card){ e.preventDefault(); openCardMenu(card.dataset.key, e.clientX, e.clientY); return; }
   const zone=e.target.closest(".fzone");
   if(zone){ e.preventDefault(); openZoneMenu(zone.dataset.id, e.clientX, e.clientY); return; }
+  const band=e.target.closest(".tband");
+  if(band){ e.preventDefault(); openBandMenu(band.dataset.band, e.clientX, e.clientY); return; }
 });
 $("#ctxmenu").addEventListener("click",e=>{
   const menu=$("#ctxmenu");
+  const tagname=menu.dataset.tagname;
+  if(tagname){ const tsw=e.target.closest(".ctx-sw"); if(tsw){ setTagColor(tagname, tsw.dataset.color||null); closeCardMenu(); } return; }
+  const bandid=menu.dataset.bandid;
+  if(bandid){
+    const bsw=e.target.closest(".ctx-sw"); if(bsw){ setBandColor(bandid, bsw.dataset.color||null); closeCardMenu(); }
+    return;
+  }
   const zid=menu.dataset.zid;
   if(zid){
     const zsw=e.target.closest(".ctx-sw"); if(zsw){ setZoneColor(zid, zsw.dataset.color||null); closeCardMenu(); return; }
