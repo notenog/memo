@@ -160,6 +160,7 @@
        border:1px solid var(--bd2); border-radius:9px; background:var(--bg); color:var(--tx); cursor:pointer;
        white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   .mdlist button:hover{border-color:var(--link-h); color:var(--link); background:var(--line-h)}
+  .mdlist .md-add{color:var(--link); border-style:dashed; margin-top:4px}
   .mdcol.collapsed{flex-basis:34px; padding:12px 4px}
   .mdcol.collapsed .mdlist,.mdcol.collapsed .mdtitle{display:none}
   .mdcol.collapsed .mdhead{justify-content:center; border-bottom:none; padding:0; margin:0}
@@ -298,7 +299,7 @@
   #ctxmenu .ctx-tagin{width:100%; height:28px; padding:0 8px; border:1px solid var(--bd2); border-radius:6px; background:var(--bg); color:var(--tx)}
   #ctxmenu .ctx-lock{width:100%; padding:6px; border:1px solid var(--bd2); border-radius:6px; background:var(--bg); color:var(--tx); cursor:pointer; font-size:13px}
   #ctxmenu .ctx-lock:hover{border-color:var(--link)}
-  .railcol{flex:0 0 192px; display:flex; flex-direction:column; min-height:0;
+  .railcol{flex:0 0 192px; display:flex; flex-direction:column; min-height:0; position:relative;
            border-right:1px solid var(--bd); background:var(--panel)}
   .railsearch{display:flex; gap:5px; padding:7px 8px; border-bottom:1px solid var(--bd)}
   .railsearch input{flex:1; min-width:0; height:32px; padding:0 11px; border:1px solid var(--bd2);
@@ -308,6 +309,8 @@
        color:var(--tx3); border-radius:50%; font-size:15px; line-height:1}
   .railsearch button:hover{color:var(--danger); border-color:var(--danger)}
   .rail{flex:1 1 auto; overflow-y:auto; padding:6px 0}
+  .rail-resize{position:absolute; top:0; right:0; width:6px; height:100%; cursor:ew-resize; z-index:6}
+  .rail-resize:hover,.rail-resize.dragging{background:var(--line-hbd)}
   mark{background:#ffe58a; color:inherit; border-radius:2px; padding:0 1px}
   body[data-theme="dark"] mark{background:#8a7320; color:#fff}
   .rail .cap{font-family:var(--display); font-size:11px; font-weight:700; color:var(--tx3); padding:10px 12px 6px; letter-spacing:.05em}
@@ -353,11 +356,11 @@
             color:var(--tx); font-family:var(--display); font-weight:700; font-size:15.5px; letter-spacing:.01em;
             background:transparent; border-bottom:2px solid var(--bd2)}
   .sec-head:hover{background:var(--line-h)}
-  .sec-head::before{content:""; order:1; flex:none; width:16px; height:16px; border-radius:5px; transform:rotate(45deg);
+  .sec-head::before{content:""; order:0; flex:none; width:16px; height:16px; border-radius:5px; transform:rotate(45deg);
             background:var(--line-h); border:1.5px solid var(--line-hbd);
             background-image:radial-gradient(circle at center, var(--link) 0 1.7px, transparent 1.9px)}
-  .sec-head .caret{order:0}
-  .sec-head .sec-title{order:2; flex:1 1 auto; min-width:0}
+  .sec-head .caret{order:3; margin-left:4px; color:var(--tx3)}
+  .sec-head .sec-title{order:1; flex:1 1 auto; min-width:0}
   .sec-l2>.sec-head{font-weight:700; font-size:13.5px; color:var(--tx2); background:transparent;
             border-bottom:1px solid var(--bd); border-bottom-style:solid}
   .sec-l2>.sec-head::before{width:12px; height:12px; border-radius:4px}
@@ -369,6 +372,7 @@
   .line{position:relative; padding:4px 10px 4px 13px; margin:1px 0; border-left:3px solid transparent; border-radius:8px;
         cursor:pointer; line-height:1.4; white-space:pre-wrap; word-break:break-word; transition:background .08s, border-color .08s}
   .line:hover{background:var(--line-h); border-left-color:var(--link)}
+  .line.multiline{line-height:1.85; padding-top:6px; padding-bottom:6px}
   .line::before{content:"\25B8"; position:absolute; left:3px; top:4px; color:var(--link); font-size:11px; opacity:0; transition:opacity .08s}
   .line:hover::before{opacity:1}
   .line .atcmd{color:var(--tx3); font-size:.85em; font-family:var(--mono)}
@@ -473,11 +477,12 @@
       <button id="searchClr" title="クリア">×</button>
     </div>
     <div class="rail" id="rail"></div>
+    <div class="rail-resize" id="railResize" title="ドラッグで幅を調整"></div>
   </div>
   <div class="centercol">
     <div class="composewrap">
       <div class="compose">
-        <textarea id="compose" placeholder="送信予定（編集可能）— クリックでここへ／ダブルクリックで即送信"></textarea>
+        <textarea id="compose" placeholder="送信予定（編集可能）— クリックでここへ／ダブルクリックで即送信　Enter:送信 / Shift+Enter:改行"></textarea>
         <button class="btn-send" id="btnSend">送信</button>
       </div>
       <div class="tpls" id="cmdTpls"></div>
@@ -497,8 +502,8 @@
 <div class="actions">
   <button class="lk primary" id="btnBoard">▦ ボード</button>
   <span class="sep"></span>
-  <button class="lk" id="btnExpand">広げる</button>
-  <button class="lk" id="btnCollapse">狭める</button>
+  <button class="lk" id="btnExpand">全部開く</button>
+  <button class="lk" id="btnCollapse">全部閉じる</button>
   <span class="sep"></span>
   <button class="lk" id="btnAddTab">タブ追加</button>
   <button class="lk danger" id="btnDelTab">タブ削除</button>
@@ -508,7 +513,6 @@
   <span class="sep"></span>
   <button class="lk" id="btnLoad">ロード</button>
   <button class="lk" id="btnSave">セーブ</button>
-  <button class="lk" id="btnClean">クリーン出力</button>
   <input type="file" id="file" accept=".json,application/json" style="display:none">
   <input type="file" id="boardFile" accept=".json,application/json" style="display:none">
 </div>
@@ -566,7 +570,16 @@ function restore(){
 }
 
 /* ---------- text helpers ---------- */
-const sendSafe = s => s.replace(/《/g,"[").replace(/》/g,"]").replace(/／/g,"/");
+function keepSpaces(s){
+  // 行頭インデント・連続スペース・行末スペースは詰まらない空白(nbsp)へ。
+  // 単独のスペース（コマンド区切り等）はそのまま残す。
+  return s.split("\n").map(line=>
+    line.replace(/^ +/g, m=>"\u00A0".repeat(m.length))
+        .replace(/ {2,}/g, m=>"\u00A0".repeat(m.length))
+        .replace(/ +$/g, m=>"\u00A0".repeat(m.length))
+  ).join("\n");
+}
+const sendSafe = s => keepSpaces(s.replace(/《/g,"[").replace(/》/g,"]").replace(/／/g,"/"));
 function allParams(){
   const map={};
   state.palettes.forEach(p=>{
@@ -736,6 +749,7 @@ function renderNodes(nodes, parent){
     } else if(n.type==="line"){
       const {html,color}=renderLine(n.raw);
       const d=el("line", html); d.dataset.idx=n.idx; if(color) d.style.color=color;
+      if(/\\n/.test(n.raw)) d.classList.add("multiline");
       parent.appendChild(d);
     } else if(n.type==="param"){
       parent.appendChild(el("paramdef", esc("// "+n.name+" = "+n.val)));
@@ -830,7 +844,7 @@ function renderActiveBody(){
   const body=$("#body"), ed=$("#editArea");
   if(state.editMode){
     body.style.display="none"; ed.style.display="block"; ed.value=p.stock||"";
-    $("#rail").innerHTML=""; $("#rail").appendChild(el("rail-empty","編集モード中"));
+    renderRail(tree);
     $("#btnEdit").classList.add("on");
   }else{
     ed.style.display="none"; body.style.display="block"; body.innerHTML="";
@@ -864,7 +878,7 @@ async function sendChat(message,{name,color,bot}={}){
   }catch(e){ return {ok:false, why:"net"}; }
 }
 async function doSend(message){
-  message=(message||"").trim(); if(!message) return;
+  message=(message||""); if(!message.trim()) return;
   if(!cfg("room")){ toast("ルームID未設定。接続設定を開いてね",true); openSettings(); return; }
   const p=activeP();
   // inlineの @#色 はAPI経由だと解釈されないため、colorパラメータへ回し本文からは除去する
@@ -889,6 +903,7 @@ async function doSend(message){
   else if(r.why==="noroom") toast("ルームID未設定",true);
   else if(r.why==="net") toast("接続失敗（エンドポイント/CORSを確認）",true);
   else toast("送信失敗（"+(r.status||"?")+"）名前や記号(《》／)を確認",true);
+  return r;
 }
 function stageLine(idx){
   const raw=lineMap[idx]; if(raw==null) return;
@@ -907,7 +922,8 @@ const CMD_TPLS=[
   {label:"@[name]:", text:"@[name]:", end:true},
   {label:"choice(,)", text:"choice(,)", caret:7},
   {label:"resb(-)", text:"resb(-)", caret:5},
-  {label:"cbrb(,)", text:"cbrb(,)", caret:5}
+  {label:"cbrb(,)", text:"cbrb(,)", caret:5},
+  {label:"@[portrait]:off", text:"@[portrait]:off", end:true}
 ];
 function insertCompose(text, caret, end){
   const f=$("#compose"); let s, e;
@@ -931,7 +947,7 @@ function buildCmdTpls(){
 
 /* right column: markdown decoration -> edit textarea (memos live in stock) */
 const MD_TPLS=[
-  {grp:"::: カンペ"},
+  {grp:"::: メモ"},
   {label:":::info", before:":::info\n", after:"\n:::"},
   {label:":::warn", before:":::warn\n", after:"\n:::"},
   {label:":::alert", before:":::alert\n", after:"\n:::"},
@@ -958,18 +974,40 @@ function mdInsert(tpl){
   const entering=!state.editMode;
   if(entering){ rememberExpand(); state.editMode=true; renderActiveBody(); }
   const f=$("#editArea");
-  if(entering){ const n=f.value.length; f.focus(); f.setSelectionRange(n,n); }
+  if(entering){ f.focus(); f.setSelectionRange(0,0); f.scrollTop=0; }
   insertAtField(f, tpl.before, tpl.after, tpl.ph);
+}
+function loadMdTpls(){ try{ const a=JSON.parse(localStorage.getItem("ep2_mdtpls")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function saveMdTpls(a){ try{ localStorage.setItem("ep2_mdtpls", JSON.stringify(a)); }catch(e){} }
+function addMdTpl(){
+  const label=prompt("ボタン名（表示ラベル）"); if(label==null||!label.trim()) return;
+  const before=prompt("挿入テキスト（選択を囲む場合は開始側）\n改行は \\n と入力\n例: **  /  :::info\\n", ""); if(before==null) return;
+  const after=prompt("後側テキスト（囲まない単純挿入なら空でOK）\n例: **  /  \\n:::", "");
+  const norm = s => (s==null?"":s).replace(/\\n/g,"\n");
+  const a=loadMdTpls(); a.push({label:label.trim(), before:norm(before), after:norm(after), ph:""});
+  saveMdTpls(a); buildMdTpls();
 }
 function buildMdTpls(){
   const col=$("#mdlist"); col.innerHTML="";
+  const make=(t)=>{ const b=document.createElement("button"); b.type="button"; b.textContent=t.label;
+    b.title="選択範囲を囲む／無選択なら挿入（編集モードに切替）";
+    b.addEventListener("click",()=>mdInsert(t)); return b; };
   MD_TPLS.forEach(t=>{
     if(t.grp){ const h=document.createElement("h4"); h.textContent=t.grp; col.appendChild(h); return; }
-    const b=document.createElement("button"); b.type="button"; b.textContent=t.label;
-    b.title="選択範囲を囲む／無選択なら挿入（編集モードに切替）";
-    b.addEventListener("click",()=>mdInsert(t));
+    col.appendChild(make(t));
+  });
+  const customs=loadMdTpls();
+  const h=document.createElement("h4"); h.textContent="カスタム"; col.appendChild(h);
+  customs.forEach((t,i)=>{
+    const b=make(t); b.title="クリック:挿入 / 右クリック:削除";
+    b.addEventListener("contextmenu",e=>{ e.preventDefault();
+      if(confirm("「"+t.label+"」を削除しますか？")){ const a=loadMdTpls(); a.splice(i,1); saveMdTpls(a); buildMdTpls(); } });
     col.appendChild(b);
   });
+  const add=document.createElement("button"); add.type="button"; add.className="md-add"; add.textContent="＋ 装飾を追加";
+  add.title="新しい装飾テンプレを追加";
+  add.addEventListener("click",addMdTpl);
+  col.appendChild(add);
 }
 function setMdcol(hidden){
   $("#mdcol").classList.toggle("collapsed", hidden);
@@ -1377,6 +1415,20 @@ function scrollToSec(uid){
   const sec=document.getElementById("sec-"+uid);
   if(sec){ sec.classList.remove("collapsed"); sec.scrollIntoView({behavior:"smooth",block:"start"}); }
 }
+function jumpEditTo(uid){
+  const ed=$("#editArea"); if(!ed||ed.style.display==="none"||!ed.value) return;
+  const info=secMap[uid]; const title=getSecTitle(uid);
+  const lines=ed.value.split("\n");
+  const re = (info&&info.level===2) ? /^####(?!#)\s*(.*)$/ : /^###(?!#)\s*(.*)$/;
+  let target=-1;
+  for(let i=0;i<lines.length;i++){ const m=lines[i].match(re); if(m && m[1].trim()===(title||"").trim()){ target=i; break; } }
+  if(target<0 && info) target=info.lineIndex;
+  if(target<0) return;
+  let pos=0; for(let i=0;i<target;i++) pos+=lines[i].length+1;
+  ed.focus(); ed.setSelectionRange(pos,pos);
+  const lh=parseFloat(getComputedStyle(ed).lineHeight)||20;
+  ed.scrollTop=Math.max(0, target*lh - lh);
+}
 
 /* ---------- search (本文参照) ---------- */
 function highlightEl(node, q){
@@ -1573,13 +1625,30 @@ $("#body").addEventListener("dblclick",e=>{
 $("#rail").addEventListener("click",e=>{
   const pin=e.target.closest(".rail-pin");
   if(pin){ e.stopPropagation(); const it=pin.closest(".rail-item,.rail-sub"); if(it) togglePin(state.activeId, getSecTitle(+it.dataset.uid)); return; }
-  const it=e.target.closest(".rail-item,.rail-sub"); if(it) scrollToSec(+it.dataset.uid);
+  const it=e.target.closest(".rail-item,.rail-sub"); if(!it) return;
+  if(state.editMode) jumpEditTo(+it.dataset.uid); else scrollToSec(+it.dataset.uid);
 });
 $("#rail").addEventListener("dblclick",e=>{
+  if(state.editMode) return;
   const it=e.target.closest(".rail-item,.rail-sub"); if(!it||it.classList.contains("rail-pinned")) return;
   const uid=+it.dataset.uid; const span=it.querySelector(".rail-label");
   if(span) inlineEdit(span, getSecTitle(uid), v=>setSecTitle(uid,v));
 });
+
+/* rail width resize */
+(function(){
+  const col=document.querySelector(".railcol"), h=$("#railResize"); if(!col||!h) return;
+  const stored=parseInt(localStorage.getItem("ep2_railw")||"",10);
+  if(stored>=140 && stored<=560) col.style.flexBasis=stored+"px";
+  let drag=null;
+  h.addEventListener("pointerdown",e=>{ drag={x:e.clientX, w:col.getBoundingClientRect().width};
+    h.classList.add("dragging"); h.setPointerCapture(e.pointerId); e.preventDefault(); });
+  h.addEventListener("pointermove",e=>{ if(!drag) return;
+    let w=Math.round(drag.w+(e.clientX-drag.x)); w=Math.max(140,Math.min(560,w)); col.style.flexBasis=w+"px"; });
+  const end=()=>{ if(!drag) return; drag=null; h.classList.remove("dragging");
+    try{ localStorage.setItem("ep2_railw", parseInt(col.style.flexBasis,10)); }catch(_){} };
+  h.addEventListener("pointerup",end); h.addEventListener("pointercancel",end);
+})();
 
 $("#tabs").addEventListener("click",e=>{
   if(e.target.closest(".tab-add")){ addTab(); return; }
@@ -1598,8 +1667,14 @@ $("#f_name").addEventListener("input",e=>{ const p=activeP(); if(p){ p.name=e.ta
 $("#f_color").addEventListener("input",e=>{ const p=activeP(); if(p){ p.textColor=e.target.value; persist(); } });
 $("#f_bot").addEventListener("change",e=>setCfg("ep2_bot",e.target.value.trim()));
 
-$("#btnSend").addEventListener("click",()=>doSend($("#compose").value));
-$("#compose").addEventListener("keydown",e=>{ if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){ e.preventDefault(); doSend($("#compose").value);} });
+function sendCompose(){
+  const f=$("#compose"); const v=f.value;
+  doSend(v).then(r=>{ if(r&&r.ok) f.value=""; });
+}
+$("#btnSend").addEventListener("click",sendCompose);
+$("#compose").addEventListener("keydown",e=>{
+  if(e.key==="Enter" && !e.shiftKey && !e.isComposing && e.keyCode!==229){ e.preventDefault(); sendCompose(); }
+});
 
 $("#btnExpand").addEventListener("click",()=>setAll(true));
 $("#btnCollapse").addEventListener("click",()=>setAll(false));
@@ -1609,7 +1684,6 @@ $("#btnUndoDel").addEventListener("click",undoDel);
 $("#btnEdit").addEventListener("click",toggleEdit);
 $("#btnLoad").addEventListener("click",()=>$("#file").click());
 $("#btnSave").addEventListener("click",()=>{ commitEdit(); download("tekey-palette.json", exportPalettes(false)); });
-$("#btnClean").addEventListener("click",()=>{ commitEdit(); download("tekey-palette-clean.json", exportPalettes(true)); });
 $("#file").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>loadJSON(r.result); r.readAsText(f); e.target.value=""; });
 $("#boardFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>importBoard(r.result); r.readAsText(f); e.target.value=""; });
 document.addEventListener("keydown",e=>{
@@ -1928,7 +2002,7 @@ function seed(){
       "クリックで上の送信予定へ（編集できます）",
       "ダブルクリックでそのまま送信",
       ":::note info",
-      "これは自分用メモ（カンペ）。**送信されません**。",
+      "これは自分用メモ。**送信されません**。",
       "~~取り消し~~ や `コード`、箇条書きも使えます。",
       "- 戦況メモ",
       "- 次の展開",
