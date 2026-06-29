@@ -79,6 +79,12 @@
   body[data-theme="dark"] .tband-del{background:#eef0f3; color:#5d6470; border-color:#c4c8d0}
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
+  *{scrollbar-width:thin; scrollbar-color:var(--bd2) transparent}
+  ::-webkit-scrollbar{width:12px; height:12px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--bd2); border-radius:8px; border:3px solid transparent; background-clip:padding-box}
+  ::-webkit-scrollbar-thumb:hover{background:var(--tx3); background-clip:padding-box}
+  ::-webkit-scrollbar-corner{background:transparent}
   body{font-family:var(--body);
        font-size:var(--fs); color:var(--tx); background:var(--bg);
        display:flex; flex-direction:column; height:100vh; overflow:hidden}
@@ -804,7 +810,7 @@ function renderTabs(){
   const t=$("#tabs"); t.innerHTML="";
   state.palettes.forEach(p=>{
     const d=el("tab"+(p.paletteID===state.activeId?" on":"")); d.dataset.id=p.paletteID;
-    d.innerHTML="<span class='lbl'>"+esc(p.label||"?")+"</span>"+(state.palettes.length>1?"<span class='x' title='このタブを削除'>×</span>":"");
+    d.innerHTML="<span class='lbl'>"+esc((p.label&&p.label.trim())||(p.name&&p.name.trim())||"?")+"</span>"+(state.palettes.length>1?"<span class='x' title='このタブを削除'>×</span>":"");
     t.appendChild(d);
   });
   const add=document.createElement("button"); add.className="tab-add"; add.id="tabAddInline"; add.textContent="＋"; add.title="タブ追加";
@@ -998,7 +1004,7 @@ function countSendable(lines){
   return n;
 }
 function repColor(lines){ for(const ln of lines){ const m=ln.match(/@#([0-9a-fA-F]{3,6})\b/); if(m) return "#"+m[1]; } return null; }
-const labelOf = id => { const p=byId(id); return p?p.label:"?"; };
+const labelOf = id => { const p=byId(id); return p?((p.label&&p.label.trim())||(p.name&&p.name.trim())||"?"):"?"; };
 const cardKey = (tabId, title) => tabId+"\u0000"+title;
 // 実在カード一覧（key -> {homeTab, title, ord, lines}）。stockは一切変更しない
 function currentCards(){
