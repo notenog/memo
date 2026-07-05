@@ -308,7 +308,7 @@
   #ctxmenu .ctx-tagin{width:100%; height:28px; padding:0 8px; border:1px solid var(--bd2); border-radius:6px; background:var(--bg); color:var(--tx)}
   #ctxmenu .ctx-lock{width:100%; padding:6px; border:1px solid var(--bd2); border-radius:6px; background:var(--bg); color:var(--tx); cursor:pointer; font-size:13px}
   #ctxmenu .ctx-lock:hover{border-color:var(--link)}
-  .railcol{flex:0 0 192px; display:flex; flex-direction:column; min-height:0; position:relative;
+  .railcol{flex:0 0 192px; display:flex; flex-direction:column; min-height:0; min-width:0; position:relative;
            border-right:1px solid var(--bd); background:var(--panel)}
   .railsearch{display:flex; gap:5px; padding:7px 8px; border-bottom:1px solid var(--bd)}
   .railsearch input{flex:1; min-width:0; height:32px; padding:0 11px; border:1px solid var(--bd2);
@@ -336,7 +336,7 @@
   .rail .cap{font-family:var(--display); font-size:11px; font-weight:700; color:var(--tx3); padding:10px 12px 6px; letter-spacing:.05em}
   .rail-item,.rail-sub{padding:6px 12px; color:var(--tx); cursor:pointer; user-select:none;
        display:flex; align-items:center; gap:6px; border-left:3px solid transparent}
-  .rail-label{flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .rail-label{flex:1 1 auto; min-width:0; white-space:normal; overflow-wrap:anywhere; word-break:break-word; line-height:1.35}
   .rail-pin{flex:0 0 auto; border:none; background:none; cursor:pointer; font-size:12px; line-height:1; padding:0 2px;
        opacity:0; filter:grayscale(1) opacity(.6)}
   .rail-item:hover .rail-pin,.rail-sub:hover .rail-pin{opacity:1}
@@ -1735,9 +1735,9 @@ $("#rail").addEventListener("dblclick",e=>{
 (function(){
   const col=document.querySelector(".railcol"), h=$("#railResize"); if(!col||!h) return;
   const stored=parseInt(localStorage.getItem("ep2_railw")||"",10);
-  if(stored>=140 && stored<=560) col.style.flexBasis=stored+"px";
+  if(stored>=90 && stored<=560) col.style.flexBasis=stored+"px";
   let drag=null;
-  const onMove=e=>{ if(!drag) return; let w=Math.round(drag.w+(e.clientX-drag.x)); w=Math.max(140,Math.min(560,w)); col.style.flexBasis=w+"px"; };
+  const onMove=e=>{ if(!drag) return; let w=Math.round(drag.w+(e.clientX-drag.x)); w=Math.max(90,Math.min(560,w)); col.style.flexBasis=w+"px"; };
   const onUp=()=>{ if(!drag) return; drag=null; h.classList.remove("dragging");
     document.body.style.userSelect=""; document.body.style.cursor="";
     window.removeEventListener("pointermove",onMove); window.removeEventListener("pointerup",onUp);
