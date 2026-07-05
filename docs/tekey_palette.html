@@ -2534,23 +2534,40 @@ async function createCharPiece(ci) {
   const chars = loadCharData();
   const c = chars[ci];
   if (!c) return;
-  await createPiece(c.name, c.raceTraits || '');
+  await createPiece(c.name, c.raceTraits || '', c);
 }
 
 async function createNpcPiece(ni) {
   const npcs = loadNpcData();
   const n = npcs[ni];
   if (!n) return;
-  await createPiece(n.name, '');
+  await createPiece(n.name, '', null);
 }
 
-async function createPiece(name, raceTraits) {
+async function createPiece(name, raceTraits, charData) {
   const room     = cfg('room');
   const password = cfg('pass');
   if (!room) { showToast('⚙ 接続設定を先に行ってください', 'err'); return; }
   if (!name)  { showToast('名前が設定されていません', 'err'); return; }
   const body = { command: 'addCharacter', room, password, name };
   if (raceTraits) body.info = raceTraits;
+  // キャラデータからvaluesを組み立て（カラム名:現在値:最大値 形式）
+  if (charData) {
+    const parts = [];
+    if (charData.hpmax) parts.push(`HP:${charData.hp || charData.hpmax}:${charData.hpmax}`);
+    if (charData.mpmax) parts.push(`MP:${charData.mp || charData.mpmax}:${charData.mpmax}`);
+    const statsMap = { '命中': '器用', '回避': '敏捷', '生命': '生命', '精神': '精神' };
+    if (charData.stats) {
+      for (const [colName, statName] of Object.entries(statsMap)) {
+        const s = charData.stats[statName];
+        if (s) {
+          const val = typeof s === 'object' ? s.bonus : s;
+          if (val) parts.push(`${colName}:${val}`);
+        }
+      }
+    }
+    if (parts.length > 0) body.values = parts.join(',');
+  }
   try {
     const res = await fetch(ENDPOINT, {
       method: 'POST',
