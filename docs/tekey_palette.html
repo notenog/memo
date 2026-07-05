@@ -969,6 +969,29 @@ body::before {
   </div>
 </div>
 
+<!-- ステータスシート設定モーダル -->
+<div class="modal-overlay" id="columnsModal" onclick="if(event.target===this)closeColumnsModal()">
+  <div class="modal" style="width:480px;">
+    <div class="modal-head">
+      <span class="modal-title">📋 ステータスシート設定</span>
+      <button class="btn btn-ghost" style="padding:3px 8px;font-size:12px;" onclick="closeColumnsModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.7;background:var(--bg3);padding:8px 10px;border-radius:var(--radius-sm);">
+        カラム名と種別を設定してください。<br>
+        「送信」でキャラクター・NPC全員に一括適用します。
+      </div>
+      <div id="columnsEditor" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"></div>
+      <button class="btn btn-ghost" style="font-size:11px;width:100%;" onclick="addColumnRow()">＋ カラムを追加</button>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="resetColumnsDefault()">デフォルトに戻す</button>
+      <button class="btn btn-ghost" onclick="closeColumnsModal()">キャンセル</button>
+      <button class="btn btn-save btn" onclick="applyColumns()">📋 送信</button>
+    </div>
+  </div>
+</div>
+
 <!-- キャラ追加モーダル -->
 <div class="modal-overlay" id="charAddModal" onclick="if(event.target===this)closeCharAddModal()">
   <div class="modal">
@@ -1030,7 +1053,7 @@ body::before {
   <!-- ステータスシート設定ボタン -->
   <div style="display:flex;justify-content:flex-end;margin-bottom:10px;gap:6px;">
     <button class="btn btn-ghost" style="font-size:11px;" onclick="importFromDashboard()">📥 ダッシュボードから引継ぎ</button>
-    <button class="btn btn-ghost" style="font-size:11px;" onclick="setupCharColumns()">📋 ステータスシート設定</button>
+    <button class="btn btn-ghost" style="font-size:11px;" onclick="openColumnsModal()">📋 ステータスシート設定</button>
   </div>
 
   <!-- Characters -->
@@ -1899,7 +1922,7 @@ function renderActionTab() {
     '<div class="section-label">エネミー設定</div>' +
     '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:4px;">' +
       '<span style="font-size:12px;color:var(--text3);">カラー</span>' +
-      '<input type="color" id="enemyColorPicker" value="' + (enemyColor ? '#' + enemyColor : '#c9a84c') + '" style="width:28px;height:22px;border:none;border-radius:3px;cursor:pointer;background:none;padding:0;">' +
+      '<input type="color" id="enemyColorPicker" value="' + (enemyColor ? '#' + enemyColor : '#ce8383') + '" style="width:28px;height:22px;border:none;border-radius:3px;cursor:pointer;background:none;padding:0;">' +
       '<button class="btn btn-ghost" style="font-size:11px;padding:2px 8px;" id="btnSetColor">設定</button>' +
       '<span style="font-size:12px;color:var(--text3);margin-left:8px;">🗡 剣のかけら</span>' +
       '<input type="number" id="sfInput" min="0" value="' + sf + '" style="width:48px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;color:var(--text);font-size:12px;padding:2px 4px;text-align:center;">' +
@@ -2187,7 +2210,7 @@ function tekeyMsg(s) {
 
 async function roll(cmd) {
   const enemyObj  = enemies.find(e => e.displayName === currentEnemyName);
-  const color     = enemyObj ? (enemyObj.color || undefined) : undefined;
+  const color     = enemyObj ? (enemyObj.color || 'ce8383') : 'ce8383';
   const name      = currentEnemyName || (currentMonster ? currentMonster.name : undefined);
   await sendChat(cmd, { bot: 'SwordWorld2_5', name, color });
   showToast(`送信: ${cmd}`, 'ok');
@@ -2543,18 +2566,93 @@ async function createPiece(name, raceTraits) {
 // ────────────────────────────────────────────
 //  ステータスシート設定 (setColumns)
 // ────────────────────────────────────────────
-async function setupCharColumns() {
+const COLUMNS_KEY = 'tekey_columns';
+
+const DEFAULT_COLUMNS = [
+  { name: '💠移動力', check: false },
+  { name: 'HP',      check: false },
+  { name: 'MP',      check: false },
+  { name: '命中',    check: false },
+  { name: '防護点',  check: false },
+  { name: '回避',    check: false },
+  { name: '生命',    check: false },
+  { name: '精神',    check: false },
+  { name: '行動',    check: true  },
+];
+
+function loadColumns() {
+  try { return JSON.parse(localStorage.getItem(COLUMNS_KEY)) || DEFAULT_COLUMNS; }
+  catch { return DEFAULT_COLUMNS; }
+}
+function saveColumns(cols) { localStorage.setItem(COLUMNS_KEY, JSON.stringify(cols)); }
+
+function columnsToString(cols) {
+  return cols.map(c => `${c.name}:${c.check}:false`).join(',');
+}
+
+function openColumnsModal() {
+  renderColumnsEditor(loadColumns());
+  document.getElementById('columnsModal').classList.add('open');
+}
+function closeColumnsModal() {
+  document.getElementById('columnsModal').classList.remove('open');
+}
+
+function renderColumnsEditor(cols) {
+  const el = document.getElementById('columnsEditor');
+  el.innerHTML = cols.map((c, i) => `
+    <div style="display:flex;align-items:center;gap:6px;" id="colrow-${i}">
+      <span style="font-size:11px;color:var(--text3);width:16px;text-align:right;flex-shrink:0;">${i+1}</span>
+      <input type="text" value="${c.name}" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;padding:4px 8px;" placeholder="カラム名">
+      <select style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:11px;padding:4px 6px;">
+        <option value="false" ${!c.check ? 'selected' : ''}>数値</option>
+        <option value="true"  ${c.check  ? 'selected' : ''}>チェック</option>
+      </select>
+      <button class="btn btn-ghost" style="font-size:10px;padding:2px 6px;color:var(--red2);" onclick="removeColumnRow(${i})">✕</button>
+    </div>`).join('');
+}
+
+function getColumnsFromEditor() {
+  return Array.from(document.getElementById('columnsEditor').children).map(row => ({
+    name:  row.querySelector('input').value.trim(),
+    check: row.querySelector('select').value === 'true',
+  })).filter(c => c.name);
+}
+
+function addColumnRow() {
+  const cols = getColumnsFromEditor();
+  cols.push({ name: '', check: false });
+  renderColumnsEditor(cols);
+  // 最後の入力欄にフォーカス
+  const inputs = document.getElementById('columnsEditor').querySelectorAll('input');
+  inputs[inputs.length - 1]?.focus();
+}
+
+function removeColumnRow(i) {
+  const cols = getColumnsFromEditor();
+  cols.splice(i, 1);
+  renderColumnsEditor(cols);
+}
+
+function resetColumnsDefault() {
+  renderColumnsEditor(DEFAULT_COLUMNS);
+}
+
+async function applyColumns() {
   const room     = cfg('room');
   const password = cfg('pass');
   if (!room) { showToast('⚙ 接続設定を先に行ってください', 'err'); return; }
+
+  const cols = getColumnsFromEditor();
+  if (cols.length === 0) { showToast('カラムを1つ以上追加してください', 'err'); return; }
+
+  saveColumns(cols);
+  const columns = columnsToString(cols);
 
   const chars = loadCharData();
   const npcs  = loadNpcData();
   const targets = [...chars.map(c => c.name), ...npcs.map(n => n.name)].filter(Boolean);
   if (targets.length === 0) { showToast('キャラクター/NPCを先に登録してください', 'err'); return; }
-
-  // カラム：💠 移動力 HP MP 命中 防護点 回避 生命 精神 行動*
-  const columns = '💠移動力:false:false,HP:false:false,MP:false:false,命中:false:false,防護点:false:false,回避:false:false,生命:false:false,精神:false:false,行動:true:false';
 
   let ok = 0;
   for (const name of targets) {
@@ -2570,6 +2668,7 @@ async function setupCharColumns() {
       addLog(`✗ カラム設定エラー: ${name}`, 'err');
     }
   }
+  closeColumnsModal();
   showToast(`📋 カラム設定完了 ${ok}/${targets.length}体`, 'ok');
 }
 
