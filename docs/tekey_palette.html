@@ -2575,15 +2575,16 @@ async function createPiece(name, raceTraits) {
 const COLUMNS_KEY = 'tekey_columns';
 
 const DEFAULT_COLUMNS = [
-  { name: '💠移動力', check: false },
-  { name: 'HP',      check: false },
-  { name: 'MP',      check: false },
-  { name: '命中',    check: false },
-  { name: '防護点',  check: false },
-  { name: '回避',    check: false },
-  { name: '生命',    check: false },
-  { name: '精神',    check: false },
-  { name: '行動',    check: true  },
+  { name: '💠',     check: false },
+  { name: '移動力', check: false },
+  { name: 'HP',     check: false },
+  { name: 'MP',     check: false },
+  { name: '命中',   check: false },
+  { name: '防護点', check: false },
+  { name: '回避',   check: false },
+  { name: '生命',   check: false },
+  { name: '精神',   check: false },
+  { name: '行動',   check: true  },
 ];
 
 function loadColumns() {
@@ -2604,10 +2605,13 @@ function closeColumnsModal() {
   document.getElementById('columnsModal').classList.remove('open');
 }
 
+let _colDragIdx = null;
+
 function renderColumnsEditor(cols) {
   const el = document.getElementById('columnsEditor');
   el.innerHTML = cols.map((c, i) => `
-    <div style="display:flex;align-items:center;gap:6px;" id="colrow-${i}">
+    <div style="display:flex;align-items:center;gap:6px;padding:2px 0;" data-col-i="${i}" draggable="true">
+      <span style="font-size:14px;color:var(--text3);cursor:grab;flex-shrink:0;user-select:none;" class="col-drag-handle">⠿</span>
       <span style="font-size:11px;color:var(--text3);width:16px;text-align:right;flex-shrink:0;">${i+1}</span>
       <input type="text" value="${c.name}" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;padding:4px 8px;" placeholder="カラム名">
       <select style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:11px;padding:4px 6px;">
@@ -2616,6 +2620,40 @@ function renderColumnsEditor(cols) {
       </select>
       <button class="btn btn-ghost" style="font-size:10px;padding:2px 6px;color:var(--red2);" onclick="removeColumnRow(${i})">✕</button>
     </div>`).join('');
+  setupColumnsDragDrop();
+}
+
+function setupColumnsDragDrop() {
+  const el = document.getElementById('columnsEditor');
+  el.querySelectorAll('[data-col-i]').forEach(row => {
+    row.addEventListener('dragstart', e => {
+      _colDragIdx = parseInt(row.dataset.colI);
+      row.style.opacity = '0.35';
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => {
+      row.style.opacity = '';
+      el.querySelectorAll('[data-col-i]').forEach(r => r.style.borderTop = '');
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      el.querySelectorAll('[data-col-i]').forEach(r => r.style.borderTop = '');
+      const toIdx = parseInt(row.dataset.colI);
+      if (toIdx !== _colDragIdx) row.style.borderTop = '2px solid var(--gold)';
+    });
+    row.addEventListener('dragleave', () => row.style.borderTop = '');
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.style.borderTop = '';
+      const toIdx = parseInt(row.dataset.colI);
+      if (_colDragIdx === null || _colDragIdx === toIdx) return;
+      const cols = getColumnsFromEditor();
+      const [moved] = cols.splice(_colDragIdx, 1);
+      cols.splice(toIdx, 0, moved);
+      _colDragIdx = null;
+      renderColumnsEditor(cols);
+    });
+  });
 }
 
 function getColumnsFromEditor() {
@@ -2629,7 +2667,6 @@ function addColumnRow() {
   const cols = getColumnsFromEditor();
   cols.push({ name: '', check: false });
   renderColumnsEditor(cols);
-  // 最後の入力欄にフォーカス
   const inputs = document.getElementById('columnsEditor').querySelectorAll('input');
   inputs[inputs.length - 1]?.focus();
 }
