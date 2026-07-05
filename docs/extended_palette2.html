@@ -318,8 +318,10 @@
        color:var(--tx3); border-radius:50%; font-size:15px; line-height:1}
   .railsearch button:hover{color:var(--danger); border-color:var(--danger)}
   .rail{flex:1 1 auto; overflow-y:auto; padding:6px 0}
-  .rail-resize{position:absolute; top:0; right:0; width:6px; height:100%; cursor:ew-resize; z-index:6}
-  .rail-resize:hover,.rail-resize.dragging{background:var(--line-hbd)}
+  .rail-resize{position:absolute; top:0; right:-4px; width:9px; height:100%; cursor:ew-resize; z-index:20; touch-action:none}
+  .rail-resize::after{content:""; position:absolute; top:0; bottom:0; left:50%; width:2px; transform:translateX(-50%);
+       background:transparent; transition:background .1s}
+  .rail-resize:hover::after,.rail-resize.dragging::after{background:var(--link)}
   .xtab{display:none; border-bottom:1px solid var(--bd); max-height:38vh; overflow-y:auto; background:var(--panel2)}
   .xtab-cap{font-family:var(--display); font-size:11px; font-weight:700; color:var(--tx3); padding:8px 10px 4px; letter-spacing:.03em}
   .xtab-item{display:flex; flex-direction:column; gap:1px; padding:6px 10px; cursor:pointer; border-left:3px solid transparent}
@@ -1735,13 +1737,17 @@ $("#rail").addEventListener("dblclick",e=>{
   const stored=parseInt(localStorage.getItem("ep2_railw")||"",10);
   if(stored>=140 && stored<=560) col.style.flexBasis=stored+"px";
   let drag=null;
-  h.addEventListener("pointerdown",e=>{ drag={x:e.clientX, w:col.getBoundingClientRect().width};
-    h.classList.add("dragging"); h.setPointerCapture(e.pointerId); e.preventDefault(); });
-  h.addEventListener("pointermove",e=>{ if(!drag) return;
-    let w=Math.round(drag.w+(e.clientX-drag.x)); w=Math.max(140,Math.min(560,w)); col.style.flexBasis=w+"px"; });
-  const end=()=>{ if(!drag) return; drag=null; h.classList.remove("dragging");
-    try{ localStorage.setItem("ep2_railw", parseInt(col.style.flexBasis,10)); }catch(_){} };
-  h.addEventListener("pointerup",end); h.addEventListener("pointercancel",end);
+  const onMove=e=>{ if(!drag) return; let w=Math.round(drag.w+(e.clientX-drag.x)); w=Math.max(140,Math.min(560,w)); col.style.flexBasis=w+"px"; };
+  const onUp=()=>{ if(!drag) return; drag=null; h.classList.remove("dragging");
+    document.body.style.userSelect=""; document.body.style.cursor="";
+    window.removeEventListener("pointermove",onMove); window.removeEventListener("pointerup",onUp);
+    try{ localStorage.setItem("ep2_railw", parseInt(col.style.flexBasis,10)||col.getBoundingClientRect().width); }catch(_){} };
+  h.addEventListener("pointerdown",e=>{
+    drag={x:e.clientX, w:col.getBoundingClientRect().width};
+    h.classList.add("dragging"); e.preventDefault();
+    document.body.style.userSelect="none"; document.body.style.cursor="ew-resize";
+    window.addEventListener("pointermove",onMove); window.addEventListener("pointerup",onUp);
+  });
 })();
 
 $("#tabs").addEventListener("click",e=>{
