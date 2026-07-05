@@ -2026,19 +2026,23 @@ function renderActionTab() {
     });
   });
   tab.querySelector('[data-chat-cmd="knowledge"]')?.addEventListener('click', () => {
-    sendChat(tekeyMsg('▶' + m.name + '　目標値《' + knowVal + '／' + knowBase + '》'), { color: '999999' });
+    const _c = enemyObj?.color || 'ce8383';
+    sendChat(tekeyMsg('▶' + m.name + '　目標値《' + knowVal + '／' + knowBase + '》'), { name: currentEnemyName, color: _c });
     showToast('魔物知識判定を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="seethrough1"]')?.addEventListener('click', () => {
-    sendChat('✔' + m.name, { color: '009CE0' });
+    const _c = enemyObj?.color || 'ce8383';
+    sendChat('✔' + m.name, { name: currentEnemyName, color: _c });
     showToast('看破（弱点なし）を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="seethrough2"]')?.addEventListener('click', () => {
-    sendChat(tekeyMsg('✔' + m.name + '《' + weakText + '》'), { color: '009CE0' });
+    const _c = enemyObj?.color || 'ce8383';
+    sendChat(tekeyMsg('✔' + m.name + '《' + weakText + '》'), { name: currentEnemyName, color: _c });
     showToast('看破（弱点あり）を送信', 'ok');
   });
   tab.querySelector('[data-chat-cmd="initiative"]')?.addEventListener('click', () => {
-    sendChat(tekeyMsg('--- 👟先制判定 ---　目標値《' + initTarget + '》'), { color: 'CEE331' });
+    const _c = enemyObj?.color || 'ce8383';
+    sendChat(tekeyMsg('--- 👟先制判定 ---　目標値《' + initTarget + '》'), { name: currentEnemyName, color: _c });
     showToast('先制判定を送信', 'ok');
   });
   tab.querySelector('#btnMarkActed')?.addEventListener('click', markActed);
@@ -2063,7 +2067,8 @@ function renderActionTab() {
       const k     = btn.dataset.powerK;
       const bonus = parseInt(tab.querySelector('#powerBonus').value) || 0;
       const msg   = bonus >= 0 ? `${k}+${bonus}` : `${k}${bonus}`;
-      sendChat(msg, { bot: 'SwordWorld2_5' });
+      const _c    = enemyObj?.color || 'ce8383';
+      sendChat(msg, { bot: 'SwordWorld2_5', name: currentEnemyName, color: _c });
       showToast(`威力表送信: ${msg}`, 'ok');
     });
   });
@@ -2087,9 +2092,10 @@ function renderActionTab() {
   // 戦利品送信ボタン
   tab.querySelectorAll('[data-loot-idx]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.lootIdx);
+      const idx  = parseInt(btn.dataset.lootIdx);
       const item = lootItems[idx];
-      sendChat(item);
+      const _c   = enemyObj?.color || 'ce8383';
+      sendChat(item, { name: currentEnemyName, color: _c });
       showToast('戦利品を送信: ' + item, 'ok');
     });
   });
