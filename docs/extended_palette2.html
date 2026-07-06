@@ -1019,12 +1019,14 @@ const MD_TPLS=[
   {label:"# 見出し", before:"# ", after:"", ph:"見出し"}
 ];
 function insertAtField(f, before, after, ph){
+  const top=f.scrollTop, left=f.scrollLeft;
   const s=(f.selectionStart!=null?f.selectionStart:f.value.length);
   const e=(f.selectionEnd!=null?f.selectionEnd:f.value.length);
   const v=f.value, sel=v.slice(s,e), mid = sel || ph || "";
   f.value=v.slice(0,s)+before+mid+after+v.slice(e);
   const cs=s+before.length, ce=cs+mid.length;
   f.focus(); f.setSelectionRange(cs,ce);
+  f.scrollTop=top; f.scrollLeft=left;
 }
 function mdInsert(tpl){
   const entering=!state.editMode;
