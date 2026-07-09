@@ -415,7 +415,8 @@
   .co-caret{font-size:10px; opacity:.7; transition:transform .1s}
   .callout.collapsed .co-caret{transform:rotate(-90deg)}
   .callout .co-ttl{font-family:var(--display); font-size:11px; font-weight:700; letter-spacing:.04em; opacity:.9}
-  .co-body{margin-top:4px}
+  .co-body{margin-top:4px; line-height:1.85}
+  .co-body .line{line-height:1.85}
   .callout.collapsed .co-body{display:none}
   .callout ul{margin:4px 0; padding-left:20px}
   .callout code{background:#e7ebf0; padding:1px 5px; border-radius:4px; font-size:.9em}
@@ -467,6 +468,8 @@
   .varrow .varrst{flex:0 0 auto; width:28px; height:28px; border:1px solid var(--bd2); background:var(--bg); color:var(--tx3); border-radius:7px; cursor:pointer}
   .varrow .varrst:hover{color:var(--link); border-color:var(--link-h)}
   .varempty{color:var(--tx3); font-size:12.5px; line-height:1.6}
+  .rpscope{display:flex; gap:18px; align-items:center}
+  .rpscope label{display:flex; align-items:center; gap:6px; margin:0; font-family:var(--body); font-weight:400; font-size:13px; color:var(--tx); letter-spacing:0}
 
   /* toast */
   #toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(20px);
@@ -544,6 +547,7 @@
   <button class="lk" id="btnUndoDel" disabled>削除戻し</button>
   <span class="sp"></span>
   <button class="lk on" id="btnEdit">編集</button>
+  <button class="lk" id="btnReplace">置換</button>
   <span class="sep"></span>
   <button class="lk" id="btnLoad">ロード</button>
   <button class="lk" id="btnSave">セーブ</button>
@@ -575,6 +579,26 @@
     <div class="row">
       <button id="varResetAll">全リセット</button>
       <button class="ok" id="varClose">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="replaceModal">
+  <div class="sheet">
+    <h2>置換</h2>
+    <p class="sub">本文内の文字列をまとめて置換します（大文字小文字は区別）。</p>
+    <div class="fg"><label>検索する文字列</label><input type="text" id="rpFind"></div>
+    <div class="fg"><label>置換後の文字列</label><input type="text" id="rpTo"></div>
+    <div class="fg">
+      <label>対象</label>
+      <div class="rpscope">
+        <label><input type="radio" name="rpScope" value="tab" checked> このタブ</label>
+        <label><input type="radio" name="rpScope" value="all"> 全タブ</label>
+      </div>
+    </div>
+    <div class="row">
+      <button id="rpClose">閉じる</button>
+      <button class="ok" id="rpDo">置換実行</button>
     </div>
   </div>
 </div>
@@ -1830,7 +1854,11 @@ document.addEventListener("keydown",e=>{
 $("#btnSettings").addEventListener("click",openSettings);
 $("#btnTheme").addEventListener("click",toggleTheme);
 $("#bodywrap").addEventListener("scroll",()=>requestAnimationFrame(updateSpy));
-$("#search").addEventListener("input",()=>{ if(!state.editMode) render(); renderXtab($("#search").value); });
+let searchT=null;
+$("#search").addEventListener("input",()=>{
+  clearTimeout(searchT);
+  searchT=setTimeout(()=>{ if(!state.editMode) render(); renderXtab($("#search").value); }, 180);
+});
 $("#searchClr").addEventListener("click",()=>{ $("#search").value=""; if(!state.editMode) render(); renderXtab(""); $("#search").focus(); });
 $("#mdToggle").addEventListener("click",()=> setMdcol(!$("#mdcol").classList.contains("collapsed")));
 
@@ -2148,6 +2176,30 @@ $("#btnVars").addEventListener("click",openVarPanel);
 $("#varClose").addEventListener("click",()=>$("#varModal").classList.remove("open"));
 $("#varResetAll").addEventListener("click",()=>{ saveVarOverrides({}); openVarPanel(); });
 $("#varModal").addEventListener("click",e=>{ if(e.target.id==="varModal") $("#varModal").classList.remove("open"); });
+
+/* ---------- find & replace ---------- */
+function openReplace(){ $("#replaceModal").classList.add("open"); setTimeout(()=>$("#rpFind").focus(),30); }
+function doReplace(){
+  const find=$("#rpFind").value; if(!find){ toast("検索する文字列を入力してください",true); return; }
+  const to=$("#rpTo").value;
+  const all=(document.querySelector('input[name="rpScope"]:checked')||{}).value==="all";
+  if(state.editMode){ const ap=activeP(); if(ap) ap.stock=$("#editArea").value; }
+  let count=0;
+  const targets = all ? state.palettes : [activeP()].filter(Boolean);
+  targets.forEach(p=>{ const parts=(p.stock||"").split(find); if(parts.length>1){ count+=parts.length-1; p.stock=parts.join(to); } });
+  if(count){
+    persist();
+    if(state.editMode){ const ap=activeP(); if(ap) $("#editArea").value=ap.stock; }
+    else render();
+    toast(count+"件を置換しました");
+  } else toast("見つかりませんでした",true);
+}
+$("#btnReplace").addEventListener("click",openReplace);
+$("#rpClose").addEventListener("click",()=>$("#replaceModal").classList.remove("open"));
+$("#rpDo").addEventListener("click",doReplace);
+$("#replaceModal").addEventListener("click",e=>{ if(e.target.id==="replaceModal") $("#replaceModal").classList.remove("open"); });
+$("#rpFind").addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.isComposing){ e.preventDefault(); doReplace(); } });
+$("#rpTo").addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.isComposing){ e.preventDefault(); doReplace(); } });
 
 /* ---------- boot ---------- */
 function seed(){
