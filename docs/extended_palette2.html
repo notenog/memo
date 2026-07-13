@@ -377,6 +377,7 @@
   #editArea{width:100%; height:100%; min-height:200px; border:1px solid var(--bd2); border-radius:var(--radius);
             padding:10px; line-height:1.6; resize:none; font-family:"SFMono-Regular",Consolas,"Noto Sans JP",monospace}
   .line.cursorline{background:var(--gold-soft); border-left-color:var(--gold)}
+  .sec-head.cursorhead{background:var(--gold-soft)}
 
   .sec{margin:2px 0 4px}
   #body > .sec-l1{border-top:1px solid var(--sep); padding-top:5px; margin-top:7px}
@@ -747,7 +748,11 @@ function fmtLineText(txt){
   s=s.replace(/\|([^|《\n]+)《([^》\n]+)》/g,"<ruby>$1<rt>$2</rt></ruby>");
   s=s.replace(/\\n/g,"<br>");
   s=s.replace(/(@#[0-9a-fA-F]{3,6}\b|@\[[^\]]*\][^\s@]*|@全停止)/g,'<span class="atcmd">$1</span>');
-  s=s.replace(/\{([^{}]+)\}/g,'<span class="var">{$1}</span>');
+  const vm={...allParams(), ...curParams, ...loadVarOverrides()};
+  s=s.replace(/\{([^{}]+)\}/g,(m0,k)=>{
+    const v=vm[k];
+    return '<span class="var"'+(v!=null?' title="'+esc(String(v))+'"':'')+'>{'+esc(k)+'}</span>';
+  });
   return s;
 }
 function looksLikeCmd(tok){
@@ -757,17 +762,20 @@ function looksLikeCmd(tok){
       || /^(choice|resb|cbrb)\(/i.test(tok);        // 関数系
 }
 function renderLine(raw){
+  const resolved = expandParams(raw);          // 変数を展開した「実際に送られる姿」
   let color=null;
-  const cm = raw.match(/@#([0-9a-fA-F]{3,6})\b/); if(cm) color="#"+cm[1];
+  const cm = resolved.match(/@#([0-9a-fA-F]{3,6})\b/); if(cm) color="#"+cm[1];
   let html;
   const m = raw.match(/^(\s*)(\S+)([\s\S]*)$/);
-  if(m && looksLikeCmd(m[2])){
+  const rm = resolved.match(/^(\s*)(\S+)([\s\S]*)$/);
+  const cmdLike = rm && looksLikeCmd(rm[2]);   // 展開後で判定（{威力}などが数値化された姿）
+  if(m && cmdLike){
     const body=m[3].replace(/^\s+/,"");
     html='<span class="cmd">'+fmtLineText(m[2])+'</span>'+(body?'<span class="ltxt">'+fmtLineText(body)+'</span>':'');
   } else {
     html=fmtLineText(raw);
   }
-  const conv = /[《》／]/.test(raw) ? '<span class="conv" title="送信時に [ ] / へ自動変換されます">⇄</span>' : "";
+  const conv = /[《》／]/.test(resolved) ? '<span class="conv" title="送信時に [ ] / へ自動変換されます">⇄</span>' : "";
   return {html:html+conv, color};
 }
 function mdInline(s){
@@ -2237,32 +2245,46 @@ function syncPreviewToCursor(){
   if(!state.editMode || splitMode()==="none" || !syncOn()) return;
   const idx=cursorLineIndex(), pane=$("#previewpane"), body=$("#body");
   body.querySelectorAll(".line.cursorline").forEach(l=>l.classList.remove("cursorline"));
-  // カーソル行以下で最も近い描画行を探す
+  body.querySelectorAll(".sec-head.cursorhead").forEach(l=>l.classList.remove("cursorhead"));
+
+  // 1) 見出し行にカーソルがあるか（secMapは行番号を持つ）
+  let headUid=null;
+  for(const uid in secMap){ if(secMap[uid].lineIndex===idx){ headUid=uid; break; } }
   let target=null;
-  for(let i=idx;i>=0 && i>idx-40;i--){
-    const l=body.querySelector('.line[data-idx="'+i+'"]');
-    if(l){ target=l; break; }
+  if(headUid){
+    const sec=body.querySelector('.sec[data-uid="'+headUid+'"]');
+    if(sec){ target=sec.querySelector(":scope > .sec-head") || sec; if(target.classList) target.classList.add("cursorhead"); }
   }
+  // 2) 行（前方向に最も近い .line[data-idx]）
   if(!target){
-    // 見出し行なら該当セクションへ
-    const sec=[...body.querySelectorAll(".sec")].find(s=>{
-      const f=s.querySelector(".line[data-idx]"); return f && +f.dataset.idx>=idx;
-    });
-    if(sec){ const r=sec.getBoundingClientRect(), pr=pane.getBoundingClientRect();
-      pane.scrollTop += (r.top-pr.top) - pane.clientHeight*0.3; }
-    return;
+    for(let i=idx;i>=0 && i>idx-200;i--){
+      const l=body.querySelector('.line[data-idx="'+i+'"]');
+      if(l){ target=l; l.classList.add("cursorline"); break; }
+    }
   }
-  target.classList.add("cursorline");
+  // 3) 後方向も探す（コールアウト内などidxが無い行のため）
+  if(!target){
+    for(let i=idx+1;i<idx+200;i++){
+      const l=body.querySelector('.line[data-idx="'+i+'"]');
+      if(l){ target=l; break; }
+    }
+  }
+  if(!target) return;
+  // 折り畳まれていたら開く
   let s=target.closest(".sec"); while(s){ s.classList.remove("collapsed"); s=s.parentElement&&s.parentElement.closest(".sec"); }
+  // 常にペイン内の見やすい位置（上から35%）へ寄せる
   const r=target.getBoundingClientRect(), pr=pane.getBoundingClientRect();
-  const off=(r.top-pr.top)-pane.clientHeight*0.35;
-  if(r.top<pr.top+20 || r.bottom>pr.bottom-20) pane.scrollTop += off;
+  pane.scrollTop += (r.top-pr.top) - pane.clientHeight*0.35;
 }
-$("#editArea").addEventListener("input",scheduleLivePreview);
+$("#editArea").addEventListener("input",()=>{ scheduleLivePreview(); });
 $("#editArea").addEventListener("click",()=>{ if(syncOn()) syncPreviewToCursor(); });
-$("#editArea").addEventListener("keyup",e=>{ if(["ArrowUp","ArrowDown","PageUp","PageDown","Home","End","Enter"].includes(e.key) && syncOn()) syncPreviewToCursor(); });
-$("#btnSplit").addEventListener("click",()=>{ const m=splitMode(); setSplitMode(m==="none"?"lr":m==="lr"?"tb":"none"); });
-$("#btnSync").addEventListener("click",()=>{ setSyncOn(!syncOn()); if(syncOn()) syncPreviewToCursor(); });
+$("#editArea").addEventListener("keyup",()=>{ if(syncOn()) syncPreviewToCursor(); });
+document.addEventListener("selectionchange",()=>{
+  if(document.activeElement===$("#editArea") && syncOn()) syncPreviewToCursor();
+});
+$("#btnSplit").addEventListener("click",()=>{ const m=splitMode(); setSplitMode(m==="none"?"lr":m==="lr"?"tb":"none");
+  if(splitMode()!=="none" && state.editMode) requestAnimationFrame(()=>{ if(syncOn()) syncPreviewToCursor(); }); });
+$("#btnSync").addEventListener("click",()=>{ setSyncOn(!syncOn()); if(syncOn()) requestAnimationFrame(syncPreviewToCursor); });
 
 function jumpEditToLine(idx){
   const ed=$("#editArea"); if(!ed) return;
