@@ -365,9 +365,18 @@
 
   .centercol{flex:1 1 auto; display:flex; flex-direction:column; min-width:0; min-height:0}
   .composewrap .compose{padding:12px 16px 8px}
-  .bodywrap{flex:1 1 auto; min-height:0; overflow-y:auto; padding:10px 14px}
-  #editArea{width:100%; height:100%; min-height:300px; border:1px solid var(--bd2); border-radius:var(--radius);
+  .bodywrap{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden}
+  .editpane{flex:1 1 auto; min-height:0; overflow:hidden; padding:10px 14px; display:none}
+  .previewpane{flex:1 1 auto; min-height:0; overflow-y:auto; padding:10px 14px}
+  .bodywrap.split-lr{flex-direction:row}
+  .bodywrap.split-lr .editpane{flex:1 1 50%; min-width:0; border-right:1px solid var(--bd)}
+  .bodywrap.split-lr .previewpane{flex:1 1 50%; min-width:0}
+  .bodywrap.split-tb{flex-direction:column}
+  .bodywrap.split-tb .editpane{flex:1 1 50%; border-bottom:1px solid var(--bd)}
+  .bodywrap.split-tb .previewpane{flex:1 1 50%}
+  #editArea{width:100%; height:100%; min-height:200px; border:1px solid var(--bd2); border-radius:var(--radius);
             padding:10px; line-height:1.6; resize:none; font-family:"SFMono-Regular",Consolas,"Noto Sans JP",monospace}
+  .line.cursorline{background:var(--gold-soft); border-left-color:var(--gold)}
 
   .sec{margin:2px 0 4px}
   #body > .sec-l1{border-top:1px solid var(--sep); padding-top:5px; margin-top:7px}
@@ -525,8 +534,8 @@
       <div class="tpls" id="cmdTpls"></div>
     </div>
     <div class="bodywrap" id="bodywrap">
-      <div id="body"></div>
-      <textarea id="editArea" style="display:none"></textarea>
+      <div class="editpane" id="editpane"><textarea id="editArea" style="display:none"></textarea></div>
+      <div class="previewpane" id="previewpane"><div id="body"></div></div>
     </div>
   </div>
   <div class="mdcol" id="mdcol">
@@ -547,6 +556,8 @@
   <button class="lk" id="btnUndoDel" disabled>削除戻し</button>
   <span class="sp"></span>
   <button class="lk on" id="btnEdit">編集</button>
+  <button class="lk" id="btnSplit" title="編集中の分割（なし→左右→上下）">◫ 分割:なし</button>
+  <button class="lk" id="btnSync" title="編集中にプレビューを追従">⇅ 追従</button>
   <button class="lk" id="btnReplace">置換</button>
   <span class="sep"></span>
   <button class="lk" id="btnLoad">ロード</button>
@@ -913,24 +924,41 @@ function renderTabs(){
   t.appendChild(add);
 }
 function render(){ renderTabs(); renderActiveBody(); }
+function splitMode(){ const v=localStorage.getItem("ep2_split"); return (v==="lr"||v==="tb")?v:"none"; }
+function setSplitMode(v){ try{ localStorage.setItem("ep2_split", v); }catch(e){} applySplitUI(); render(); }
+function syncOn(){ return localStorage.getItem("ep2_sync")!=="0"; }
+function setSyncOn(v){ try{ localStorage.setItem("ep2_sync", v?"1":"0"); }catch(e){} applySplitUI(); }
+function applySplitUI(){
+  const m=splitMode(), w=$("#bodywrap");
+  w.classList.toggle("split-lr", m==="lr" && state.editMode);
+  w.classList.toggle("split-tb", m==="tb" && state.editMode);
+  const b=$("#btnSplit"); if(b){ b.textContent="◫ 分割:"+(m==="lr"?"左右":m==="tb"?"上下":"なし"); b.classList.toggle("on", m!=="none"); }
+  const s=$("#btnSync"); if(s){ s.classList.toggle("on", syncOn()); s.style.display = (m==="none"||!state.editMode)?"none":""; }
+}
 function renderActiveBody(){
   const p=activeP();
   if(!p){ $("#body").innerHTML=""; $("#rail").innerHTML=""; return; }
   $("#f_name").value=p.name||"";
   $("#f_color").value=/^#[0-9a-fA-F]{6}$/.test(p.textColor||"")?p.textColor:"#000000";
   const tree=parseStock(p.stock||"");
-  const body=$("#body"), ed=$("#editArea");
+  const body=$("#body"), ed=$("#editArea"), split=splitMode()!=="none";
   if(state.editMode){
-    body.style.display="none"; ed.style.display="block"; ed.value=p.stock||"";
+    ed.style.display="block"; if(ed.value!==(p.stock||"")) ed.value=p.stock||"";
+    $("#editpane").style.display="block";
+    $("#previewpane").style.display = split?"block":"none";
+    if(split){ body.style.display="block"; body.innerHTML=""; renderNodes(tree, body); }
     renderRail(tree);
     $("#btnEdit").classList.add("on");
   }else{
-    ed.style.display="none"; body.style.display="block"; body.innerHTML="";
+    ed.style.display="none"; $("#editpane").style.display="none";
+    $("#previewpane").style.display="block";
+    body.style.display="block"; body.innerHTML="";
     renderNodes(tree, body); renderRail(tree); renderPinPanel(tree);
     $("#btnEdit").classList.remove("on");
     applySearch($("#search").value);
     requestAnimationFrame(updateSpy);
   }
+  applySplitUI();
   persist();
 }
 
@@ -1637,6 +1665,7 @@ function renameTab(id){
 /* ---------- edit mode ---------- */
 function commitEdit(){
   if(!state.editMode) return;
+  clearTimeout(livePvT);
   const p=activeP(); if(p) p.stock=$("#editArea").value;
   state.editMode=false;
 }
@@ -1707,7 +1736,7 @@ function toggleTheme(){ applyTheme(document.body.dataset.theme==="dark"?"light":
 /* ---------- rail scroll-spy ---------- */
 function updateSpy(){
   if(state.editMode) return;
-  const wrap=$("#bodywrap"); if(!wrap) return;
+  const wrap=$("#previewpane"); if(!wrap) return;
   const top=wrap.getBoundingClientRect().top;
   let curUid=null;
   const secs=$("#body").querySelectorAll(".sec[id]");
@@ -1726,7 +1755,12 @@ function toast(msg,err){ const t=$("#toast"); t.textContent=msg; t.className="sh
 /* ---------- events ---------- */
 let clickTimer=null;
 $("#body").addEventListener("click",e=>{
-  if(state.editMode) return;
+  if(state.editMode){
+    if(splitMode()==="none") return;
+    const ln=e.target.closest(".line[data-idx]");
+    if(ln){ jumpEditToLine(+ln.dataset.idx); return; }
+    return;
+  }
   const ppc=e.target.closest(".pinpanel-cap");
   if(ppc){ const panel=ppc.closest(".pinpanel"); panel.classList.toggle("collapsed"); savePinFold(panel.classList.contains("collapsed")); return; }
   const coh=e.target.closest(".co-head");
@@ -1853,7 +1887,7 @@ document.addEventListener("keydown",e=>{
 
 $("#btnSettings").addEventListener("click",openSettings);
 $("#btnTheme").addEventListener("click",toggleTheme);
-$("#bodywrap").addEventListener("scroll",()=>requestAnimationFrame(updateSpy));
+$("#previewpane").addEventListener("scroll",()=>requestAnimationFrame(updateSpy));
 let searchT=null;
 $("#search").addEventListener("input",()=>{
   clearTimeout(searchT);
@@ -2176,6 +2210,69 @@ $("#btnVars").addEventListener("click",openVarPanel);
 $("#varClose").addEventListener("click",()=>$("#varModal").classList.remove("open"));
 $("#varResetAll").addEventListener("click",()=>{ saveVarOverrides({}); openVarPanel(); });
 $("#varModal").addEventListener("click",e=>{ if(e.target.id==="varModal") $("#varModal").classList.remove("open"); });
+
+/* ---------- live preview (split) ---------- */
+let livePvT=null;
+function livePreview(){
+  if(!state.editMode || splitMode()==="none") return;
+  const p=activeP(); if(!p) return;
+  const ed=$("#editArea"); p.stock=ed.value;                 // 内容を反映（保存はデバウンス側で）
+  const tree=parseStock(p.stock||"");
+  const body=$("#body"); const top=$("#previewpane").scrollTop;
+  body.innerHTML=""; renderNodes(tree, body);
+  renderRail(tree);
+  $("#previewpane").scrollTop=top;
+  if(syncOn()) syncPreviewToCursor(); 
+  persist();
+}
+function scheduleLivePreview(){
+  clearTimeout(livePvT);
+  livePvT=setTimeout(livePreview, 260);
+}
+function cursorLineIndex(){
+  const ed=$("#editArea"); const pos=ed.selectionStart||0;
+  return ed.value.slice(0,pos).split("\n").length-1;   // 0-based
+}
+function syncPreviewToCursor(){
+  if(!state.editMode || splitMode()==="none" || !syncOn()) return;
+  const idx=cursorLineIndex(), pane=$("#previewpane"), body=$("#body");
+  body.querySelectorAll(".line.cursorline").forEach(l=>l.classList.remove("cursorline"));
+  // カーソル行以下で最も近い描画行を探す
+  let target=null;
+  for(let i=idx;i>=0 && i>idx-40;i--){
+    const l=body.querySelector('.line[data-idx="'+i+'"]');
+    if(l){ target=l; break; }
+  }
+  if(!target){
+    // 見出し行なら該当セクションへ
+    const sec=[...body.querySelectorAll(".sec")].find(s=>{
+      const f=s.querySelector(".line[data-idx]"); return f && +f.dataset.idx>=idx;
+    });
+    if(sec){ const r=sec.getBoundingClientRect(), pr=pane.getBoundingClientRect();
+      pane.scrollTop += (r.top-pr.top) - pane.clientHeight*0.3; }
+    return;
+  }
+  target.classList.add("cursorline");
+  let s=target.closest(".sec"); while(s){ s.classList.remove("collapsed"); s=s.parentElement&&s.parentElement.closest(".sec"); }
+  const r=target.getBoundingClientRect(), pr=pane.getBoundingClientRect();
+  const off=(r.top-pr.top)-pane.clientHeight*0.35;
+  if(r.top<pr.top+20 || r.bottom>pr.bottom-20) pane.scrollTop += off;
+}
+$("#editArea").addEventListener("input",scheduleLivePreview);
+$("#editArea").addEventListener("click",()=>{ if(syncOn()) syncPreviewToCursor(); });
+$("#editArea").addEventListener("keyup",e=>{ if(["ArrowUp","ArrowDown","PageUp","PageDown","Home","End","Enter"].includes(e.key) && syncOn()) syncPreviewToCursor(); });
+$("#btnSplit").addEventListener("click",()=>{ const m=splitMode(); setSplitMode(m==="none"?"lr":m==="lr"?"tb":"none"); });
+$("#btnSync").addEventListener("click",()=>{ setSyncOn(!syncOn()); if(syncOn()) syncPreviewToCursor(); });
+
+function jumpEditToLine(idx){
+  const ed=$("#editArea"); if(!ed) return;
+  const lines=ed.value.split("\n"); if(idx<0||idx>=lines.length) return;
+  let pos=0; for(let i=0;i<idx;i++) pos+=lines[i].length+1;
+  ed.focus(); ed.setSelectionRange(pos,pos+lines[idx].length);
+  const lh=parseFloat(getComputedStyle(ed).lineHeight)||20;
+  ed.scrollTop=Math.max(0, idx*lh - ed.clientHeight/2);
+  if(syncOn()) syncPreviewToCursor();
+}
 
 /* ---------- find & replace ---------- */
 function openReplace(){ $("#replaceModal").classList.add("open"); setTimeout(()=>$("#rpFind").focus(),30); }
