@@ -248,6 +248,7 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
         </div>
       </div>
       <div id="tk_shard_preview" style="display:none;font-size:11px;color:#e8b84a;margin-top:-6px;margin-bottom:4px;padding:4px 8px;background:rgba(232,184,74,0.08);border-radius:4px;border:0.5px solid rgba(232,184,74,0.3);"></div>
+      <div id="tk_values_preview" style="font-size:10px;margin-bottom:6px;padding:4px 8px;background:rgba(255,255,255,0.04);border-radius:4px;word-break:break-all;line-height:1.5;"></div>
       <div class="fgroup"><label>コマ画像（ローカルファイル）</label>
         <input type="file" id="tk_image_file" accept="image/*" style="color:var(--text2);font-size:12px;">
         <div style="font-size:11px;color:var(--text3);margin-top:4px;">Firebase Storageにアップロードします。設定済みの場合のみ有効。</div>
@@ -1140,6 +1141,21 @@ function updateTekeyPreview() {
     shardDiv.style.display='block';
     shardDiv.innerHTML=`⚔️ かけら×${shard}強化後：HP <b>${newHp}</b>　MP <b>${newMp}</b>　生命 <b>${addToStat(m.vit,rb)}</b>　精神 <b>${addToStat(m.mres,rb)}</b>　（抵抗+${rb}）`;
   } else { shardDiv.style.display='none'; }
+  // 実際にTekeyへ送るステータス文字列を表示（不具合切り分け用）
+  const vd = document.getElementById('tk_values_preview');
+  if (vd) vd.innerHTML = `<span style="color:var(--text3)">送信ステータス：</span> <code style="color:#9fd9a0;">${esc(buildTekeyValues(tekeyTarget, shard))}</code>`;
+}
+// Tekeyへ送るステータス文字列を組み立てる（プレビューと送信で共用）
+function buildTekeyValues(m, shard) {
+  const rb   = shardResBonus(shard);
+  const hp   = (parseInt(m.hp) || 0) + shard * 5;
+  const mp   = String(m.mp) === '―' ? 0 : ((parseInt(m.mp) || 0) + shard);
+  const def  = m.attacks[0] ? (parseInt(m.attacks[0].def) || 0) : 0;
+  const hit  = m.attacks[0] ? tekeyStatNum(m.attacks[0].hit) : '0';
+  const evd  = m.attacks[0] ? tekeyStatNum(m.attacks[0].evd) : '0';
+  const vit  = tekeyStatNum(addToStat(m.vit, rb));
+  const mres = tekeyStatNum(addToStat(m.mres, rb));
+  return `HP:${hp}:${hp},MP:${mp}:${mp},防護点:${def},命中:${hit},回避:${evd},生命:${vit},精神:${mres}`;
 }
 document.addEventListener('input', e => {
   if (e.target.id === 'tk_count' || e.target.id === 'tk_shard') updateTekeyPreview();
@@ -1219,24 +1235,19 @@ async function sendToTekey() {
     }
   }
 
-  // ステータス（生命/精神 表記に合わせる）
-  const hp   = parseInt(m.hp) || 0;
-  const mp   = String(m.mp) === '―' ? 0 : (parseInt(m.mp) || 0);
-  const def  = m.attacks[0] ? (parseInt(m.attacks[0].def) || 0) : 0;
-  const hit  = m.attacks[0] ? tekeyStatNum(m.attacks[0].hit) : '0';
-  const evd  = m.attacks[0] ? tekeyStatNum(m.attacks[0].evd) : '0';
-  const vit  = tekeyStatNum(m.vit);
-  const mres = tekeyStatNum(m.mres);
+  // ステータス（生命/精神 表記に合わせる）※剣のかけら強化を反映
+  const shard = parseInt(document.getElementById('tk_shard').value) || 0;
+  const values = buildTekeyValues(m, shard);
   const init = parseInt(m.init) || 0;
-  const values = `HP:${hp}:${hp},MP:${mp}:${mp},防護点:${def},命中:${hit},回避:${evd},生命:${vit},精神:${mres}`;
 
   // infoにコピーデータと同内容を設定
   const info = formatMonster(m);
 
   const suffix = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const prefix = shard > 0 ? '*' : '';
   const names  = count === 1
-    ? [m.name]
-    : Array.from({length: count}, (_, i) => `${m.name}${suffix[i]}`);
+    ? [prefix + m.name]
+    : Array.from({length: count}, (_, i) => `${prefix}${m.name}${suffix[i]}`);
 
   btn.textContent = '送信中...';
   let successCount = 0, failCount = 0;
