@@ -661,7 +661,15 @@ function keepSpaces(s){
         .replace(/ +$/g, m=>"\u00A0".repeat(m.length))
   ).join("\n");
 }
-const sendSafe = s => keepSpaces(s.replace(/《/g,"[").replace(/》/g,"]").replace(/／/g,"/"));
+const RUBY_RE = /\|[^|《\n]+《[^》\n]+》/g;
+function sendSafe(s){
+  // ルビ記法 |対象《ルビ》 はTekeyの正式機能なので変換しない（他の《》／のみ [ ] / へ）
+  const keep=[];
+  let t=s.replace(RUBY_RE, m=>{ keep.push(m); return "\u0001"+(keep.length-1)+"\u0001"; });
+  t=t.replace(/《/g,"[").replace(/》/g,"]").replace(/／/g,"/");
+  t=t.replace(/\u0001(\d+)\u0001/g, (m,i)=>keep[+i]);
+  return keepSpaces(t);
+}
 function allParams(){
   const map={};
   state.palettes.forEach(p=>{
@@ -757,9 +765,7 @@ function fmtLineText(txt){
 }
 function looksLikeCmd(tok){
   if(/^@/.test(tok)) return false;                 // @色/@名前 は atcmd 扱い
-  return /[dDkK](?:[0-9]|\{)/.test(tok)             // 2d6 / k20 / k{威力} / d6
-      || /[<>]=?/.test(tok)                         // 判定の比較
-      || /^(choice|resb|cbrb)\(/i.test(tok);        // 関数系
+  return /^c?cb\s*<=/i.test(tok);                  // CCB<= / CB<=（判定コマンド）
 }
 function renderLine(raw){
   const resolved = expandParams(raw);          // 変数を展開した「実際に送られる姿」
@@ -775,7 +781,8 @@ function renderLine(raw){
   } else {
     html=fmtLineText(raw);
   }
-  const conv = /[《》／]/.test(resolved) ? '<span class="conv" title="送信時に [ ] / へ自動変換されます">⇄</span>' : "";
+  const stripped = resolved.replace(RUBY_RE, "");   // ルビ記法は正常なので除外
+  const conv = /[《》／]/.test(stripped) ? '<span class="conv" title="送信時に [ ] / へ自動変換されます">⇄</span>' : "";
   return {html:html+conv, color};
 }
 function mdInline(s){
