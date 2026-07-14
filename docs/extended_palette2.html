@@ -1877,7 +1877,31 @@ $("#btnDelTab").addEventListener("click",delTab);
 $("#btnUndoDel").addEventListener("click",undoDel);
 $("#btnEdit").addEventListener("click",toggleEdit);
 $("#btnLoad").addEventListener("click",()=>$("#file").click());
-$("#btnSave").addEventListener("click",()=>{ commitEdit(); download("tekey-palette.json", exportPalettes(false)); });
+function loadSaveName(){ const v=localStorage.getItem("ep2_savename"); return (v&&v.trim())?v.trim():""; }
+function saveSaveName(v){ try{ localStorage.setItem("ep2_savename", v); }catch(e){} }
+function sanitizeName(n){ return (n||"").trim().replace(/[\\/:*?"<>|]/g,"_").replace(/\.json$/i,""); }
+function askSaveName(force){
+  let name=loadSaveName();
+  if(!name || force){
+    const v=prompt("保存するファイル名（.json は不要）", name || "tekey-palette");
+    if(v==null) return null;               // キャンセル
+    name=sanitizeName(v) || "tekey-palette";
+    saveSaveName(name);
+  }
+  return name;
+}
+function doSaveFile(force){
+  commitEdit();
+  const name=askSaveName(force); if(name==null) return;
+  download(name+".json", exportPalettes(false));
+  refreshSaveTip();
+  toast("「"+name+".json」を保存しました");
+}
+$("#btnSave").addEventListener("click",()=>doSaveFile(false));
+$("#btnSave").addEventListener("contextmenu",e=>{ e.preventDefault(); doSaveFile(true); });
+function refreshSaveTip(){ const n=loadSaveName();
+  $("#btnSave").title = n ? ("「"+n+".json」で保存 / 右クリック:名前を変更") : "クリックでファイル名を入力して保存"; }
+refreshSaveTip();
 $("#file").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>loadJSON(r.result); r.readAsText(f); e.target.value=""; });
 $("#boardFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>importBoard(r.result); r.readAsText(f); e.target.value=""; });
 document.addEventListener("keydown",e=>{
