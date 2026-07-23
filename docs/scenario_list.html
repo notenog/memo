@@ -13,215 +13,293 @@ body {
   font-family: 'Noto Sans JP', sans-serif;
   font-size: 15px;
   line-height: 1.6;
-  padding: 40px 20px;
 }
-.container { max-width: 1200px; margin: 0 auto; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-header { text-align: center; margin-bottom: 40px; }
-header h1 {
+/* ---- ヘッダー ---- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(22,20,16,.94);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #33312b;
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 0;
+  flex-wrap: wrap;
+}
+.site-title {
   font-family: 'Playfair Display', serif;
-  font-size: 56px;
-  letter-spacing: 3px;
+  font-size: 30px;
+  letter-spacing: 2px;
   color: #c98a3c;
   font-weight: 700;
+  line-height: 1;
 }
-
-.controls {
+.header-tools {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 36px;
+  gap: 10px;
+  margin-left: auto;
 }
-.search-box { width: 100%; max-width: 360px; }
+.search-box { position: relative; }
+.search-box svg {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 13px;
+  stroke: #6d6a61;
+  fill: none;
+  stroke-width: 2;
+  pointer-events: none;
+}
 .search-box input {
-  width: 100%;
-  padding: 8px 12px;
+  width: 210px;
+  padding: 7px 10px 7px 28px;
   background: #242320;
   border: 1px solid #4a4842;
   color: #e9e5da;
   border-radius: 3px;
   font-size: 13px;
+  font-family: inherit;
+  transition: border-color .2s, width .2s;
 }
-.search-box input::placeholder { color: #666; }
-.search-box input:focus { outline: none; border-color: #c98a3c; }
+.search-box input::placeholder { color: #6d6a61; }
+.search-box input:focus { outline: none; border-color: #c98a3c; width: 250px; }
 
-.filter-tags {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.filter-tag {
-  padding: 5px 14px;
+.sort-select {
+  padding: 7px 10px;
   background: #242320;
   border: 1px solid #4a4842;
-  color: #999;
-  border-radius: 16px;
-  font-size: 11px;
+  color: #9d998f;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.sort-select:focus { outline: none; border-color: #c98a3c; }
+
+.system-nav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+}
+.nav-item {
+  padding: 5px 13px;
+  background: transparent;
+  border: 1px solid #4a4842;
+  color: #9d998f;
+  border-radius: 14px;
+  font-size: 11.5px;
   cursor: pointer;
   transition: all .2s;
   user-select: none;
+  white-space: nowrap;
 }
-.filter-tag:hover { border-color: #c98a3c; color: #e9e5da; }
-.filter-tag.active {
+.nav-item:hover { border-color: #c98a3c; color: #e9e5da; }
+.nav-item.active {
   background: #c98a3c;
   border-color: #c98a3c;
   color: #161410;
-  font-weight: 600;
+  font-weight: 700;
 }
+.nav-item .count { opacity: .6; margin-left: 5px; font-size: 10px; }
 
+/* ---- 本文 ---- */
+main { padding: 32px 0 60px; }
 .results-info {
-  text-align: center;
-  margin-bottom: 28px;
-  color: #999;
-  font-size: 12px;
+  color: #6d6a61;
+  font-size: 11.5px;
+  margin-bottom: 26px;
+  letter-spacing: .5px;
 }
-
 .loading { text-align: center; padding: 60px 20px; color: #999; }
 .error {
-  background: #4a2a2a;
-  border: 1px solid #8a4a4a;
-  color: #ff9999;
-  padding: 16px;
+  background: #3a2422;
+  border: 1px solid #7a4a45;
+  color: #e59a95;
+  padding: 14px 16px;
   border-radius: 4px;
   margin: 20px 0;
+  font-size: 13px;
 }
 
-.system-section { margin-bottom: 48px; }
+.system-section { margin-bottom: 52px; scroll-margin-top: 120px; }
 .system-heading {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #c98a3c;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
   padding-bottom: 8px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #4a4842;
+  margin-bottom: 22px;
+  border-bottom: 1px solid #33312b;
   display: flex;
   align-items: baseline;
   gap: 10px;
 }
-.system-heading .count {
-  font-size: 11px;
-  color: #666;
-  font-weight: 400;
-}
+.system-heading .count { font-size: 11px; color: #6d6a61; font-weight: 400; }
 
+/* ---- ポスター型カード ---- */
 ul.cards {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 22px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
 }
 li.cards__item { list-style: none; }
 
 .card {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: #242320;
-  border: 1px solid #4a4842;
+  position: relative;
+  display: block;
+  aspect-ratio: 2 / 3;
   border-radius: 6px;
   overflow: hidden;
-  transition: all .3s;
+  background: #242320;
+  border: 1px solid #33312b;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
+  transition: border-color .3s, box-shadow .3s, transform .3s;
 }
 .card:hover {
   border-color: #c98a3c;
-  box-shadow: 0 4px 14px rgba(201, 138, 60, .18);
+  box-shadow: 0 8px 22px rgba(0,0,0,.45);
   transform: translateY(-4px);
 }
 
 .card__image {
-  width: 100%;
-  height: 170px;
-  background: linear-gradient(135deg, #3a3833 0%, #242320 100%);
+  position: absolute;
+  inset: 0;
   overflow: hidden;
-  flex-shrink: 0;
 }
-.card__image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .5s ease;
+}
+.card:hover .card__image img { transform: scale(1.06); }
 .card__image--default {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #4a4842 0%, #242320 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Playfair Display', serif;
-  font-size: 40px;
-  color: rgba(201, 138, 60, .35);
+  font-size: 58px;
+  color: rgba(255,255,255,.22);
+  transition: transform .5s ease;
 }
+.card:hover .card__image--default { transform: scale(1.06); }
 
-.card__content {
-  padding: 18px;
+.card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(12,11,9,.96) 0%, rgba(12,11,9,.82) 32%, rgba(12,11,9,.15) 62%, rgba(12,11,9,0) 100%);
   display: flex;
   flex-direction: column;
-  flex: 1;
+  justify-content: flex-end;
+  padding: 16px 15px;
 }
 .card__system {
-  display: inline-block;
   align-self: flex-start;
   background: #c98a3c;
   color: #161410;
-  padding: 3px 9px;
+  padding: 3px 8px;
   border-radius: 2px;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
-  margin-bottom: 10px;
+  letter-spacing: .5px;
+  margin-bottom: 8px;
 }
 .card__title {
-  font-size: 17px;
+  font-size: 15.5px;
   font-weight: 700;
-  color: #e9e5da;
-  margin-bottom: 8px;
+  color: #f2efe6;
   line-height: 1.4;
+  text-shadow: 0 1px 4px rgba(0,0,0,.6);
 }
 .card__text {
-  font-size: 12.5px;
-  color: #9d998f;
-  flex: 1;
+  font-size: 11.5px;
+  color: #b8b4aa;
+  line-height: 1.65;
+  margin-top: 0;
+  max-height: 0;
+  opacity: 0;
   overflow: hidden;
+  transition: max-height .35s ease, opacity .3s ease, margin-top .35s ease;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
+}
+.card:hover .card__text {
+  max-height: 90px;
+  opacity: 1;
+  margin-top: 8px;
 }
 
 footer {
   text-align: center;
-  color: #666;
-  font-size: 12px;
-  padding-top: 24px;
-  border-top: 1px solid #4a4842;
+  color: #4f4d47;
+  font-size: 11.5px;
+  padding: 24px 0 40px;
+  border-top: 1px solid #26241f;
+}
+
+@media (hover: none) {
+  .card__text { max-height: 70px; opacity: 1; margin-top: 8px; -webkit-line-clamp: 3; }
+}
+@media (max-width: 600px) {
+  .header-top { padding: 12px 0; }
+  .site-title { font-size: 24px; }
+  .search-box input { width: 150px; }
+  .search-box input:focus { width: 170px; }
+  ul.cards { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
 }
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>Scenario</h1>
-  </header>
 
-  <div class="controls">
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="検索...">
+<header class="site-header">
+  <div class="container">
+    <div class="header-top">
+      <div class="site-title">Scenario</div>
+      <div class="header-tools">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+          <input type="text" id="searchInput" placeholder="検索...">
+        </div>
+        <select class="sort-select" id="sortSelect">
+          <option value="newest">新着順</option>
+          <option value="title">タイトル順</option>
+        </select>
+      </div>
     </div>
-    <div class="filter-tags" id="filterTags"></div>
+    <nav class="system-nav" id="systemNav"></nav>
   </div>
+</header>
 
-  <div class="results-info">
-    <span id="resultsCount">読み込み中...</span>
+<main>
+  <div class="container">
+    <div class="results-info"><span id="resultsCount">読み込み中...</span></div>
+    <div class="loading" id="loading">シナリオを取得中...</div>
+    <div class="error" id="error" style="display:none;"></div>
+    <div id="scenarioSections"></div>
   </div>
+</main>
 
-  <div class="loading" id="loading">シナリオを取得中...</div>
-  <div class="error" id="error" style="display:none;"></div>
-  <div id="scenarioSections"></div>
-
-  <footer>
-    <p>© 2026 Scenario Generator | Powered by GitHub</p>
-  </footer>
-</div>
+<footer>
+  <p>© 2026 Scenario Generator | Powered by GitHub</p>
+</footer>
 
 <script>
 (async function() {
@@ -238,6 +316,25 @@ footer {
   }
   const headers = token ? { Authorization: `token ${token}` } : {};
 
+  // システム名から安定した色相を作る
+  function systemHue(name) {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
+    return h;
+  }
+
+  async function fetchUpdatedAt(fileName) {
+    try {
+      const res = await fetch(
+        `https://api.github.com/repos/${REPO}/commits?path=${encodeURIComponent(FOLDER + '/' + fileName)}&per_page=1`,
+        { headers }
+      );
+      if (!res.ok) return null;
+      const commits = await res.json();
+      return commits[0]?.commit?.committer?.date || null;
+    } catch (e) { return null; }
+  }
+
   try {
     const listRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FOLDER}`, { headers });
     if (!listRes.ok) throw new Error(`API Error: ${listRes.status}`);
@@ -246,16 +343,19 @@ footer {
     const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.type === 'file');
     if (htmlFiles.length === 0) throw new Error('HTMLファイルが見つかりません');
 
-    for (const file of htmlFiles) {
+    await Promise.all(htmlFiles.map(async file => {
       try {
-        const fileRes = await fetch(file.download_url);
-        if (!fileRes.ok) continue;
+        const [fileRes, updatedAt] = await Promise.all([
+          fetch(file.download_url),
+          fetchUpdatedAt(file.name)
+        ]);
+        if (!fileRes.ok) return;
         const html = await fileRes.text();
 
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const title = doc.querySelector('meta[name="scenario-title"]')?.content || file.name.replace('.html', '');
-        const system = doc.querySelector('meta[name="scenario-genre"]')?.content || 'その他';
-        const description = doc.querySelector('meta[name="scenario-description"]')?.content || '(説明なし)';
+        const system = (doc.querySelector('meta[name="scenario-genre"]')?.content || 'その他').trim() || 'その他';
+        const description = doc.querySelector('meta[name="scenario-description"]')?.content || '';
 
         let imageUrl = null;
         const imgMatch = html.match(/<img[^>]+src="([^"]+)"/);
@@ -264,24 +364,25 @@ footer {
         allScenarios.push({
           name: file.name,
           title,
-          system: system.trim() || 'その他',
+          system,
           description,
           url: `${GITHUB_PAGES_BASE}/${file.name}`,
-          image: imageUrl
+          image: imageUrl,
+          updatedAt: updatedAt ? new Date(updatedAt).getTime() : 0
         });
       } catch (e) {
         console.error(`Failed to fetch ${file.name}:`, e);
       }
-    }
+    }));
 
-    allScenarios.sort((a, b) => a.title.localeCompare(b.title, 'ja'));
     allSystems = Array.from(new Set(allScenarios.map(s => s.system))).sort((a, b) => a.localeCompare(b, 'ja'));
 
     document.getElementById('loading').style.display = 'none';
-    renderFilterTags();
-    render(allScenarios);
+    renderNav();
+    render();
 
-    document.getElementById('searchInput').addEventListener('input', () => render(filterScenarios()));
+    document.getElementById('searchInput').addEventListener('input', render);
+    document.getElementById('sortSelect').addEventListener('change', render);
 
   } catch (error) {
     document.getElementById('loading').style.display = 'none';
@@ -290,23 +391,23 @@ footer {
     console.error(error);
   }
 
-  function renderFilterTags() {
-    const container = document.getElementById('filterTags');
-    container.innerHTML = allSystems.map(sys =>
-      `<div class="filter-tag" data-system="${escapeAttr(sys)}">${escapeHtml(sys)}</div>`
-    ).join('');
-    container.querySelectorAll('.filter-tag').forEach(el => {
+  function renderNav() {
+    const nav = document.getElementById('systemNav');
+    nav.innerHTML = allSystems.map(sys => {
+      const n = allScenarios.filter(s => s.system === sys).length;
+      return `<div class="nav-item" data-system="${escapeAttr(sys)}">${escapeHtml(sys)}<span class="count">${n}</span></div>`;
+    }).join('');
+    nav.querySelectorAll('.nav-item').forEach(el => {
       el.addEventListener('click', () => {
         el.classList.toggle('active');
-        render(filterScenarios());
+        render();
       });
     });
   }
 
-  function filterScenarios() {
+  function getFiltered() {
     const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
-    const activeSystems = Array.from(document.querySelectorAll('.filter-tag.active')).map(t => t.dataset.system);
-
+    const activeSystems = Array.from(document.querySelectorAll('.nav-item.active')).map(t => t.dataset.system);
     return allScenarios.filter(s => {
       const matchSearch = !searchText ||
         s.title.toLowerCase().includes(searchText) ||
@@ -317,43 +418,47 @@ footer {
     });
   }
 
-  function render(scenarios) {
+  function render() {
+    const sortMode = document.getElementById('sortSelect').value;
+    const scenarios = getFiltered().sort((a, b) =>
+      sortMode === 'newest'
+        ? (b.updatedAt - a.updatedAt) || a.title.localeCompare(b.title, 'ja')
+        : a.title.localeCompare(b.title, 'ja')
+    );
+
     const wrap = document.getElementById('scenarioSections');
-    document.getElementById('resultsCount').textContent = `${scenarios.length}件のシナリオ`;
+    document.getElementById('resultsCount').textContent = `${scenarios.length} scenarios`;
 
     if (scenarios.length === 0) {
-      wrap.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">該当するシナリオがありません</div>';
+      wrap.innerHTML = '<div style="text-align:center;color:#6d6a61;padding:60px 20px;font-size:13px;">該当するシナリオがありません</div>';
       return;
     }
 
     const groups = {};
-    scenarios.forEach(s => {
-      (groups[s.system] = groups[s.system] || []).push(s);
-    });
-    const systemOrder = Object.keys(groups).sort((a, b) => a.localeCompare(b, 'ja'));
+    scenarios.forEach(s => { (groups[s.system] = groups[s.system] || []).push(s); });
+    const order = Object.keys(groups).sort((a, b) => a.localeCompare(b, 'ja'));
 
-    wrap.innerHTML = systemOrder.map(sys => `
-      <section class="system-section">
+    wrap.innerHTML = order.map(sys => `
+      <section class="system-section" id="sys-${encodeURIComponent(sys)}">
         <h2 class="system-heading">${escapeHtml(sys)}<span class="count">${groups[sys].length}件</span></h2>
-        <ul class="cards">
-          ${groups[sys].map(cardHTML).join('')}
-        </ul>
+        <ul class="cards">${groups[sys].map(cardHTML).join('')}</ul>
       </section>
     `).join('');
   }
 
   function cardHTML(s) {
+    const hue = systemHue(s.system);
     const imageHtml = s.image
       ? `<img src="${escapeAttr(s.image)}" alt="${escapeAttr(s.title)}">`
-      : `<div class="card__image--default">${escapeHtml(s.title.substring(0, 1))}</div>`;
+      : `<div class="card__image--default" style="background:linear-gradient(150deg, hsl(${hue} 30% 30%) 0%, hsl(${hue} 25% 15%) 100%)">${escapeHtml(s.title.substring(0, 1))}</div>`;
     return `
       <li class="cards__item">
         <a class="card" href="${escapeAttr(s.url)}" target="_blank" rel="noopener">
           <div class="card__image">${imageHtml}</div>
-          <div class="card__content">
+          <div class="card__overlay">
             <span class="card__system">${escapeHtml(s.system)}</span>
             <div class="card__title">${escapeHtml(s.title)}</div>
-            <p class="card__text">${escapeHtml(s.description)}</p>
+            ${s.description ? `<p class="card__text">${escapeHtml(s.description)}</p>` : ''}
           </div>
         </a>
       </li>
