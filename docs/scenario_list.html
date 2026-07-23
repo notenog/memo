@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Scenario</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root[data-theme="dark"] {
   --bg: #161410;
@@ -141,9 +141,16 @@ body {
 /* スクロール後の縮小状態 */
 .site-header.minimized .header-inner { padding: 10px 20px; }
 .site-header.minimized .site-title { font-size: 24px; }
-.site-header.minimized .nav-item {
-  transition: padding .3s ease, font-size .3s ease; padding: 4px 11px; font-size: 11px; }
-.search-box { position: relative; }
+.site-header.minimized .nav-item { font-size: 13px; }
+.content-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
+}
+.search-box { position: relative; margin-left: auto; }
 .search-box svg.icon-search {
   position: absolute;
   left: 9px;
@@ -151,7 +158,7 @@ body {
   transform: translateY(-50%);
   width: 13px;
   height: 13px;
-  stroke: var(--header-dim);
+  stroke: var(--text-faint);
   fill: none;
   stroke-width: 2;
   pointer-events: none;
@@ -159,16 +166,16 @@ body {
 .search-box input {
   width: 210px;
   padding: 7px 10px 7px 28px;
-  background: var(--field-bg);
-  border: 1px solid var(--field-border);
-  color: var(--header-text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
   border-radius: 3px;
   font-size: 13px;
   font-family: inherit;
   transition: border-color .2s, width .2s;
 }
-.search-box input::placeholder { color: var(--header-dim); }
-.search-box input:focus { outline: none; border-color: var(--header-text); width: 250px; }
+.search-box input::placeholder { color: var(--text-faint); }
+.search-box input:focus { outline: none; border-color: var(--accent); width: 240px; }
 
 .sort-select {
   padding: 7px 10px;
@@ -212,37 +219,44 @@ body {
 
 .system-nav {
   display: flex;
-  gap: 6px;
+  gap: 4px 20px;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
 .nav-item {
-  padding: 6px 14px;
-  background: transparent;
-  border: 1px solid var(--field-border);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 14.5px;
+  letter-spacing: .08em;
   color: var(--header-text);
-  border-radius: 14px;
-  font-size: 11.5px;
+  opacity: .72;
+  padding: 3px 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
   cursor: pointer;
-  transition: all .2s;
   user-select: none;
   white-space: nowrap;
+  transition: opacity .2s, border-color .2s, font-size .3s ease;
 }
-.nav-item:hover { border-color: var(--header-text); background: var(--field-bg); }
+.nav-item:hover { opacity: 1; border-bottom-color: currentColor; }
 .nav-item.active {
-  background: var(--chip-active-bg);
-  border-color: var(--chip-active-bg);
-  color: var(--chip-active-text);
-  font-weight: 700;
+  opacity: 1;
+  font-weight: 600;
+  border-bottom-color: currentColor;
 }
-.nav-item .count { opacity: .6; margin-left: 5px; font-size: 10px; }
+.nav-item .count {
+  font-family: 'Noto Sans JP', sans-serif;
+  opacity: .55;
+  margin-left: 4px;
+  font-size: 10px;
+  vertical-align: super;
+}
 
 /* ---- 本文 ---- */
 main { padding: 32px 0 60px; }
 .results-info {
   color: var(--text-faint);
   font-size: 11.5px;
-  margin-bottom: 26px;
   letter-spacing: .5px;
 }
 .loading { text-align: center; padding: 60px 20px; color: var(--text-faint); }
@@ -385,8 +399,9 @@ footer {
   .site-header.minimized .site-title { font-size: 20px; }
   .header-right { justify-content: flex-start; }
   .system-nav { justify-content: flex-start; }
-  .search-box input { width: 130px; }
-  .search-box input:focus { width: 150px; }
+  .search-box { width: 100%; }
+  .search-box input { width: 100%; }
+  .search-box input:focus { width: 100%; }
   ul.cards { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
 }
 </style>
@@ -401,10 +416,6 @@ footer {
     <div class="header-right">
       <nav class="system-nav" id="systemNav"></nav>
       <div class="header-tools">
-        <div class="search-box">
-          <svg class="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-          <input type="text" id="searchInput" placeholder="検索...">
-        </div>
         <select class="sort-select" id="sortSelect">
           <option value="newest">新着順</option>
           <option value="title">タイトル順</option>
@@ -420,7 +431,13 @@ footer {
 
 <main>
   <div class="container">
-    <div class="results-info"><span id="resultsCount">読み込み中...</span></div>
+    <div class="content-top">
+      <div class="results-info"><span id="resultsCount">読み込み中...</span></div>
+      <div class="search-box">
+        <svg class="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        <input type="text" id="searchInput" placeholder="検索...">
+      </div>
+    </div>
     <div class="loading" id="loading">シナリオを取得中...</div>
     <div class="error" id="error" style="display:none;"></div>
     <div id="scenarioSections"></div>
@@ -435,10 +452,19 @@ footer {
 // ---- スクロールでヘッダーを縮小 ----
 (function() {
   const header = document.getElementById('siteHeader');
-  const TRIGGER = 80;
+  const SHRINK_AT = 140;   // これを超えたら縮小
+  const EXPAND_AT = 30;    // これを下回ったら元に戻す
+  let minimized = false;
   let ticking = false;
   function update() {
-    header.classList.toggle('minimized', window.scrollY >= TRIGGER);
+    const y = window.scrollY;
+    if (!minimized && y >= SHRINK_AT) {
+      minimized = true;
+      header.classList.add('minimized');
+    } else if (minimized && y <= EXPAND_AT) {
+      minimized = false;
+      header.classList.remove('minimized');
+    }
     ticking = false;
   }
   window.addEventListener('scroll', () => {
