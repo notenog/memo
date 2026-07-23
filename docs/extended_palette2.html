@@ -223,6 +223,31 @@
   body[data-theme="dark"] .gm-nameinp,body[data-theme="dark"] .gm-val{color:#23262e}
   body[data-theme="dark"] .gm-row.active{background:#e2e0f5}
   body[data-theme="dark"] .gm-row:hover{background:#e9eaee}
+
+  /* floating GM table */
+  .gmfloat{position:fixed; z-index:45; display:none; flex-direction:column; overflow:hidden;
+       background:var(--panel); border:1px solid var(--bd2); border-radius:12px; box-shadow:0 14px 40px rgba(0,0,0,.28)}
+  .gmf-head{flex:0 0 auto; display:flex; align-items:center; gap:5px; padding:6px 8px; cursor:grab; user-select:none;
+       background:var(--hd); border-bottom:1px solid var(--bd)}
+  .gmf-head:active{cursor:grabbing}
+  .gmf-grip{color:var(--tx3); font-size:12px}
+  .gmf-ttl{font-family:var(--display); font-weight:700; font-size:12px; color:var(--tx); margin-right:2px}
+  .gmf-round{font-family:var(--display); font-size:11px; color:var(--tx2)}
+  .gmf-round b{color:var(--link); font-size:13px}
+  .gmf-btn{flex:0 0 auto; border:1px solid var(--bd2); background:var(--bg); color:var(--tx2); cursor:pointer;
+       border-radius:7px; font-size:11px; line-height:1; padding:4px 7px; font-family:var(--display); font-weight:700}
+  .gmf-btn:hover{border-color:var(--link-h); color:var(--link)}
+  .gmf-x:hover{border-color:var(--danger); color:var(--danger)}
+  #gmfMin{margin-left:auto}
+  .gmf-body{flex:1 1 auto; min-height:0; overflow:auto; padding:8px}
+  .gmfloat.min .gmf-body,.gmfloat.min .gmf-rz{display:none}
+  .gmf-rz{position:absolute; right:0; bottom:0; width:16px; height:16px; cursor:nwse-resize;
+       background:linear-gradient(135deg, transparent 50%, var(--bd2) 50%, var(--bd2) 65%, transparent 65%, transparent 80%, var(--bd2) 80%)}
+  .gmtable.compact th,.gmtable.compact td{font-size:12px}
+  .gmtable.compact thead th{padding:5px 7px; font-size:11px}
+  .gmtable.compact .gm-nameinp,.gmtable.compact .gm-val{padding:5px 7px; font-size:12px}
+  .gmtable.compact .gm-th-name{width:110px}
+  .gmtable.compact .gm-hint{display:none}
   .tband{border:1px solid var(--bd); border-left:3px solid var(--bc, var(--bd)); border-radius:12px; background:var(--panel); box-shadow:0 1px 3px rgba(0,0,0,.04)}
   .tband.dragover{outline:2px dashed var(--link); outline-offset:-3px}
   .tband.coldragover{outline:2px solid var(--link); outline-offset:-3px}
@@ -632,6 +657,21 @@
       <button class="ok" id="rpDo">置換実行</button>
     </div>
   </div>
+</div>
+
+<div class="gmfloat" id="gmfloat">
+  <div class="gmf-head" id="gmfHead">
+    <span class="gmf-grip">⠿</span>
+    <span class="gmf-ttl">📋 テーブル</span>
+    <span class="gmf-round">R<b id="gmfRound">1</b></span>
+    <button class="gmf-btn" id="gmfRdn" title="ラウンドを戻す">−</button>
+    <button class="gmf-btn" id="gmfRup" title="ラウンドを進める">＋</button>
+    <button class="gmf-btn" id="gmfAddRow" title="行を追加">＋行</button>
+    <button class="gmf-btn" id="gmfMin" title="最小化/展開">▾</button>
+    <button class="gmf-btn gmf-x" id="gmfClose" title="閉じる">×</button>
+  </div>
+  <div class="gmf-body" id="gmfBody"></div>
+  <div class="gmf-rz" id="gmfRz" title="ドラッグでサイズ変更"></div>
 </div>
 
 <div id="toast"></div>
@@ -1201,36 +1241,36 @@ function saveGmTable(t){ try{ localStorage.setItem("ep2_gmtable", JSON.stringify
 const uidGm = pfx => pfx+"_"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36);
 function gmAddRow(name){
   const t=loadGmTable(); t.rows.push({id:uidGm("r"), name:(name||"新規").trim()||"新規", vals:{}});
-  saveGmTable(t); renderBoard();
+  saveGmTable(t); gmRefresh();
 }
-function gmDelRow(id){ const t=loadGmTable(); t.rows=t.rows.filter(r=>r.id!==id); if(t.active===id) t.active=null; saveGmTable(t); renderBoard(); }
+function gmDelRow(id){ const t=loadGmTable(); t.rows=t.rows.filter(r=>r.id!==id); if(t.active===id) t.active=null; saveGmTable(t); gmRefresh(); }
 function gmAddCol(){
   const name=prompt("列名（例：防護点／状態／MP）","新しい列"); if(name==null) return;
-  const t=loadGmTable(); t.cols.push({id:uidGm("c"), name:name.trim()||"新しい列"}); saveGmTable(t); renderBoard();
+  const t=loadGmTable(); t.cols.push({id:uidGm("c"), name:name.trim()||"新しい列"}); saveGmTable(t); gmRefresh();
 }
 function gmDelCol(id){
   const t=loadGmTable(); t.cols=t.cols.filter(c=>c.id!==id);
-  t.rows.forEach(r=>{ delete r.vals[id]; }); saveGmTable(t); renderBoard();
+  t.rows.forEach(r=>{ delete r.vals[id]; }); saveGmTable(t); gmRefresh();
 }
-function gmRenameCol(id,name){ const t=loadGmTable(); const c=t.cols.find(x=>x.id===id); if(c){ c.name=(name||"").trim()||c.name; saveGmTable(t); renderBoard(); } }
+function gmRenameCol(id,name){ const t=loadGmTable(); const c=t.cols.find(x=>x.id===id); if(c){ c.name=(name||"").trim()||c.name; saveGmTable(t); gmRefresh(); } }
 function gmSetVal(rowId, colId, val){ const t=loadGmTable(); const r=t.rows.find(x=>x.id===rowId); if(!r) return; r.vals[colId]=val; saveGmTable(t); }
-function gmSetName(rowId, name){ const t=loadGmTable(); const r=t.rows.find(x=>x.id===rowId); if(r){ r.name=(name||"").trim()||r.name; saveGmTable(t); renderBoard(); } }
-function gmSetActive(rowId){ const t=loadGmTable(); t.active=(t.active===rowId)?null:rowId; saveGmTable(t); renderBoard(); }
+function gmSetName(rowId, name){ const t=loadGmTable(); const r=t.rows.find(x=>x.id===rowId); if(r){ r.name=(name||"").trim()||r.name; saveGmTable(t); gmRefresh(); } }
+function gmSetActive(rowId){ const t=loadGmTable(); t.active=(t.active===rowId)?null:rowId; saveGmTable(t); gmRefresh(); }
 function gmMoveRow(id, beforeId){
   const t=loadGmTable(); const i=t.rows.findIndex(r=>r.id===id); if(i<0) return;
   const [row]=t.rows.splice(i,1);
   let ti = beforeId ? t.rows.findIndex(r=>r.id===beforeId) : t.rows.length;
   if(ti<0) ti=t.rows.length;
-  t.rows.splice(ti,0,row); saveGmTable(t); renderBoard();
+  t.rows.splice(ti,0,row); saveGmTable(t); gmRefresh();
 }
 function gmSortByCol(colId){
   const t=loadGmTable();
   t.rows.sort((a,b)=>{ const x=parseFloat(a.vals[colId]), y=parseFloat(b.vals[colId]);
     const xa=isNaN(x)?-Infinity:x, ya=isNaN(y)?-Infinity:y; return ya-xa; });   // 大きい順（行動値）
-  saveGmTable(t); renderBoard();
+  saveGmTable(t); gmRefresh();
 }
-function gmRound(delta){ const t=loadGmTable(); t.round=Math.max(1,(t.round||1)+delta); saveGmTable(t); renderBoard(); }
-function gmResetRound(){ const t=loadGmTable(); t.round=1; saveGmTable(t); renderBoard(); }
+function gmRound(delta){ const t=loadGmTable(); t.round=Math.max(1,(t.round||1)+delta); saveGmTable(t); gmRefresh(); }
+function gmResetRound(){ const t=loadGmTable(); t.round=1; saveGmTable(t); gmRefresh(); }
 
 /* ---------- [:列±値] table ops ---------- */
 /* 記法: [:HP-2]（対象=選択行/送信者名） / [:ゴブリンA:HP-2]（対象を明示） / [:HP=10]（代入） / [:HP+1d6]（ダイス） */
@@ -1282,6 +1322,7 @@ function toastTableChanges(changes){
   if(ng.length) msg+=(msg?" / ":"")+ng.map(c=>"⚠"+c.text+"("+c.why+")").join(" ");
   toast(msg, ng.length>0);
   if(state.board && boardLayout()==="table") renderBoard();
+  renderGmFloat();
 }
 
 /* ---------- board (flow / timeline) ---------- */
@@ -1399,18 +1440,16 @@ function renderTimeline(content){
     content.appendChild(band);
   });
 }
-function renderTable(content){
+function buildGmTable(compact){
   const t=loadGmTable();
-  const wrap=el("gmwrap");
-  const tb=document.createElement("table"); tb.className="gmtable";
-  // header
+  const tb=document.createElement("table"); tb.className="gmtable"+(compact?" compact":"");
   let th="<thead><tr><th class='gm-th-act' title='行動済みマーク'>◇</th><th class='gm-th-name'>名前</th>";
   t.cols.forEach(c=>{ th+="<th class='gm-th' data-col='"+c.id+"'><span class='gm-colname'>"+esc(c.name)+"</span>"+
       "<button class='gm-sort' data-col='"+c.id+"' title='この列で降順ソート'>⇅</button>"+
       "<button class='gm-colx' data-col='"+c.id+"' title='列を削除'>×</button></th>"; });
   th+="<th class='gm-th-del'></th></tr></thead>";
   let tr="<tbody>";
-  if(!t.rows.length) tr+="<tr class='gm-empty'><td colspan='"+(t.cols.length+3)+"'>行がありません。「＋行を追加」から追加してください。</td></tr>";
+  if(!t.rows.length) tr+="<tr class='gm-empty'><td colspan='"+(t.cols.length+3)+"'>行がありません。「＋行」から追加してください。</td></tr>";
   t.rows.forEach(r=>{
     const on = t.active===r.id;
     tr+="<tr class='gm-row"+(on?" active":"")+"' data-row='"+r.id+"'>"+
@@ -1422,7 +1461,11 @@ function renderTable(content){
   });
   tr+="</tbody>";
   tb.innerHTML=th+tr;
-  wrap.appendChild(tb);
+  return tb;
+}
+function renderTable(content){
+  const wrap=el("gmwrap");
+  wrap.appendChild(buildGmTable(false));
   const hint=el("gm-hint","送信文に <code>[:HP-2]</code> と書くとこの表の値が変わります（Tekeyへは送られません）。"+
     "対象を明示するなら <code>[:ゴブリンA:HP-2]</code>、代入は <code>[:HP=10]</code>、ダイスは <code>[:HP+1d6]</code>。"+
     "表の値は <code>{ゴブリンA.HP}</code> や <code>{選択.HP}</code>、<code>{ラウンド}</code> で本文から参照できます。");
@@ -2335,7 +2378,7 @@ function openVarPanel(){
 function setVarOverride(n,v){ const o=loadVarOverrides(); o[n]=v; saveVarOverrides(o); }
 function clearVarOverride(n){ const o=loadVarOverrides(); delete o[n]; saveVarOverrides(o); }
 $("#btnVars").addEventListener("click",openVarPanel);
-$("#btnTable").addEventListener("click",()=>{ setBoardLayout("table"); if(!state.board) setBoard(true); });
+$("#btnTable").addEventListener("click",()=>{ const f=loadGmFloat(); setGmFloat(!f.open); });
 $("#varClose").addEventListener("click",()=>$("#varModal").classList.remove("open"));
 $("#varResetAll").addEventListener("click",()=>{ saveVarOverrides({}); openVarPanel(); });
 $("#varModal").addEventListener("click",e=>{ if(e.target.id==="varModal") $("#varModal").classList.remove("open"); });
@@ -2417,6 +2460,85 @@ function jumpEditToLine(idx){
   if(syncOn()) syncPreviewToCursor();
 }
 
+/* ---------- floating GM table ---------- */
+function loadGmFloat(){
+  try{ const o=JSON.parse(localStorage.getItem("ep2_gmfloat")||"null");
+    if(o&&typeof o==="object") return {open:!!o.open, min:!!o.min, x:o.x??null, y:o.y??null, w:o.w||420, h:o.h||260};
+  }catch(e){}
+  return {open:false, min:false, x:null, y:null, w:420, h:260};
+}
+function saveGmFloat(f){ try{ localStorage.setItem("ep2_gmfloat", JSON.stringify(f)); }catch(e){} }
+function renderGmFloat(){
+  const f=loadGmFloat(), box=$("#gmfloat"); if(!box) return;
+  box.style.display = f.open ? "flex" : "none";
+  if(!f.open) return;
+  box.classList.toggle("min", f.min);
+  const vw=window.innerWidth, vh=window.innerHeight;
+  const w=Math.max(300,Math.min(f.w, vw-20)), h=Math.max(120,Math.min(f.h, vh-80));
+  box.style.width=w+"px";
+  box.style.height = f.min ? "auto" : h+"px";
+  const x = f.x==null ? Math.max(10, vw-w-28) : Math.max(0,Math.min(f.x, vw-80));
+  const y = f.y==null ? 96 : Math.max(0,Math.min(f.y, vh-40));
+  box.style.left=x+"px"; box.style.top=y+"px";
+  const t=loadGmTable();
+  const rd=$("#gmfRound"); if(rd) rd.textContent=String(t.round||1);
+  const mb=$("#gmfMin"); if(mb) mb.textContent = f.min ? "▸" : "▾";
+  const body=$("#gmfBody");
+  if(!f.min){ body.innerHTML=""; body.appendChild(buildGmTable(true)); }
+}
+function setGmFloat(open){ const f=loadGmFloat(); f.open=open; saveGmFloat(f); renderGmFloat(); }
+function gmRefresh(){ if(state.board) renderBoard(); renderGmFloat(); }
+(function(){
+  const box=$("#gmfloat"), head=$("#gmfHead"), rz=$("#gmfRz"); if(!box) return;
+  let drag=null, rs=null;
+  const onMove=e=>{ if(!drag) return;
+    const f=loadGmFloat(); const w=box.getBoundingClientRect().width, h=box.getBoundingClientRect().height;
+    let x=drag.ox+(e.clientX-drag.x), y=drag.oy+(e.clientY-drag.y);
+    x=Math.max(0,Math.min(x, window.innerWidth-60)); y=Math.max(0,Math.min(y, window.innerHeight-32));
+    box.style.left=x+"px"; box.style.top=y+"px"; drag.nx=x; drag.ny=y; };
+  const onUp=()=>{ if(!drag) return; const f=loadGmFloat(); if(drag.nx!=null){ f.x=drag.nx; f.y=drag.ny; saveGmFloat(f); }
+    drag=null; document.body.style.userSelect="";
+    window.removeEventListener("pointermove",onMove); window.removeEventListener("pointerup",onUp); };
+  head.addEventListener("pointerdown",e=>{
+    if(e.target.closest("button")) return;
+    const r=box.getBoundingClientRect(); drag={x:e.clientX,y:e.clientY,ox:r.left,oy:r.top,nx:null,ny:null};
+    document.body.style.userSelect="none"; e.preventDefault();
+    window.addEventListener("pointermove",onMove); window.addEventListener("pointerup",onUp);
+  });
+  const rzMove=e=>{ if(!rs) return;
+    let w=Math.max(300, rs.w+(e.clientX-rs.x)), h=Math.max(120, rs.h+(e.clientY-rs.y));
+    w=Math.min(w, window.innerWidth-20); h=Math.min(h, window.innerHeight-60);
+    box.style.width=w+"px"; box.style.height=h+"px"; rs.nw=w; rs.nh=h; };
+  const rzUp=()=>{ if(!rs) return; const f=loadGmFloat(); if(rs.nw){ f.w=rs.nw; f.h=rs.nh; saveGmFloat(f); }
+    rs=null; document.body.style.userSelect="";
+    window.removeEventListener("pointermove",rzMove); window.removeEventListener("pointerup",rzUp); };
+  rz.addEventListener("pointerdown",e=>{
+    const r=box.getBoundingClientRect(); rs={x:e.clientX,y:e.clientY,w:r.width,h:r.height,nw:0,nh:0};
+    document.body.style.userSelect="none"; e.preventDefault();
+    window.addEventListener("pointermove",rzMove); window.addEventListener("pointerup",rzUp);
+  });
+  $("#gmfClose").addEventListener("click",()=>setGmFloat(false));
+  $("#gmfMin").addEventListener("click",()=>{ const f=loadGmFloat(); f.min=!f.min; saveGmFloat(f); renderGmFloat(); });
+  $("#gmfRup").addEventListener("click",()=>gmRound(1));
+  $("#gmfRdn").addEventListener("click",()=>gmRound(-1));
+  $("#gmfAddRow").addEventListener("click",()=>{ const n=prompt("名前（キャラ/モンスター）","新規"); if(n!=null) gmAddRow(n); });
+  // 表の操作（フロート内）
+  box.addEventListener("click",e=>{
+    const gsort=e.target.closest(".gm-sort"); if(gsort){ gmSortByCol(gsort.dataset.col); return; }
+    const gcolx=e.target.closest(".gm-colx"); if(gcolx){ const t=loadGmTable(); const c=t.cols.find(x=>x.id===gcolx.dataset.col);
+      if(c&&confirm("列「"+c.name+"」を削除しますか？（各行の値も消えます）")) gmDelCol(gcolx.dataset.col); return; }
+    const gact=e.target.closest(".gm-actbtn"); if(gact){ gmSetActive(gact.dataset.row); return; }
+    const gdel=e.target.closest(".gm-delbtn"); if(gdel){ const t=loadGmTable(); const r=t.rows.find(x=>x.id===gdel.dataset.row);
+      if(r&&confirm("「"+r.name+"」を削除しますか？")) gmDelRow(gdel.dataset.row); return; }
+  });
+  box.addEventListener("input",e=>{ const gv=e.target.closest(".gm-val"); if(gv) gmSetVal(gv.dataset.row, gv.dataset.col, gv.value); });
+  box.addEventListener("change",e=>{ const gn=e.target.closest(".gm-nameinp"); if(gn) gmSetName(gn.dataset.row, gn.value); });
+  box.addEventListener("dblclick",e=>{ const cn=e.target.closest(".gm-colname"); if(!cn) return;
+    const id=cn.closest(".gm-th").dataset.col; const t=loadGmTable(); const c=t.cols.find(x=>x.id===id); if(!c) return;
+    const v=prompt("列名", c.name); if(v!=null) gmRenameCol(id, v); });
+  window.addEventListener("resize",()=>{ if(loadGmFloat().open) renderGmFloat(); });
+})();
+
 /* ---------- find & replace ---------- */
 function openReplace(){ $("#replaceModal").classList.add("open"); setTimeout(()=>$("#rpFind").focus(),30); }
 function doReplace(){
@@ -2477,6 +2599,7 @@ buildCmdTpls(); buildMdTpls();
 setMdcol(cfg("ep2_mdcol")==="hidden");
 if(!restore()) seed();
 render();
+renderGmFloat();
 if(!cfg("room")) setTimeout(openSettings,400);
 </script>
 </body>
