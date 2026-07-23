@@ -28,6 +28,15 @@
   --default-l2: 15%;
   --default-s: 30%;
   --default-letter: rgba(255,255,255,.22);
+  --header-bg: rgba(26,35,43,.94);
+  --header-title: #c98a3c;
+  --header-text: #f2efe6;
+  --header-dim: rgba(255,255,255,.6);
+  --header-border: rgba(255,255,255,.14);
+  --field-bg: rgba(255,255,255,.07);
+  --field-border: rgba(255,255,255,.2);
+  --chip-active-bg: #c98a3c;
+  --chip-active-text: #161410;
 }
 :root[data-theme="light"] {
   --bg: #fdfdfd;
@@ -51,9 +60,33 @@
   --default-l2: 35%;
   --default-s: 22%;
   --default-letter: rgba(255,255,255,.5);
+  --header-bg: rgba(40,75,99,.96);
+  --header-title: #ffffff;
+  --header-text: #ffffff;
+  --header-dim: rgba(255,255,255,.72);
+  --header-border: rgba(255,255,255,.2);
+  --field-bg: rgba(255,255,255,.14);
+  --field-border: rgba(255,255,255,.32);
+  --chip-active-bg: #ffffff;
+  --chip-active-text: #284b63;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+#hoverBackdrop {
+  position: fixed;
+  inset: -40px;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(40px) saturate(1.15);
+  opacity: 0;
+  transition: opacity .55s ease;
+  pointer-events: none;
+}
+:root[data-theme="dark"] #hoverBackdrop.on { opacity: .30; }
+:root[data-theme="light"] #hoverBackdrop.on { opacity: .22; }
+.site-header, main, footer { position: relative; z-index: 1; }
 body {
   background: var(--bg);
   color: var(--text-dim);
@@ -69,9 +102,9 @@ body {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--bg-blur);
+  background: var(--header-bg);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--header-border);
 }
 .header-top {
   display: flex;
@@ -85,7 +118,7 @@ body {
   font-family: 'Playfair Display', serif;
   font-size: 30px;
   letter-spacing: 2px;
-  color: var(--accent);
+  color: var(--header-title);
   font-weight: 700;
   line-height: 1;
 }
@@ -103,7 +136,7 @@ body {
   transform: translateY(-50%);
   width: 13px;
   height: 13px;
-  stroke: var(--text-faint);
+  stroke: var(--header-dim);
   fill: none;
   stroke-width: 2;
   pointer-events: none;
@@ -111,28 +144,29 @@ body {
 .search-box input {
   width: 210px;
   padding: 7px 10px 7px 28px;
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  color: var(--text);
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  color: var(--header-text);
   border-radius: 3px;
   font-size: 13px;
   font-family: inherit;
   transition: border-color .2s, width .2s;
 }
-.search-box input::placeholder { color: var(--text-faint); }
-.search-box input:focus { outline: none; border-color: var(--accent); width: 250px; }
+.search-box input::placeholder { color: var(--header-dim); }
+.search-box input:focus { outline: none; border-color: var(--header-text); width: 250px; }
 
 .sort-select {
   padding: 7px 10px;
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  color: var(--text-dim);
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  color: var(--header-text);
   border-radius: 3px;
   font-size: 12px;
   font-family: inherit;
   cursor: pointer;
 }
-.sort-select:focus { outline: none; border-color: var(--accent); }
+.sort-select option { color: #222; background: #fff; }
+.sort-select:focus { outline: none; border-color: var(--header-text); }
 
 .theme-toggle {
   display: flex;
@@ -140,18 +174,18 @@ body {
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
   border-radius: 3px;
   cursor: pointer;
   transition: border-color .2s;
   flex-shrink: 0;
 }
-.theme-toggle:hover { border-color: var(--accent); }
+.theme-toggle:hover { border-color: var(--header-text); }
 .theme-toggle svg {
   width: 15px;
   height: 15px;
-  stroke: var(--text-dim);
+  stroke: var(--header-text);
   fill: none;
   stroke-width: 1.8;
   stroke-linecap: round;
@@ -170,8 +204,8 @@ body {
 .nav-item {
   padding: 5px 13px;
   background: transparent;
-  border: 1px solid var(--border-strong);
-  color: var(--text-dim);
+  border: 1px solid var(--field-border);
+  color: var(--header-text);
   border-radius: 14px;
   font-size: 11.5px;
   cursor: pointer;
@@ -179,11 +213,11 @@ body {
   user-select: none;
   white-space: nowrap;
 }
-.nav-item:hover { border-color: var(--accent); color: var(--accent); }
+.nav-item:hover { border-color: var(--header-text); background: var(--field-bg); }
 .nav-item.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-contrast);
+  background: var(--chip-active-bg);
+  border-color: var(--chip-active-bg);
+  color: var(--chip-active-text);
   font-weight: 700;
 }
 .nav-item .count { opacity: .6; margin-left: 5px; font-size: 10px; }
@@ -339,6 +373,8 @@ footer {
 </style>
 </head>
 <body>
+
+<div id="hoverBackdrop"></div>
 
 <header class="site-header">
   <div class="container">
@@ -533,6 +569,23 @@ footer {
         <ul class="cards">${groups[sys].map(cardHTML).join('')}</ul>
       </section>
     `).join('');
+
+    bindHoverBackdrop();
+  }
+
+  function bindHoverBackdrop() {
+    const bd = document.getElementById('hoverBackdrop');
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        const img = card.dataset.img;
+        const hue = card.dataset.hue;
+        bd.style.backgroundImage = img
+          ? `url("${img}")`
+          : `linear-gradient(150deg, hsl(${hue} 45% 45%), hsl(${hue} 40% 25%))`;
+        bd.classList.add('on');
+      });
+      card.addEventListener('mouseleave', () => bd.classList.remove('on'));
+    });
   }
 
   function cardHTML(s) {
@@ -542,7 +595,8 @@ footer {
       : `<div class="card__image--default" style="background:linear-gradient(150deg, hsl(${hue} var(--default-s) var(--default-l1)) 0%, hsl(${hue} var(--default-s) var(--default-l2)) 100%)">${escapeHtml(s.title.substring(0, 1))}</div>`;
     return `
       <li class="cards__item">
-        <a class="card" href="${escapeAttr(s.url)}" target="_blank" rel="noopener">
+        <a class="card" href="${escapeAttr(s.url)}" target="_blank" rel="noopener"
+           data-img="${s.image ? escapeAttr(s.image) : ''}" data-hue="${hue}">
           <div class="card__image">${imageHtml}</div>
           <div class="card__overlay">
             <span class="card__system">${escapeHtml(s.system)}</span>
