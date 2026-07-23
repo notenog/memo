@@ -15,37 +15,25 @@ body {
   line-height: 1.6;
   padding: 40px 20px;
 }
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-header {
-  text-align: center;
-  margin-bottom: 50px;
-}
+.container { max-width: 1200px; margin: 0 auto; }
+
+header { text-align: center; margin-bottom: 40px; }
 header h1 {
   font-family: 'Playfair Display', serif;
   font-size: 56px;
   letter-spacing: 3px;
   color: #c98a3c;
-  margin-bottom: 16px;
   font-weight: 700;
-}
-header p {
-  color: #999;
-  font-size: 13px;
-  letter-spacing: 1px;
 }
 
 .controls {
   display: flex;
-  justify-content: center;
-  margin-bottom: 40px;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 36px;
 }
-.search-box {
-  width: 100%;
-  max-width: 400px;
-}
+.search-box { width: 100%; max-width: 360px; }
 .search-box input {
   width: 100%;
   padding: 8px 12px;
@@ -55,26 +43,42 @@ header p {
   border-radius: 3px;
   font-size: 13px;
 }
-.search-box input::placeholder {
-  color: #666;
+.search-box input::placeholder { color: #666; }
+.search-box input:focus { outline: none; border-color: #c98a3c; }
+
+.filter-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
-.search-box input:focus {
-  outline: none;
+.filter-tag {
+  padding: 5px 14px;
+  background: #242320;
+  border: 1px solid #4a4842;
+  color: #999;
+  border-radius: 16px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .2s;
+  user-select: none;
+}
+.filter-tag:hover { border-color: #c98a3c; color: #e9e5da; }
+.filter-tag.active {
+  background: #c98a3c;
   border-color: #c98a3c;
+  color: #161410;
+  font-weight: 600;
 }
 
 .results-info {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
   color: #999;
   font-size: 12px;
 }
 
-.loading {
-  text-align: center;
-  padding: 60px 20px;
-  color: #999;
-}
+.loading { text-align: center; padding: 60px 20px; color: #999; }
 .error {
   background: #4a2a2a;
   border: 1px solid #8a4a4a;
@@ -84,16 +88,32 @@ header p {
   margin: 20px 0;
 }
 
+.system-section { margin-bottom: 48px; }
+.system-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: #c98a3c;
+  letter-spacing: 1px;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #4a4842;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.system-heading .count {
+  font-size: 11px;
+  color: #666;
+  font-weight: 400;
+}
+
 ul.cards {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 22px;
 }
-li.cards__item {
-  list-style: none;
-}
+li.cards__item { list-style: none; }
 
 .card {
   display: flex;
@@ -104,111 +124,75 @@ li.cards__item {
   border-radius: 6px;
   overflow: hidden;
   transition: all .3s;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 .card:hover {
   border-color: #c98a3c;
-  box-shadow: 0 4px 12px rgba(201, 138, 60, 0.2);
+  box-shadow: 0 4px 14px rgba(201, 138, 60, .18);
   transform: translateY(-4px);
 }
 
 .card__image {
   width: 100%;
-  height: 200px;
-  background: linear-gradient(135deg, #4a4842 0%, #242320 100%);
-  position: relative;
+  height: 170px;
+  background: linear-gradient(135deg, #3a3833 0%, #242320 100%);
   overflow: hidden;
+  flex-shrink: 0;
 }
-.card__image img {
+.card__image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card__image--default {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-}
-
-/* デフォルト画像パターン */
-.card__image--default {
-  background: linear-gradient(135deg, #c98a3c 0%, #8a5c2a 100%);
+  background: linear-gradient(135deg, #4a4842 0%, #242320 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Playfair Display', serif;
-  font-size: 24px;
-  color: rgba(255,255,255,.3);
-  text-align: center;
-  padding: 20px;
+  font-size: 40px;
+  color: rgba(201, 138, 60, .35);
 }
 
 .card__content {
-  padding: 20px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
-.card__title {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px;
-  font-weight: 700;
-  color: #c98a3c;
-  margin-bottom: 8px;
-  line-height: 1.3;
-}
 .card__system {
-  font-size: 11px;
-  color: #999;
-  margin-bottom: 12px;
+  display: inline-block;
+  align-self: flex-start;
+  background: #c98a3c;
+  color: #161410;
+  padding: 3px 9px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.card__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #e9e5da;
+  margin-bottom: 8px;
+  line-height: 1.4;
 }
 .card__text {
-  font-size: 13px;
-  color: #ccc;
+  font-size: 12.5px;
+  color: #9d998f;
   flex: 1;
-  margin-bottom: 12px;
   overflow: hidden;
-  text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-}
-.card__tags {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.tag {
-  display: inline-block;
-  background: #1a1a17;
-  border: 1px solid #4a4842;
-  color: #999;
-  padding: 4px 8px;
-  border-radius: 2px;
-  font-size: 10px;
-}
-.tag.system {
-  background: #c98a3c;
-  border-color: #c98a3c;
-  color: #161410;
-  font-weight: 600;
-}
-
-.card__btn {
-  margin-top: 12px;
-  padding: 8px 12px;
-  background: #c98a3c;
-  border: none;
-  color: #161410;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .2s;
-}
-.card__btn:hover {
-  background: #d99f4a;
 }
 
 footer {
   text-align: center;
   color: #666;
   font-size: 12px;
-  padding-top: 20px;
+  padding-top: 24px;
   border-top: 1px solid #4a4842;
 }
 </style>
@@ -223,17 +207,16 @@ footer {
     <div class="search-box">
       <input type="text" id="searchInput" placeholder="検索...">
     </div>
+    <div class="filter-tags" id="filterTags"></div>
   </div>
 
   <div class="results-info">
     <span id="resultsCount">読み込み中...</span>
   </div>
 
-  <div class="loading" id="loading">
-    シナリオを取得中...
-  </div>
-  <div class="error" id="error" style="display: none;"></div>
-  <ul class="cards" id="scenarioGrid"></ul>
+  <div class="loading" id="loading">シナリオを取得中...</div>
+  <div class="error" id="error" style="display:none;"></div>
+  <div id="scenarioSections"></div>
 
   <footer>
     <p>© 2026 Scenario Generator | Powered by GitHub</p>
@@ -246,33 +229,23 @@ footer {
   const FOLDER = 'docs/scenario';
   const GITHUB_PAGES_BASE = 'https://notenog.github.io/memo/scenario';
   let allScenarios = [];
+  let allSystems = [];
 
   let token = localStorage.getItem('gh_token_list_page');
   if (!token) {
     token = prompt('GitHub Personal Access Token を入力してください:\n(Contents読み取り権限があれば十分です)');
-    if (token) {
-      localStorage.setItem('gh_token_list_page', token);
-    }
+    if (token) localStorage.setItem('gh_token_list_page', token);
   }
-
   const headers = token ? { Authorization: `token ${token}` } : {};
 
   try {
-    // ファイル一覧取得
-    const listRes = await fetch(
-      `https://api.github.com/repos/${REPO}/contents/${FOLDER}`,
-      { headers }
-    );
+    const listRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FOLDER}`, { headers });
     if (!listRes.ok) throw new Error(`API Error: ${listRes.status}`);
 
     const files = await listRes.json();
     const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.type === 'file');
+    if (htmlFiles.length === 0) throw new Error('HTMLファイルが見つかりません');
 
-    if (htmlFiles.length === 0) {
-      throw new Error('HTMLファイルが見つかりません');
-    }
-
-    // 各HTMLをfetchしてメタデータ抽出
     for (const file of htmlFiles) {
       try {
         const fileRes = await fetch(file.download_url);
@@ -281,28 +254,19 @@ footer {
 
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const title = doc.querySelector('meta[name="scenario-title"]')?.content || file.name.replace('.html', '');
-        const genre = doc.querySelector('meta[name="scenario-genre"]')?.content || '';
-        const tags = doc.querySelector('meta[name="scenario-tags"]')?.content || '';
+        const system = doc.querySelector('meta[name="scenario-genre"]')?.content || 'その他';
         const description = doc.querySelector('meta[name="scenario-description"]')?.content || '(説明なし)';
-        
-        // 最初の img タグを画像として抽出
+
         let imageUrl = null;
         const imgMatch = html.match(/<img[^>]+src="([^"]+)"/);
-        if (imgMatch) {
-          imageUrl = imgMatch[1];
-        }
-
-        const tagArray = tags ? tags.split(/[,、]/).map(t => t.trim()).filter(t => t) : [];
-
-        const pageUrl = `${GITHUB_PAGES_BASE}/${file.name}`;
+        if (imgMatch) imageUrl = imgMatch[1];
 
         allScenarios.push({
           name: file.name,
           title,
-          genre,
-          tags: tagArray,
+          system: system.trim() || 'その他',
           description,
-          url: pageUrl,
+          url: `${GITHUB_PAGES_BASE}/${file.name}`,
           image: imageUrl
         });
       } catch (e) {
@@ -310,17 +274,14 @@ footer {
       }
     }
 
-    // ソート(タイトル順)
     allScenarios.sort((a, b) => a.title.localeCompare(b.title, 'ja'));
+    allSystems = Array.from(new Set(allScenarios.map(s => s.system))).sort((a, b) => a.localeCompare(b, 'ja'));
 
-    // UI初期化
     document.getElementById('loading').style.display = 'none';
-    renderScenarios(allScenarios);
+    renderFilterTags();
+    render(allScenarios);
 
-    // 検索
-    document.getElementById('searchInput').addEventListener('input', () => {
-      renderScenarios(filterScenarios());
-    });
+    document.getElementById('searchInput').addEventListener('input', () => render(filterScenarios()));
 
   } catch (error) {
     document.getElementById('loading').style.display = 'none';
@@ -329,59 +290,83 @@ footer {
     console.error(error);
   }
 
-  function filterScenarios() {
-    const searchText = document.getElementById('searchInput').value.toLowerCase();
-
-    return allScenarios.filter(s => {
-      return s.title.toLowerCase().includes(searchText) ||
-             s.description.toLowerCase().includes(searchText) ||
-             s.genre.toLowerCase().includes(searchText) ||
-             s.tags.some(t => t.toLowerCase().includes(searchText));
+  function renderFilterTags() {
+    const container = document.getElementById('filterTags');
+    container.innerHTML = allSystems.map(sys =>
+      `<div class="filter-tag" data-system="${escapeAttr(sys)}">${escapeHtml(sys)}</div>`
+    ).join('');
+    container.querySelectorAll('.filter-tag').forEach(el => {
+      el.addEventListener('click', () => {
+        el.classList.toggle('active');
+        render(filterScenarios());
+      });
     });
   }
 
-  function renderScenarios(scenarios) {
-    const grid = document.getElementById('scenarioGrid');
+  function filterScenarios() {
+    const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+    const activeSystems = Array.from(document.querySelectorAll('.filter-tag.active')).map(t => t.dataset.system);
+
+    return allScenarios.filter(s => {
+      const matchSearch = !searchText ||
+        s.title.toLowerCase().includes(searchText) ||
+        s.description.toLowerCase().includes(searchText) ||
+        s.system.toLowerCase().includes(searchText);
+      const matchSystem = activeSystems.length === 0 || activeSystems.includes(s.system);
+      return matchSearch && matchSystem;
+    });
+  }
+
+  function render(scenarios) {
+    const wrap = document.getElementById('scenarioSections');
     document.getElementById('resultsCount').textContent = `${scenarios.length}件のシナリオ`;
 
     if (scenarios.length === 0) {
-      grid.innerHTML = '<li style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">該当するシナリオがありません</li>';
+      wrap.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">該当するシナリオがありません</div>';
       return;
     }
 
-    grid.innerHTML = scenarios.map(s => {
-      const imageHtml = s.image 
-        ? `<img src="${s.image}" alt="${escapeHtml(s.title)}">`
-        : `<div class="card__image--default">${s.title.substring(0, 1)}</div>`;
-      
-      return `
-        <li class="cards__item">
-          <div class="card">
-            <div class="card__image">
-              ${imageHtml}
-            </div>
-            <div class="card__content">
-              <div class="card__title">${escapeHtml(s.title)}</div>
-              ${s.genre ? `<div class="card__system">${escapeHtml(s.genre)}</div>` : ''}
-              <p class="card__text">${escapeHtml(s.description)}</p>
-              <div class="card__tags">
-                ${s.genre ? `<span class="tag system">${escapeHtml(s.genre)}</span>` : ''}
-                ${s.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
-              </div>
-              <a href="${s.url}" target="_blank" rel="noopener" style="text-decoration: none;">
-                <button class="card__btn">View Scenario →</button>
-              </a>
-            </div>
+    const groups = {};
+    scenarios.forEach(s => {
+      (groups[s.system] = groups[s.system] || []).push(s);
+    });
+    const systemOrder = Object.keys(groups).sort((a, b) => a.localeCompare(b, 'ja'));
+
+    wrap.innerHTML = systemOrder.map(sys => `
+      <section class="system-section">
+        <h2 class="system-heading">${escapeHtml(sys)}<span class="count">${groups[sys].length}件</span></h2>
+        <ul class="cards">
+          ${groups[sys].map(cardHTML).join('')}
+        </ul>
+      </section>
+    `).join('');
+  }
+
+  function cardHTML(s) {
+    const imageHtml = s.image
+      ? `<img src="${escapeAttr(s.image)}" alt="${escapeAttr(s.title)}">`
+      : `<div class="card__image--default">${escapeHtml(s.title.substring(0, 1))}</div>`;
+    return `
+      <li class="cards__item">
+        <a class="card" href="${escapeAttr(s.url)}" target="_blank" rel="noopener">
+          <div class="card__image">${imageHtml}</div>
+          <div class="card__content">
+            <span class="card__system">${escapeHtml(s.system)}</span>
+            <div class="card__title">${escapeHtml(s.title)}</div>
+            <p class="card__text">${escapeHtml(s.description)}</p>
           </div>
-        </li>
-      `;
-    }).join('');
+        </a>
+      </li>
+    `;
   }
 
   function escapeHtml(str) {
     const div = document.createElement('div');
-    div.textContent = str;
+    div.textContent = str == null ? '' : str;
     return div.innerHTML;
+  }
+  function escapeAttr(str) {
+    return escapeHtml(str).replace(/"/g, '&quot;');
   }
 })();
 </script>
