@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>　</title>
+<meta name="scenario-title" content="　">
+<meta name="scenario-genre" content="クトゥルフ神話TRPG ">
+<meta name="scenario-tags" content="PL3/ 中級">
+<meta name="scenario-description" content="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;600;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  
+  --bg:#ffffff; --surface:#fafafa; --border:#e2e0db;
+  --text:#211f1c; --text-dim:#7d786f;
+
+  --accent:#7dd987;
+  --serif:'Zen Old Mincho', serif; --sans:'Zen Kaku Gothic New', sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);}
+body.has-bg-image{position:relative;}
+body.has-bg-image::before{
+  content:'';position:fixed;inset:-20px;
+  background-image:var(--bg-image);background-size:cover;background-position:center;
+  opacity:.28;filter:grayscale(.3) blur(4px);z-index:0;
+}
+.page{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:64px 28px 100px;}
+.tab-stack{
+  position:fixed; left:0; top:120px; z-index:5;
+  display:flex; flex-direction:column; gap:14px;
+}
+.tab{
+  writing-mode:vertical-rl; text-orientation:upright;
+  background:var(--accent); color:#161410;
+  font-family:var(--sans); font-weight:700; font-size:12px; letter-spacing:.15em;
+  padding:14px 7px; border-radius:0 4px 4px 0;
+}
+a.tab.tab-link{
+  text-decoration:none;
+  filter:brightness(0.92);
+}
+a.tab.tab-link:hover{filter:brightness(1.05);}
+@media (max-width:640px){ .tab-stack{display:none;} }
+.page-head{text-align:center;margin-bottom:36px;}
+.eyebrow{font-size:12px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:10px;}
+h1{font-family:var(--serif);font-weight:800;font-size:clamp(17px,5vw,28px);margin:0 0 22px;letter-spacing:.02em;}
+.divider{margin:0 auto;max-width:340px;}
+.divider-tear{
+  height:10px;
+  background:var(--border);
+  clip-path:polygon(0% 0%,4% 100%,8% 0%,12% 100%,16% 0%,20% 100%,24% 0%,28% 100%,32% 0%,36% 100%,40% 0%,44% 100%,48% 0%,52% 100%,56% 0%,60% 100%,64% 0%,68% 100%,72% 0%,76% 100%,80% 0%,84% 100%,88% 0%,92% 100%,96% 0%,100% 100%);
+}
+.divider-line{height:1px;background:var(--border);}
+.divider-double{height:5px;display:flex;flex-direction:column;gap:3px;}
+.divider-double span{display:block;height:1px;background:var(--border);}
+.hero-image{margin:0 0 40px;overflow:hidden;background:var(--surface);line-height:0;}
+.hero-image img{width:100%;display:block;max-height:420px;object-fit:cover;}
+.content{font-size:15px;line-height:1.9;}
+.content h2{font-family:var(--serif);font-size:22px;margin:40px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.content h3{font-family:var(--serif);font-size:18px;margin:28px 0 12px;}
+.content p{margin:0 0 18px;color:var(--text);}
+.content ul,.content ol{margin:0 0 18px;padding-left:1.4em;}
+.content li{margin-bottom:6px;}
+.content strong{color:var(--accent);}
+.content mark, .callout-body mark{
+  background: linear-gradient(transparent 60%, color-mix(in srgb, var(--accent) 55%, transparent) 60%);
+  color: var(--text);
+  padding: 0 2px;
+}
+.content mark.hl-yellow, .callout-body mark.hl-yellow{
+  background: linear-gradient(transparent 60%, #f6ff5f 60%);
+  color: #211f1c;
+}
+.content a{color:var(--accent);}
+.content blockquote{margin:20px 0;padding:4px 18px;border-left:2px solid var(--accent);color:var(--text-dim);}
+
+.info-table{
+  width:100%; border-collapse:collapse; margin:28px 0;
+  font-size:14.5px;
+}
+.info-table th, .info-table td{
+  text-align:left; padding:11px 14px; vertical-align:top;
+}
+.info-table th{
+  width:28%; white-space:nowrap;
+  font-family:var(--sans); font-weight:700;
+}
+.info-table td{color:var(--text);}
+
+/* ミニマル */
+.info-table-minimal{border-top:2px solid var(--accent);}
+.info-table-minimal th, .info-table-minimal td{border-bottom:1px solid var(--border);}
+.info-table-minimal th{color:var(--accent);}
+
+/* ストライプ */
+.info-table-striped{border-radius:4px;overflow:hidden;}
+.info-table-striped tr:nth-child(odd){background:var(--surface);}
+.info-table-striped th{color:var(--accent);}
+.info-table-striped th, .info-table-striped td{border-bottom:none;}
+
+/* ラベル帯 */
+.info-table-labelbar{border-collapse:separate;border-spacing:0 6px;}
+.info-table-labelbar th{
+  background:var(--accent);
+  color:#fff;
+  border-radius:3px; text-align:center;
+}
+.info-table-labelbar td{padding-left:16px;}
+
+/* 枠付き資料 */
+.info-table-sheet{border:1.5px solid var(--border);}
+.info-table-sheet th, .info-table-sheet td{border:1px solid var(--border);}
+.info-table-sheet th{background:var(--surface);color:var(--accent);}
+
+/* カード型 */
+.info-table-card{
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin:28px 0;
+}
+.info-card{
+  border:1px solid var(--border); border-radius:5px;
+  padding:12px 14px; background:var(--surface);
+  border-top:2px solid var(--accent);
+}
+.info-card-key{
+  font-family:var(--sans); font-size:11px; font-weight:700;
+  color:var(--accent); letter-spacing:.06em; margin-bottom:5px;
+}
+.info-card-val{font-size:15px; color:var(--text); line-height:1.5;}
+@media (max-width:520px){
+  .info-table-card{grid-template-columns:1fr;}
+  .info-table th{width:34%;}
+}
+
+.callout{
+  --cc: var(--accent);
+  margin:24px 0; padding:14px 18px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:3px solid var(--cc);
+  border-radius:3px;
+}
+.callout-title{
+  font-family:var(--sans); font-weight:700; font-size:12.5px; letter-spacing:.06em;
+  color:var(--cc); margin-bottom:8px; text-transform:uppercase;
+}
+.callout-body p{margin:0 0 10px; font-size:14.5px;}
+.callout-body p:last-child{margin-bottom:0;}
+.callout-note{--cc:#5b8fd6;}
+.callout-tip{--cc:#5cb87a;}
+.callout-warning{--cc:#d6a83c;}
+.callout-danger{--cc:#d6615c;}
+
+.img-block{clear:both;margin:26px 0;background:var(--surface);line-height:0;}
+.img-block img{width:100%;display:block;border:1px solid var(--border);}
+.pattern-alternating .img-block.alt{
+  width:46%; margin:10px 0 24px;
+}
+.pattern-alternating .img-block.alt.left{float:left; margin-right:24px;}
+.pattern-alternating .img-block.alt.right{float:right; margin-left:24px;}
+@media (max-width:640px){
+  .pattern-alternating .img-block.alt{width:100%; float:none; margin:20px 0;}
+}
+.pattern-inline .img-block.inline{width:200px;}
+.pattern-inline .img-block.inline.left{float:left; margin:6px 24px 20px 0;}
+.pattern-inline .img-block.inline.right{float:right; margin:6px 0 20px 24px;}
+@media (max-width:640px){
+  .pattern-inline .img-block.inline{width:100%; float:none; margin:18px 0;}
+}
+.pattern-background .img-block{width:100%;max-width:420px;margin:26px auto;}
+
+/* ---- アニメーション基本状態 ---- */
+[data-anim]{ }
+[data-anim="none"]{opacity:1;}
+[data-anim="fade"]{opacity:0; transition:opacity 1.8s ease;}
+[data-anim="fade"].in-view{opacity:1;}
+[data-anim="slide"]{opacity:0; transform:translateY(40px); transition:opacity .8s ease, transform .8s ease;}
+[data-anim="slide"].in-view{opacity:1; transform:translateY(0);}
+[data-anim="slideLeft"]{opacity:0; transform:translateX(-55px); transition:opacity .8s ease, transform .8s ease;}
+[data-anim="slideLeft"].in-view{opacity:1; transform:translateX(0);}
+[data-anim="slideRight"]{opacity:0; transform:translateX(55px); transition:opacity .8s ease, transform .8s ease;}
+[data-anim="slideRight"].in-view{opacity:1; transform:translateX(0);}
+[data-anim="zoom"]{opacity:0; transform:scale(.85); transition:opacity .8s ease, transform .8s ease;}
+[data-anim="zoom"].in-view{opacity:1; transform:scale(1);}
+[data-anim="blur"]{opacity:0; filter:blur(10px); transition:opacity 1.6s ease, filter 1.6s ease;}
+[data-anim="blur"].in-view{opacity:1; filter:blur(0);}
+[data-anim="wipe"]{position:relative; overflow:hidden; opacity:1;}
+[data-anim="wipe"]::before{
+  content:''; position:absolute; top:0; left:0; width:100%; height:100%; z-index:2;
+  background:var(--bg); pointer-events:none;
+  transform:translateX(0); will-change:transform;
+}
+[data-anim="wipe"].in-view::before{
+  animation:wipe-reveal 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes wipe-reveal{
+  0%{ transform:translateX(0); }
+  100%{ transform:translateX(100%); }
+}
+[data-anim="kiran"]{position:relative; overflow:hidden; opacity:1;}
+[data-anim="kiran"]::before{
+  content:''; position:absolute; top:0; left:0; z-index:2;
+  width:40px; height:100%;
+  background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.85) 50%, rgba(255,255,255,0) 100%);
+  transform:translateX(-150px) skewX(-20deg);
+  pointer-events:none; opacity:0;
+}
+[data-anim="kiran"].in-view::before{
+  animation:kiran-shine 1s ease-out forwards;
+}
+@keyframes kiran-shine{
+  0%{ transform:translateX(-150px) skewX(-20deg); opacity:0; }
+  30%{ opacity:1; }
+  100%{ transform:translateX(700px) skewX(-20deg); opacity:0; }
+}
+
+.callout-body p { margin: 0; }
+
+/* ---- アコーディオン ---- */
+.accordion-container{ margin: 28px 0; }
+.accordion {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.accordion summary {
+  cursor: pointer;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: var(--accent);
+  user-select: none;
+}
+.accordion summary::after {
+  content: '▼';
+  font-size: 10px;
+  transition: transform .3s;
+  margin-left: 8px;
+  float: right;
+}
+.accordion[open] summary::after {
+  transform: rotate(180deg);
+}
+.accordion-body {
+  padding: 0 16px 12px;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* ---- カード ---- */
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 28px 0;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  border-top: 3px solid var(--accent);
+}
+.card-title {
+  padding: 12px 14px;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 14px;
+}
+.card-body {
+  padding: 12px 14px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.card-body p { margin: 0; }
+
+/* カードスタイル: シンプル(デフォルト) */
+.card-simple {
+  border-top: 3px solid var(--accent);
+}
+
+/* カードスタイル: シャドウ */
+.card-shadow {
+  border: 1px solid var(--border);
+  box-shadow: 2px 4px 8px rgba(0,0,0,.3);
+  transition: transform .3s, box-shadow .3s;
+}
+.card-shadow:hover {
+  transform: translateY(-4px);
+  box-shadow: 4px 8px 16px rgba(0,0,0,.4);
+}
+
+/* カードスタイル: ホバー反応 */
+.card-hover {
+  border: 1px solid var(--border);
+  transition: transform .3s, border-color .3s, box-shadow .3s;
+}
+.card-hover:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 16px rgba(0,0,0,.2);
+}
+
+/* カードスタイル: 背景色濃い */
+.card-darkbg {
+  background: #1a1a17;
+  border-color: var(--border);
+}
+.card-darkbg .card-title {
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 10px;
+}
+
+/* カードスタイル: グラデーション */
+.card-gradient {
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.card-gradient::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+.card-gradient .card-title {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--surface) 100%);
+  color: #fff;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+/* ---- カルーセル ---- */
+.carousel {
+  position: relative;
+  margin: 28px 0;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.carousel-inner {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+.carousel-slide {
+  display: none;
+  width: 100%;
+}
+.carousel-slide.active {
+  display: block;
+  animation: carousel-fade .5s ease-in-out;
+}
+@keyframes carousel-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.carousel-slide img {
+  width: 100%;
+  display: block;
+  max-height: 500px;
+  object-fit: cover;
+}
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 10;
+  border-radius: 3px;
+}
+.carousel-prev { left: 10px; }
+.carousel-next { right: 10px; }
+.carousel-btn:hover { background: rgba(0,0,0,.8); }
+.carousel-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.5);
+  cursor: pointer;
+}
+.dot.active {
+  background: var(--accent);
+}
+
+
+
+</style>
+</head>
+<body class="" >
+  <div class="tab-stack">
+    <div class="tab" aria-hidden="true">クトゥルフ神話TRPG </div>
+    <a class="tab tab-link" href="https://notenog.github.io/memo/" target="_blank" rel="noopener">ハウスルール</a>
+  </div>
+
+  <main class="page">
+    <header class="page-head">
+      <div class="eyebrow">クトゥルフ神話TRPG  ・ PL3/ 中級</div>
+      <h1>　</h1>
+      
+    </header>
+
+    
+
+    <article class="content pattern-hero">
+      <div class="accordion-container">
+<details class="accordion"><summary>タイトル1</summary><div class="accordion-body">展開時に表示されるテキスト</div></details><details class="accordion"><summary>タイトル2</summary><div class="accordion-body">こんな感じで複数作れます</div></details>
+</div>
+<center>
+
+<div class="card-container">
+<div class="card card-shadow"><div class="card-title">カード</div><div class="card-body">
+<p>中身</p>
+</div></div><div class="card card-shadow"><div class="card-title">カード</div><div class="card-body">
+<p>中身</p>
+</div></div><div class="card card-shadow"><div class="card-title">カード</div><div class="card-body">
+<p>中身</p>
+</div></div><div class="card card-shadow"><div class="card-title">カード</div><div class="card-body">
+</div></div>
+</div>
+# Introduction
+</center>
+<div class="info-table-card">
+      <div class="info-card">
+        <div class="info-card-key">HO1</div>
+        <div class="info-card-val">貴方は謎の通り魔に刺されて意識を失った。</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-key">HO2</div>
+        <div class="info-card-val">貴方は暴走自動車に轢かれて意識を失った。</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-key">HO3</div>
+        <div class="info-card-val">貴方は銀行強盗に撃たれて意識を失った。</div>
+      </div>
+    </div>
+
+
+
+<p>　</p>
+<h2>概要</h2>
+<p><strong>PL人数</strong>：3人固定<br><strong>所要時間</strong>：３５時間想定 +個別導入+予備日<br>　　　　　└終日(8~9時間程度)が２～３日とれる日程が好ましい</p>
+<blockquote>
+<p><mark class="hl hl-yellow">推奨技能：〈目星〉〈忍び歩き〉〈化学〉〈聞き耳〉〈図書館〉〈電子工学〉〈戦闘技能〉/他</mark><br>　　　　　└必ず全てを網羅する必要はない。色んな技能があるといいだろう。</p>
+</blockquote>
+<p>　</p>
+<h2>探索者に関して</h2>
+<ul>
+<li>探索者たちは全員共通の町を生活拠点としている。</li>
+<li>探索者たちの血液型は、全員が”AB型Rh-“という貴重な種類である(自覚している必要はない)。</li>
+<li>探索者作成(選択)前に上記のHOから一つを選択すること。(PL相談可)</li>
+<li>HOと齟齬がなければ継続探索者可。</li>
+<li>導入はHOごとに個別に行う。</li>
+</ul>
+<p>　</p>
+<h2>所持品等について</h2>
+<ul>
+<li>所持品・武器：各HO、導入に合わせて用意すること。</li>
+<li>AF・呪文：基本持ち込み可能。自主封印も任意。</li>
+<li>また、ネタバレになりそうなものがあれば入手シナリオ名を伏せて記載することを推奨する。</li>
+</ul>
+
+    </article>
+  </main>
+
+<script type="application/json" id="generator-state">
+{"version":1,"fields":{"titleInput":"　","genreInput":"クトゥルフ神話TRPG ","tagInput":"PL3/ 中級","scenarioDescInput":"","houseRuleInput":"https://notenog.github.io/memo/","mdInput":"\n:::accordion\nタイトル1 | 展開時に表示されるテキスト\nタイトル2 | こんな感じで複数作れます\n:::\n\n\u003ccenter>\n\n:::card\n## カード\n中身\n\n## カード\n中身\n\n\n\n## カード\n中身\n\n## カード\n:::\n# Introduction\n\u003c/center>\n{{table}}\n\n\n\n　\n## 概要\n**PL人数**：3人固定\n**所要時間**：３５時間想定 +個別導入+予備日\n　　　　　└終日(8~9時間程度)が２～３日とれる日程が好ましい\n\n> ===推奨技能：〈目星〉〈忍び歩き〉〈化学〉〈聞き耳〉〈図書館〉〈電子工学〉〈戦闘技能〉/他===\n　　　　　└必ず全てを網羅する必要はない。色んな技能があるといいだろう。\n\n　\n## 探索者に関して\n- 探索者たちは全員共通の町を生活拠点としている。\n- 探索者たちの血液型は、全員が”AB型Rh-“という貴重な種類である(自覚している必要はない)。\n- 探索者作成(選択)前に上記のHOから一つを選択すること。(PL相談可)\n- HOと齟齬がなければ継続探索者可。\n- 導入はHOごとに個別に行う。 \n\n\n　\n## 所持品等について\n- 所持品・武器：各HO、導入に合わせて用意すること。\n- AF・呪文：基本持ち込み可能。自主封印も任意。\n- また、ネタバレになりそうなものがあれば入手シナリオ名を伏せて記載することを推奨する。\n","accentInput":"#7dd987","fontSizeInput":"15","titleSizeInput":"28"},"options":{"pattern":"hero","animation":"blur","theme":"white","font":"oldmincho","divider":"none","heading":"underline","tableStyle":"card","cardStyle":"shadow","forceAnim":true},"tableRows":[{"key":"HO1","value":"貴方は謎の通り魔に刺されて意識を失った。"},{"key":"HO2","value":"貴方は暴走自動車に轢かれて意識を失った。"},{"key":"HO3","value":"貴方は銀行強盗に撃たれて意識を失った。"}],"images":[]}
+</script>
+<script>
+
+(function(){
+  function start(){
+    var targets = Array.prototype.slice.call(document.querySelectorAll('[data-anim]'));
+    var animTargets = targets.filter(function(t){ return t.dataset.anim !== 'none'; });
+
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        var io = new IntersectionObserver(function(entries){
+          entries.forEach(function(e){
+            if(e.isIntersecting){
+              e.target.classList.add('in-view');
+              io.unobserve(e.target);
+            }
+          });
+        }, {threshold:0.15, rootMargin:'0px 0px -10% 0px'});
+        animTargets.forEach(function(t){ io.observe(t); });
+      });
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+
+  // ---- カルーセル処理 ----
+  document.querySelectorAll('.carousel').forEach(carousel => {
+    let current = 0;
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const dots = carousel.querySelectorAll('.dot');
+    const total = slides.length;
+
+    function showSlide(n) {
+      slides.forEach(s => s.classList.remove('active'));
+      dots.forEach(d => d.classList.remove('active'));
+      slides[n].classList.add('active');
+      dots[n].classList.add('active');
+    }
+
+    carousel.querySelector('.carousel-prev')?.addEventListener('click', () => {
+      current = (current - 1 + total) % total;
+      showSlide(current);
+    });
+
+    carousel.querySelector('.carousel-next')?.addEventListener('click', () => {
+      current = (current + 1) % total;
+      showSlide(current);
+    });
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        current = i;
+        showSlide(current);
+      });
+    });
+
+    showSlide(0);
+  });
+})();
+
+</script>
+</body>
+</html>
