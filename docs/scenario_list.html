@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja" data-theme="dark">
+<html lang="ja" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -383,7 +383,7 @@ footer {
   if (saved) document.documentElement.setAttribute('data-theme', saved);
   document.getElementById('themeToggle').addEventListener('click', () => {
     const now = document.documentElement.getAttribute('data-theme');
-    const next = now === 'dark' ? 'light' : 'dark';
+    const next = now === 'light' ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('scenario_list_theme', next);
   });
@@ -396,11 +396,9 @@ footer {
   let allScenarios = [];
   let allSystems = [];
 
-  let token = localStorage.getItem('gh_token_list_page');
-  if (!token) {
-    token = prompt('GitHub Personal Access Token を入力してください:\n(Contents読み取り権限があれば十分です)');
-    if (token) localStorage.setItem('gh_token_list_page', token);
-  }
+  // 公開リポジトリなのでトークンなしでも読めます。
+  // 保存済みトークンがある場合のみ、レート制限緩和のために使用します。
+  const token = localStorage.getItem('gh_token_list_page');
   const headers = token ? { Authorization: `token ${token}` } : {};
 
   function systemHue(name) {
@@ -423,7 +421,12 @@ footer {
 
   try {
     const listRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FOLDER}`, { headers });
-    if (!listRes.ok) throw new Error(`API Error: ${listRes.status}`);
+    if (!listRes.ok) {
+      if (listRes.status === 403) {
+        throw new Error('アクセスが一時的に制限されています。しばらく時間をおいてから再読み込みしてください。');
+      }
+      throw new Error(`シナリオ一覧を取得できませんでした (${listRes.status})`);
+    }
 
     const files = await listRes.json();
     const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.type === 'file');
