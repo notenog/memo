@@ -79,7 +79,7 @@
   z-index: 0;
   background-size: cover;
   background-position: center;
-  filter: blur(40px) saturate(1.15);
+  filter: blur(14px) saturate(1.12);
   opacity: 0;
   transition: opacity .55s ease;
   pointer-events: none;
@@ -106,28 +106,43 @@ body {
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--header-border);
 }
-.header-top {
+.header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 16px 0;
+  gap: 20px 28px;
+  padding: 40px 20px;
   flex-wrap: wrap;
+  transition: padding .3s ease;
 }
 .site-title {
   font-family: 'Playfair Display', serif;
-  font-size: 30px;
+  font-size: 44px;
   letter-spacing: 2px;
   color: var(--header-title);
   font-weight: 700;
   line-height: 1;
+  transition: font-size .3s ease;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px 18px;
+  margin-left: auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 .header-tools {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-left: auto;
 }
+
+/* スクロール後の縮小状態 */
+.site-header.minimized .header-inner { padding: 10px 20px; }
+.site-header.minimized .site-title { font-size: 24px; }
+.site-header.minimized .nav-item {
+  transition: padding .3s ease, font-size .3s ease; padding: 4px 11px; font-size: 11px; }
 .search-box { position: relative; }
 .search-box svg.icon-search {
   position: absolute;
@@ -199,10 +214,10 @@ body {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
-  padding-bottom: 14px;
+  justify-content: flex-end;
 }
 .nav-item {
-  padding: 5px 13px;
+  padding: 6px 14px;
   background: transparent;
   border: 1px solid var(--field-border);
   color: var(--header-text);
@@ -241,7 +256,7 @@ main { padding: 32px 0 60px; }
   font-size: 13px;
 }
 
-.system-section { margin-bottom: 52px; scroll-margin-top: 120px; }
+.system-section { margin-bottom: 52px; scroll-margin-top: 110px; }
 .system-heading {
   font-size: 14px;
   font-weight: 700;
@@ -364,8 +379,12 @@ footer {
   .card__text { max-height: 70px; opacity: 1; margin-top: 8px; -webkit-line-clamp: 3; }
 }
 @media (max-width: 600px) {
-  .header-top { padding: 12px 0; }
-  .site-title { font-size: 24px; }
+  .header-inner { padding: 20px 20px; }
+  .site-title { font-size: 28px; }
+  .site-header.minimized .header-inner { padding: 10px 20px; }
+  .site-header.minimized .site-title { font-size: 20px; }
+  .header-right { justify-content: flex-start; }
+  .system-nav { justify-content: flex-start; }
   .search-box input { width: 130px; }
   .search-box input:focus { width: 150px; }
   ul.cards { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
@@ -376,10 +395,11 @@ footer {
 
 <div id="hoverBackdrop"></div>
 
-<header class="site-header">
-  <div class="container">
-    <div class="header-top">
-      <div class="site-title">Scenario</div>
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <div class="site-title">Scenario</div>
+    <div class="header-right">
+      <nav class="system-nav" id="systemNav"></nav>
       <div class="header-tools">
         <div class="search-box">
           <svg class="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
@@ -395,7 +415,6 @@ footer {
         </div>
       </div>
     </div>
-    <nav class="system-nav" id="systemNav"></nav>
   </div>
 </header>
 
@@ -413,6 +432,21 @@ footer {
 </footer>
 
 <script>
+// ---- スクロールでヘッダーを縮小 ----
+(function() {
+  const header = document.getElementById('siteHeader');
+  const TRIGGER = 80;
+  let ticking = false;
+  function update() {
+    header.classList.toggle('minimized', window.scrollY >= TRIGGER);
+    ticking = false;
+  }
+  window.addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  update();
+})();
+
 // ---- テーマ切り替え ----
 (function() {
   const saved = localStorage.getItem('scenario_list_theme');
