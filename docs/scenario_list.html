@@ -1,18 +1,66 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Scenario</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+:root[data-theme="dark"] {
+  --bg: #161410;
+  --bg-blur: rgba(22,20,16,.94);
+  --surface: #242320;
+  --border: #33312b;
+  --border-strong: #4a4842;
+  --text: #e9e5da;
+  --text-dim: #9d998f;
+  --text-faint: #6d6a61;
+  --accent: #c98a3c;
+  --accent-contrast: #161410;
+  --badge-bg: #c98a3c;
+  --badge-text: #161410;
+  --overlay: 12,11,9;
+  --card-shadow: rgba(0,0,0,.45);
+  --err-bg: #3a2422;
+  --err-border: #7a4a45;
+  --err-text: #e59a95;
+  --default-l1: 30%;
+  --default-l2: 15%;
+  --default-s: 30%;
+  --default-letter: rgba(255,255,255,.22);
+}
+:root[data-theme="light"] {
+  --bg: #fdfdfd;
+  --bg-blur: rgba(253,253,253,.92);
+  --surface: #ffffff;
+  --border: #e5e5e5;
+  --border-strong: #d8d8d8;
+  --text: #2b2b2b;
+  --text-dim: #4e4e4e;
+  --text-faint: #b8b8b8;
+  --accent: #284b63;
+  --accent-contrast: #ffffff;
+  --badge-bg: #ffffff;
+  --badge-text: #284b63;
+  --overlay: 28,42,54;
+  --card-shadow: rgba(40,75,99,.16);
+  --err-bg: #fdf0ef;
+  --err-border: #e0b4b0;
+  --err-text: #a04a44;
+  --default-l1: 55%;
+  --default-l2: 35%;
+  --default-s: 22%;
+  --default-letter: rgba(255,255,255,.5);
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-  background: #161410;
-  color: #e9e5da;
+  background: var(--bg);
+  color: var(--text-dim);
   font-family: 'Noto Sans JP', sans-serif;
   font-size: 15px;
   line-height: 1.6;
+  transition: background .25s, color .25s;
 }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
@@ -21,9 +69,9 @@ body {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(22,20,16,.94);
+  background: var(--bg-blur);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid #33312b;
+  border-bottom: 1px solid var(--border);
 }
 .header-top {
   display: flex;
@@ -37,7 +85,7 @@ body {
   font-family: 'Playfair Display', serif;
   font-size: 30px;
   letter-spacing: 2px;
-  color: #c98a3c;
+  color: var(--accent);
   font-weight: 700;
   line-height: 1;
 }
@@ -48,14 +96,14 @@ body {
   margin-left: auto;
 }
 .search-box { position: relative; }
-.search-box svg {
+.search-box svg.icon-search {
   position: absolute;
   left: 9px;
   top: 50%;
   transform: translateY(-50%);
   width: 13px;
   height: 13px;
-  stroke: #6d6a61;
+  stroke: var(--text-faint);
   fill: none;
   stroke-width: 2;
   pointer-events: none;
@@ -63,28 +111,55 @@ body {
 .search-box input {
   width: 210px;
   padding: 7px 10px 7px 28px;
-  background: #242320;
-  border: 1px solid #4a4842;
-  color: #e9e5da;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
   border-radius: 3px;
   font-size: 13px;
   font-family: inherit;
   transition: border-color .2s, width .2s;
 }
-.search-box input::placeholder { color: #6d6a61; }
-.search-box input:focus { outline: none; border-color: #c98a3c; width: 250px; }
+.search-box input::placeholder { color: var(--text-faint); }
+.search-box input:focus { outline: none; border-color: var(--accent); width: 250px; }
 
 .sort-select {
   padding: 7px 10px;
-  background: #242320;
-  border: 1px solid #4a4842;
-  color: #9d998f;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text-dim);
   border-radius: 3px;
   font-size: 12px;
   font-family: inherit;
   cursor: pointer;
 }
-.sort-select:focus { outline: none; border-color: #c98a3c; }
+.sort-select:focus { outline: none; border-color: var(--accent); }
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: border-color .2s;
+  flex-shrink: 0;
+}
+.theme-toggle:hover { border-color: var(--accent); }
+.theme-toggle svg {
+  width: 15px;
+  height: 15px;
+  stroke: var(--text-dim);
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+:root[data-theme="dark"] .icon-sun { display: block; }
+:root[data-theme="dark"] .icon-moon { display: none; }
+:root[data-theme="light"] .icon-sun { display: none; }
+:root[data-theme="light"] .icon-moon { display: block; }
 
 .system-nav {
   display: flex;
@@ -95,8 +170,8 @@ body {
 .nav-item {
   padding: 5px 13px;
   background: transparent;
-  border: 1px solid #4a4842;
-  color: #9d998f;
+  border: 1px solid var(--border-strong);
+  color: var(--text-dim);
   border-radius: 14px;
   font-size: 11.5px;
   cursor: pointer;
@@ -104,11 +179,11 @@ body {
   user-select: none;
   white-space: nowrap;
 }
-.nav-item:hover { border-color: #c98a3c; color: #e9e5da; }
+.nav-item:hover { border-color: var(--accent); color: var(--accent); }
 .nav-item.active {
-  background: #c98a3c;
-  border-color: #c98a3c;
-  color: #161410;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
   font-weight: 700;
 }
 .nav-item .count { opacity: .6; margin-left: 5px; font-size: 10px; }
@@ -116,16 +191,16 @@ body {
 /* ---- 本文 ---- */
 main { padding: 32px 0 60px; }
 .results-info {
-  color: #6d6a61;
+  color: var(--text-faint);
   font-size: 11.5px;
   margin-bottom: 26px;
   letter-spacing: .5px;
 }
-.loading { text-align: center; padding: 60px 20px; color: #999; }
+.loading { text-align: center; padding: 60px 20px; color: var(--text-faint); }
 .error {
-  background: #3a2422;
-  border: 1px solid #7a4a45;
-  color: #e59a95;
+  background: var(--err-bg);
+  border: 1px solid var(--err-border);
+  color: var(--err-text);
   padding: 14px 16px;
   border-radius: 4px;
   margin: 20px 0;
@@ -136,16 +211,16 @@ main { padding: 32px 0 60px; }
 .system-heading {
   font-size: 14px;
   font-weight: 700;
-  color: #c98a3c;
+  color: var(--accent);
   letter-spacing: 1.5px;
   padding-bottom: 8px;
   margin-bottom: 22px;
-  border-bottom: 1px solid #33312b;
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: baseline;
   gap: 10px;
 }
-.system-heading .count { font-size: 11px; color: #6d6a61; font-weight: 400; }
+.system-heading .count { font-size: 11px; color: var(--text-faint); font-weight: 400; }
 
 /* ---- ポスター型カード ---- */
 ul.cards {
@@ -162,24 +237,20 @@ li.cards__item { list-style: none; }
   aspect-ratio: 2 / 3;
   border-radius: 6px;
   overflow: hidden;
-  background: #242320;
-  border: 1px solid #33312b;
+  background: var(--surface);
+  border: 1px solid var(--border);
   text-decoration: none;
   color: inherit;
   cursor: pointer;
   transition: border-color .3s, box-shadow .3s, transform .3s;
 }
 .card:hover {
-  border-color: #c98a3c;
-  box-shadow: 0 8px 22px rgba(0,0,0,.45);
+  border-color: var(--accent);
+  box-shadow: 0 8px 22px var(--card-shadow);
   transform: translateY(-4px);
 }
 
-.card__image {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
+.card__image { position: absolute; inset: 0; overflow: hidden; }
 .card__image img {
   width: 100%;
   height: 100%;
@@ -196,7 +267,7 @@ li.cards__item { list-style: none; }
   justify-content: center;
   font-family: 'Playfair Display', serif;
   font-size: 58px;
-  color: rgba(255,255,255,.22);
+  color: var(--default-letter);
   transition: transform .5s ease;
 }
 .card:hover .card__image--default { transform: scale(1.06); }
@@ -204,7 +275,11 @@ li.cards__item { list-style: none; }
 .card__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(12,11,9,.96) 0%, rgba(12,11,9,.82) 32%, rgba(12,11,9,.15) 62%, rgba(12,11,9,0) 100%);
+  background: linear-gradient(to top,
+    rgba(var(--overlay),.95) 0%,
+    rgba(var(--overlay),.8) 32%,
+    rgba(var(--overlay),.14) 62%,
+    rgba(var(--overlay),0) 100%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -212,8 +287,8 @@ li.cards__item { list-style: none; }
 }
 .card__system {
   align-self: flex-start;
-  background: #c98a3c;
-  color: #161410;
+  background: var(--badge-bg);
+  color: var(--badge-text);
   padding: 3px 8px;
   border-radius: 2px;
   font-size: 9.5px;
@@ -224,13 +299,13 @@ li.cards__item { list-style: none; }
 .card__title {
   font-size: 15.5px;
   font-weight: 700;
-  color: #f2efe6;
+  color: #fff;
   line-height: 1.4;
-  text-shadow: 0 1px 4px rgba(0,0,0,.6);
+  text-shadow: 0 1px 4px rgba(0,0,0,.5);
 }
 .card__text {
   font-size: 11.5px;
-  color: #b8b4aa;
+  color: rgba(255,255,255,.82);
   line-height: 1.65;
   margin-top: 0;
   max-height: 0;
@@ -241,18 +316,14 @@ li.cards__item { list-style: none; }
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
 }
-.card:hover .card__text {
-  max-height: 90px;
-  opacity: 1;
-  margin-top: 8px;
-}
+.card:hover .card__text { max-height: 90px; opacity: 1; margin-top: 8px; }
 
 footer {
   text-align: center;
-  color: #4f4d47;
+  color: var(--text-faint);
   font-size: 11.5px;
   padding: 24px 0 40px;
-  border-top: 1px solid #26241f;
+  border-top: 1px solid var(--border);
 }
 
 @media (hover: none) {
@@ -261,8 +332,8 @@ footer {
 @media (max-width: 600px) {
   .header-top { padding: 12px 0; }
   .site-title { font-size: 24px; }
-  .search-box input { width: 150px; }
-  .search-box input:focus { width: 170px; }
+  .search-box input { width: 130px; }
+  .search-box input:focus { width: 150px; }
   ul.cards { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
 }
 </style>
@@ -275,13 +346,17 @@ footer {
       <div class="site-title">Scenario</div>
       <div class="header-tools">
         <div class="search-box">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+          <svg class="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
           <input type="text" id="searchInput" placeholder="検索...">
         </div>
         <select class="sort-select" id="sortSelect">
           <option value="newest">新着順</option>
           <option value="title">タイトル順</option>
         </select>
+        <div class="theme-toggle" id="themeToggle" title="ライト / ダーク切り替え">
+          <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="1.5" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"/><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"/><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/></svg>
+        </div>
       </div>
     </div>
     <nav class="system-nav" id="systemNav"></nav>
@@ -302,6 +377,18 @@ footer {
 </footer>
 
 <script>
+// ---- テーマ切り替え ----
+(function() {
+  const saved = localStorage.getItem('scenario_list_theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const now = document.documentElement.getAttribute('data-theme');
+    const next = now === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('scenario_list_theme', next);
+  });
+})();
+
 (async function() {
   const REPO = 'notenog/memo';
   const FOLDER = 'docs/scenario';
@@ -316,7 +403,6 @@ footer {
   }
   const headers = token ? { Authorization: `token ${token}` } : {};
 
-  // システム名から安定した色相を作る
   function systemHue(name) {
     let h = 0;
     for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
@@ -430,7 +516,7 @@ footer {
     document.getElementById('resultsCount').textContent = `${scenarios.length} scenarios`;
 
     if (scenarios.length === 0) {
-      wrap.innerHTML = '<div style="text-align:center;color:#6d6a61;padding:60px 20px;font-size:13px;">該当するシナリオがありません</div>';
+      wrap.innerHTML = '<div style="text-align:center;color:var(--text-faint);padding:60px 20px;font-size:13px;">該当するシナリオがありません</div>';
       return;
     }
 
@@ -450,7 +536,7 @@ footer {
     const hue = systemHue(s.system);
     const imageHtml = s.image
       ? `<img src="${escapeAttr(s.image)}" alt="${escapeAttr(s.title)}">`
-      : `<div class="card__image--default" style="background:linear-gradient(150deg, hsl(${hue} 30% 30%) 0%, hsl(${hue} 25% 15%) 100%)">${escapeHtml(s.title.substring(0, 1))}</div>`;
+      : `<div class="card__image--default" style="background:linear-gradient(150deg, hsl(${hue} var(--default-s) var(--default-l1)) 0%, hsl(${hue} var(--default-s) var(--default-l2)) 100%)">${escapeHtml(s.title.substring(0, 1))}</div>`;
     return `
       <li class="cards__item">
         <a class="card" href="${escapeAttr(s.url)}" target="_blank" rel="noopener">
