@@ -102,6 +102,19 @@ body {
   flex-wrap: wrap;
   transition: padding .3s ease;
 }
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.site-icon {
+  height: 48px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+  transition: height .3s ease;
+}
 .site-title {
   font-family: 'Playfair Display', serif;
   font-size: 44px;
@@ -128,6 +141,7 @@ body {
 /* スクロール後の縮小状態 */
 .site-header.minimized .header-inner { padding: 10px 20px; }
 .site-header.minimized .site-title { font-size: 24px; }
+.site-header.minimized .site-icon { height: 30px; }
 .site-header.minimized .nav-item { font-size: 13px; }
 .content-top {
   display: flex;
@@ -382,6 +396,9 @@ footer {
   .site-title { font-size: 28px; }
   .site-header.minimized .header-inner { padding: 10px 20px; }
   .site-header.minimized .site-title { font-size: 20px; }
+  .site-icon { height: 32px; }
+  .site-header.minimized .site-icon { height: 24px; }
+  .site-brand { gap: 10px; }
   .header-right { justify-content: flex-start; }
   .system-nav { justify-content: flex-start; }
   .content-tools { width: 100%; }
@@ -396,7 +413,10 @@ footer {
 
 <header class="site-header" id="siteHeader">
   <div class="container header-inner">
-    <div class="site-title">Scenario</div>
+    <div class="site-brand">
+      <img class="site-icon" src="https://raw.githubusercontent.com/notenog/memo/master/docs/PANEL_25_COMPLEX.png" alt="">
+      <div class="site-title">Scenario</div>
+    </div>
     <div class="header-right">
       <nav class="system-nav" id="systemNav"></nav>
       <div class="header-tools">
