@@ -524,13 +524,23 @@ footer {
         const html = await fileRes.text();
 
         const doc = new DOMParser().parseFromString(html, 'text/html');
-        const title = doc.querySelector('meta[name="scenario-title"]')?.content || file.name.replace('.html', '');
+        const pageTitle = doc.querySelector('meta[name="scenario-title"]')?.content || file.name.replace('.html', '');
+        const title = doc.querySelector('meta[name="scenario-list-title"]')?.content || pageTitle;
         const system = (doc.querySelector('meta[name="scenario-genre"]')?.content || 'その他').trim() || 'その他';
         const description = doc.querySelector('meta[name="scenario-description"]')?.content || '';
 
+        // サムネイル: URL指定 > 画像番号指定 > 本文の最初の画像
         let imageUrl = null;
-        const imgMatch = html.match(/<img[^>]+src="([^"]+)"/);
-        if (imgMatch) imageUrl = imgMatch[1];
+        const thumbUrl = doc.querySelector('meta[name="scenario-thumb"]')?.content;
+        const thumbIndex = parseInt(doc.querySelector('meta[name="scenario-thumb-index"]')?.content || '0', 10);
+        const imgs = doc.querySelectorAll('img');
+        if (thumbUrl) {
+          imageUrl = thumbUrl;
+        } else if (thumbIndex > 0 && imgs[thumbIndex - 1]) {
+          imageUrl = imgs[thumbIndex - 1].getAttribute('src');
+        } else if (imgs[0]) {
+          imageUrl = imgs[0].getAttribute('src');
+        }
 
         allScenarios.push({
           name: file.name,
