@@ -91,7 +91,9 @@ body {
   z-index: 50;
   background: var(--header-bg);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--header-border);
+  border-bottom: none;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 22px), 0 100%);
+  padding-bottom: 22px;
 }
 .header-inner {
   display: flex;
@@ -139,6 +141,7 @@ body {
 }
 
 /* スクロール後の縮小状態 */
+.site-header.minimized { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), 0 100%); padding-bottom: 14px; }
 .site-header.minimized .header-inner { padding: 10px 20px; }
 .site-header.minimized .site-title { font-size: 24px; }
 .site-header.minimized .site-icon { height: 30px; }
@@ -252,7 +255,7 @@ body {
 }
 
 /* ---- 本文 ---- */
-main { padding: 32px 0 60px; }
+main { padding: 20px 0 60px; }
 .results-info {
   color: var(--text-faint);
   font-size: 11.5px;
