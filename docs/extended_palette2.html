@@ -102,19 +102,7 @@
   .hd button{font-family:var(--display); font-weight:500; font-size:13px; background:var(--bg); border:1px solid var(--bd2); color:var(--tx2);
       border-radius:9px; padding:7px 13px}
   .hd button:hover{border-color:var(--link-h); color:var(--link)}
-  .dest{position:relative}
-  .dest #btnDest{display:flex; align-items:center; gap:6px; font-family:var(--display); font-weight:700; font-size:13px;
-       background:var(--bg); border:1px solid var(--bd2); color:var(--tx); border-radius:9px; padding:7px 11px}
-  .dest #btnDest:hover{border-color:var(--link-h)}
-  .dest-dot{width:9px; height:9px; border-radius:50%; flex:0 0 auto; background:var(--tx3)}
-  .dest-ca{color:var(--tx3); font-size:10px}
-  .dest-menu{position:absolute; top:calc(100% + 5px); right:0; min-width:180px; z-index:55; display:none;
-       background:var(--panel); border:1px solid var(--bd2); border-radius:10px; box-shadow:0 12px 30px var(--shadow); padding:5px}
-  .dest-menu.open{display:block}
-  .dest-item{display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:7px; cursor:pointer;
-       font-size:13px; color:var(--tx); white-space:nowrap}
-  .dest-item:hover{background:var(--line-h)}
-  .dest-item.on{color:var(--link); font-weight:700; background:var(--line-h)}
+  .dest-chip.on .dest-dot{box-shadow:0 0 0 2px rgba(255,255,255,.6)}
 
   /* tabs */
   .tabs{display:flex; align-items:stretch; gap:2px; background:var(--panel);
@@ -166,6 +154,19 @@
   .tpls button{font-family:var(--mono); font-size:11.5px; font-weight:700; padding:3px 9px; border:1px solid var(--bd2); border-radius:7px;
        background:var(--panel2); color:var(--tx2); cursor:pointer; white-space:nowrap}
   .tpls button:hover{border-color:var(--link-h); color:var(--link); background:var(--line-h)}
+  .destbar{display:flex; align-items:center; gap:8px; padding:0 16px 12px; flex-wrap:wrap}
+  .destbar-lbl{font-family:var(--display); font-size:11px; font-weight:700; color:var(--tx3); letter-spacing:.03em}
+  .destbar-chips{display:flex; gap:6px; flex-wrap:wrap}
+  .dest-chip{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:var(--tx2);
+       background:var(--bg); border:1px solid var(--bd2); border-radius:16px; padding:4px 12px; cursor:pointer; white-space:nowrap}
+  .dest-chip:hover{border-color:var(--link-h); color:var(--link)}
+  .dest-chip.on{background:var(--send); border-color:var(--send); color:#fff}
+  .dest-chip.on .dest-dot{box-shadow:0 0 0 2px rgba(255,255,255,.6)}
+  .dest-chip.auto{border-style:dashed}
+  .dest-dot{width:9px; height:9px; border-radius:50%; flex:0 0 auto; background:var(--tx3)}
+  .line .destop{font-family:var(--mono); font-weight:700; font-size:.9em; color:#a23b8f;
+       background:rgba(162,59,143,.10); border:1px solid rgba(162,59,143,.35); border-radius:6px; padding:0 5px; cursor:help}
+  body[data-theme="dark"] .line .destop{color:#e79bd4; background:rgba(231,155,212,.12); border-color:rgba(231,155,212,.35)}
 
   /* main */
   .main{flex:1 1 auto; display:flex; min-height:0}
@@ -556,10 +557,6 @@
   <span class="mark">T</span>
   <span class="ttl">Tekey拡張パレット<small>チャットパレット支援ツール</small></span>
   <span class="sp"></span>
-  <div class="dest" id="destWrap" title="送信先タブを切り替え">
-    <button id="btnDest"><span class="dest-dot" id="destDot"></span><span id="destLabel">送信先</span> <span class="dest-ca">▾</span></button>
-    <div class="dest-menu" id="destMenu"></div>
-  </div>
   <button id="btnTable" title="GMテーブル（イニシアティブ表）を開く">📋 テーブル</button>
   <button id="btnVars" title="変数の値を一時的に上書き（全タブ共通・stock非変更）">🎲 変数</button>
   <button id="btnTheme" title="背景を切替（ライト/ダーク）">🌙 ダーク</button>
@@ -600,6 +597,10 @@
         <button class="btn-copy" id="btnCopyCompose" title="送信予定をコピー">⧉</button>
       </div>
       <div class="tpls" id="cmdTpls"></div>
+      <div class="destbar" id="destbar">
+        <span class="destbar-lbl">送信先</span>
+        <div class="destbar-chips" id="destChips"></div>
+      </div>
     </div>
     <div class="bodywrap" id="bodywrap">
       <div class="editpane" id="editpane"><textarea id="editArea" style="display:none"></textarea></div>
@@ -853,6 +854,7 @@ function fmtLineText(txt){
   s=s.replace(/\\n/g,"<br>");
   s=s.replace(/(@#[0-9a-fA-F]{3,6}\b|@\[[^\]]*\][^\s@]*|@全停止)/g,'<span class="atcmd">$1</span>');
   s=s.replace(/\[:[^\[\]]+\]/g,'<span class="tblop" title="表を操作（Tekeyへは送られません）">$&</span>');
+  s=s.replace(/(^|<br>|\s)&gt;&gt;\s*([^\s<][^<]*?)(?=(\s|<br>|$))/g,'$1<span class="destop" title="この行だけ送信先を上書き">&gt;&gt;$2</span>');
   const vm={...allParams(), ...gmTableParams(), ...curParams, ...loadVarOverrides()};
   s=s.replace(/\{([^{}]+)\}/g,(m0,k)=>{
     const v=vm[k];
@@ -1081,9 +1083,9 @@ function pickName(palName){
   const raw = a.length? (palName||"").trim() : b.length? (cfg("senderName")||"").trim() : null;
   return raw || "\u3164";   // U+3164 fallback
 }
-async function sendChat(message,{name,color,bot}={}){
+async function sendChat(message,{name,color,bot,tab:tabOverride}={}){
   const ep=cfg("ep2_endpoint")||DEFAULT_EP;
-  const room=cfg("room"), password=cfg("pass"), tab=destTabName()||cfg("tab");
+  const room=cfg("room"), password=cfg("pass"), tab=(tabOverride!=null&&tabOverride!=="")?tabOverride:(destTabName()||cfg("tab"));
   if(!room) return {ok:false, why:"noroom"};
   const body={command:"sendChat", room, password, message};
   if(name) body.name=name;
@@ -1120,13 +1122,19 @@ async function doSend(message){
     tblChanges=applyTableOps(message, nameOverride||((p&&p.name)||""));
     message=stripTableOps(message);
   }
+  // インライン送信先指定：先頭 or 末尾の >>タブ名 でこの送信だけ宛先を上書き
+  let destOverride=null;
+  const dh=message.match(/^\s*>>\s*([^\n>]+?)\s+/);
+  const dt=message.match(/\s*>>\s*([^\n>]+?)\s*$/);
+  if(dh){ destOverride=dh[1].trim(); message=message.replace(/^\s*>>\s*[^\n>]+?\s+/,""); }
+  else if(dt){ destOverride=dt[1].trim(); message=message.replace(/\s*>>\s*[^\n>]+?\s*$/,""); }
   if(!message){
     if(tblChanges.length){ toastTableChanges(tblChanges); return {ok:true, tableOnly:true}; }
     toast("本文が空です（色・コマンドのみ）",true); return;
   }
   const name=(nameOverride&&nameOverride.length)?nameOverride:pickName(p?p.name:"");
   const bot=$("#f_bot").value.trim()||undefined;
-  const r=await sendChat(sendSafe(message),{name,color,bot});
+  const r=await sendChat(sendSafe(message),{name,color,bot,tab:destOverride});
   if(r.ok){ if(tblChanges.length) toastTableChanges(tblChanges); else toast("送信しました"); }
   else if(r.why==="noroom") toast("ルームID未設定",true);
   else if(r.why==="net") toast("接続失敗（エンドポイント/CORSを確認）",true);
@@ -1827,6 +1835,7 @@ function selectTab(id){
   state.activeId=id;
   $("#tabs").querySelectorAll(".tab").forEach(t=>t.classList.toggle("on", +t.dataset.id===id));
   renderActiveBody();
+  renderDest();
 }
 function addTab(){
   const ids=state.palettes.map(p=>p.paletteID); const nid=(ids.length?Math.max(...ids):0)+1;
@@ -2420,11 +2429,21 @@ function setVarOverride(n,v){ const o=loadVarOverrides(); o[n]=v; saveVarOverrid
 function clearVarOverride(n){ const o=loadVarOverrides(); delete o[n]; saveVarOverrides(o); }
 $("#btnVars").addEventListener("click",openVarPanel);
 $("#btnTable").addEventListener("click",()=>{ const f=loadGmFloat(); setGmFloat(!f.open); });
-$("#btnDest").addEventListener("click",e=>{ e.stopPropagation(); $("#destMenu").classList.toggle("open"); });
-$("#destMenu").addEventListener("click",e=>{ const it=e.target.closest(".dest-item"); if(!it) return;
-  setDest(it.dataset.dest); $("#destMenu").classList.remove("open");
-  toast("送信先："+($("#destLabel").textContent)); });
-document.addEventListener("click",e=>{ if(!e.target.closest("#destWrap")) $("#destMenu").classList.remove("open"); });
+$("#destChips").addEventListener("click",e=>{ const c=e.target.closest(".dest-chip"); if(!c) return;
+  setDest(c.dataset.dest);
+  const nm=c.dataset.dest==="__auto__" ? "自動（タブ既定）" : (c.dataset.dest||"未指定");
+  toast("送信先："+nm);
+});
+$("#destChips").addEventListener("contextmenu",e=>{ const c=e.target.closest(".dest-chip"); if(!c) return; e.preventDefault();
+  const name=c.dataset.dest; if(name==="__auto__") return;
+  const p=activeP(); if(!p) return;
+  const m=loadTabDest();
+  if(m[p.paletteID]===name && name!==""){ delete m[p.paletteID]; saveTabDest(m); renderDest(); toast("このタブの既定送信先を解除"); return; }
+  m[p.paletteID]=name; saveTabDest(m);
+  setCfg("ep2_destsel","__auto__");   // 既定を設定したら自動追従に切替
+  renderDest();
+  toast("このパレットタブの既定送信先："+(name||"未指定"));
+});
 $("#varClose").addEventListener("click",()=>$("#varModal").classList.remove("open"));
 $("#varResetAll").addEventListener("click",()=>{ saveVarOverrides({}); openVarPanel(); });
 $("#varModal").addEventListener("click",e=>{ if(e.target.id==="varModal") $("#varModal").classList.remove("open"); });
@@ -2511,29 +2530,39 @@ function loadDestTabs(){
   const raw=cfg("ep2_desttabs")||"";
   return raw.split("\n").map(s=>s.trim()).filter(Boolean);
 }
-function curDest(){
-  const list=loadDestTabs(); const sel=cfg("ep2_destsel")||"";
-  if(sel && (list.includes(sel)||sel==="")) return sel;
-  return list.length?"" : "";   // 既定は「未指定」
-}
 function setDest(name){ setCfg("ep2_destsel", name); renderDest(); }
 const DEST_COLORS=["#4a3fb0","#2e7d46","#c07a1e","#2f6fb3","#a23b8f","#5b6772"];
 function destColor(name){ if(!name) return "var(--tx3)"; let h=0; for(let i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))>>>0; return DEST_COLORS[h%DEST_COLORS.length]; }
-function renderDest(){
-  const list=loadDestTabs(); const sel=cfg("ep2_destsel")||"";
-  const wrap=$("#destWrap"); if(!wrap) return;
-  // プリセットが無ければセレクタを隠す
-  wrap.style.display = list.length ? "" : "none";
-  const cur = list.includes(sel) ? sel : "";
-  $("#destLabel").textContent = cur || "最左端タブ";
-  $("#destDot").style.background = destColor(cur);
-  const menu=$("#destMenu"); menu.innerHTML="";
-  const mk=(name,label)=>{ const b=el("dest-item"+((list.includes(sel)?sel:"")===name?" on":"")); b.dataset.dest=name;
-    b.innerHTML="<span class='dest-dot' style='background:"+destColor(name)+"'></span>"+esc(label); return b; };
-  menu.appendChild(mk("","（未指定：最左端タブ）"));
-  list.forEach(n=> menu.appendChild(mk(n,n)));
+/* パレットタブごとの既定送信先： ep2_tabdest = {paletteID: destName} */
+function loadTabDest(){ try{ const o=JSON.parse(localStorage.getItem("ep2_tabdest")||"{}"); return (o&&typeof o==="object")?o:{}; }catch(e){ return {}; } }
+function saveTabDest(o){ try{ localStorage.setItem("ep2_tabdest", JSON.stringify(o)); }catch(e){} }
+function tabDefaultDest(){ const p=activeP(); if(!p) return null; const m=loadTabDest(); return (p.paletteID in m)?m[p.paletteID]:null; }
+/* 実効の送信先：手動選択 > タブ既定 > 未指定 */
+function effectiveDest(){
+  const list=loadDestTabs(); const sel=localStorage.getItem("ep2_destsel");
+  if(sel!=null && sel!=="__auto__"){ return list.includes(sel)?sel:""; }   // 明示選択（""=未指定）
+  const td=tabDefaultDest(); if(td!=null) return list.includes(td)?td:"";   // タブ既定
+  return "";
 }
-function destTabName(){ const sel=cfg("ep2_destsel")||""; const list=loadDestTabs(); return list.includes(sel)?sel:""; }
+function destTabName(){ return effectiveDest(); }
+function renderDest(){
+  const list=loadDestTabs();
+  const bar=$("#destbar"); if(!bar) return;
+  bar.style.display = list.length ? "flex" : "none";
+  const cur=effectiveDest();
+  const rawSel=localStorage.getItem("ep2_destsel");
+  const auto = rawSel==null || rawSel==="__auto__";
+  const td=tabDefaultDest();
+  const box=$("#destChips"); box.innerHTML="";
+  const mk=(name,label,active,isAuto)=>{ const b=el("dest-chip"+(active?" on":"")+(isAuto?" auto":"")); b.dataset.dest=name;
+    b.innerHTML=(name?"<span class='dest-dot' style='background:"+destColor(name)+"'></span>":"")+esc(label);
+    b.title=isAuto?"タブごとの既定に従う":(name?"クリック:送信先に / 右クリック:このパレットタブの既定に":"送信先を未指定に");
+    return b; };
+  // 「自動（タブ既定）」チップ：タブ既定が設定されている時のみ意味を持つ
+  if(td!=null){ const b=mk("__auto__","⟳ 自動"+(td?"（"+td+"）":"（未指定）"), auto, true); box.appendChild(b); }
+  box.appendChild(mk("", "未指定", !auto && cur==="" , false));
+  list.forEach(n=> box.appendChild(mk(n, n, !auto && cur===n, false)));
+}
 
 /* ---------- floating GM table ---------- */
 function loadGmFloat(){
