@@ -144,6 +144,11 @@
        font-family:var(--display); font-weight:700; font-size:15px; min-width:78px; box-shadow:0 2px 0 var(--send-sh)}
   .btn-send:hover{background:var(--send-h)}
   .btn-send:active{transform:translateY(1px); box-shadow:0 1px 0 var(--send-sh)}
+  .btn-copy{flex:0 0 auto; align-self:stretch; padding:0 12px; border-radius:11px; border:1px solid var(--bd2);
+       background:var(--bg); color:var(--tx2); font-size:15px; cursor:pointer}
+  .btn-copy:hover{border-color:var(--link-h); color:var(--link); background:var(--line-h)}
+  .btn-copy:active{transform:translateY(1px)}
+  .btn-copy.copied{border-color:var(--send); color:#fff; background:var(--send)}
   .tpls{display:flex; flex-wrap:wrap; gap:6px; padding:0 16px 12px}
   .tpls button{font-family:var(--mono); font-size:11.5px; font-weight:700; padding:3px 9px; border:1px solid var(--bd2); border-radius:7px;
        background:var(--panel2); color:var(--tx2); cursor:pointer; white-space:nowrap}
@@ -575,6 +580,7 @@
       <div class="compose">
         <textarea id="compose" placeholder="送信予定（編集可能）— クリックでここへ／ダブルクリックで即送信　Enter:送信 / Shift+Enter:改行"></textarea>
         <button class="btn-send" id="btnSend">送信</button>
+        <button class="btn-copy" id="btnCopyCompose" title="送信予定をコピー">⧉</button>
       </div>
       <div class="tpls" id="cmdTpls"></div>
     </div>
@@ -1115,7 +1121,7 @@ function stageLine(idx){
 function sendLine(idx){
   const raw=lineMap[idx]; if(raw==null) return;
   let msg=resolveSend(raw);
-  if(msg.replace(/[\s\u3000]/g,"")==="") msg="\u3164";   // 空白行はブランク行として送信
+  if(msg.replace(/[\s\u3000]/g,"")==="") msg="@#424242\u3164";   // 空行は @#424242 のブランク行として送信
   doSend(msg);
 }
 
@@ -2027,6 +2033,16 @@ function sendCompose(){
   doSend(v).then(r=>{ if(r&&r.ok) f.value=""; });
 }
 $("#btnSend").addEventListener("click",sendCompose);
+$("#btnCopyCompose").addEventListener("click",async()=>{
+  const f=$("#compose"), v=f.value;
+  if(!v){ toast("コピーする内容がありません",true); return; }
+  let ok=false;
+  try{ await navigator.clipboard.writeText(v); ok=true; }
+  catch(e){ try{ f.focus(); f.select(); ok=document.execCommand("copy"); f.setSelectionRange(v.length,v.length); }catch(_){} }
+  if(ok){ const b=$("#btnCopyCompose"); b.classList.add("copied"); b.textContent="✓";
+    setTimeout(()=>{ b.classList.remove("copied"); b.textContent="⧉"; },900); toast("コピーしました"); }
+  else toast("コピーできませんでした",true);
+});
 $("#compose").addEventListener("keydown",e=>{
   if(e.key==="Enter" && !e.shiftKey && !e.isComposing && e.keyCode!==229){ e.preventDefault(); sendCompose(); }
 });
