@@ -154,7 +154,12 @@
        background:var(--panel2); color:var(--tx2); cursor:pointer; white-space:nowrap}
   .tpls button:hover{border-color:var(--link-h); color:var(--link); background:var(--line-h)}
   .destbar{display:flex; align-items:center; gap:8px; padding:0 16px 12px; flex-wrap:wrap}
-  .destbar-lbl{font-family:var(--display); font-size:11px; font-weight:700; color:var(--tx3); letter-spacing:.03em}
+  .destbar-lbl{font-family:var(--display); font-size:11px; font-weight:700; color:var(--tx3); letter-spacing:.03em;
+       display:inline-flex; align-items:center; gap:3px; border:none; background:none; cursor:pointer; padding:2px 4px; border-radius:6px}
+  .destbar-lbl:hover{color:var(--link); background:var(--line-h)}
+  .destbar-lbl .bar-ca{font-size:9px; transition:transform .1s}
+  .destbar.folded .bar-ca{transform:rotate(-90deg)}
+  .destbar.folded .destbar-chips,.destbar.folded .spk-manage{display:none}
   .destbar-chips{display:flex; gap:6px; flex-wrap:wrap}
   .dest-chip{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:var(--tx2);
        background:var(--bg); border:1px solid var(--bd2); border-radius:16px; padding:4px 12px; cursor:pointer; white-space:nowrap}
@@ -615,13 +620,13 @@
       </div>
       <div class="tpls" id="cmdTpls"></div>
       <div class="destbar" id="destbar">
-        <span class="destbar-lbl">送信先</span>
+        <button class="destbar-lbl" id="destToggle" title="折り畳み/展開">送信先<span class="bar-ca">▾</span></button>
         <div class="destbar-chips" id="destChips"></div>
       </div>
       <div class="destbar spkbar" id="spkbar">
-        <span class="destbar-lbl">話者</span>
+        <button class="destbar-lbl" id="spkToggle" title="折り畳み/展開">発言者<span class="bar-ca">▾</span></button>
         <div class="destbar-chips" id="spkChips"></div>
-        <button class="spk-manage" id="btnSpkManage" title="話者プリセットを編集">⚙</button>
+        <button class="spk-manage" id="btnSpkManage" title="発言者プリセットを編集">⚙</button>
       </div>
     </div>
     <div class="bodywrap" id="bodywrap">
@@ -725,8 +730,8 @@
 
 <div class="modal" id="spkModal">
   <div class="sheet">
-    <h2>話者プリセット</h2>
-    <p class="sub">NPC等の「名前＋文字色」を登録。話者バーでクリック＝話者セット／ダブルクリック＝送信予定を即送信。</p>
+    <h2>発言者プリセット</h2>
+    <p class="sub">NPC等の「名前＋文字色」を登録。発言者バーでクリック＝発言者セット／ダブルクリック＝送信予定を即送信。</p>
     <div id="spkList" class="spklist"></div>
     <button class="lk" id="spkAdd" style="margin-top:6px">＋ 追加</button>
     <div class="row">
@@ -2492,6 +2497,8 @@ $("#spkChips").addEventListener("click",e=>{ const c=e.target.closest(".spk-chip
   },230);
 });
 $("#btnSpkManage").addEventListener("click",openSpkModal);
+$("#destToggle").addEventListener("click",()=>{ const v=localStorage.getItem("ep2_destfold")==="1"; localStorage.setItem("ep2_destfold", v?"0":"1"); renderDest(); });
+$("#spkToggle").addEventListener("click",()=>{ const v=localStorage.getItem("ep2_spkfold")==="1"; localStorage.setItem("ep2_spkfold", v?"0":"1"); renderSpeakers(); });
 $("#spkClose").addEventListener("click",()=>$("#spkModal").classList.remove("open"));
 $("#spkAdd").addEventListener("click",spkAdd);
 $("#spkModal").addEventListener("click",e=>{ if(e.target.id==="spkModal") $("#spkModal").classList.remove("open"); });
@@ -2612,6 +2619,7 @@ function renderDest(){
   const list=loadDestTabs();
   const bar=$("#destbar"); if(!bar) return;
   bar.style.display = list.length ? "flex" : "none";
+  bar.classList.toggle("folded", localStorage.getItem("ep2_destfold")==="1");
   const cur=effectiveDest();
   const rawSel=localStorage.getItem("ep2_destsel");
   const auto = rawSel==null || rawSel==="__auto__";
@@ -2645,15 +2653,16 @@ function renderSpeakers(){
     const on = curSpeaker && curSpeaker.i===i;
     const c=el("spk-chip"+(on?" on":"")); c.dataset.idx=i;
     c.innerHTML="<span class='dest-dot' style='background:"+(normHex(s.color)||"var(--tx3)")+"'></span>"+esc(s.name||"(無名)");
-    c.title="クリック:話者セット / ダブルクリック:送信予定を即送信";
+    c.title="クリック:発言者セット / ダブルクリック:送信予定を即送信";
     box.appendChild(c);
   });
   bar.style.display="flex";
+  bar.classList.toggle("folded", localStorage.getItem("ep2_spkfold")==="1");
 }
 function setSpeaker(idx){
-  if(idx==null){ curSpeaker=null; toast("話者：GM"); }
+  if(idx==null){ curSpeaker=null; toast("発言者：GM"); }
   else { const s=loadSpeakers()[idx]; if(!s) return; curSpeaker={i:idx, name:s.name, color:normHex(s.color)};
-    toast("話者："+(s.name||"(無名)")); }
+    toast("発言者："+(s.name||"(無名)")); }
   renderSpeakers();
 }
 function speakerSend(idx){
