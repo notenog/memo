@@ -102,7 +102,6 @@
   .hd button{font-family:var(--display); font-weight:500; font-size:13px; background:var(--bg); border:1px solid var(--bd2); color:var(--tx2);
       border-radius:9px; padding:7px 13px}
   .hd button:hover{border-color:var(--link-h); color:var(--link)}
-  .dest-chip.on .dest-dot{box-shadow:0 0 0 2px rgba(255,255,255,.6)}
 
   /* tabs */
   .tabs{display:flex; align-items:stretch; gap:2px; background:var(--panel);
@@ -162,11 +161,29 @@
   .dest-chip:hover{border-color:var(--link-h); color:var(--link)}
   .dest-chip.on{background:var(--send); border-color:var(--send); color:#fff}
   .dest-chip.on .dest-dot{box-shadow:0 0 0 2px rgba(255,255,255,.6)}
+  .spkbar .destbar-lbl{color:var(--tx3)}
+  .spk-chip{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:var(--tx2);
+       background:var(--bg); border:1px solid var(--bd2); border-radius:16px; padding:4px 12px; cursor:pointer; white-space:nowrap; user-select:none}
+  .spk-chip:hover{border-color:var(--link-h); color:var(--link)}
+  .spk-chip.on{background:var(--link); border-color:var(--link); color:#fff}
+  .spk-chip.on .dest-dot{box-shadow:0 0 0 2px rgba(255,255,255,.6)}
+  .spk-manage{margin-left:2px; width:26px; height:26px; flex:0 0 auto; border:1px solid var(--bd2); background:var(--bg);
+       color:var(--tx3); border-radius:8px; cursor:pointer; font-size:13px}
+  .spk-manage:hover{border-color:var(--link-h); color:var(--link)}
+  .spklist{max-height:52vh; overflow-y:auto; margin:4px 0}
+  .spkrow{display:flex; align-items:center; gap:7px; padding:5px 2px}
+  .spkrow .spk-name{flex:1 1 auto; min-width:0; height:32px; padding:0 10px; border:1px solid var(--bd2); border-radius:8px; background:var(--bg); color:var(--tx); font-family:var(--display); font-weight:700}
+  .spkrow .spk-color{flex:0 0 auto; width:34px; height:32px; padding:0; border:1px solid var(--bd2); border-radius:8px; background:var(--bg); cursor:pointer}
+  .spkrow .spk-hex{flex:0 0 96px; height:32px; padding:0 8px; border:1px solid var(--bd2); border-radius:8px; background:var(--bg); color:var(--tx); font-family:var(--mono); font-size:12px}
+  .spkrow .spk-name:focus,.spkrow .spk-hex:focus{outline:none; border-color:var(--link); box-shadow:0 0 0 3px var(--line-h)}
+  .spkrow .spk-up,.spkrow .spk-del{flex:0 0 auto; width:28px; height:28px; border:1px solid var(--bd2); background:var(--bg); color:var(--tx3); border-radius:7px; cursor:pointer}
+  .spkrow .spk-up:hover{color:var(--link); border-color:var(--link-h)}
+  .spkrow .spk-del:hover{color:var(--danger); border-color:var(--danger)}
   .dest-chip.auto{border-style:dashed}
   .dest-dot{width:9px; height:9px; border-radius:50%; flex:0 0 auto; background:var(--tx3)}
-  .line .destop{font-family:var(--mono); font-weight:700; font-size:.9em; color:#a23b8f;
-       background:rgba(162,59,143,.10); border:1px solid rgba(162,59,143,.35); border-radius:6px; padding:0 5px; cursor:help}
-  body[data-theme="dark"] .line .destop{color:#e79bd4; background:rgba(231,155,212,.12); border-color:rgba(231,155,212,.35)}
+  .line .destop{font-family:var(--mono); font-weight:600; font-size:.9em; color:var(--tx3);
+       background:var(--panel2); border:1px solid var(--bd2); border-radius:6px; padding:0 5px; cursor:help}
+  body[data-theme="dark"] .line .destop{color:var(--tx3); background:var(--panel2); border-color:var(--bd2)}
 
   /* main */
   .main{flex:1 1 auto; display:flex; min-height:0}
@@ -601,6 +618,11 @@
         <span class="destbar-lbl">送信先</span>
         <div class="destbar-chips" id="destChips"></div>
       </div>
+      <div class="destbar spkbar" id="spkbar">
+        <span class="destbar-lbl">話者</span>
+        <div class="destbar-chips" id="spkChips"></div>
+        <button class="spk-manage" id="btnSpkManage" title="話者プリセットを編集">⚙</button>
+      </div>
     </div>
     <div class="bodywrap" id="bodywrap">
       <div class="editpane" id="editpane"><textarea id="editArea" style="display:none"></textarea></div>
@@ -699,6 +721,18 @@
   </div>
   <div class="gmf-body" id="gmfBody"></div>
   <div class="gmf-rz" id="gmfRz" title="ドラッグでサイズ変更"></div>
+</div>
+
+<div class="modal" id="spkModal">
+  <div class="sheet">
+    <h2>話者プリセット</h2>
+    <p class="sub">NPC等の「名前＋文字色」を登録。話者バーでクリック＝話者セット／ダブルクリック＝送信予定を即送信。</p>
+    <div id="spkList" class="spklist"></div>
+    <button class="lk" id="spkAdd" style="margin-top:6px">＋ 追加</button>
+    <div class="row">
+      <button class="ok" id="spkClose">閉じる</button>
+    </div>
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -1103,9 +1137,10 @@ async function doSend(message){
   const p=activeP();
   // inlineの @#色 はAPI経由だと解釈されないため、colorパラメータへ回し本文からは除去する
   let color=((p&&p.textColor)||"").replace("#","")||undefined;
+  if(curSpeaker&&curSpeaker.color) color=curSpeaker.color.replace("#","");   // 話者の色を優先
   const cm=message.match(/@#([0-9a-fA-F]{3,6})\b/g);
   if(cm&&cm.length){
-    color=cm[cm.length-1].slice(2);                       // 末尾(最後)の色を採用
+    color=cm[cm.length-1].slice(2);                       // 明示の @#色 が最優先
     message=message.replace(/\s*@#[0-9a-fA-F]{3,6}\b/g,"").trim();
   }
   // 同様に @[name]:名前 はnameパラメータへ回す（inlineはAPI未解釈）
@@ -1132,7 +1167,9 @@ async function doSend(message){
     if(tblChanges.length){ toastTableChanges(tblChanges); return {ok:true, tableOnly:true}; }
     toast("本文が空です（色・コマンドのみ）",true); return;
   }
-  const name=(nameOverride&&nameOverride.length)?nameOverride:pickName(p?p.name:"");
+  const name=(nameOverride&&nameOverride.length)?nameOverride
+             :(curSpeaker&&curSpeaker.name)?curSpeaker.name
+             :pickName(p?p.name:"");
   const bot=$("#f_bot").value.trim()||undefined;
   const r=await sendChat(sendSafe(message),{name,color,bot,tab:destOverride});
   if(r.ok){ if(tblChanges.length) toastTableChanges(tblChanges); else toast("送信しました"); }
@@ -2444,6 +2481,32 @@ $("#destChips").addEventListener("contextmenu",e=>{ const c=e.target.closest(".d
   renderDest();
   toast("このパレットタブの既定送信先："+(name||"未指定"));
 });
+
+/* speakers */
+let spkClickT=null;
+$("#spkChips").addEventListener("click",e=>{ const c=e.target.closest(".spk-chip"); if(!c) return;
+  if(spkClickT){ clearTimeout(spkClickT); spkClickT=null;
+    if(c.dataset.spk==="__gm__"){ setSpeaker(null); } else { speakerSend(+c.dataset.idx); } return; }
+  spkClickT=setTimeout(()=>{ spkClickT=null;
+    if(c.dataset.spk==="__gm__") setSpeaker(null); else setSpeaker(+c.dataset.idx);
+  },230);
+});
+$("#btnSpkManage").addEventListener("click",openSpkModal);
+$("#spkClose").addEventListener("click",()=>$("#spkModal").classList.remove("open"));
+$("#spkAdd").addEventListener("click",spkAdd);
+$("#spkModal").addEventListener("click",e=>{ if(e.target.id==="spkModal") $("#spkModal").classList.remove("open"); });
+$("#spkList").addEventListener("input",e=>{
+  const a=loadSpeakers();
+  const nm=e.target.closest(".spk-name"); if(nm){ a[+nm.dataset.i].name=nm.value; saveSpeakers(a); renderSpeakers(); return; }
+  const col=e.target.closest(".spk-color"); if(col){ const i=+col.dataset.i; a[i].color=col.value; saveSpeakers(a);
+    const hx=$("#spkList").querySelector('.spk-hex[data-i="'+i+'"]'); if(hx) hx.value=col.value; renderSpeakers(); return; }
+  const hex=e.target.closest(".spk-hex"); if(hex){ const i=+hex.dataset.i; const v=normHex(hex.value); if(v){ a[i].color=v; saveSpeakers(a);
+    const cp=$("#spkList").querySelector('.spk-color[data-i="'+i+'"]'); if(cp) cp.value=v; renderSpeakers(); } return; }
+});
+$("#spkList").addEventListener("click",e=>{
+  const del=e.target.closest(".spk-del"); if(del){ spkDel(+del.dataset.i); return; }
+  const up=e.target.closest(".spk-up"); if(up){ spkMoveUp(+up.dataset.i); return; }
+});
 $("#varClose").addEventListener("click",()=>$("#varModal").classList.remove("open"));
 $("#varResetAll").addEventListener("click",()=>{ saveVarOverrides({}); openVarPanel(); });
 $("#varModal").addEventListener("click",e=>{ if(e.target.id==="varModal") $("#varModal").classList.remove("open"); });
@@ -2563,6 +2626,62 @@ function renderDest(){
   box.appendChild(mk("", "未指定", !auto && cur==="" , false));
   list.forEach(n=> box.appendChild(mk(n, n, !auto && cur===n, false)));
 }
+
+/* ---------- speakers (話者プリセット) ---------- */
+function loadSpeakers(){ try{ const a=JSON.parse(localStorage.getItem("ep2_speakers")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function saveSpeakers(a){ try{ localStorage.setItem("ep2_speakers", JSON.stringify(a)); }catch(e){} }
+/* 現在の話者上書き（この選択が続く間、送信のname/colorを上書き）。null=GM（通常） */
+let curSpeaker=null;
+function normHex(c){ c=(c||"").trim(); if(/^#?[0-9a-fA-F]{6}$/.test(c)) return "#"+c.replace("#",""); return ""; }
+function renderSpeakers(){
+  const bar=$("#spkbar"); if(!bar) return;
+  const list=loadSpeakers(); const box=$("#spkChips"); box.innerHTML="";
+  // GMに戻すチップ
+  const gm=el("spk-chip"+(curSpeaker==null?" on":"")); gm.dataset.spk="__gm__";
+  gm.innerHTML="<span class='dest-dot' style='background:var(--tx3)'></span>GM";
+  gm.title="自分（GM）の名義・色に戻す";
+  box.appendChild(gm);
+  list.forEach((s,i)=>{
+    const on = curSpeaker && curSpeaker.i===i;
+    const c=el("spk-chip"+(on?" on":"")); c.dataset.idx=i;
+    c.innerHTML="<span class='dest-dot' style='background:"+(normHex(s.color)||"var(--tx3)")+"'></span>"+esc(s.name||"(無名)");
+    c.title="クリック:話者セット / ダブルクリック:送信予定を即送信";
+    box.appendChild(c);
+  });
+  bar.style.display="flex";
+}
+function setSpeaker(idx){
+  if(idx==null){ curSpeaker=null; toast("話者：GM"); }
+  else { const s=loadSpeakers()[idx]; if(!s) return; curSpeaker={i:idx, name:s.name, color:normHex(s.color)};
+    toast("話者："+(s.name||"(無名)")); }
+  renderSpeakers();
+}
+function speakerSend(idx){
+  const s=loadSpeakers()[idx]; if(!s) return;
+  setSpeaker(idx);
+  const f=$("#compose"); if(!f.value.trim()){ toast("送信予定が空です",true); return; }
+  sendCompose();
+}
+/* 管理モーダル */
+function openSpkModal(){ renderSpkList(); $("#spkModal").classList.add("open"); }
+function renderSpkList(){
+  const list=loadSpeakers(); const box=$("#spkList"); box.innerHTML="";
+  if(!list.length) box.innerHTML="<p class='varempty'>まだありません。「＋ 追加」で登録してください。</p>";
+  list.forEach((s,i)=>{
+    const row=el("spkrow");
+    row.innerHTML="<input class='spk-name' data-i='"+i+"' value='"+esc(s.name||"")+"' placeholder='名前'>"+
+      "<input class='spk-color' data-i='"+i+"' type='color' value='"+(normHex(s.color)||"#4a3fb0")+"' title='文字色'>"+
+      "<input class='spk-hex' data-i='"+i+"' value='"+(normHex(s.color)||"")+"' placeholder='#RRGGBB'>"+
+      "<button class='spk-up' data-i='"+i+"' title='上へ'>↑</button>"+
+      "<button class='spk-del' data-i='"+i+"' title='削除'>×</button>";
+    box.appendChild(row);
+  });
+}
+function spkAdd(){ const a=loadSpeakers(); a.push({name:"NPC", color:"#4a3fb0"}); saveSpeakers(a); renderSpkList(); renderSpeakers(); }
+function spkDel(i){ const a=loadSpeakers(); a.splice(i,1); saveSpeakers(a);
+  if(curSpeaker&&curSpeaker.i===i) curSpeaker=null; else if(curSpeaker&&curSpeaker.i>i) curSpeaker.i--;
+  renderSpkList(); renderSpeakers(); }
+function spkMoveUp(i){ if(i<=0) return; const a=loadSpeakers(); [a[i-1],a[i]]=[a[i],a[i-1]]; saveSpeakers(a); renderSpkList(); renderSpeakers(); }
 
 /* ---------- floating GM table ---------- */
 function loadGmFloat(){
@@ -2705,6 +2824,7 @@ if(!restore()) seed();
 render();
 renderGmFloat();
 renderDest();
+renderSpeakers();
 if(!cfg("room")) setTimeout(openSettings,400);
 </script>
 </body>
