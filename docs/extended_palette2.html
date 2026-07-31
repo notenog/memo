@@ -102,6 +102,19 @@
   .hd button{font-family:var(--display); font-weight:500; font-size:13px; background:var(--bg); border:1px solid var(--bd2); color:var(--tx2);
       border-radius:9px; padding:7px 13px}
   .hd button:hover{border-color:var(--link-h); color:var(--link)}
+  .dest{position:relative}
+  .dest #btnDest{display:flex; align-items:center; gap:6px; font-family:var(--display); font-weight:700; font-size:13px;
+       background:var(--bg); border:1px solid var(--bd2); color:var(--tx); border-radius:9px; padding:7px 11px}
+  .dest #btnDest:hover{border-color:var(--link-h)}
+  .dest-dot{width:9px; height:9px; border-radius:50%; flex:0 0 auto; background:var(--tx3)}
+  .dest-ca{color:var(--tx3); font-size:10px}
+  .dest-menu{position:absolute; top:calc(100% + 5px); right:0; min-width:180px; z-index:55; display:none;
+       background:var(--panel); border:1px solid var(--bd2); border-radius:10px; box-shadow:0 12px 30px var(--shadow); padding:5px}
+  .dest-menu.open{display:block}
+  .dest-item{display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:7px; cursor:pointer;
+       font-size:13px; color:var(--tx); white-space:nowrap}
+  .dest-item:hover{background:var(--line-h)}
+  .dest-item.on{color:var(--link); font-weight:700; background:var(--line-h)}
 
   /* tabs */
   .tabs{display:flex; align-items:stretch; gap:2px; background:var(--panel);
@@ -543,6 +556,10 @@
   <span class="mark">T</span>
   <span class="ttl">Tekey拡張パレット<small>チャットパレット支援ツール</small></span>
   <span class="sp"></span>
+  <div class="dest" id="destWrap" title="送信先タブを切り替え">
+    <button id="btnDest"><span class="dest-dot" id="destDot"></span><span id="destLabel">送信先</span> <span class="dest-ca">▾</span></button>
+    <div class="dest-menu" id="destMenu"></div>
+  </div>
   <button id="btnTable" title="GMテーブル（イニシアティブ表）を開く">📋 テーブル</button>
   <button id="btnVars" title="変数の値を一時的に上書き（全タブ共通・stock非変更）">🎲 変数</button>
   <button id="btnTheme" title="背景を切替（ライト/ダーク）">🌙 ダーク</button>
@@ -623,7 +640,10 @@
     <p class="sub">Tekey API（Firebase tekeyProxy2 経由）への接続情報。room/pass/tab/送信者名は他ツールと共有されます。</p>
     <div class="fg"><label>ルームID</label><input type="text" id="s_room" placeholder="TekeyのルームURL末尾"></div>
     <div class="fg"><label>ルームパスワード</label><input type="text" id="s_pass" placeholder="設定されている場合のみ"></div>
-    <div class="fg"><label>送信先タブ名（省略可）</label><input type="text" id="s_tab" placeholder="省略時は最左端タブ"></div>
+    <div class="fg"><label>送信先タブのプリセット（1行に1つ・上から順に並びます）</label>
+      <textarea id="s_tabs" rows="3" placeholder="メイン&#10;情報&#10;雑談" style="width:100%;resize:vertical;font:inherit;padding:8px 10px;border:1px solid var(--bd2);border-radius:9px;background:var(--bg);color:var(--tx)"></textarea>
+      <div class="note" style="margin-top:4px">空にすると送信先未指定（Tekeyの最左端タブ）になります。ヘッダーの「送信先」から切り替えられます。</div>
+    </div>
     <div class="fg"><label>送信者名フォールバック（省略可）</label><input type="text" id="s_name" placeholder="例：GM"></div>
     <div class="fg"><label>エンドポイントURL</label><input type="text" id="s_ep" placeholder="https://...cloudfunctions.net/tekeyProxy2"></div>
     <div class="row">
@@ -1063,7 +1083,7 @@ function pickName(palName){
 }
 async function sendChat(message,{name,color,bot}={}){
   const ep=cfg("ep2_endpoint")||DEFAULT_EP;
-  const room=cfg("room"), password=cfg("pass"), tab=cfg("tab");
+  const room=cfg("room"), password=cfg("pass"), tab=destTabName()||cfg("tab");
   if(!room) return {ok:false, why:"noroom"};
   const body={command:"sendChat", room, password, message};
   if(name) body.name=name;
@@ -1888,15 +1908,20 @@ function loadJSON(text){
 /* ---------- settings modal ---------- */
 function openSettings(){
   $("#s_room").value=cfg("room"); $("#s_pass").value=cfg("pass");
-  $("#s_tab").value=cfg("tab"); $("#s_name").value=cfg("senderName");
+  $("#s_tabs").value=cfg("ep2_desttabs")||cfg("tab")||""; $("#s_name").value=cfg("senderName");
   $("#s_ep").value=cfg("ep2_endpoint")||DEFAULT_EP;
   $("#settings").classList.add("open");
 }
 function saveSettings(){
   setCfg("room",$("#s_room").value.trim()); setCfg("pass",$("#s_pass").value.trim());
-  setCfg("tab",$("#s_tab").value.trim()); setCfg("senderName",$("#s_name").value.trim());
+  const tabs=$("#s_tabs").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  setCfg("ep2_desttabs", tabs.join("\n"));
+  // 選択中が一覧から消えていたら先頭へ寄せる（無ければ未指定）
+  const sel=cfg("ep2_destsel")||""; if(sel && !tabs.includes(sel)) setCfg("ep2_destsel","");
+  setCfg("tab", destTabName());     // 旧キーも同期（後方互換）
+  setCfg("senderName",$("#s_name").value.trim());
   setCfg("ep2_endpoint",$("#s_ep").value.trim()||DEFAULT_EP);
-  $("#settings").classList.remove("open"); toast("設定を保存しました");
+  $("#settings").classList.remove("open"); renderDest(); toast("設定を保存しました");
 }
 
 /* ---------- theme ---------- */
@@ -2395,6 +2420,11 @@ function setVarOverride(n,v){ const o=loadVarOverrides(); o[n]=v; saveVarOverrid
 function clearVarOverride(n){ const o=loadVarOverrides(); delete o[n]; saveVarOverrides(o); }
 $("#btnVars").addEventListener("click",openVarPanel);
 $("#btnTable").addEventListener("click",()=>{ const f=loadGmFloat(); setGmFloat(!f.open); });
+$("#btnDest").addEventListener("click",e=>{ e.stopPropagation(); $("#destMenu").classList.toggle("open"); });
+$("#destMenu").addEventListener("click",e=>{ const it=e.target.closest(".dest-item"); if(!it) return;
+  setDest(it.dataset.dest); $("#destMenu").classList.remove("open");
+  toast("送信先："+($("#destLabel").textContent)); });
+document.addEventListener("click",e=>{ if(!e.target.closest("#destWrap")) $("#destMenu").classList.remove("open"); });
 $("#varClose").addEventListener("click",()=>$("#varModal").classList.remove("open"));
 $("#varResetAll").addEventListener("click",()=>{ saveVarOverrides({}); openVarPanel(); });
 $("#varModal").addEventListener("click",e=>{ if(e.target.id==="varModal") $("#varModal").classList.remove("open"); });
@@ -2475,6 +2505,35 @@ function jumpEditToLine(idx){
   ed.scrollTop=Math.max(0, idx*lh - ed.clientHeight/2);
   if(syncOn()) syncPreviewToCursor();
 }
+
+/* ---------- destination tab (送信先) ---------- */
+function loadDestTabs(){
+  const raw=cfg("ep2_desttabs")||"";
+  return raw.split("\n").map(s=>s.trim()).filter(Boolean);
+}
+function curDest(){
+  const list=loadDestTabs(); const sel=cfg("ep2_destsel")||"";
+  if(sel && (list.includes(sel)||sel==="")) return sel;
+  return list.length?"" : "";   // 既定は「未指定」
+}
+function setDest(name){ setCfg("ep2_destsel", name); renderDest(); }
+const DEST_COLORS=["#4a3fb0","#2e7d46","#c07a1e","#2f6fb3","#a23b8f","#5b6772"];
+function destColor(name){ if(!name) return "var(--tx3)"; let h=0; for(let i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))>>>0; return DEST_COLORS[h%DEST_COLORS.length]; }
+function renderDest(){
+  const list=loadDestTabs(); const sel=cfg("ep2_destsel")||"";
+  const wrap=$("#destWrap"); if(!wrap) return;
+  // プリセットが無ければセレクタを隠す
+  wrap.style.display = list.length ? "" : "none";
+  const cur = list.includes(sel) ? sel : "";
+  $("#destLabel").textContent = cur || "最左端タブ";
+  $("#destDot").style.background = destColor(cur);
+  const menu=$("#destMenu"); menu.innerHTML="";
+  const mk=(name,label)=>{ const b=el("dest-item"+((list.includes(sel)?sel:"")===name?" on":"")); b.dataset.dest=name;
+    b.innerHTML="<span class='dest-dot' style='background:"+destColor(name)+"'></span>"+esc(label); return b; };
+  menu.appendChild(mk("","（未指定：最左端タブ）"));
+  list.forEach(n=> menu.appendChild(mk(n,n)));
+}
+function destTabName(){ const sel=cfg("ep2_destsel")||""; const list=loadDestTabs(); return list.includes(sel)?sel:""; }
 
 /* ---------- floating GM table ---------- */
 function loadGmFloat(){
@@ -2616,6 +2675,7 @@ setMdcol(cfg("ep2_mdcol")==="hidden");
 if(!restore()) seed();
 render();
 renderGmFloat();
+renderDest();
 if(!cfg("room")) setTimeout(openSettings,400);
 </script>
 </body>
