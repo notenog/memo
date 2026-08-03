@@ -537,6 +537,40 @@
   .actions .sep{width:1px; align-self:stretch; background:var(--bd); margin:2px 5px}
   .actions .sp{flex:1}
   .actions .lk.on{background:var(--line-h); border-color:var(--link); color:var(--link-h)}
+  .actions .grp{display:flex; align-items:center; gap:4px}
+  .menu-wrap{position:relative; display:inline-flex}
+  .menu-wrap .ca{font-size:9px; opacity:.7}
+  .menu{position:absolute; bottom:calc(100% + 6px); min-width:190px; background:var(--panel); border:1px solid var(--bd2);
+       border-radius:11px; box-shadow:0 -8px 30px rgba(0,0,0,.22); padding:6px; display:none; z-index:40}
+  .menu.open{display:block}
+  .menu.left{left:0}  .menu.right{right:0}
+  .menu .mi{display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:8px; cursor:pointer;
+       font-family:var(--display); font-weight:700; font-size:13px; color:var(--tx)}
+  .menu .mi:hover{background:var(--line-h); color:var(--link)}
+  .menu .mi .ic{font-size:15px; width:18px; text-align:center; flex:none}
+  .menu .mi small{display:block; font-weight:400; font-size:11px; color:var(--tx3); font-family:var(--body); margin-top:1px}
+  .help-btn{width:24px; height:24px; flex:none; border-radius:50%; border:1px solid var(--bd2); background:var(--bg);
+       color:var(--tx3); font-family:var(--display); font-weight:900; font-size:13px; line-height:1; margin-left:2px; padding:0}
+  .help-btn:hover{border-color:var(--link); color:var(--link); background:var(--line-h)}
+  .hoverlay{position:fixed; inset:0; background:rgba(20,22,32,.44); display:none; align-items:center; justify-content:center; z-index:70; padding:20px}
+  .hoverlay.open{display:flex}
+  .hsheet{width:min(860px,96vw); max-height:88vh; overflow-y:auto; background:var(--panel); border:1px solid var(--bd2);
+       border-radius:16px; box-shadow:0 24px 60px rgba(0,0,0,.34); padding:20px 22px}
+  .hsheet-head{display:flex; align-items:center; justify-content:space-between}
+  .hsheet-head h2{margin:0; font-family:var(--display); font-weight:900; font-size:19px}
+  .hclose{width:30px; height:30px; border-radius:8px; border:1px solid var(--bd2); background:var(--bg); color:var(--tx3); font-size:17px}
+  .hclose:hover{border-color:var(--danger); color:var(--danger)}
+  .hsub{color:var(--tx2); font-size:12.5px; margin:6px 0 16px}
+  .hgrid{display:grid; grid-template-columns:1fr 1fr; gap:16px 22px}
+  @media(max-width:640px){.hgrid{grid-template-columns:1fr}}
+  .hg-ttl{font-family:var(--display); font-weight:700; font-size:12px; color:var(--link); letter-spacing:.03em;
+       padding-bottom:5px; margin-bottom:6px; border-bottom:1px solid var(--bd)}
+  .hrow{display:flex; align-items:baseline; gap:10px; padding:4px 0}
+  .hrow code{flex:none; font-family:var(--mono); font-weight:700; font-size:12px; color:var(--tx); background:var(--line-h);
+       border:1px solid var(--line-hbd); border-radius:6px; padding:2px 7px; cursor:pointer; white-space:nowrap}
+  .hrow code:hover{background:var(--send); color:#fff; border-color:var(--send)}
+  .hrow span{font-size:12.5px; color:var(--tx2); line-height:1.5}
+  .tab-add:disabled{opacity:.35; cursor:default}
 
   /* settings modal */
   .modal{position:fixed; inset:0; background:rgba(20,28,38,.45); display:none; align-items:center; justify-content:center; z-index:50}
@@ -578,9 +612,9 @@
 <div class="hd">
   <span class="mark">T</span>
   <span class="ttl">Tekey拡張パレット<small>チャットパレット支援ツール</small></span>
+  <button class="help-btn" id="btnHelp" title="記法の早見表">?</button>
   <span class="sp"></span>
   <button id="btnTable" title="GMテーブル（イニシアティブ表）を開く">📋 テーブル</button>
-  <button id="btnVars" title="変数の値を一時的に上書き（全タブ共通・stock非変更）">🎲 変数</button>
   <button id="btnTheme" title="背景を切替（ライト/ダーク）">🌙 ダーク</button>
   <button id="btnSettings">⚙ 接続設定</button>
 </div>
@@ -643,21 +677,30 @@
 
 <div class="actions">
   <button class="lk primary" id="btnBoard">▦ ボード</button>
-  <span class="sep"></span>
-  <button class="lk" id="btnExpand">全部開く</button>
-  <button class="lk" id="btnCollapse">全部閉じる</button>
-  <span class="sep"></span>
-  <button class="lk" id="btnAddTab">タブ追加</button>
-  <button class="lk danger" id="btnDelTab">タブ削除</button>
-  <button class="lk" id="btnUndoDel" disabled>削除戻し</button>
+  <div class="menu-wrap">
+    <button class="lk" id="btnTools">🧰 ツール <span class="ca">▾</span></button>
+    <div class="menu left" id="toolsMenu">
+      <div class="mi" data-act="vars"><span class="ic">🎲</span><span>変数<small>値を一時上書き（全タブ共通）</small></span></div>
+      <div class="mi" data-act="replace"><span class="ic">🔁</span><span>置換<small>本文の文字列を一括置換</small></span></div>
+      <div class="mi" data-act="expand"><span class="ic">⊕</span><span>全部開く<small>見出しをすべて展開</small></span></div>
+      <div class="mi" data-act="collapse"><span class="ic">⊖</span><span>全部閉じる<small>見出しをすべて畳む</small></span></div>
+    </div>
+  </div>
   <span class="sp"></span>
-  <button class="lk on" id="btnEdit">編集</button>
-  <button class="lk" id="btnSplit" title="編集中の分割（なし→左右→上下）">◫ 分割:なし</button>
-  <button class="lk" id="btnSync" title="編集中にプレビューを追従">⇅ 追従</button>
-  <button class="lk" id="btnReplace">置換</button>
+  <div class="grp" id="editGrp">
+    <button class="lk on" id="btnEdit">編集</button>
+    <button class="lk" id="btnSplit" title="編集中の分割（なし→左右→上下）">◫ 分割:なし</button>
+    <button class="lk" id="btnSync" title="編集中にプレビューを追従">⇅ 追従</button>
+  </div>
   <span class="sep"></span>
-  <button class="lk" id="btnLoad">ロード</button>
-  <button class="lk" id="btnSave">セーブ</button>
+  <div class="menu-wrap">
+    <button class="lk" id="btnFile">📁 ファイル <span class="ca">▾</span></button>
+    <div class="menu right" id="fileMenu">
+      <div class="mi" data-act="save"><span class="ic">⤓</span><span>セーブ<small id="fileSaveName">名前を付けて保存</small></span></div>
+      <div class="mi" data-act="load"><span class="ic">⤒</span><span>ロード<small>JSONを読み込み</small></span></div>
+      <div class="mi" data-act="rename"><span class="ic">✎</span><span>保存名を変更</span></div>
+    </div>
+  </div>
   <input type="file" id="file" accept=".json,application/json" style="display:none">
   <input type="file" id="boardFile" accept=".json,application/json" style="display:none">
 </div>
@@ -736,6 +779,55 @@
     <button class="lk" id="spkAdd" style="margin-top:6px">＋ 追加</button>
     <div class="row">
       <button class="ok" id="spkClose">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="hoverlay" id="helpOverlay">
+  <div class="hsheet">
+    <div class="hsheet-head">
+      <h2>記法早見表</h2>
+      <button class="hclose" id="helpClose">×</button>
+    </div>
+    <p class="hsub">送信文に書ける特殊記法の一覧です。<b>クリックでコピー</b>できます。</p>
+    <div class="hgrid">
+      <div class="hgroup">
+        <div class="hg-ttl">発言者・色</div>
+        <div class="hrow"><code>@[name]:名前</code><span>送信者名を変更（この送信だけ）</span></div>
+        <div class="hrow"><code>@#RRGGBB</code><span>文字色を指定（例：@#A13B32）</span></div>
+        <div class="hrow"><code>@#424242</code><span>空行用のブランク色</span></div>
+      </div>
+      <div class="hgroup">
+        <div class="hg-ttl">送信先</div>
+        <div class="hrow"><code>&gt;&gt;タブ名</code><span>この行だけ送信先を上書き（先頭/末尾）</span></div>
+      </div>
+      <div class="hgroup">
+        <div class="hg-ttl">GMテーブル操作（送信されません）</div>
+        <div class="hrow"><code>[:HP-2]</code><span>選択中/送信者名の行のHPを−2</span></div>
+        <div class="hrow"><code>[:名前:HP-2]</code><span>対象を明示して増減</span></div>
+        <div class="hrow"><code>[:HP=10]</code><span>代入</span></div>
+        <div class="hrow"><code>[:HP+1d6]</code><span>ダイスで増減</span></div>
+      </div>
+      <div class="hgroup">
+        <div class="hg-ttl">変数</div>
+        <div class="hrow"><code>// 名前=値</code><span>変数を定義（全タブ共通）</span></div>
+        <div class="hrow"><code>{名前}</code><span>変数を参照（送信時に展開）</span></div>
+        <div class="hrow"><code>{行.列}</code><span>テーブルの値（例：{ゴブリンA.HP}）</span></div>
+        <div class="hrow"><code>{選択.HP}</code><span>現在の手番の行の値・{ラウンド}も可</span></div>
+      </div>
+      <div class="hgroup">
+        <div class="hg-ttl">装飾・記法</div>
+        <div class="hrow"><code>**太字**</code><span>強調</span></div>
+        <div class="hrow"><code>|対象《ルビ》</code><span>ルビ（そのまま送信）</span></div>
+        <div class="hrow"><code>\n</code><span>改行</span></div>
+        <div class="hrow"><code>:::メモ:::</code><span>カンペ（自分用・送信されない）</span></div>
+      </div>
+      <div class="hgroup">
+        <div class="hg-ttl">ダイス（Tekey/BCDice）</div>
+        <div class="hrow"><code>CCB&lt;=70</code><span>判定（紫チップ表示）</span></div>
+        <div class="hrow"><code>2d6+{命中}</code><span>ダイス＋変数</span></div>
+        <div class="hrow"><code>choice(A,B,C)</code><span>ランダム選択</span></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1073,8 +1165,11 @@ function renderTabs(){
       (state.palettes.length>1?"<span class='x' title='このタブを削除'>×</span>":"");
     t.appendChild(d);
   });
-  const add=document.createElement("button"); add.className="tab-add"; add.id="tabAddInline"; add.textContent="＋"; add.title="タブ追加";
+  const add=document.createElement("button"); add.className="tab-add"; add.id="tabAddInline"; add.textContent="＋"; add.title="タブを追加";
   t.appendChild(add);
+  const undo=document.createElement("button"); undo.className="tab-add"; undo.id="tabUndoInline"; undo.textContent="↩"; undo.title="削除したタブを戻す";
+  undo.disabled = !state.lastDeleted;
+  t.appendChild(undo);
 }
 function render(){ renderTabs(); renderActiveBody(); }
 function splitMode(){ const v=localStorage.getItem("ep2_split"); return (v==="lr"||v==="tb")?v:"none"; }
@@ -1085,8 +1180,9 @@ function applySplitUI(){
   const m=splitMode(), w=$("#bodywrap");
   w.classList.toggle("split-lr", m==="lr" && state.editMode);
   w.classList.toggle("split-tb", m==="tb" && state.editMode);
-  const b=$("#btnSplit"); if(b){ b.textContent="◫ 分割:"+(m==="lr"?"左右":m==="tb"?"上下":"なし"); b.classList.toggle("on", m!=="none"); }
-  const s=$("#btnSync"); if(s){ s.classList.toggle("on", syncOn()); s.style.display = (m==="none"||!state.editMode)?"none":""; }
+  const b=$("#btnSplit"); if(b){ b.textContent="◫ 分割:"+(m==="lr"?"左右":m==="tb"?"上下":"なし"); b.classList.toggle("on", m!=="none");
+    b.style.display = state.editMode ? "" : "none"; }
+  const s=$("#btnSync"); if(s){ s.classList.toggle("on", syncOn()); s.style.display = (!state.editMode||m==="none")?"none":""; }
 }
 function renderActiveBody(){
   const p=activeP();
@@ -1894,13 +1990,13 @@ function delTab(){
   state.lastDeleted={pal:p, index:i};
   state.palettes.splice(i,1);
   state.activeId=state.palettes[Math.max(0,i-1)].paletteID;
-  $("#btnUndoDel").disabled=false; render();
+  render();
 }
 function undoDel(){
   if(!state.lastDeleted) return;
   const {pal,index}=state.lastDeleted;
   state.palettes.splice(Math.min(index,state.palettes.length),0,pal);
-  state.activeId=pal.paletteID; state.lastDeleted=null; $("#btnUndoDel").disabled=true; render();
+  state.activeId=pal.paletteID; state.lastDeleted=null; render();
 }
 function renameTab(id){
   const p=state.palettes.find(x=>x.paletteID===id); if(!p) return;
@@ -2062,7 +2158,8 @@ $("#rail").addEventListener("dblclick",e=>{
 })();
 
 $("#tabs").addEventListener("click",e=>{
-  if(e.target.closest(".tab-add")){ addTab(); return; }
+  if(e.target.id==="tabUndoInline"){ if(state.lastDeleted) undoDel(); return; }
+  if(e.target.closest(".tab-add")){ if(e.target.id==="tabUndoInline") return; addTab(); return; }
   const tab=e.target.closest(".tab"); if(!tab) return;
   if(e.target.classList.contains("x")){ const id=+tab.dataset.id; if(id===state.activeId) delTab(); else { state.activeId=id; delTab(); } return; }
   selectTab(+tab.dataset.id);
@@ -2123,14 +2220,34 @@ $("#compose").addEventListener("keydown",e=>{
   if(e.key==="Enter" && !e.shiftKey && !e.isComposing && e.keyCode!==229){ e.preventDefault(); sendCompose(); }
 });
 
-$("#btnExpand").addEventListener("click",()=>setAll(true));
-$("#btnCollapse").addEventListener("click",()=>setAll(false));
-$("#btnAddTab").addEventListener("click",addTab);
-$("#btnDelTab").addEventListener("click",delTab);
-$("#btnUndoDel").addEventListener("click",undoDel);
 $("#btnEdit").addEventListener("click",toggleEdit);
-$("#btnLoad").addEventListener("click",()=>$("#file").click());
-function loadSaveName(){ const v=localStorage.getItem("ep2_savename"); return (v&&v.trim())?v.trim():""; }
+/* ツールメニュー */
+$("#btnTools").addEventListener("click",e=>{ e.stopPropagation(); closeMenus("#toolsMenu"); $("#toolsMenu").classList.toggle("open"); });
+$("#toolsMenu").addEventListener("click",e=>{ const mi=e.target.closest(".mi"); if(!mi) return; const a=mi.dataset.act;
+  $("#toolsMenu").classList.remove("open");
+  if(a==="vars") openVarPanel(); else if(a==="replace") openReplace();
+  else if(a==="expand") setAll(true); else if(a==="collapse") setAll(false);
+});
+/* ファイルメニュー */
+$("#btnFile").addEventListener("click",e=>{ e.stopPropagation(); closeMenus("#fileMenu"); refreshSaveTip(); $("#fileMenu").classList.toggle("open"); });
+$("#fileMenu").addEventListener("click",e=>{ const mi=e.target.closest(".mi"); if(!mi) return; const a=mi.dataset.act;
+  $("#fileMenu").classList.remove("open");
+  if(a==="save") doSaveFile(false); else if(a==="load") $("#file").click(); else if(a==="rename") doSaveFile(true);
+});
+function closeMenus(except){ document.querySelectorAll(".menu").forEach(m=>{ if(!except||("#"+m.id)!==except) m.classList.remove("open"); }); }
+document.addEventListener("click",e=>{ if(!e.target.closest(".menu-wrap")) closeMenus(); });
+/* 記法早見表 */
+function openHelp(){ closeMenus(); $("#helpOverlay").classList.add("open"); }
+$("#btnHelp").addEventListener("click",openHelp);
+$("#helpClose").addEventListener("click",()=>$("#helpOverlay").classList.remove("open"));
+$("#helpOverlay").addEventListener("click",e=>{ if(e.target.id==="helpOverlay") $("#helpOverlay").classList.remove("open"); });
+$("#helpOverlay").addEventListener("click",async e=>{ const c=e.target.closest(".hrow code"); if(!c) return;
+  const t=c.textContent;
+  let ok=false;
+  try{ await navigator.clipboard.writeText(t); ok=true; }
+  catch(_){ try{ const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); ok=document.execCommand("copy"); ta.remove(); }catch(__){} }
+  toast(ok?("コピー："+t):"コピーできませんでした", !ok);
+});function loadSaveName(){ const v=localStorage.getItem("ep2_savename"); return (v&&v.trim())?v.trim():""; }
 function saveSaveName(v){ try{ localStorage.setItem("ep2_savename", v); }catch(e){} }
 function sanitizeName(n){ return (n||"").trim().replace(/[\\/:*?"<>|]/g,"_").replace(/\.json$/i,""); }
 function askSaveName(force){
@@ -2150,10 +2267,8 @@ function doSaveFile(force){
   refreshSaveTip();
   toast("「"+name+".json」を保存しました");
 }
-$("#btnSave").addEventListener("click",()=>doSaveFile(false));
-$("#btnSave").addEventListener("contextmenu",e=>{ e.preventDefault(); doSaveFile(true); });
 function refreshSaveTip(){ const n=loadSaveName();
-  $("#btnSave").title = n ? ("「"+n+".json」で保存 / 右クリック:名前を変更") : "クリックでファイル名を入力して保存"; }
+  const el2=$("#fileSaveName"); if(el2) el2.textContent = n ? ("「"+n+".json」で保存") : "名前を付けて保存"; }
 refreshSaveTip();
 $("#file").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>loadJSON(r.result); r.readAsText(f); e.target.value=""; });
 $("#boardFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>importBoard(r.result); r.readAsText(f); e.target.value=""; });
@@ -2469,7 +2584,6 @@ function openVarPanel(){
 }
 function setVarOverride(n,v){ const o=loadVarOverrides(); o[n]=v; saveVarOverrides(o); }
 function clearVarOverride(n){ const o=loadVarOverrides(); delete o[n]; saveVarOverrides(o); }
-$("#btnVars").addEventListener("click",openVarPanel);
 $("#btnTable").addEventListener("click",()=>{ const f=loadGmFloat(); setGmFloat(!f.open); });
 $("#destChips").addEventListener("click",e=>{ const c=e.target.closest(".dest-chip"); if(!c) return;
   setDest(c.dataset.dest);
@@ -2788,7 +2902,6 @@ function doReplace(){
     toast(count+"件を置換しました");
   } else toast("見つかりませんでした",true);
 }
-$("#btnReplace").addEventListener("click",openReplace);
 $("#rpClose").addEventListener("click",()=>$("#replaceModal").classList.remove("open"));
 $("#rpDo").addEventListener("click",doReplace);
 $("#replaceModal").addEventListener("click",e=>{ if(e.target.id==="replaceModal") $("#replaceModal").classList.remove("open"); });
