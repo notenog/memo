@@ -167,6 +167,14 @@
   .dest-chip.on{background:var(--send); border-color:var(--send); color:#fff}
   .dest-chip.on .dest-dot{box-shadow:0 0 0 2px rgba(255,255,255,.6)}
   .spkbar .destbar-lbl{color:var(--tx3)}
+  .spkbar.active-npc{background:var(--spk-accent,transparent); background:color-mix(in srgb, var(--spk-accent) 8%, transparent);
+       border-radius:10px; box-shadow:inset 0 0 0 1.5px var(--spk-accent); margin:0 12px 8px; padding-left:8px}
+  .spkbar.active-npc .destbar-lbl{color:var(--spk-accent)}
+  .spk-chip.on{color:#fff; border-color:var(--chip-accent,var(--link)); background:var(--chip-accent,var(--link))}
+  .spk-now{display:inline-flex; align-items:center; gap:5px; font-family:var(--display); font-weight:700; font-size:12px;
+       padding:2px 4px; white-space:nowrap; animation:spkpulse 1.6s ease-in-out infinite}
+  @keyframes spkpulse{0%,100%{opacity:1}50%{opacity:.5}}
+  #compose{transition:border-color .12s, box-shadow .12s}
   .spk-chip{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:var(--tx2);
        background:var(--bg); border:1px solid var(--bd2); border-radius:16px; padding:4px 12px; cursor:pointer; white-space:nowrap; user-select:none}
   .spk-chip:hover{border-color:var(--link-h); color:var(--link)}
@@ -2219,6 +2227,8 @@ $("#btnCopyCompose").addEventListener("click",async()=>{
 $("#compose").addEventListener("keydown",e=>{
   if(e.key==="Enter" && !e.shiftKey && !e.isComposing && e.keyCode!==229){ e.preventDefault(); sendCompose(); }
 });
+$("#compose").addEventListener("input",bumpSpeakerAuto);
+$("#compose").addEventListener("focus",bumpSpeakerAuto);
 
 $("#btnEdit").addEventListener("click",toggleEdit);
 /* ツールメニュー */
@@ -2754,7 +2764,26 @@ function loadSpeakers(){ try{ const a=JSON.parse(localStorage.getItem("ep2_speak
 function saveSpeakers(a){ try{ localStorage.setItem("ep2_speakers", JSON.stringify(a)); }catch(e){} }
 /* 現在の話者上書き（この選択が続く間、送信のname/colorを上書き）。null=GM（通常） */
 let curSpeaker=null;
+let spkAutoTimer=null;
+const SPK_AUTO_MS=60000;   // 非GMのまま無操作でGMへ戻すまでの時間
 function normHex(c){ c=(c||"").trim(); if(/^#?[0-9a-fA-F]{6}$/.test(c)) return "#"+c.replace("#",""); return ""; }
+function applySpeakerAccent(){
+  const on = !!curSpeaker;
+  const col = on ? (curSpeaker.color||"#4a3fb0") : "";
+  // C: コンポーズ枠を発言者色に
+  const comp=$("#compose"); if(comp){ comp.style.borderColor = on?col:""; comp.style.boxShadow = on?("0 0 0 2px "+hexA(col,.18)):""; }
+  // B: 発言者バー全体を強調（縁取り＋現在発言者ラベル）
+  const bar=$("#spkbar"); if(bar){ bar.classList.toggle("active-npc", on);
+    bar.style.setProperty("--spk-accent", col||"transparent"); }
+}
+function hexA(hex,a){ const m=/^#?([0-9a-fA-F]{6})$/.exec(hex||""); if(!m) return "rgba(74,63,176,"+a+")";
+  const n=parseInt(m[1],16); return "rgba("+((n>>16)&255)+","+((n>>8)&255)+","+(n&255)+","+a+")"; }
+function armSpeakerAuto(){
+  clearTimeout(spkAutoTimer); spkAutoTimer=null;
+  if(!curSpeaker) return;
+  spkAutoTimer=setTimeout(()=>{ if(curSpeaker){ setSpeaker(null); toast("発言者を自動でGMに戻しました"); } }, SPK_AUTO_MS);
+}
+function bumpSpeakerAuto(){ if(curSpeaker) armSpeakerAuto(); }   // 操作のたびに延長
 function renderSpeakers(){
   const bar=$("#spkbar"); if(!bar) return;
   const list=loadSpeakers(); const box=$("#spkChips"); box.innerHTML="";
@@ -2767,17 +2796,23 @@ function renderSpeakers(){
     const on = curSpeaker && curSpeaker.i===i;
     const c=el("spk-chip"+(on?" on":"")); c.dataset.idx=i;
     c.innerHTML="<span class='dest-dot' style='background:"+(normHex(s.color)||"var(--tx3)")+"'></span>"+esc(s.name||"(無名)");
+    if(on) c.style.setProperty("--chip-accent", normHex(s.color)||"var(--link)");
     c.title="クリック:発言者セット / ダブルクリック:送信予定を即送信";
     box.appendChild(c);
   });
+  // 現在の発言者ラベル（非GM時のみ）
+  if(curSpeaker){ const tag=el("spk-now"); tag.innerHTML="✏ <b>"+esc(curSpeaker.name||"(無名)")+"</b> で発言中";
+    tag.style.color=curSpeaker.color||"var(--link)"; box.appendChild(tag); }
   bar.style.display="flex";
   bar.classList.toggle("folded", localStorage.getItem("ep2_spkfold")==="1");
+  applySpeakerAccent();
 }
 function setSpeaker(idx){
   if(idx==null){ curSpeaker=null; toast("発言者：GM"); }
   else { const s=loadSpeakers()[idx]; if(!s) return; curSpeaker={i:idx, name:s.name, color:normHex(s.color)};
     toast("発言者："+(s.name||"(無名)")); }
   renderSpeakers();
+  armSpeakerAuto();
 }
 function speakerSend(idx){
   const s=loadSpeakers()[idx]; if(!s) return;
