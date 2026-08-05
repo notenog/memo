@@ -12,7 +12,7 @@ git push origin master
 ```
 
 
-git pull origin master
-  git add .
-  git commit -m "記事を追加"
-  git push origin master
+cd /d/memo
+git add .
+git commit -m "記事を更新"
+git push origin master
