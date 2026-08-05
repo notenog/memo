@@ -6,6 +6,12 @@
       <description>最新の10件 on memo</description>
       <generator>Quartz -- quartz.jzhao.xyz</generator>
       <item>
+    <title>⚔️ 戦闘ルール</title>
+    <link>https://https://notenog.github.io/memo/CoC/02CoC_battle</link>
+    <guid>https://https://notenog.github.io/memo/CoC/02CoC_battle</guid>
+    <description><![CDATA[  &gt;[!warning] &gt; &gt; **基本ルルブ・2010・2015に記載のある戦闘ルールに準拠・優先します。** 01.戦闘について 【基本的な流れ】 攻撃と回避は両立しない。１R中どちらかのみの行動になる。 回避のオプションを採用する。(基本ルルブp150) * 1Rにつき3回までの攻撃に回避が可能とし、最初は＜回避＞の値、二度目は＜回避2/3＞、三度目は＜回避1/3＞の値で試みることが出来る。数値は切り上げ。 * １つの攻撃に３回回避が出来る訳ではない。一度回避に失敗した時点でダメージロールを行う。 * ただし①の通り、既に攻撃を行ってる場合回避は一度も行えない。逆も同... ]]></description>
+    <pubDate>Wed, 05 Aug 2026 11:39:04 GMT</pubDate>
+  </item><item>
     <title>index</title>
     <link>https://https://notenog.github.io/memo/</link>
     <guid>https://https://notenog.github.io/memo/</guid>
@@ -41,12 +47,6 @@
     <guid>https://https://notenog.github.io/memo/inSANe_old/03inSANe_ond_kyo</guid>
     <description><![CDATA[  共演者(ゲスト)とは、PCと同等の動きをするNPCのことを指します。以下のものはインセインp228「NPC」、p229「共演者」の記述等参照のうえ、大々的に調整してあるハウスルールです。「共演者ルールを採用する」という記述のあるセッションの際は必ずご確認下さい。 《 共演者ルール 》 | 共演者はPCと同じようにCSを作成し特技・アビリティ・アイテムを使用する。 調査判定、感情判定、恐怖判定、戦闘等の通常PCが可能な行為判定や修正の全てを自発的に行う。 共演者の手番は全てのPCの行動の後に行う。あるいは、全員の手番をダイスで決定する場合は共演者もダイスロールに参加し順番を決定する。 共演者は... ]]></description>
     <pubDate>Sat, 18 Oct 2025 11:54:36 GMT</pubDate>
-  </item><item>
-    <title>⚔️ 戦闘ルール</title>
-    <link>https://https://notenog.github.io/memo/CoC/02CoC_battle</link>
-    <guid>https://https://notenog.github.io/memo/CoC/02CoC_battle</guid>
-    <description><![CDATA[  01.戦闘について Warning 基本ルルブ・2010・2015に記載のある戦闘ルールに準拠・優先します。 【基本的な流れ】 攻撃と回避は両立しない。１R中どちらかのみの行動になる。 回避のオプションを採用する。(基本ルルブp150) - 1Rにつき3回までの攻撃に回避が可能とし、最初は＜回避＞の値、二度目は＜回避2/3＞、三度目は＜回避1/3＞の値で試みることが出来る。数値は切り上げ。 - １つの攻撃に３回回避が出来る訳ではない。一度回避に失敗した時点でダメージロールを行う。 - ただし①の通り、既に攻撃を行ってる場合回避は一度も行えない。逆も同様。 受け流しはあらゆる行動と両立する。1... ]]></description>
-    <pubDate>Sat, 18 Oct 2025 11:11:43 GMT</pubDate>
   </item><item>
     <title>👁️ inSANe(新)／ハウスルール</title>
     <link>https://https://notenog.github.io/memo/inSANe_new</link>
