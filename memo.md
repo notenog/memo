@@ -11,8 +11,10 @@ git commit -m "fix: Final push of clean assets with all content emitters disable
 git push origin master
 ```
 
-
+```
 cd /d/memo
 git add .
 git commit -m "記事を更新"
 git push origin master
+```
+↑最新
