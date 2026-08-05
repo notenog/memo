@@ -12,5 +12,7 @@ git push origin master
 ```
 
 
-cd /d/memo
-npx quartz sync
+git pull origin master
+  git add .
+  git commit -m "記事を追加"
+  git push origin master
