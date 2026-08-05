@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>シナリオ一覧</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #161410;
+  color: #e9e5da;
+  font-family: 'Segoe UI', 'Noto Sans JP', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  padding: 20px;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+header {
+  text-align: center;
+  margin-bottom: 40px;
+  border-bottom: 2px solid #4a4842;
+  padding-bottom: 20px;
+}
+header h1 {
+  font-size: 32px;
+  margin-bottom: 8px;
+  color: #c98a3c;
+}
+header p {
+  color: #999;
+  font-size: 13px;
+}
+
+.controls {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-box {
+  flex: 1;
+  min-width: 200px;
+}
+.search-box input {
+  width: 100%;
+  padding: 10px 14px;
+  background: #242320;
+  border: 1px solid #4a4842;
+  color: #e9e5da;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.search-box input::placeholder {
+  color: #666;
+}
+.search-box input:focus {
+  outline: none;
+  border-color: #c98a3c;
+}
+
+.filter-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.filter-tag {
+  padding: 6px 12px;
+  background: #242320;
+  border: 1px solid #4a4842;
+  color: #e9e5da;
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.filter-tag:hover, .filter-tag.active {
+  background: #c98a3c;
+  border-color: #c98a3c;
+  color: #161410;
+}
+
+.results-info {
+  margin-bottom: 20px;
+  color: #999;
+  font-size: 13px;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+.scenario-card {
+  background: #242320;
+  border: 1px solid #4a4842;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all .3s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+.scenario-card:hover {
+  border-color: #c98a3c;
+  box-shadow: 0 4px 12px rgba(201, 138, 60, 0.2);
+  transform: translateY(-2px);
+}
+.scenario-card a {
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.scenario-card-header {
+  padding: 14px;
+  border-bottom: 2px solid #4a4842;
+}
+.scenario-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #c98a3c;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+.scenario-card-genre {
+  font-size: 11px;
+  color: #999;
+}
+.scenario-card-body {
+  padding: 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.scenario-card-description {
+  font-size: 13px;
+  color: #ccc;
+  margin-bottom: 12px;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+.scenario-card-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tag {
+  display: inline-block;
+  background: #1a1a17;
+  border: 1px solid #4a4842;
+  color: #999;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+}
+.tag.system {
+  background: #c98a3c;
+  border-color: #c98a3c;
+  color: #161410;
+  font-weight: 600;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+.error {
+  background: #4a2a2a;
+  border: 1px solid #8a4a4a;
+  color: #ff9999;
+  padding: 16px;
+  border-radius: 4px;
+  margin: 20px 0;
+}
+
+footer {
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+  padding-top: 20px;
+  border-top: 1px solid #4a4842;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>📚 シナリオ一覧</h1>
+    <p>あなたのTRPGシナリオカタログ</p>
+  </header>
+
+  <div class="controls">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="シナリオ名や説明から検索...">
+    </div>
+    <div class="filter-tags" id="filterTags"></div>
+  </div>
+
+  <div class="results-info">
+    <span id="resultsCount">読み込み中...</span>
+  </div>
+
+  <div class="loading" id="loading">
+    シナリオを取得中...
+  </div>
+  <div class="error" id="error" style="display: none;"></div>
+  <div class="scenario-grid" id="scenarioGrid"></div>
+
+  <footer>
+    <p>© 2026 Scenario Generator | Powered by GitHub</p>
+  </footer>
+</div>
+
+<script>
+(async function() {
+  const REPO = 'notenog/memo'; // リポジトリ名に変更してください
+  const FOLDER = 'docs/scenario';
+  let allScenarios = [];
+  let allTags = new Set();
+
+  // GitHub トークン取得（ローカルストレージまたはプロンプト）
+  let token = localStorage.getItem('gh_token_list_page');
+  if (!token) {
+    token = prompt('GitHub Personal Access Token を入力してください(ない場合はキャンセル):\n(Contents読み取り権限があれば十分です)');
+    if (token) {
+      localStorage.setItem('gh_token_list_page', token);
+    }
+  }
+
+  const headers = token ? { Authorization: `token ${token}` } : {};
+
+  try {
+    // ファイル一覧取得
+    const listRes = await fetch(
+      `https://api.github.com/repos/${REPO}/contents/${FOLDER}`,
+      { headers }
+    );
+    if (!listRes.ok) throw new Error(`API Error: ${listRes.status}`);
+
+    const files = await listRes.json();
+    const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.type === 'file');
+
+    if (htmlFiles.length === 0) {
+      throw new Error('HTMLファイルが見つかりません');
+    }
+
+    // 各HTMLをfetchしてメタデータ抽出
+    for (const file of htmlFiles) {
+      try {
+        const fileRes = await fetch(file.download_url);
+        if (!fileRes.ok) continue;
+        const html = await fileRes.text();
+
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const title = doc.querySelector('meta[name="scenario-title"]')?.content || file.name.replace('.html', '');
+        const genre = doc.querySelector('meta[name="scenario-genre"]')?.content || '';
+        const tags = doc.querySelector('meta[name="scenario-tags"]')?.content || '';
+        const description = doc.querySelector('meta[name="scenario-description"]')?.content || '(説明なし)';
+
+        const tagArray = tags ? tags.split(/[,、]/).map(t => t.trim()).filter(t => t) : [];
+        if (genre) allTags.add(genre);
+        tagArray.forEach(t => allTags.add(t));
+
+        allScenarios.push({
+          name: file.name,
+          title,
+          genre,
+          tags: tagArray,
+          description,
+          url: file.html_url.replace('/blob/', '/raw/')
+        });
+      } catch (e) {
+        console.error(`Failed to fetch ${file.name}:`, e);
+      }
+    }
+
+    // タグ表示順ソート
+    const tagsArray = Array.from(allTags).sort();
+
+    // UI初期化
+    document.getElementById('loading').style.display = 'none';
+    renderFilterTags(tagsArray);
+    renderScenarios(allScenarios);
+
+    // 検索＆フィルター
+    document.getElementById('searchInput').addEventListener('input', () => {
+      renderScenarios(filterScenarios());
+    });
+
+    document.querySelectorAll('.filter-tag').forEach(tag => {
+      tag.addEventListener('click', function() {
+        this.classList.toggle('active');
+        renderScenarios(filterScenarios());
+      });
+    });
+
+  } catch (error) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('error').textContent = `エラー: ${error.message}`;
+    console.error(error);
+  }
+
+  function filterScenarios() {
+    const searchText = document.getElementById('searchInput').value.toLowerCase();
+    const activeTags = Array.from(document.querySelectorAll('.filter-tag.active')).map(t => t.textContent.trim());
+
+    return allScenarios.filter(s => {
+      const matchSearch = s.title.toLowerCase().includes(searchText) ||
+                         s.description.toLowerCase().includes(searchText) ||
+                         s.genre.toLowerCase().includes(searchText);
+      
+      const matchTags = activeTags.length === 0 || 
+                       activeTags.some(t => s.genre === t || s.tags.includes(t));
+
+      return matchSearch && matchTags;
+    });
+  }
+
+  function renderFilterTags(tags) {
+    const container = document.getElementById('filterTags');
+    container.innerHTML = tags.map(tag => 
+      `<div class="filter-tag" data-tag="${tag}">${tag}</div>`
+    ).join('');
+  }
+
+  function renderScenarios(scenarios) {
+    const grid = document.getElementById('scenarioGrid');
+    document.getElementById('resultsCount').textContent = `${scenarios.length}件のシナリオ`;
+
+    if (scenarios.length === 0) {
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">該当するシナリオがありません</div>';
+      return;
+    }
+
+    grid.innerHTML = scenarios.map(s => `
+      <div class="scenario-card">
+        <a href="${s.url.replace('/raw/', '/blob/')}" target="_blank" rel="noopener">
+          <div class="scenario-card-header">
+            <div class="scenario-card-title">${escapeHtml(s.title)}</div>
+            <div class="scenario-card-genre">${escapeHtml(s.genre)}</div>
+          </div>
+          <div class="scenario-card-body">
+            <div class="scenario-card-description">${escapeHtml(s.description)}</div>
+            <div class="scenario-card-tags">
+              ${s.genre ? `<span class="tag system">${escapeHtml(s.genre)}</span>` : ''}
+              ${s.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
+            </div>
+          </div>
+        </a>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+})();
+</script>
+</body>
+</html>

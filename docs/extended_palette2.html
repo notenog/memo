@@ -1,0 +1,2988 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tekey拡張パレット</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4a3fb0">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<!--
+  拡張パレット2 — Tekey チャットパレットの外部移植ツール
+  - Tekeyのチャットパレット書き出しJSON({"palettes":[...]})を相互運用
+  - stockは純Tekeyテキストのまま保持（往復を壊さない）
+  - 送信行はWYSIWYG（長文・記号もそのまま。送信時のみ《》／→[]/に安全変換）
+  - ::: ブロックは「送信しない自分用メモ(カンペ)」としてcallout表示。markdown可
+  - 送信はFirebase Functions(tekeyProxy2)経由。endpoint/room等は設定に保存(localStorage)
+-->
+<style>
+  :root{
+    --hd:#f3f5f8; --hd-tx:#1e2230; --bg:#ffffff; --panel:#f3f5f8; --panel2:#e8ebf1;
+    --bd:#e4e7ec; --bd2:#d7dbe3; --tx:#1e2230; --tx2:#586072; --tx3:#8b92a2;
+    --link:#4a3fb0; --link-h:#5b50cc; --send:#4a3fb0; --send-h:#5b50cc; --send-sh:#352c8e;
+    --danger:#c0392b; --radius:7px;
+    --fs:14px;
+    --line-h:#eceaf9; --line-hbd:#d6d1f2; --guide:#e4e7ec; --sep:#e4e7ec;
+    --head-bg:#eef0f6; --head-bg2:#f3f5f8; --head-bgh:#e6e9f3;
+    --grid:#eceef3; --grid2:#e1e4ec;
+    --gold:#9c6f18; --gold-soft:#f6efdc; --gold-line:#e8d6a8;
+    --display:"Zen Kaku Gothic New","BIZ UDPGothic",system-ui,sans-serif;
+    --body:"BIZ UDPGothic","Zen Kaku Gothic New",system-ui,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  body[data-theme="dark"]{
+    --hd:#4a4a4a; --hd-tx:#eceef1; --bg:#424242; --panel:#4a4a4a; --panel2:#3c3c3c;
+    --bd:#585858; --bd2:#646464; --tx:#eceef1; --tx2:#b7bdc6; --tx3:#8c939d;
+    --link:#aa9eff; --link-h:#c2b8ff; --send:#6a5fd8; --send-h:#8478ea; --send-sh:#473ca8;
+    --line-h:#4c4868; --line-hbd:#5c5882; --guide:#5a5a5a; --sep:#585858;
+    --head-bg:#525252; --head-bg2:#4b4b4b; --head-bgh:#5a5566;
+    --grid:#4a4a4a; --grid2:#545454;
+    --gold:#e0b154; --gold-soft:#4e4733; --gold-line:#6a5e3a;
+  }
+  body[data-theme="dark"] .swatch,body[data-theme="dark"] #f_bot,
+  body[data-theme="dark"] .ident input[type=text],body[data-theme="dark"] #compose,
+  body[data-theme="dark"] #editArea,body[data-theme="dark"] .fg input{background:#3a3a3a; color:var(--tx)}
+  body[data-theme="dark"] .callout.info{background:#1f3a57; border-color:#3c618c; border-left-color:#7cc0ff; color:#d3e6fb}
+  body[data-theme="dark"] .callout.warn{background:#4a3a18; border-color:#735d2c; border-left-color:#f2bb4d; color:#f4dfa6}
+  body[data-theme="dark"] .callout.alert{background:#4f2723; border-color:#82433c; border-left-color:#ff8578; color:#f8c7c0}
+  body[data-theme="dark"] .callout.success{background:#1f4631; border-color:#3d6e4d; border-left-color:#6fd28b; color:#bbeac6}
+  body[data-theme="dark"] .callout.note{background:#4f4f4f; border-color:#646464; border-left-color:#a4abb5; color:#d8dce2}
+  body[data-theme="dark"] .callout code{background:#2c2c2c}
+  /* dark board: 暗い盤面で見やすいよう、カードと角丸ボタンを明るい面に */
+  body[data-theme="dark"] .bcard,
+  body[data-theme="dark"] .fcard{background:#f2f3f6; color:#23262e; border-color:#cfd2d9}
+  body[data-theme="dark"] .bcard-ttl{color:#23262e}
+  body[data-theme="dark"] .bcard-meta{color:#5d6470}
+  body[data-theme="dark"] .bcard-tags .tag{background:#dde0e6; color:#3a3f4a; border-color:#cbcfd6}
+  body[data-theme="dark"] .fcard .fdel{background:#e9eaee; color:#5d6470; border-color:#cccfd6}
+  body[data-theme="dark"] .fcard .fhandle{border-color:#e9eaee}
+  body[data-theme="dark"] #boardbar .bm{background:#e9eaee; color:#3a3f4a; border-color:#cccfd6}
+  body[data-theme="dark"] #boardbar .bm:hover{border-color:#6a5fd8; color:#4a3fb0}
+  body[data-theme="dark"] #boardbar .bm.on{background:var(--send); color:#fff; border-color:var(--send)}
+  body[data-theme="dark"] .bcard:hover,
+  body[data-theme="dark"] .fcard:hover{border-color:#6a5fd8}
+  /* dark board: 列・帯も明るく（カードがより白で浮く段差） */
+  body[data-theme="dark"] .bcol-empty{color:#7d838f}
+  body[data-theme="dark"] .tband{background:#d9dce2; border-color:#c4c8d0}
+  body[data-theme="dark"] .tband-head{border-bottom-color:#c4c8d0}
+  body[data-theme="dark"] .tband-label{color:#23262e}
+  body[data-theme="dark"] .tband-label:hover{border-color:#c4c8d0}
+  body[data-theme="dark"] .tband-label:focus{background:#fff; border-color:#6a5fd8}
+  body[data-theme="dark"] .tband-uns{color:#5d6470}
+  body[data-theme="dark"] .tband-grip,
+  body[data-theme="dark"] .tband-cnt,
+  body[data-theme="dark"] .tband-col{color:#5d6470}
+  body[data-theme="dark"] .tband-del{background:#eef0f3; color:#5d6470; border-color:#c4c8d0}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  *{scrollbar-width:thin; scrollbar-color:var(--bd2) transparent}
+  ::-webkit-scrollbar{width:12px; height:12px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--bd2); border-radius:8px; border:3px solid transparent; background-clip:padding-box}
+  ::-webkit-scrollbar-thumb:hover{background:var(--tx3); background-clip:padding-box}
+  ::-webkit-scrollbar-corner{background:transparent}
+  body{font-family:var(--body);
+       font-size:var(--fs); color:var(--tx); background:var(--bg);
+       display:flex; flex-direction:column; height:100vh; overflow:hidden}
+  button{font:inherit; cursor:pointer}
+  input,select,textarea{font:inherit; color:var(--tx)}
+
+  /* header */
+  .hd{display:flex; align-items:center; gap:12px; background:var(--hd); color:var(--hd-tx);
+      padding:11px 18px; border-bottom:1px solid var(--bd); flex:0 0 auto}
+  .hd .mark{width:30px; height:30px; flex:none; border-radius:9px; display:grid; place-items:center;
+      background:var(--send); color:#fff; font-family:var(--display); font-weight:900; font-size:16px; box-shadow:0 2px 0 var(--send-sh)}
+  .hd .ttl{font-family:var(--display); font-weight:700; font-size:17px; line-height:1.15; letter-spacing:.01em}
+  .hd .ttl small{display:block; font-family:var(--body); font-weight:400; font-size:11px; color:var(--tx3); margin-top:1px; letter-spacing:.02em}
+  .hd .sp{flex:1}
+  .hd button{font-family:var(--display); font-weight:500; font-size:13px; background:var(--bg); border:1px solid var(--bd2); color:var(--tx2);
+      border-radius:9px; padding:7px 13px}
+  .hd button:hover{border-color:var(--link-h); color:var(--link)}
+
+  /* tabs */
+  .tabs{display:flex; align-items:stretch; gap:2px; background:var(--panel);
+        padding:0 12px; border-bottom:1px solid var(--bd); flex:0 0 auto; overflow-x:auto}
+  .tab{display:flex; align-items:center; font-family:var(--display); font-weight:700; font-size:14px; color:var(--tx3);
+       padding:11px 15px 12px; border:none; background:none; border-bottom:3px solid transparent; margin-bottom:-1px;
+       white-space:nowrap; user-select:none; cursor:pointer}
+  .tab:hover{color:var(--tx2)}
+  .tab.on{color:var(--link); border-bottom-color:var(--link)}
+  .tab .x{margin-left:8px; color:var(--tx3); font-weight:400}
+  .tab .x:hover{color:var(--danger)}
+  .tab-add{padding:8px 12px; color:var(--tx3); background:none; border:none; align-self:center; font-size:15px; font-weight:500}
+  .tab-add:hover{color:var(--link)}
+  .tab-dot{width:8px; height:8px; border-radius:50%; flex:0 0 auto; margin-right:6px}
+  .tab.tabdragging{opacity:.4}
+  .tab.dropL{box-shadow:inset 3px 0 0 var(--link)}
+  .tab.dropR{box-shadow:inset -3px 0 0 var(--link)}
+  .tabpop{position:fixed; z-index:60; display:flex; gap:6px; flex-wrap:wrap; width:172px; padding:9px;
+       background:var(--panel); border:1px solid var(--bd2); border-radius:10px; box-shadow:0 10px 28px var(--shadow)}
+  .tabsw{width:22px; height:22px; border-radius:6px; border:1px solid rgba(0,0,0,.15); cursor:pointer; padding:0}
+  .tabsw.on{outline:2px solid var(--link); outline-offset:1px}
+  .tabsw.none{width:auto; height:22px; padding:0 10px; font-size:11px; color:var(--tx2); background:var(--bg); border-color:var(--bd2)}
+
+  /* identity + compose */
+  .ident{display:flex; align-items:center; gap:10px; padding:9px 18px; border-bottom:1px solid var(--bd);
+         flex:0 0 auto; flex-wrap:wrap; background:var(--bg)}
+  .ident label{color:var(--tx3); font-size:11px; font-weight:700; font-family:var(--display); letter-spacing:.03em}
+  .ident input[type=text]{height:32px; padding:0 10px; border:1px solid var(--bd2); border-radius:9px; background:var(--bg); color:var(--tx)}
+  .ident input[type=text]:focus{outline:none; border-color:var(--link); box-shadow:0 0 0 3px var(--line-h)}
+  #f_name{width:124px; font-weight:700}
+  .swatch{width:32px; height:32px; padding:0; border:1px solid var(--bd2); border-radius:9px; background:none}
+  #f_bot{height:32px; padding:0 10px; border:1px solid var(--bd2); border-radius:9px; width:156px; font-family:var(--mono); font-size:13px}
+
+  .composewrap{flex:0 0 auto; border-bottom:1px solid var(--bd); background:var(--bg)}
+  .compose{display:flex; gap:10px; padding:12px 16px 8px; align-items:stretch}
+  #compose{flex:1; min-height:42px; max-height:160px; padding:10px 12px; border:1.5px solid var(--bd2);
+           border-radius:11px; resize:vertical; line-height:1.45; background:var(--bg); color:var(--tx)}
+  #compose:focus{outline:none; border-color:var(--link); box-shadow:0 0 0 3px var(--line-h)}
+  .btn-send{background:var(--send); color:#fff; border:none; border-radius:11px; padding:0 22px;
+       font-family:var(--display); font-weight:700; font-size:15px; min-width:78px; box-shadow:0 2px 0 var(--send-sh)}
+  .btn-send:hover{background:var(--send-h)}
+  .btn-send:active{transform:translateY(1px); box-shadow:0 1px 0 var(--send-sh)}
+  .btn-copy{flex:0 0 auto; align-self:stretch; padding:0 12px; border-radius:11px; border:1px solid var(--bd2);
+       background:var(--bg); color:var(--tx2); font-size:15px; cursor:pointer}
+  .btn-copy:hover{border-color:var(--link-h); color:var(--link); background:var(--line-h)}
+  .btn-copy:active{transform:translateY(1px)}
+  .btn-copy.copied{border-color:var(--send); color:#fff; background:var(--send)}
+  .tpls{display:flex; flex-wrap:wrap; gap:6px; padding:0 16px 12px}
+  .tpls button{font-family:var(--mono); font-size:11.5px; font-weight:700; padding:3px 9px; border:1px solid var(--bd2); border-radius:7px;
+       background:var(--panel2); color:var(--tx2); cursor:pointer; white-space:nowrap}
+  .tpls button:hover{border-color:var(--link-h); color:var(--link); background:var(--line-h)}
+  .destbar{display:flex; align-items:center; gap:8px; padding:0 16px 12px; flex-wrap:wrap}
+  .destbar-lbl{font-family:var(--display); font-size:11px; font-weight:700; color:var(--tx3); letter-spacing:.03em;
+       display:inline-flex; align-items:center; gap:3px; border:none; background:none; cursor:pointer; padding:2px 4px; border-radius:6px}
+  .destbar-lbl:hover{color:var(--link); background:var(--line-h)}
+  .destbar-lbl .bar-ca{font-size:9px; transition:transform .1s}
+  .destbar.folded .bar-ca{transform:rotate(-90deg)}
+  .destbar.folded .destbar-chips,.destbar.folded .spk-manage{display:none}
+  .destbar-chips{display:flex; gap:6px; flex-wrap:wrap}
+  .dest-chip{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:var(--tx2);
+       background:var(--bg); border:1px solid var(--bd2); border-radius:16px; padding:4px 12px; cursor:pointer; white-space:nowrap}
+  .dest-chip:hover{border-color:var(--link-h); color:var(--link)}
+  .dest-chip.on{background:var(--send); border-color:var(--send); color:#fff}
+  .dest-chip.on .dest-dot{box-shadow:0 0 0 2px rgba(255,255,255,.6)}
+  .spkbar .destbar-lbl{color:var(--tx3)}
+  .spkbar.active-npc{background:var(--spk-accent,transparent); background:color-mix(in srgb, var(--spk-accent) 8%, transparent);
+       border-radius:10px; box-shadow:inset 0 0 0 1.5px var(--spk-accent); margin:0 12px 8px; padding-left:8px}
+  .spkbar.active-npc .destbar-lbl{color:var(--spk-accent)}
+  .spk-chip.on{color:#fff; border-color:var(--chip-accent,var(--link)); background:var(--chip-accent,var(--link))}
+  .spk-now{display:inline-flex; align-items:center; gap:5px; font-family:var(--display); font-weight:700; font-size:12px;
+       padding:2px 4px; white-space:nowrap; animation:spkpulse 1.6s ease-in-out infinite}
+  @keyframes spkpulse{0%,100%{opacity:1}50%{opacity:.5}}
+  #compose{transition:border-color .12s, box-shadow .12s}
+  .spk-chip{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:var(--tx2);
+       background:var(--bg); border:1px solid var(--bd2); border-radius:16px; padding:4px 12px; cursor:pointer; white-space:nowrap; user-select:none}
+  .spk-chip:hover{border-color:var(--link-h); color:var(--link)}
+  .spk-chip.on{background:var(--link); border-color:var(--link); color:#fff}
+  .spk-chip.on .dest-dot{box-shadow:0 0 0 2px rgba(255,255,255,.6)}
+  .spk-manage{margin-left:2px; width:26px; height:26px; flex:0 0 auto; border:1px solid var(--bd2); background:var(--bg);
+       color:var(--tx3); border-radius:8px; cursor:pointer; font-size:13px}
+  .spk-manage:hover{border-color:var(--link-h); color:var(--link)}
+  .spklist{max-height:52vh; overflow-y:auto; margin:4px 0}
+  .spkrow{display:flex; align-items:center; gap:7px; padding:5px 2px}
+  .spkrow .spk-name{flex:1 1 auto; min-width:0; height:32px; padding:0 10px; border:1px solid var(--bd2); border-radius:8px; background:var(--bg); color:var(--tx); font-family:var(--display); font-weight:700}
+  .spkrow .spk-color{flex:0 0 auto; width:34px; height:32px; padding:0; border:1px solid var(--bd2); border-radius:8px; background:var(--bg); cursor:pointer}
+  .spkrow .spk-hex{flex:0 0 96px; height:32px; padding:0 8px; border:1px solid var(--bd2); border-radius:8px; background:var(--bg); color:var(--tx); font-family:var(--mono); font-size:12px}
+  .spkrow .spk-name:focus,.spkrow .spk-hex:focus{outline:none; border-color:var(--link); box-shadow:0 0 0 3px var(--line-h)}
+  .spkrow .spk-up,.spkrow .spk-del{flex:0 0 auto; width:28px; height:28px; border:1px solid var(--bd2); background:var(--bg); color:var(--tx3); border-radius:7px; cursor:pointer}
+  .spkrow .spk-up:hover{color:var(--link); border-color:var(--link-h)}
+  .spkrow .spk-del:hover{color:var(--danger); border-color:var(--danger)}
+  .dest-chip.auto{border-style:dashed}
+  .dest-dot{width:9px; height:9px; border-radius:50%; flex:0 0 auto; background:var(--tx3)}
+  .line .destop{font-family:var(--mono); font-weight:600; font-size:.9em; color:var(--tx3);
+       background:var(--panel2); border:1px solid var(--bd2); border-radius:6px; padding:0 5px; cursor:help}
+  body[data-theme="dark"] .line .destop{color:var(--tx3); background:var(--panel2); border-color:var(--bd2)}
+
+  /* main */
+  .main{flex:1 1 auto; display:flex; min-height:0}
+  .mdcol{flex:0 0 196px; display:flex; flex-direction:column; min-height:0;
+         border-left:1px solid var(--bd); background:var(--panel); padding:12px 12px 14px}
+  .mdhead{display:flex; align-items:center; justify-content:space-between; gap:4px; padding-bottom:9px; margin-bottom:6px; border-bottom:1px solid var(--sep)}
+  .mdtitle{font-family:var(--display); font-size:11px; color:var(--tx3); font-weight:700; letter-spacing:.05em}
+  .mdhead button{flex:0 0 auto; width:26px; height:24px; border:1px solid var(--bd2); background:var(--bg);
+       color:var(--tx2); border-radius:7px; cursor:pointer; font-size:13px; line-height:1}
+  .mdhead button:hover{border-color:var(--link-h); color:var(--link)}
+  .mdlist{flex:1 1 auto; overflow-y:auto; padding-top:2px}
+  .mdlist h4{margin:14px 2px 7px; font-size:11px; color:var(--tx3); letter-spacing:.04em; font-weight:700; font-family:var(--display)}
+  .mdlist h4:first-child{margin-top:2px}
+  .mdlist button{display:block; width:100%; text-align:left; font-size:13px; font-weight:700; padding:8px 11px; margin:0 0 7px;
+       border:1px solid var(--bd2); border-radius:9px; background:var(--bg); color:var(--tx); cursor:pointer;
+       white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .mdlist button:hover{border-color:var(--link-h); color:var(--link); background:var(--line-h)}
+  .mdlist .md-add{color:var(--link); border-style:dashed; margin-top:4px}
+  .mdcol.collapsed{flex-basis:34px; padding:12px 4px}
+  .mdcol.collapsed .mdlist,.mdcol.collapsed .mdtitle{display:none}
+  .mdcol.collapsed .mdhead{justify-content:center; border-bottom:none; padding:0; margin:0}
+
+  /* board (flow / timeline) */
+  #board{display:none; flex:1 1 auto; min-width:0; min-height:0; flex-direction:column}
+  body.boardmode .railcol,body.boardmode .centercol,body.boardmode .mdcol{display:none}
+  body.boardmode #board{display:flex}
+  #boardbar{display:flex; gap:6px; padding:8px 12px; border-bottom:1px solid var(--bd); flex:0 0 auto}
+  #boardbar .bm{font-family:var(--display); font-weight:700; font-size:13px; padding:6px 14px; border:1px solid var(--bd2);
+       border-radius:9px; background:var(--bg); color:var(--tx2); cursor:pointer}
+  #boardbar .bm:hover{border-color:var(--link-h); color:var(--link)}
+  #boardbar .bm.on{background:var(--send); border-color:var(--send); color:#fff; box-shadow:0 2px 0 var(--send-sh)}
+  #boardbar .bm-hint{margin-left:auto; align-self:center; font-size:11px; color:var(--tx3)}
+  #boardbar .bm-search{margin-left:auto; width:150px; height:30px; padding:0 11px; border:1px solid var(--bd2); border-radius:9px; background:var(--bg); color:var(--tx); font-size:12.5px}
+  #boardbar .bm-search:focus{outline:none; border-color:var(--link); box-shadow:0 0 0 3px var(--line-h)}
+  #boardbar .bm-io{margin-left:0; font-family:var(--display); font-weight:700}
+  #boardcontent{flex:1 1 auto; min-height:0; min-width:0; overflow:auto}
+  #boardcontent.flow{position:relative}
+  #boardcontent.timeline{display:flex; flex-direction:column; gap:10px; padding:12px; align-items:stretch}
+  #boardcontent.table{padding:14px}
+  .gmwrap{max-width:1100px}
+  .gmtable{border-collapse:separate; border-spacing:0; width:100%; background:var(--bg);
+       border:1px solid var(--bd2); border-radius:12px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .gmtable th,.gmtable td{border-bottom:1px solid var(--sep); padding:0; text-align:left}
+  .gmtable thead th{background:var(--panel); font-family:var(--display); font-weight:700; font-size:12px; color:var(--tx2);
+       padding:8px 10px; white-space:nowrap; position:sticky; top:0; z-index:1}
+  .gm-th{position:relative}
+  .gm-colname{cursor:pointer}
+  .gm-th .gm-sort,.gm-th .gm-colx{border:none; background:none; cursor:pointer; color:var(--tx3); font-size:11px; padding:0 2px; margin-left:3px}
+  .gm-th .gm-sort:hover{color:var(--link)}
+  .gm-th .gm-colx:hover{color:var(--danger)}
+  .gm-th-act{width:34px; text-align:center}
+  .gm-th-name{width:160px}
+  .gm-th-del{width:34px}
+  .gm-row.active{background:var(--line-h)}
+  .gm-row:hover{background:var(--panel2)}
+  .gm-act{text-align:center}
+  .gm-actbtn{border:none; background:none; cursor:pointer; color:var(--tx3); font-size:13px; padding:6px 4px}
+  .gm-actbtn.on{color:var(--link)}
+  .gm-nameinp,.gm-val{width:100%; border:none; background:transparent; color:var(--tx); padding:8px 10px; font:inherit}
+  .gm-nameinp{font-family:var(--display); font-weight:700}
+  .gm-val{font-family:var(--mono); font-size:13px}
+  .gm-nameinp:focus,.gm-val:focus{outline:none; background:var(--bg); box-shadow:inset 0 0 0 2px var(--link)}
+  .gm-delbtn{border:none; background:none; cursor:pointer; color:var(--tx3); font-size:13px; padding:6px}
+  .gm-delbtn:hover{color:var(--danger)}
+  .gm-empty td{padding:16px; color:var(--tx3); font-size:12.5px; text-align:center}
+  .gm-round{align-self:center; font-family:var(--display); font-size:13px; color:var(--tx2); margin-left:6px}
+  .gm-round b{color:var(--link); font-size:15px}
+  .gm-hint{margin-top:12px; font-size:12px; color:var(--tx3); line-height:1.8}
+  .gm-hint code{font-family:var(--mono); background:var(--line-h); color:var(--link); border:1px solid var(--line-hbd); border-radius:5px; padding:1px 6px}
+  body[data-theme="dark"] .gmtable{background:#f2f3f6; color:#23262e; border-color:#cfd2d9}
+  body[data-theme="dark"] .gmtable thead th{background:#d9dce2; color:#3a3f4a}
+  body[data-theme="dark"] .gmtable th,body[data-theme="dark"] .gmtable td{border-bottom-color:#d3d6dd}
+  body[data-theme="dark"] .gm-nameinp,body[data-theme="dark"] .gm-val{color:#23262e}
+  body[data-theme="dark"] .gm-row.active{background:#e2e0f5}
+  body[data-theme="dark"] .gm-row:hover{background:#e9eaee}
+
+  /* floating GM table */
+  .gmfloat{position:fixed; z-index:45; display:none; flex-direction:column; overflow:hidden;
+       background:var(--panel); border:1px solid var(--bd2); border-radius:12px; box-shadow:0 14px 40px rgba(0,0,0,.28)}
+  .gmf-head{flex:0 0 auto; display:flex; align-items:center; gap:5px; padding:6px 8px; cursor:grab; user-select:none;
+       background:var(--hd); border-bottom:1px solid var(--bd)}
+  .gmf-head:active{cursor:grabbing}
+  .gmf-grip{color:var(--tx3); font-size:12px}
+  .gmf-ttl{font-family:var(--display); font-weight:700; font-size:12px; color:var(--tx); margin-right:2px}
+  .gmf-round{font-family:var(--display); font-size:11px; color:var(--tx2)}
+  .gmf-round b{color:var(--link); font-size:13px}
+  .gmf-btn{flex:0 0 auto; border:1px solid var(--bd2); background:var(--bg); color:var(--tx2); cursor:pointer;
+       border-radius:7px; font-size:11px; line-height:1; padding:4px 7px; font-family:var(--display); font-weight:700}
+  .gmf-btn:hover{border-color:var(--link-h); color:var(--link)}
+  .gmf-x:hover{border-color:var(--danger); color:var(--danger)}
+  #gmfMin{margin-left:auto}
+  .gmf-body{flex:1 1 auto; min-height:0; overflow:auto; padding:8px}
+  .gmfloat.min .gmf-body,.gmfloat.min .gmf-rz{display:none}
+  .gmf-rz{position:absolute; right:0; bottom:0; width:16px; height:16px; cursor:nwse-resize;
+       background:linear-gradient(135deg, transparent 50%, var(--bd2) 50%, var(--bd2) 65%, transparent 65%, transparent 80%, var(--bd2) 80%)}
+  .gmtable.compact th,.gmtable.compact td{font-size:12px}
+  .gmtable.compact thead th{padding:5px 7px; font-size:11px}
+  .gmtable.compact .gm-nameinp,.gmtable.compact .gm-val{padding:5px 7px; font-size:12px}
+  .gmtable.compact .gm-th-name{width:110px}
+  .gmtable.compact .gm-hint{display:none}
+  .tband{border:1px solid var(--bd); border-left:3px solid var(--bc, var(--bd)); border-radius:12px; background:var(--panel); box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .tband.dragover{outline:2px dashed var(--link); outline-offset:-3px}
+  .tband.coldragover{outline:2px solid var(--link); outline-offset:-3px}
+  .tband.coldrag{opacity:.5}
+  .tband-head{display:flex; align-items:center; gap:6px; padding:6px 10px; border-bottom:1px solid var(--bd); background:color-mix(in srgb, var(--bc, transparent) 13%, transparent); border-radius:0 9px 0 0}
+  .tband-grip{cursor:grab; color:var(--tx3); font-size:15px; user-select:none; flex:0 0 auto}
+  .tband-col{flex:0 0 auto; width:20px; height:20px; border:none; background:transparent; color:var(--tx2); cursor:pointer; font-size:11px; line-height:1; padding:0}
+  .tband-cnt{flex:0 0 auto; font-size:11px; color:var(--tx3); padding:0 2px}
+  .tband.tcollapsed .tband-head{border-bottom:none}
+  .tband-grip:active{cursor:grabbing}
+  .tband-label{flex:1 1 auto; min-width:0; border:1px solid transparent; background:transparent; color:var(--tx); font-weight:600; font-size:14px; padding:4px 7px; border-radius:6px}
+  .tband-label:hover{border-color:var(--bd2)}
+  .tband-label:focus{outline:none; border-color:var(--link); background:var(--bg)}
+  .tband-uns{flex:1 1 auto; color:var(--tx3); font-weight:600; padding:4px 7px}
+  .tband-del{flex:0 0 auto; width:20px; height:20px; border:1px solid var(--bd2); background:var(--bg); color:var(--tx3); border-radius:50%; cursor:pointer; line-height:1; font-size:12px}
+  .tband-del:hover{color:var(--danger); border-color:var(--danger)}
+  .tband-list{padding:8px; display:flex; flex-direction:column; gap:8px; min-height:42px}
+  .tband-list .bcard{margin:0}
+  .tband-list .bcol-empty{padding:8px}
+  #fcanvas{position:relative; width:2400px; height:1500px;
+        background-color:var(--bg);
+        background-image:
+          linear-gradient(var(--grid2) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid2) 1px, transparent 1px),
+          linear-gradient(var(--grid) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+        background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px}
+  .fsvg{position:absolute; left:0; top:0; width:2400px; height:1500px; overflow:visible}
+  .fsvg .flink{stroke:var(--tx3); stroke-width:2; fill:none; pointer-events:none}
+  .fsvg marker path{fill:var(--tx3)}
+  .fsvg .flinkhit{stroke:transparent; stroke-width:14; pointer-events:stroke; cursor:pointer}
+  .fsvg .ftemp{stroke:var(--link); stroke-width:2; stroke-dasharray:5 4; fill:none; pointer-events:none}
+  .flabel{position:absolute; transform:translate(-50%,-50%); z-index:3; pointer-events:auto; cursor:pointer;
+        background:var(--bg); border:1px solid var(--bd2); border-radius:9px; padding:2px 10px; font-size:13px; font-weight:600;
+        color:var(--tx2); white-space:nowrap; max-width:200px; overflow:hidden; text-overflow:ellipsis; box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .flabel:hover{border-color:var(--link); color:var(--link)}
+  .fcard{position:absolute; width:182px; background:var(--bg); border:1px solid var(--bd2); border-left-width:4px;
+         border-radius:9px; padding:8px 11px; cursor:grab; z-index:2; user-select:none; touch-action:none;
+         box-shadow:0 1px 4px rgba(0,0,0,.10); transition:border-color .1s, box-shadow .1s}
+  .fcard:hover{border-color:var(--link); box-shadow:0 4px 12px rgba(0,0,0,.14)}
+  .fcard .fhandle{position:absolute; left:50%; transform:translateX(-50%); width:15px; height:15px;
+         border-radius:50%; background:var(--link); border:2px solid var(--bg); cursor:crosshair; opacity:.55}
+  .fcard:hover .fhandle{opacity:1}
+  .fcard .fhandle-t{top:-9px}
+  .fcard .fhandle-b{bottom:-9px}
+  .fcard .fdel{position:absolute; top:-8px; right:-8px; width:19px; height:19px; border-radius:50%;
+         border:1px solid var(--bd2); background:var(--bg); color:var(--tx3); cursor:pointer; line-height:1;
+         font-size:12px; padding:0; opacity:0; box-shadow:0 1px 3px rgba(0,0,0,.15)}
+  .fcard:hover .fdel{opacity:1}
+  .fcard .fdel:hover{color:var(--danger); border-color:var(--danger)}
+  .bcard.dim,.fcard.dim{opacity:.16}
+  #tagbar{display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:6px 12px; border-bottom:1px solid var(--bd); flex:0 0 auto}
+  #tagbar .tagbar-lbl{font-family:var(--display); font-size:11px; font-weight:700; color:var(--tx3); margin-right:2px; letter-spacing:.03em}
+  .tfchip{font-size:12px; padding:2px 11px; border-radius:12px; border:1px solid var(--bd2); background:var(--bg); color:var(--tx2); cursor:pointer}
+  .tfchip:hover{border-color:var(--link)}
+  .tfchip.on{background:var(--link); border-color:var(--link); color:#fff}
+  .tfchip.tfclear{color:var(--danger)}
+  .fzone{position:absolute; z-index:1; pointer-events:none; border:1.5px dashed var(--zc, var(--bd2)); border-radius:10px;
+        background:color-mix(in srgb, var(--zc, var(--link)) 7%, transparent)}
+  .fzone-head{position:absolute; top:0; left:0; right:0; height:24px; display:flex; align-items:center; gap:4px;
+        padding:0 6px 0 10px; cursor:grab; pointer-events:auto; background:color-mix(in srgb, var(--zc, var(--link)) 14%, transparent); border-radius:9px 9px 0 0}
+  .fzone-head:active{cursor:grabbing}
+  .fzone-name{flex:1 1 auto; font-size:12px; font-weight:600; color:var(--tx2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .fzone.locked{border-style:solid}
+  .fzone.locked .fzone-head{cursor:default}
+  .fzone.locked .fzone-name::before{content:"🔒 "; font-size:10px}
+  .fzone.locked .fzone-rz{display:none}
+  .fzone-del{flex:0 0 auto; width:17px; height:17px; border-radius:50%; border:none; background:transparent; color:var(--tx3); cursor:pointer; font-size:12px; line-height:1; padding:0}
+  .fzone-del:hover{color:var(--danger)}
+  .fzone-rz{position:absolute; right:0; bottom:0; width:16px; height:16px; cursor:nwse-resize; pointer-events:auto;
+        background:linear-gradient(135deg, transparent 50%, var(--zc, var(--bd2)) 50%); border-radius:0 0 9px 0}
+  .bcard{background:var(--bg); border:1px solid var(--bd2); border-left-width:4px; border-radius:9px;
+         padding:8px 11px; margin:0 0 8px; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,.05);
+         transition:border-color .1s, box-shadow .1s, transform .1s}
+  .bcard:hover{border-color:var(--link); box-shadow:0 3px 10px rgba(0,0,0,.10); transform:translateY(-1px)}
+  .bcard.dragging{opacity:.45}
+  .bcard-ttl{font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .bcard-tags{display:flex; flex-wrap:wrap; gap:4px; margin-top:5px}
+  .bcard-tags .tag{font-size:11px; padding:1px 8px; border-radius:10px; background:var(--panel2); color:var(--tx2); border:1px solid var(--bd)}
+  .bcard-meta{font-size:11px; color:var(--tx3); margin-top:3px; font-family:var(--mono)}
+  .bcol-empty{font-size:12px; color:var(--tx3); padding:10px; text-align:center}
+
+  /* board: 読みやすさ用タイポ統一 */
+  #boardbar .bm{font-family:var(--display); font-weight:700}
+  .bcard-ttl,.tband-label,.tband-uns,.fzone-name,.fcard{font-family:var(--display)}
+
+  #ctxmenu{position:fixed; display:none; z-index:80; width:180px; background:var(--bg); border:1px solid var(--bd2);
+        border-radius:9px; box-shadow:0 8px 28px rgba(0,0,0,.22); padding:8px}
+  #ctxmenu .ctx-sec{font-family:var(--display); font-size:11px; color:var(--tx3); font-weight:700; margin:4px 2px 5px; letter-spacing:.03em}
+  #ctxmenu .ctx-colors{display:flex; flex-wrap:wrap; gap:5px; margin-bottom:6px}
+  #ctxmenu .ctx-sw{width:22px; height:22px; border-radius:50%; border:1px solid var(--bd2); cursor:pointer; padding:0}
+  #ctxmenu .ctx-sw:hover{outline:2px solid var(--link); outline-offset:1px}
+  #ctxmenu .ctx-none{background:var(--bg); color:var(--tx3); font-size:13px; line-height:1}
+  #ctxmenu .ctx-tags{display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px}
+  #ctxmenu .ctx-tags .tag{font-size:11px; padding:1px 4px 1px 8px; border-radius:10px; background:var(--panel2); color:var(--tx); border:1px solid var(--bd); display:inline-flex; align-items:center; gap:3px}
+  #ctxmenu .ctx-tagdel{border:none; background:none; color:var(--tx3); cursor:pointer; font-size:12px; padding:0 2px}
+  #ctxmenu .ctx-tagdel:hover{color:var(--danger)}
+  #ctxmenu .ctx-tagin{width:100%; height:28px; padding:0 8px; border:1px solid var(--bd2); border-radius:6px; background:var(--bg); color:var(--tx)}
+  #ctxmenu .ctx-lock{width:100%; padding:6px; border:1px solid var(--bd2); border-radius:6px; background:var(--bg); color:var(--tx); cursor:pointer; font-size:13px}
+  #ctxmenu .ctx-lock:hover{border-color:var(--link)}
+  .railcol{flex:0 0 192px; display:flex; flex-direction:column; min-height:0; min-width:0; position:relative;
+           border-right:1px solid var(--bd); background:var(--panel)}
+  .railsearch{display:flex; gap:5px; padding:7px 8px; border-bottom:1px solid var(--bd)}
+  .railsearch input{flex:1; min-width:0; height:32px; padding:0 11px; border:1px solid var(--bd2);
+       border-radius:9px; background:var(--bg); color:var(--tx)}
+  .railsearch input:focus{outline:none; border-color:var(--link); box-shadow:0 0 0 3px var(--line-h)}
+  .railsearch button{width:28px; flex:0 0 auto; border:1px solid var(--bd2); background:var(--bg);
+       color:var(--tx3); border-radius:50%; font-size:15px; line-height:1}
+  .railsearch button:hover{color:var(--danger); border-color:var(--danger)}
+  .rail{flex:1 1 auto; overflow-y:auto; padding:6px 0}
+  .rail-resize{position:absolute; top:0; right:-4px; width:9px; height:100%; cursor:ew-resize; z-index:20; touch-action:none}
+  .rail-resize::after{content:""; position:absolute; top:0; bottom:0; left:50%; width:2px; transform:translateX(-50%);
+       background:transparent; transition:background .1s}
+  .rail-resize:hover::after,.rail-resize.dragging::after{background:var(--link)}
+  .xtab{display:none; border-bottom:1px solid var(--bd); max-height:38vh; overflow-y:auto; background:var(--panel2)}
+  .xtab-cap{font-family:var(--display); font-size:11px; font-weight:700; color:var(--tx3); padding:8px 10px 4px; letter-spacing:.03em}
+  .xtab-item{display:flex; flex-direction:column; gap:1px; padding:6px 10px; cursor:pointer; border-left:3px solid transparent}
+  .xtab-item:hover{background:var(--line-h); border-left-color:var(--link)}
+  .xtab-tab{font-family:var(--display); font-size:10px; font-weight:700; color:var(--link)}
+  .xtab-txt{font-size:12px; color:var(--tx2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .xtab-more{font-size:11px; color:var(--tx3); padding:5px 10px}
+  .line.flash{animation:flashln 1.2s ease}
+  @keyframes flashln{0%{background:var(--line-hbd)}100%{background:transparent}}
+  mark{background:#ffe58a; color:inherit; border-radius:2px; padding:0 1px}
+  body[data-theme="dark"] mark{background:#8a7320; color:#fff}
+  .rail .cap{font-family:var(--display); font-size:11px; font-weight:700; color:var(--tx3); padding:10px 12px 6px; letter-spacing:.05em}
+  .rail-item,.rail-sub{padding:6px 12px; color:var(--tx); cursor:pointer; user-select:none;
+       display:flex; align-items:center; gap:6px; border-left:3px solid transparent}
+  .rail-label{flex:1 1 auto; min-width:0; white-space:normal; overflow-wrap:anywhere; word-break:break-word; line-height:1.35}
+  .rail-pin{flex:0 0 auto; border:none; background:none; cursor:pointer; font-size:12px; line-height:1; padding:0 2px;
+       opacity:0; filter:grayscale(1) opacity(.6)}
+  .rail-item:hover .rail-pin,.rail-sub:hover .rail-pin{opacity:1}
+  .rail-pin.on{opacity:1; filter:none}
+  .rail-pin:hover{transform:scale(1.15)}
+  .rail-item{font-family:var(--display); font-weight:700; font-size:13.5px; border-top:1px solid var(--sep)}
+  .rail .cap + .rail-item{border-top:none}
+  .rail-sub{padding-left:28px; color:var(--tx2); font-size:13px; position:relative}
+  .rail-sub::before{content:"\2514"; position:absolute; left:15px; color:var(--tx3); font-size:11px}
+  .rail-item:hover,.rail-sub:hover{background:var(--line-h)}
+  .rail-item.active,.rail-sub.active{border-left-color:var(--link); background:var(--line-h); color:var(--link-h)}
+  .rail-pinned{background:var(--bg); border-left-color:var(--line-hbd)}
+  .rail-pinned:hover{background:var(--bg)}
+  .pinpanel{position:sticky; top:0; z-index:5; margin:0 0 12px; border:1px solid var(--line-hbd); border-radius:10px;
+        background:var(--bg); max-height:52vh; overflow:auto; box-shadow:0 4px 10px rgba(0,0,0,.10)}
+  .pinpanel-cap{position:sticky; top:0; z-index:1; display:flex; align-items:center; gap:6px; cursor:pointer;
+        font-size:11px; color:var(--link-h); font-weight:600; padding:6px 10px; background:var(--line-h); letter-spacing:.03em; border-bottom:1px solid var(--line-hbd)}
+  .pinpanel-cap .pp-caret{font-size:10px; transition:transform .1s}
+  .pinpanel.collapsed{max-height:none; overflow:visible}
+  .pinpanel.collapsed .pp-caret{transform:rotate(-90deg)}
+  .pinpanel.collapsed .pinned-sec{display:none}
+  .pinpanel .pinned-sec{border-top:1px solid var(--sep)}
+  .pinpanel-cap + .pinned-sec{border-top:none}
+  .rail-empty{color:var(--tx3); font-size:12px; padding:10px 12px; line-height:1.6}
+  .rail-empty span{color:var(--bd2)}
+
+  .centercol{flex:1 1 auto; display:flex; flex-direction:column; min-width:0; min-height:0}
+  .composewrap .compose{padding:12px 16px 8px}
+  .bodywrap{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden}
+  .editpane{flex:1 1 auto; min-height:0; overflow:hidden; padding:10px 14px; display:none}
+  .previewpane{flex:1 1 auto; min-height:0; overflow-y:auto; padding:10px 14px}
+  .bodywrap.split-lr{flex-direction:row}
+  .bodywrap.split-lr .editpane{flex:1 1 50%; min-width:0; border-right:1px solid var(--bd)}
+  .bodywrap.split-lr .previewpane{flex:1 1 50%; min-width:0}
+  .bodywrap.split-tb{flex-direction:column}
+  .bodywrap.split-tb .editpane{flex:1 1 50%; border-bottom:1px solid var(--bd)}
+  .bodywrap.split-tb .previewpane{flex:1 1 50%}
+  #editArea{width:100%; height:100%; min-height:200px; border:1px solid var(--bd2); border-radius:var(--radius);
+            padding:10px; line-height:1.6; resize:none; font-family:"SFMono-Regular",Consolas,"Noto Sans JP",monospace}
+  .line.cursorline{background:var(--gold-soft); border-left-color:var(--gold)}
+  .sec-head.cursorhead{background:var(--gold-soft)}
+
+  .sec{margin:2px 0 4px}
+  #body > .sec-l1{border-top:1px solid var(--sep); padding-top:5px; margin-top:7px}
+  #body > .sec-l1:first-child{border-top:none; padding-top:0; margin-top:2px}
+  .sec-head{display:flex; align-items:center; gap:7px; padding:6px 4px 6px 2px; cursor:pointer; user-select:none;
+            color:var(--tx); font-family:var(--display); font-weight:700; font-size:15.5px; letter-spacing:.01em;
+            background:transparent; border-bottom:2px solid var(--bd2)}
+  .sec-head:hover{background:var(--line-h)}
+  .sec-head::before{content:""; order:0; flex:none; width:16px; height:16px; border-radius:5px; transform:rotate(45deg);
+            background:var(--line-h); border:1.5px solid var(--line-hbd);
+            background-image:radial-gradient(circle at center, var(--link) 0 1.7px, transparent 1.9px)}
+  .sec-head .caret{order:3; margin-left:4px; color:var(--tx3)}
+  .sec-head .sec-title{order:1; flex:1 1 auto; min-width:0}
+  .sec-l2>.sec-head{font-weight:700; font-size:13.5px; color:var(--tx2); background:transparent;
+            border-bottom:1px solid var(--bd); border-bottom-style:solid}
+  .sec-l2>.sec-head::before{width:12px; height:12px; border-radius:4px}
+  .sec-body{padding-left:14px; margin-left:7px}
+  .sec.collapsed>.sec-body{display:none}
+  .caret{font-size:10px; color:var(--tx3); transition:transform .1s; display:inline-block}
+  .sec.collapsed>.sec-head .caret{transform:rotate(-90deg)}
+
+  .line{position:relative; padding:4px 10px 4px 13px; margin:1px 0; border-left:3px solid transparent; border-radius:8px;
+        cursor:pointer; line-height:1.4; white-space:pre-wrap; word-break:break-word; transition:background .08s, border-color .08s}
+  .line:hover{background:var(--line-h); border-left-color:var(--link)}
+  .line.multiline{line-height:1.85; padding-top:6px; padding-bottom:6px}
+  .line.blankline{min-height:1.4em}
+  .line.blankline::after{content:"空行"; font-size:11px; color:var(--tx3); opacity:0; transition:opacity .08s}
+  .line.blankline:hover::after{opacity:.65}
+  .line::before{content:"\25B8"; position:absolute; left:3px; top:4px; color:var(--link); font-size:11px; opacity:0; transition:opacity .08s}
+  .line:hover::before{opacity:1}
+  .line .atcmd{color:var(--tx3); font-size:.85em; font-family:var(--mono)}
+  .line .cmd{font-family:var(--mono); font-weight:700; font-size:.93em; color:var(--link);
+        background:var(--line-h); border:1px solid var(--line-hbd); border-radius:6px; padding:1px 7px; white-space:nowrap}
+  .line .ltxt{margin-left:9px}
+  .line .var{color:var(--gold); font-family:var(--mono); font-weight:700}
+  .line .tblop{font-family:var(--mono); font-weight:700; font-size:.9em; color:#2e7d46;
+        background:rgba(46,125,70,.10); border:1px solid rgba(46,125,70,.35); border-radius:6px; padding:0 5px; cursor:help}
+  body[data-theme="dark"] .line .tblop{color:#7ddc9b; background:rgba(125,220,155,.12); border-color:rgba(125,220,155,.35)}
+  .line .conv{color:var(--gold); font-size:.8em; margin-left:6px; cursor:help}
+  ruby rt{font-size:.6em; color:var(--tx2)}
+
+  .paramdef{padding:3px 8px; margin:1px 0; color:var(--tx3); font-size:12.5px; font-family:Consolas,monospace}
+  .blank{height:5px}
+
+  .callout{margin:8px 0; border:1px solid var(--bd); border-left:4px solid var(--tx3);
+           border-radius:11px; padding:8px 14px; background:var(--panel); line-height:1.55}
+  .co-head{display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none}
+  .co-caret{font-size:10px; opacity:.7; transition:transform .1s}
+  .callout.collapsed .co-caret{transform:rotate(-90deg)}
+  .callout .co-ttl{font-family:var(--display); font-size:11px; font-weight:700; letter-spacing:.04em; opacity:.9}
+  .co-body{margin-top:4px; line-height:1.85}
+  .co-body .line{line-height:1.85}
+  .callout.collapsed .co-body{display:none}
+  .callout ul{margin:4px 0; padding-left:20px}
+  .callout code{background:#e7ebf0; padding:1px 5px; border-radius:4px; font-size:.9em}
+  .callout.info{background:#e8f1fb; border-color:#9cc4ee; border-left-color:#2f6fb3; color:#1d4a78}
+  .callout.warn{background:#fdf4e3; border-color:#f0d59a; border-left-color:#c98a00; color:#7a5500}
+  .callout.alert{background:#fdeceb; border-color:#f0b2ac; border-left-color:#c0392b; color:#8a261b}
+  .callout.success{background:#eaf6ec; border-color:#aedcb6; border-left-color:#2e7d46; color:#1f5a31}
+  .callout.note{background:#f2f4f7; border-color:#dde2e8; border-left-color:#8a95a1; color:#3c4651}
+
+  .inline-edit{font:inherit; padding:1px 5px; border:1px solid var(--link); border-radius:5px;
+       background:var(--bg); color:var(--tx); width:130px; max-width:150px}
+
+  /* action bar */
+  .actions{display:flex; align-items:center; gap:4px; padding:7px 12px; border-top:1px solid var(--bd);
+           background:var(--panel); flex:0 0 auto; flex-wrap:wrap}
+  .actions .lk{background:var(--bg); border:1px solid var(--bd2); color:var(--link); padding:7px 14px; border-radius:9px;
+       font-family:var(--display); font-weight:700; font-size:13px; line-height:1.2}
+  .actions .lk:hover{background:var(--line-h); border-color:var(--link-h); color:var(--link-h)}
+  .actions .lk.primary{background:var(--send); border-color:var(--send); color:#fff; box-shadow:0 2px 0 var(--send-sh)}
+  .actions .lk.primary:hover{background:var(--send-h); border-color:var(--send-h); color:#fff}
+  .actions .lk.danger{color:var(--danger)}
+  .actions .lk.danger:hover{background:var(--line-h); border-color:var(--danger); color:var(--danger)}
+  .actions .lk:disabled{background:var(--panel); border-color:var(--bd); color:var(--tx3); cursor:default; box-shadow:none}
+  .actions .sep{width:1px; align-self:stretch; background:var(--bd); margin:2px 5px}
+  .actions .sp{flex:1}
+  .actions .lk.on{background:var(--line-h); border-color:var(--link); color:var(--link-h)}
+  .actions .grp{display:flex; align-items:center; gap:4px}
+  .menu-wrap{position:relative; display:inline-flex}
+  .menu-wrap .ca{font-size:9px; opacity:.7}
+  .menu{position:absolute; bottom:calc(100% + 6px); min-width:190px; background:var(--panel); border:1px solid var(--bd2);
+       border-radius:11px; box-shadow:0 -8px 30px rgba(0,0,0,.22); padding:6px; display:none; z-index:40}
+  .menu.open{display:block}
+  .menu.left{left:0}  .menu.right{right:0}
+  .menu .mi{display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:8px; cursor:pointer;
+       font-family:var(--display); font-weight:700; font-size:13px; color:var(--tx)}
+  .menu .mi:hover{background:var(--line-h); color:var(--link)}
+  .menu .mi .ic{font-size:15px; width:18px; text-align:center; flex:none}
+  .menu .mi small{display:block; font-weight:400; font-size:11px; color:var(--tx3); font-family:var(--body); margin-top:1px}
+  .help-btn{width:24px; height:24px; flex:none; border-radius:50%; border:1px solid var(--bd2); background:var(--bg);
+       color:var(--tx3); font-family:var(--display); font-weight:900; font-size:13px; line-height:1; margin-left:2px; padding:0}
+  .help-btn:hover{border-color:var(--link); color:var(--link); background:var(--line-h)}
+  .hoverlay{position:fixed; inset:0; background:rgba(20,22,32,.44); display:none; align-items:center; justify-content:center; z-index:70; padding:20px}
+  .hoverlay.open{display:flex}
+  .hsheet{width:min(860px,96vw); max-height:88vh; overflow-y:auto; background:var(--panel); border:1px solid var(--bd2);
+       border-radius:16px; box-shadow:0 24px 60px rgba(0,0,0,.34); padding:20px 22px}
+  .hsheet-head{display:flex; align-items:center; justify-content:space-between}
+  .hsheet-head h2{margin:0; font-family:var(--display); font-weight:900; font-size:19px}
+  .hclose{width:30px; height:30px; border-radius:8px; border:1px solid var(--bd2); background:var(--bg); color:var(--tx3); font-size:17px}
+  .hclose:hover{border-color:var(--danger); color:var(--danger)}
+  .hsub{color:var(--tx2); font-size:12.5px; margin:6px 0 16px}
+  .hgrid{display:grid; grid-template-columns:1fr 1fr; gap:16px 22px}
+  @media(max-width:640px){.hgrid{grid-template-columns:1fr}}
+  .hg-ttl{font-family:var(--display); font-weight:700; font-size:12px; color:var(--link); letter-spacing:.03em;
+       padding-bottom:5px; margin-bottom:6px; border-bottom:1px solid var(--bd)}
+  .hrow{display:flex; align-items:baseline; gap:10px; padding:4px 0}
+  .hrow code{flex:none; font-family:var(--mono); font-weight:700; font-size:12px; color:var(--tx); background:var(--line-h);
+       border:1px solid var(--line-hbd); border-radius:6px; padding:2px 7px; cursor:pointer; white-space:nowrap}
+  .hrow code:hover{background:var(--send); color:#fff; border-color:var(--send)}
+  .hrow span{font-size:12.5px; color:var(--tx2); line-height:1.5}
+  .tab-add:disabled{opacity:.35; cursor:default}
+
+  /* settings modal */
+  .modal{position:fixed; inset:0; background:rgba(20,28,38,.45); display:none; align-items:center; justify-content:center; z-index:50}
+  .modal.open{display:flex}
+  .sheet{background:var(--panel); border:1px solid var(--bd); border-radius:14px; width:440px; max-width:92vw; padding:20px 22px; box-shadow:0 16px 48px rgba(0,0,0,.30)}
+  .sheet h2{margin:0 0 4px; font-family:var(--display); font-weight:700; font-size:17px}
+  .sheet p.sub{margin:0 0 16px; color:var(--tx2); font-size:12.5px; line-height:1.6}
+  .fg{margin-bottom:12px}
+  .fg label{display:block; font-family:var(--display); font-size:11px; font-weight:700; color:var(--tx3); letter-spacing:.03em; margin-bottom:4px}
+  .fg input{width:100%; height:36px; padding:0 11px; border:1px solid var(--bd2); border-radius:9px; background:var(--bg); color:var(--tx)}
+  .fg input:focus{outline:none; border-color:var(--link); box-shadow:0 0 0 3px var(--line-h)}
+  .sheet .row{display:flex; gap:8px; justify-content:flex-end; margin-top:18px}
+  .sheet .row button{font-family:var(--display); font-weight:700; padding:8px 18px; border-radius:9px; border:1px solid var(--bd2); background:var(--bg); color:var(--tx2)}
+  .sheet .row button:hover{border-color:var(--link-h); color:var(--link)}
+  .sheet .ok{background:var(--send); color:#fff; border-color:var(--send); box-shadow:0 2px 0 var(--send-sh)}
+  .sheet .ok:hover{background:var(--send-h); border-color:var(--send-h); color:#fff}
+  .varlist{max-height:52vh; overflow-y:auto; margin:4px 0 2px}
+  .varrow{display:flex; align-items:center; gap:8px; padding:5px 2px}
+  .varname{flex:0 0 34%; font-family:var(--mono); font-weight:700; color:var(--gold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .varrow .varval{flex:1 1 auto; min-width:0; height:32px; padding:0 10px; border:1px solid var(--bd2); border-radius:8px; background:var(--bg); color:var(--tx); font-family:var(--mono)}
+  .varrow .varval:focus{outline:none; border-color:var(--link); box-shadow:0 0 0 3px var(--line-h)}
+  .varrow.ov .varval{border-color:var(--gold)}
+  .varrow .varrst{flex:0 0 auto; width:28px; height:28px; border:1px solid var(--bd2); background:var(--bg); color:var(--tx3); border-radius:7px; cursor:pointer}
+  .varrow .varrst:hover{color:var(--link); border-color:var(--link-h)}
+  .varempty{color:var(--tx3); font-size:12.5px; line-height:1.6}
+  .rpscope{display:flex; gap:18px; align-items:center}
+  .rpscope label{display:flex; align-items:center; gap:6px; margin:0; font-family:var(--body); font-weight:400; font-size:13px; color:var(--tx); letter-spacing:0}
+
+  /* toast */
+  #toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(20px);
+         background:#2b3642; color:#fff; padding:9px 18px; border-radius:20px; font-size:13px;
+         opacity:0; transition:.2s; pointer-events:none; z-index:60}
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  #toast.err{background:#b23b30}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <span class="mark">T</span>
+  <span class="ttl">Tekey拡張パレット<small>チャットパレット支援ツール</small></span>
+  <button class="help-btn" id="btnHelp" title="記法の早見表">?</button>
+  <span class="sp"></span>
+  <button id="btnTable" title="GMテーブル（イニシアティブ表）を開く">📋 テーブル</button>
+  <button id="btnTheme" title="背景を切替（ライト/ダーク）">🌙 ダーク</button>
+  <button id="btnSettings">⚙ 接続設定</button>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="ident">
+  <label>名前</label>
+  <input type="text" id="f_name" placeholder="送信者名">
+  <label>色</label>
+  <input type="color" id="f_color" class="swatch" value="#000000" title="このタブの既定色(textColor)">
+  <label>システム(bot)</label>
+  <input type="text" id="f_bot" list="botlist" placeholder="未指定=素テキスト">
+  <datalist id="botlist">
+    <option value="SwordWorld2_5"><option value="SwordWorld2_0"><option value="Cthulhu7th">
+    <option value="Cthulhu"><option value="ShinobiGami"><option value="Insane"><option value="DoubleCross">
+    <option value="NjslyrBattle"><option value="Emoklore"><option value="StellarKnights"><option value="Arianrhod">
+  </datalist>
+</div>
+
+<div class="main">
+  <div class="railcol">
+    <div class="railsearch">
+      <input type="text" id="search" placeholder="本文を検索（全タブ対象）">
+      <button id="searchClr" title="クリア">×</button>
+    </div>
+    <div class="xtab" id="xtab"></div>
+    <div class="rail" id="rail"></div>
+    <div class="rail-resize" id="railResize" title="ドラッグで幅を調整"></div>
+  </div>
+  <div class="centercol">
+    <div class="composewrap">
+      <div class="compose">
+        <textarea id="compose" placeholder="送信予定（編集可能）— クリックでここへ／ダブルクリックで即送信　Enter:送信 / Shift+Enter:改行"></textarea>
+        <button class="btn-send" id="btnSend">送信</button>
+        <button class="btn-copy" id="btnCopyCompose" title="送信予定をコピー">⧉</button>
+      </div>
+      <div class="tpls" id="cmdTpls"></div>
+      <div class="destbar" id="destbar">
+        <button class="destbar-lbl" id="destToggle" title="折り畳み/展開">送信先<span class="bar-ca">▾</span></button>
+        <div class="destbar-chips" id="destChips"></div>
+      </div>
+      <div class="destbar spkbar" id="spkbar">
+        <button class="destbar-lbl" id="spkToggle" title="折り畳み/展開">発言者<span class="bar-ca">▾</span></button>
+        <div class="destbar-chips" id="spkChips"></div>
+        <button class="spk-manage" id="btnSpkManage" title="発言者プリセットを編集">⚙</button>
+      </div>
+    </div>
+    <div class="bodywrap" id="bodywrap">
+      <div class="editpane" id="editpane"><textarea id="editArea" style="display:none"></textarea></div>
+      <div class="previewpane" id="previewpane"><div id="body"></div></div>
+    </div>
+  </div>
+  <div class="mdcol" id="mdcol">
+    <div class="mdhead"><span class="mdtitle">装飾テンプレ</span><button id="mdToggle" title="隠す">»</button></div>
+    <div class="mdlist" id="mdlist"></div>
+  </div>
+  <div id="board"></div>
+</div>
+
+<div class="actions">
+  <button class="lk primary" id="btnBoard">▦ ボード</button>
+  <div class="menu-wrap">
+    <button class="lk" id="btnTools">🧰 ツール <span class="ca">▾</span></button>
+    <div class="menu left" id="toolsMenu">
+      <div class="mi" data-act="vars"><span class="ic">🎲</span><span>変数<small>値を一時上書き（全タブ共通）</small></span></div>
+      <div class="mi" data-act="replace"><span class="ic">🔁</span><span>置換<small>本文の文字列を一括置換</small></span></div>
+      <div class="mi" data-act="expand"><span class="ic">⊕</span><span>全部開く<small>見出しをすべて展開</small></span></div>
+      <div class="mi" data-act="collapse"><span class="ic">⊖</span><span>全部閉じる<small>見出しをすべて畳む</small></span></div>
+    </div>
+  </div>
+  <span class="sp"></span>
+  <div class="grp" id="editGrp">
+    <button class="lk on" id="btnEdit">編集</button>
+    <button class="lk" id="btnSplit" title="編集中の分割（なし→左右→上下）">◫ 分割:なし</button>
+    <button class="lk" id="btnSync" title="編集中にプレビューを追従">⇅ 追従</button>
+  </div>
+  <span class="sep"></span>
+  <div class="menu-wrap">
+    <button class="lk" id="btnFile">📁 ファイル <span class="ca">▾</span></button>
+    <div class="menu right" id="fileMenu">
+      <div class="mi" data-act="save"><span class="ic">⤓</span><span>セーブ<small id="fileSaveName">名前を付けて保存</small></span></div>
+      <div class="mi" data-act="load"><span class="ic">⤒</span><span>ロード<small>JSONを読み込み</small></span></div>
+      <div class="mi" data-act="rename"><span class="ic">✎</span><span>保存名を変更</span></div>
+    </div>
+  </div>
+  <input type="file" id="file" accept=".json,application/json" style="display:none">
+  <input type="file" id="boardFile" accept=".json,application/json" style="display:none">
+</div>
+
+<div class="modal" id="settings">
+  <div class="sheet">
+    <h2>接続設定</h2>
+    <p class="sub">Tekey API（Firebase tekeyProxy2 経由）への接続情報。room/pass/tab/送信者名は他ツールと共有されます。</p>
+    <div class="fg"><label>ルームID</label><input type="text" id="s_room" placeholder="TekeyのルームURL末尾"></div>
+    <div class="fg"><label>ルームパスワード</label><input type="text" id="s_pass" placeholder="設定されている場合のみ"></div>
+    <div class="fg"><label>送信先タブのプリセット（1行に1つ・上から順に並びます）</label>
+      <textarea id="s_tabs" rows="3" placeholder="メイン&#10;情報&#10;雑談" style="width:100%;resize:vertical;font:inherit;padding:8px 10px;border:1px solid var(--bd2);border-radius:9px;background:var(--bg);color:var(--tx)"></textarea>
+      <div class="note" style="margin-top:4px">空にすると送信先未指定（Tekeyの最左端タブ）になります。ヘッダーの「送信先」から切り替えられます。</div>
+    </div>
+    <div class="fg"><label>送信者名フォールバック（省略可）</label><input type="text" id="s_name" placeholder="例：GM"></div>
+    <div class="fg"><label>エンドポイントURL</label><input type="text" id="s_ep" placeholder="https://...cloudfunctions.net/tekeyProxy2"></div>
+    <div class="row">
+      <button id="s_cancel">閉じる</button>
+      <button class="ok" id="s_save">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="varModal">
+  <div class="sheet">
+    <h2>変数クイック編集</h2>
+    <p class="sub">値を一時的に上書きします（元の <code>// 名前=値</code> は変更しません／全タブ共通）。空欄にすると上書き解除。</p>
+    <div id="varList" class="varlist"></div>
+    <div class="row">
+      <button id="varResetAll">全リセット</button>
+      <button class="ok" id="varClose">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="replaceModal">
+  <div class="sheet">
+    <h2>置換</h2>
+    <p class="sub">本文内の文字列をまとめて置換します（大文字小文字は区別）。</p>
+    <div class="fg"><label>検索する文字列</label><input type="text" id="rpFind"></div>
+    <div class="fg"><label>置換後の文字列</label><input type="text" id="rpTo"></div>
+    <div class="fg">
+      <label>対象</label>
+      <div class="rpscope">
+        <label><input type="radio" name="rpScope" value="tab" checked> このタブ</label>
+        <label><input type="radio" name="rpScope" value="all"> 全タブ</label>
+      </div>
+    </div>
+    <div class="row">
+      <button id="rpClose">閉じる</button>
+      <button class="ok" id="rpDo">置換実行</button>
+    </div>
+  </div>
+</div>
+
+<div class="gmfloat" id="gmfloat">
+  <div class="gmf-head" id="gmfHead">
+    <span class="gmf-grip">⠿</span>
+    <span class="gmf-ttl">📋 テーブル</span>
+    <span class="gmf-round">R<b id="gmfRound">1</b></span>
+    <button class="gmf-btn" id="gmfRdn" title="ラウンドを戻す">−</button>
+    <button class="gmf-btn" id="gmfRup" title="ラウンドを進める">＋</button>
+    <button class="gmf-btn" id="gmfAddRow" title="行を追加">＋行</button>
+    <button class="gmf-btn" id="gmfMin" title="最小化/展開">▾</button>
+    <button class="gmf-btn gmf-x" id="gmfClose" title="閉じる">×</button>
+  </div>
+  <div class="gmf-body" id="gmfBody"></div>
+  <div class="gmf-rz" id="gmfRz" title="ドラッグでサイズ変更"></div>
+</div>
+
+<div class="modal" id="spkModal">
+  <div class="sheet">
+    <h2>発言者プリセット</h2>
+    <p class="sub">NPC等の「名前＋文字色」を登録。発言者バーでクリック＝発言者セット／ダブルクリック＝送信予定を即送信。</p>
+    <div id="spkList" class="spklist"></div>
+    <button class="lk" id="spkAdd" style="margin-top:6px">＋ 追加</button>
+    <div class="row">
+      <button class="ok" id="spkClose">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="hoverlay" id="helpOverlay">
+  <div class="hsheet">
+    <div class="hsheet-head">
+      <h2>記法早見表</h2>
+      <button class="hclose" id="helpClose">×</button>
+    </div>
+    <p class="hsub">送信文に書ける特殊記法の一覧です。<b>クリックでコピー</b>できます。</p>
+    <div class="hgrid">
+      <div class="hgroup">
+        <div class="hg-ttl">発言者・色</div>
+        <div class="hrow"><code>@[name]:名前</code><span>送信者名を変更（この送信だけ）</span></div>
+        <div class="hrow"><code>@#RRGGBB</code><span>文字色を指定（例：@#A13B32）</span></div>
+        <div class="hrow"><code>@#424242</code><span>空行用のブランク色</span></div>
+      </div>
+      <div class="hgroup">
+        <div class="hg-ttl">送信先</div>
+        <div class="hrow"><code>&gt;&gt;タブ名</code><span>この行だけ送信先を上書き（先頭/末尾）</span></div>
+      </div>
+      <div class="hgroup">
+        <div class="hg-ttl">GMテーブル操作（送信されません）</div>
+        <div class="hrow"><code>[:HP-2]</code><span>選択中/送信者名の行のHPを−2</span></div>
+        <div class="hrow"><code>[:名前:HP-2]</code><span>対象を明示して増減</span></div>
+        <div class="hrow"><code>[:HP=10]</code><span>代入</span></div>
+        <div class="hrow"><code>[:HP+1d6]</code><span>ダイスで増減</span></div>
+      </div>
+      <div class="hgroup">
+        <div class="hg-ttl">変数</div>
+        <div class="hrow"><code>// 名前=値</code><span>変数を定義（全タブ共通）</span></div>
+        <div class="hrow"><code>{名前}</code><span>変数を参照（送信時に展開）</span></div>
+        <div class="hrow"><code>{行.列}</code><span>テーブルの値（例：{ゴブリンA.HP}）</span></div>
+        <div class="hrow"><code>{選択.HP}</code><span>現在の手番の行の値・{ラウンド}も可</span></div>
+      </div>
+      <div class="hgroup">
+        <div class="hg-ttl">装飾・記法</div>
+        <div class="hrow"><code>**太字**</code><span>強調</span></div>
+        <div class="hrow"><code>|対象《ルビ》</code><span>ルビ（そのまま送信）</span></div>
+        <div class="hrow"><code>\n</code><span>改行</span></div>
+        <div class="hrow"><code>:::メモ:::</code><span>カンペ（自分用・送信されない）</span></div>
+      </div>
+      <div class="hgroup">
+        <div class="hg-ttl">ダイス（Tekey/BCDice）</div>
+        <div class="hrow"><code>CCB&lt;=70</code><span>判定（紫チップ表示）</span></div>
+        <div class="hrow"><code>2d6+{命中}</code><span>ダイス＋変数</span></div>
+        <div class="hrow"><code>choice(A,B,C)</code><span>ランダム選択</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="ctxmenu"></div>
+
+<script>
+"use strict";
+const DEFAULT_EP = "https://us-central1-trpgnog.cloudfunctions.net/tekeyProxy2";
+
+/* ---------- config (localStorage) ---------- */
+const cfg = k => localStorage.getItem(k) || "";
+const setCfg = (k,v) => localStorage.setItem(k, v);
+
+/* ---------- state ---------- */
+let state = { palettes:[], activeId:null, editMode:false, board:false, lastDeleted:null };
+let lineMap = {};            // lineIndex -> raw text (current tab)
+let curParams = {};          // {name: value}
+let secMap = {};             // uid -> {lineIndex, level}
+let expand = {};             // {paletteID: {uid:bool}} UI expand memory
+
+const $ = s => document.querySelector(s);
+const el = (c,h) => { const d=document.createElement("div"); if(c)d.className=c; if(h!=null)d.innerHTML=h; return d; };
+const esc = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+function activeP(){ return state.palettes.find(p=>p.paletteID===state.activeId) || null; }
+
+/* ---------- persistence ---------- */
+function persist(){
+  try{ localStorage.setItem("ep2_palettes", JSON.stringify({palettes:state.palettes, activeId:state.activeId})); }catch(e){}
+}
+function restore(){
+  try{
+    const raw = localStorage.getItem("ep2_palettes");
+    if(raw){ const o=JSON.parse(raw); if(o.palettes&&o.palettes.length){ state.palettes=o.palettes; state.activeId=o.activeId||o.palettes[0].paletteID; return true; } }
+  }catch(e){}
+  return false;
+}
+
+/* ---------- text helpers ---------- */
+function keepSpaces(s){
+  // 行頭インデント・連続スペース・行末スペースは詰まらない空白(nbsp)へ。
+  // 単独のスペース（コマンド区切り等）はそのまま残す。
+  return s.split("\n").map(line=>
+    line.replace(/^ +/g, m=>"\u00A0".repeat(m.length))
+        .replace(/ {2,}/g, m=>"\u00A0".repeat(m.length))
+        .replace(/ +$/g, m=>"\u00A0".repeat(m.length))
+  ).join("\n");
+}
+const RUBY_RE = /\|[^|《\n]+《[^》\n]+》/g;
+function sendSafe(s){
+  // ルビ記法 |対象《ルビ》 はTekeyの正式機能なので変換しない（他の《》／のみ [ ] / へ）
+  const keep=[];
+  let t=s.replace(RUBY_RE, m=>{ keep.push(m); return "\u0001"+(keep.length-1)+"\u0001"; });
+  t=t.replace(/《/g,"[").replace(/》/g,"]").replace(/／/g,"/");
+  t=t.replace(/\u0001(\d+)\u0001/g, (m,i)=>keep[+i]);
+  return keepSpaces(t);
+}
+function allParams(){
+  const map={};
+  state.palettes.forEach(p=>{
+    (p.stock||"").split("\n").forEach(ln=>{
+      const m=ln.match(/^\/\/\s*([^=]+?)\s*=\s*(.*)$/);
+      if(m) map[m[1].trim()]=m[2];
+    });
+  });
+  return map;
+}
+function gmTableParams(){
+  const t=loadGmTable(); const map={};
+  t.rows.forEach(r=>{ t.cols.forEach(c=>{
+    const v=r.vals[c.id]; if(v!=null&&v!=="") map[r.name+"."+c.name]=String(v);
+  }); });
+  map["ラウンド"]=String(t.round||1);
+  const act=t.rows.find(r=>r.id===t.active);
+  if(act){ t.cols.forEach(c=>{ const v=act.vals[c.id]; if(v!=null&&v!=="") map["選択."+c.name]=String(v); });
+    map["選択"]=act.name; }
+  return map;
+}
+function loadVarOverrides(){ try{ const o=JSON.parse(localStorage.getItem("ep2_varoverrides")||"{}"); return (o&&typeof o==="object")?o:{}; }catch(e){ return {}; } }
+function saveVarOverrides(o){ try{ localStorage.setItem("ep2_varoverrides", JSON.stringify(o)); }catch(e){} }
+function expandParams(t){ const map={...allParams(), ...gmTableParams(), ...curParams, ...loadVarOverrides()}; return t.replace(/\{([^{}]+)\}/g,(m,k)=> (k in map)? map[k] : m); }
+function resolveSend(raw){
+  let t = expandParams(raw);
+  t = t.replace(/\\n/g,"\n");   // literal backslash-n -> 改行
+  return t;
+}
+
+/* ---------- parser: stock -> tree ---------- */
+let _uid = 0;
+function parseStock(stock){
+  _uid = 0; curParams = {}; lineMap = {}; secMap = {};
+  const lines = (stock||"").split("\n");
+  const root = [];
+  const stack = [{level:0, children:root}];
+  const top = () => stack[stack.length-1];
+  let callout = null;
+
+  lines.forEach((ln, idx)=>{
+    if(callout){
+      if(ln.trim()===":::"){ top().children.push(callout); callout=null; }
+      else callout.lines.push(ln);
+      return;
+    }
+    // callout open: ':::xxx' or bare ':::'
+    if(/^:::(.+)$/.test(ln) || ln.trim()===":::"){
+      const v = ln.replace(/^:::/,"").trim();
+      callout = {type:"callout", variant:v, lines:[], uid:++_uid};
+      return;
+    }
+    // headings
+    let m;
+    if((m=ln.match(/^####(.*)$/))){
+      const title=m[1];
+      if(title.trim()===""){ if(top().level===2) stack.pop(); }
+      else{
+        while(top().level>=2) stack.pop();
+        const uid=++_uid; secMap[uid]={lineIndex:idx,level:2};
+        const sec={type:"section",level:2,title,uid,children:[]};
+        top().children.push(sec); stack.push(sec);
+      }
+      return;
+    }
+    if((m=ln.match(/^###(.*)$/))){
+      const title=m[1];
+      if(title.trim()===""){ while(top().level>=2) stack.pop(); if(top().level===1) stack.pop(); }
+      else{
+        while(top().level>=1) stack.pop();
+        const uid=++_uid; secMap[uid]={lineIndex:idx,level:1};
+        const sec={type:"section",level:1,title,uid,children:[]};
+        top().children.push(sec); stack.push(sec);
+      }
+      return;
+    }
+    // param def
+    if((m=ln.match(/^\/\/\s*([^=]+?)\s*=\s*(.*)$/))){
+      const name=m[1].trim(), val=m[2];
+      curParams[name]=val;
+      top().children.push({type:"param", name, val});
+      return;
+    }
+    if(ln.trim()===""){ lineMap[idx]=ln; top().children.push({type:"line", raw:ln, idx, blank:true}); return; }
+    // sendable line
+    lineMap[idx]=ln;
+    top().children.push({type:"line", raw:ln, idx});
+  });
+  return root;
+}
+
+/* ---------- inline render ---------- */
+function fmtLineText(txt){
+  let s=esc(txt);
+  s=s.replace(/\|([^|《\n]+)《([^》\n]+)》/g,"<ruby>$1<rt>$2</rt></ruby>");
+  s=s.replace(/\\n/g,"<br>");
+  s=s.replace(/(@#[0-9a-fA-F]{3,6}\b|@\[[^\]]*\][^\s@]*|@全停止)/g,'<span class="atcmd">$1</span>');
+  s=s.replace(/\[:[^\[\]]+\]/g,'<span class="tblop" title="表を操作（Tekeyへは送られません）">$&</span>');
+  s=s.replace(/(^|<br>|\s)&gt;&gt;\s*([^\s<][^<]*?)(?=(\s|<br>|$))/g,'$1<span class="destop" title="この行だけ送信先を上書き">&gt;&gt;$2</span>');
+  const vm={...allParams(), ...gmTableParams(), ...curParams, ...loadVarOverrides()};
+  s=s.replace(/\{([^{}]+)\}/g,(m0,k)=>{
+    const v=vm[k];
+    return '<span class="var"'+(v!=null?' title="'+esc(String(v))+'"':'')+'>{'+esc(k)+'}</span>';
+  });
+  return s;
+}
+function looksLikeCmd(tok){
+  if(/^@/.test(tok)) return false;                 // @色/@名前 は atcmd 扱い
+  return /^c?cb\s*<=/i.test(tok);                  // CCB<= / CB<=（判定コマンド）
+}
+function renderLine(raw){
+  const resolved = expandParams(raw);          // 変数を展開した「実際に送られる姿」
+  let color=null;
+  const cm = resolved.match(/@#([0-9a-fA-F]{3,6})\b/); if(cm) color="#"+cm[1];
+  let html;
+  const m = raw.match(/^(\s*)(\S+)([\s\S]*)$/);
+  const rm = resolved.match(/^(\s*)(\S+)([\s\S]*)$/);
+  const cmdLike = rm && looksLikeCmd(rm[2]);   // 展開後で判定（{威力}などが数値化された姿）
+  if(m && cmdLike){
+    const body=m[3].replace(/^\s+/,"");
+    html='<span class="cmd">'+fmtLineText(m[2])+'</span>'+(body?'<span class="ltxt">'+fmtLineText(body)+'</span>':'');
+  } else {
+    html=fmtLineText(raw);
+  }
+  const stripped = resolved.replace(RUBY_RE, "");   // ルビ記法は正常なので除外
+  const conv = /[《》／]/.test(stripped) ? '<span class="conv" title="送信時に [ ] / へ自動変換されます">⇄</span>' : "";
+  return {html:html+conv, color};
+}
+function mdInline(s){
+  s=esc(s);
+  s=s.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>");
+  s=s.replace(/\*([^*]+)\*/g,"<em>$1</em>");
+  s=s.replace(/~~([^~]+)~~/g,"<del>$1</del>");
+  s=s.replace(/`([^`]+)`/g,"<code>$1</code>");
+  return s;
+}
+function calloutClass(v){
+  const t=(v||"").toLowerCase();
+  if(/\b(info|tip)\b/.test(t)) return "info";
+  if(/\b(warn|warning|caution)\b/.test(t)) return "warn";
+  if(/\b(alert|danger|error|stop)\b/.test(t)) return "alert";
+  if(/\b(success|done|ok)\b/.test(t)) return "success";
+  return "note";
+}
+function calloutMeta(variant){
+  const v=variant||"";
+  const hm=v.match(/#([0-9a-fA-F]{3,6})\b/);
+  const color=hm?("#"+hm[1]):null;
+  const label=v.replace(/#[0-9a-fA-F]{3,6}\b/,"").trim();
+  return {cls: color?"note":calloutClass(label), label, color};
+}
+function renderCallout(node){
+  const {cls,label,color}=calloutMeta(node.variant);
+  const wrap=el("callout "+cls); wrap.id="co-"+node.uid; wrap.dataset.uid=node.uid;
+  if(color) wrap.style.borderLeftColor=color;
+  const head=el("co-head","<span class='co-caret'>▾</span><span class='co-ttl'>"+esc(label||"メモ")+"</span>");
+  if(color) head.querySelector(".co-ttl").style.color=color;
+  wrap.appendChild(head);
+  const body=el("co-body");
+  let ul=null;
+  node.lines.forEach(ln=>{
+    if(/^\s*[-*]\s+/.test(ln)){
+      if(!ul){ ul=document.createElement("ul"); body.appendChild(ul); }
+      const li=document.createElement("li"); li.innerHTML=mdInline(ln.replace(/^\s*[-*]\s+/,"")); ul.appendChild(li); return;
+    }
+    ul=null;
+    if(ln.trim()===""){ body.appendChild(el(null,"")); return; }
+    if(/^#{1,4}\s+/.test(ln)){ body.appendChild(el(null,"<strong>"+mdInline(ln.replace(/^#{1,4}\s+/,""))+"</strong>")); return; }
+    body.appendChild(el(null, mdInline(ln)));
+  });
+  wrap.appendChild(body);
+  return wrap;
+}
+
+/* ---------- tree render ---------- */
+function renderNodes(nodes, parent){
+  const p = activeP();
+  nodes.forEach(n=>{
+    if(n.type==="section"){
+      const sec=el("sec sec-l"+n.level); sec.id="sec-"+n.uid; sec.dataset.uid=n.uid;
+      const collapsed = expand[p.paletteID] && expand[p.paletteID][n.uid]===false;
+      if(collapsed) sec.classList.add("collapsed");
+      const head=el("sec-head"); head.dataset.uid=n.uid;
+      head.innerHTML='<span class="caret">▾</span><span class="sec-title">'+esc(n.title.trim()||"(無題)")+'</span>';
+      const bdy=el("sec-body");
+      renderNodes(n.children, bdy);
+      sec.appendChild(head); sec.appendChild(bdy); parent.appendChild(sec);
+    } else if(n.type==="line"){
+      const {html,color}=renderLine(n.raw);
+      const d=el("line", html); d.dataset.idx=n.idx; if(color) d.style.color=color;
+      if(/\\n/.test(n.raw)) d.classList.add("multiline");
+      if(n.blank) d.classList.add("blankline");
+      parent.appendChild(d);
+    } else if(n.type==="param"){
+      parent.appendChild(el("paramdef", esc("// "+n.name+" = "+n.val)));
+    } else if(n.type==="callout"){
+      parent.appendChild(renderCallout(n));
+    } else if(n.type==="blank"){
+      parent.appendChild(el("blank"));
+    }
+  });
+}
+function loadPins(){ try{ const a=JSON.parse(localStorage.getItem("ep2_pins")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function loadPinFold(){ return localStorage.getItem("ep2_pinfold")==="1"; }
+function savePinFold(v){ try{ localStorage.setItem("ep2_pinfold", v?"1":"0"); }catch(e){} }
+function savePins(a){ try{ localStorage.setItem("ep2_pins", JSON.stringify(a)); }catch(e){} }
+function togglePin(tabId, title){ const k=cardKey(tabId,(title||"").trim()); let a=loadPins(); a=a.includes(k)?a.filter(x=>x!==k):a.concat(k); savePins(a); refreshPins(); }
+function refreshPins(){ const p=activeP(); if(!p||state.editMode) return; const tree=parseStock(p.stock||""); renderRail(tree); renderPinPanel(tree); requestAnimationFrame(updateSpy); }
+function renderPinPanel(tree){
+  const body=$("#body"); if(!body) return;
+  const old=body.querySelector(".pinpanel"); if(old) old.remove();
+  const pins=loadPins(); const tab=state.activeId;
+  const isPin=t=>pins.includes(cardKey(tab,(t||"").trim()));
+  const uids=[];
+  tree.filter(n=>n.type==="section").forEach(sec=>{
+    if(isPin(sec.title)) uids.push(sec.uid);
+    sec.children.filter(c=>c.type==="section").forEach(sub=>{ if(isPin(sub.title)) uids.push(sub.uid); });
+  });
+  if(!uids.length) return;
+  const panel=el("pinpanel"); if(loadPinFold()) panel.classList.add("collapsed");
+  panel.appendChild(el("pinpanel-cap","<span class='pp-caret'>▾</span><span>📌 ピン留め</span>"));
+  uids.forEach(uid=>{
+    const src=body.querySelector('.sec[data-uid="'+uid+'"]'); if(!src) return;
+    const cl=src.cloneNode(true);
+    cl.removeAttribute("id"); cl.removeAttribute("data-uid"); cl.classList.remove("collapsed"); cl.classList.add("pinned-sec");
+    cl.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
+    cl.querySelectorAll("[data-uid]").forEach(n=>n.removeAttribute("data-uid"));
+    panel.appendChild(cl);
+  });
+  body.insertBefore(panel, body.firstChild);
+}
+function railItemHTML(title, pinned){
+  return '<span class="rail-label">'+esc(title||"(無題)")+'</span><button class="rail-pin'+(pinned?" on":"")+'" title="'+(pinned?"ピンを外す":"ピン留め")+'">📌</button>';
+}
+function renderRail(tree){
+  const rail=$("#rail"); rail.innerHTML="";
+  const secs=tree.filter(n=>n.type==="section");
+  if(!secs.length){ rail.appendChild(el("rail-empty","見出しなし<br><span>### で見出しを作成</span>")); return; }
+  const pins=loadPins(); const tab=state.activeId;
+  const isPin=t=>pins.includes(cardKey(tab,(t||"").trim()));
+  // pinned quick-access group
+  const pinned=[];
+  secs.forEach(sec=>{ if(isPin(sec.title)) pinned.push(sec);
+    sec.children.filter(c=>c.type==="section").forEach(sub=>{ if(isPin(sub.title)) pinned.push(sub); }); });
+  if(pinned.length){
+    rail.appendChild(el("cap","📌 ピン留め"));
+    pinned.forEach(sec=>{
+      const it=el("rail-item rail-pinned"); it.dataset.uid=sec.uid; it.title="クリック:移動";
+      it.innerHTML=railItemHTML(sec.title.trim(), true);
+      rail.appendChild(it);
+    });
+  }
+  rail.appendChild(el("cap","見出し一覧"));
+  secs.forEach(sec=>{
+    const it=el("rail-item"); it.dataset.uid=sec.uid; it.title="クリック:移動 / ダブルクリック:名前変更";
+    it.innerHTML=railItemHTML(sec.title.trim(), isPin(sec.title));
+    rail.appendChild(it);
+    sec.children.filter(c=>c.type==="section").forEach(sub=>{
+      const si=el("rail-sub"); si.dataset.uid=sub.uid; si.title="クリック:移動 / ダブルクリック:名前変更";
+      si.innerHTML=railItemHTML(sub.title.trim(), isPin(sub.title));
+      rail.appendChild(si);
+    });
+  });
+}
+
+/* ---------- render entry ---------- */
+function loadTabColors(){ try{ const o=JSON.parse(localStorage.getItem("ep2_tabcolors")||"{}"); return (o&&typeof o==="object")?o:{}; }catch(e){ return {}; } }
+function saveTabColors(o){ try{ localStorage.setItem("ep2_tabcolors", JSON.stringify(o)); }catch(e){} }
+function renderTabs(){
+  const t=$("#tabs"); t.innerHTML=""; const tc=loadTabColors();
+  state.palettes.forEach(p=>{
+    const d=el("tab"+(p.paletteID===state.activeId?" on":"")); d.dataset.id=p.paletteID; d.draggable=true;
+    const col=tc[p.paletteID];
+    d.innerHTML=(col?"<span class='tab-dot' style='background:"+col+"'></span>":"")+
+      "<span class='lbl'>"+esc((p.label&&p.label.trim())||(p.name&&p.name.trim())||"?")+"</span>"+
+      (state.palettes.length>1?"<span class='x' title='このタブを削除'>×</span>":"");
+    t.appendChild(d);
+  });
+  const add=document.createElement("button"); add.className="tab-add"; add.id="tabAddInline"; add.textContent="＋"; add.title="タブを追加";
+  t.appendChild(add);
+  const undo=document.createElement("button"); undo.className="tab-add"; undo.id="tabUndoInline"; undo.textContent="↩"; undo.title="削除したタブを戻す";
+  undo.disabled = !state.lastDeleted;
+  t.appendChild(undo);
+}
+function render(){ renderTabs(); renderActiveBody(); }
+function splitMode(){ const v=localStorage.getItem("ep2_split"); return (v==="lr"||v==="tb")?v:"none"; }
+function setSplitMode(v){ try{ localStorage.setItem("ep2_split", v); }catch(e){} applySplitUI(); render(); }
+function syncOn(){ return localStorage.getItem("ep2_sync")!=="0"; }
+function setSyncOn(v){ try{ localStorage.setItem("ep2_sync", v?"1":"0"); }catch(e){} applySplitUI(); }
+function applySplitUI(){
+  const m=splitMode(), w=$("#bodywrap");
+  w.classList.toggle("split-lr", m==="lr" && state.editMode);
+  w.classList.toggle("split-tb", m==="tb" && state.editMode);
+  const b=$("#btnSplit"); if(b){ b.textContent="◫ 分割:"+(m==="lr"?"左右":m==="tb"?"上下":"なし"); b.classList.toggle("on", m!=="none");
+    b.style.display = state.editMode ? "" : "none"; }
+  const s=$("#btnSync"); if(s){ s.classList.toggle("on", syncOn()); s.style.display = (!state.editMode||m==="none")?"none":""; }
+}
+function renderActiveBody(){
+  const p=activeP();
+  if(!p){ $("#body").innerHTML=""; $("#rail").innerHTML=""; return; }
+  $("#f_name").value=p.name||"";
+  $("#f_color").value=/^#[0-9a-fA-F]{6}$/.test(p.textColor||"")?p.textColor:"#000000";
+  const tree=parseStock(p.stock||"");
+  const body=$("#body"), ed=$("#editArea"), split=splitMode()!=="none";
+  if(state.editMode){
+    ed.style.display="block"; if(ed.value!==(p.stock||"")) ed.value=p.stock||"";
+    $("#editpane").style.display="block";
+    $("#previewpane").style.display = split?"block":"none";
+    if(split){ body.style.display="block"; body.innerHTML=""; renderNodes(tree, body); }
+    renderRail(tree);
+    $("#btnEdit").classList.add("on");
+  }else{
+    ed.style.display="none"; $("#editpane").style.display="none";
+    $("#previewpane").style.display="block";
+    body.style.display="block"; body.innerHTML="";
+    renderNodes(tree, body); renderRail(tree); renderPinPanel(tree);
+    $("#btnEdit").classList.remove("on");
+    applySearch($("#search").value);
+    requestAnimationFrame(updateSpy);
+  }
+  applySplitUI();
+  persist();
+}
+
+/* ---------- send ---------- */
+function pickName(palName){
+  const a=(palName||"").replace(/[\s\u3000]/g,"");
+  const b=(cfg("senderName")||"").replace(/[\s\u3000]/g,"");
+  const raw = a.length? (palName||"").trim() : b.length? (cfg("senderName")||"").trim() : null;
+  return raw || "\u3164";   // U+3164 fallback
+}
+async function sendChat(message,{name,color,bot,tab:tabOverride}={}){
+  const ep=cfg("ep2_endpoint")||DEFAULT_EP;
+  const room=cfg("room"), password=cfg("pass"), tab=(tabOverride!=null&&tabOverride!=="")?tabOverride:(destTabName()||cfg("tab"));
+  if(!room) return {ok:false, why:"noroom"};
+  const body={command:"sendChat", room, password, message};
+  if(name) body.name=name;
+  if(tab) body.tab=tab;
+  if(color) body.color=color;
+  if(bot) body.bot=bot;
+  try{
+    const res=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    return {ok:res.ok, status:res.status};
+  }catch(e){ return {ok:false, why:"net"}; }
+}
+async function doSend(message){
+  message=(message||""); if(!message.trim()) return;
+  if(!cfg("room")){ toast("ルームID未設定。接続設定を開いてね",true); openSettings(); return; }
+  const p=activeP();
+  // inlineの @#色 はAPI経由だと解釈されないため、colorパラメータへ回し本文からは除去する
+  let color=((p&&p.textColor)||"").replace("#","")||undefined;
+  if(curSpeaker&&curSpeaker.color) color=curSpeaker.color.replace("#","");   // 話者の色を優先
+  const cm=message.match(/@#([0-9a-fA-F]{3,6})\b/g);
+  if(cm&&cm.length){
+    color=cm[cm.length-1].slice(2);                       // 明示の @#色 が最優先
+    message=message.replace(/\s*@#[0-9a-fA-F]{3,6}\b/g,"").trim();
+  }
+  // 同様に @[name]:名前 はnameパラメータへ回す（inlineはAPI未解釈）
+  let nameOverride=null;
+  const nm=message.match(/@\[name\]:([^@]+)/);
+  if(nm){
+    nameOverride=nm[1].trim();
+    message=message.replace(/\s*@\[name\]:[^@]+/g,"").trim();
+  }
+  // [:列±値] はツール内テーブルを操作する専用記法。Tekeyへは送らない
+  let tblChanges=[];
+  if(TBLOP_RE.test(message)){
+    TBLOP_RE.lastIndex=0;
+    tblChanges=applyTableOps(message, nameOverride||((p&&p.name)||""));
+    message=stripTableOps(message);
+  }
+  // インライン送信先指定：先頭 or 末尾の >>タブ名 でこの送信だけ宛先を上書き
+  let destOverride=null;
+  const dh=message.match(/^\s*>>\s*([^\n>]+?)\s+/);
+  const dt=message.match(/\s*>>\s*([^\n>]+?)\s*$/);
+  if(dh){ destOverride=dh[1].trim(); message=message.replace(/^\s*>>\s*[^\n>]+?\s+/,""); }
+  else if(dt){ destOverride=dt[1].trim(); message=message.replace(/\s*>>\s*[^\n>]+?\s*$/,""); }
+  if(!message){
+    if(tblChanges.length){ toastTableChanges(tblChanges); return {ok:true, tableOnly:true}; }
+    toast("本文が空です（色・コマンドのみ）",true); return;
+  }
+  const name=(nameOverride&&nameOverride.length)?nameOverride
+             :(curSpeaker&&curSpeaker.name)?curSpeaker.name
+             :pickName(p?p.name:"");
+  const bot=$("#f_bot").value.trim()||undefined;
+  const r=await sendChat(sendSafe(message),{name,color,bot,tab:destOverride});
+  if(r.ok){ if(tblChanges.length) toastTableChanges(tblChanges); else toast("送信しました"); }
+  else if(r.why==="noroom") toast("ルームID未設定",true);
+  else if(r.why==="net") toast("接続失敗（エンドポイント/CORSを確認）",true);
+  else toast("送信失敗（"+(r.status||"?")+"）名前や記号(《》／)を確認",true);
+  return r;
+}
+function stageLine(idx){
+  const raw=lineMap[idx]; if(raw==null) return;
+  $("#compose").value=resolveSend(raw);
+  $("#compose").focus();
+}
+function sendLine(idx){
+  const raw=lineMap[idx]; if(raw==null) return;
+  let msg=resolveSend(raw);
+  if(msg.replace(/[\s\u3000]/g,"")==="") msg="@#424242\u3164";   // 空行は @#424242 のブランク行として送信
+  doSend(msg);
+}
+
+/* ---------- templates ---------- */
+const CMD_TPLS=[
+  {label:"@#424242", text:"@#424242"},
+  {label:"@#FFFFFF", text:"@#FFFFFF"},
+  {label:"@[name]:", text:"@[name]:", end:true},
+  {label:"choice(,)", text:"choice(,)", caret:7},
+  {label:"resb(-)", text:"resb(-)", caret:5},
+  {label:"cbrb(,)", text:"cbrb(,)", caret:5},
+  {label:"@[portrait]:off", text:"@[portrait]:off", end:true},
+  {label:"[:HP-]", text:"[:HP-]", caret:5},
+  {label:"[:名前:HP-]", text:"[:名前:HP-]", caret:2}
+];
+function insertCompose(text, caret, end){
+  const f=$("#compose"); let s, e;
+  if(end){ s=e=f.value.length; if(f.value && !/\s$/.test(f.value)) text=" "+text; }
+  else { s=(f.selectionStart!=null?f.selectionStart:f.value.length); e=(f.selectionEnd!=null?f.selectionEnd:f.value.length); }
+  const v=f.value;
+  f.value=v.slice(0,s)+text+v.slice(e);
+  const pos=s+(caret!=null?caret:text.length);
+  f.focus(); f.setSelectionRange(pos,pos);
+}
+function buildCmdTpls(){
+  const wrap=$("#cmdTpls"); wrap.innerHTML="";
+  CMD_TPLS.forEach(tpl=>{
+    const b=document.createElement("button"); b.type="button"; b.textContent=tpl.label;
+    b.title="クリック:送信予定へ挿入 / ダブルクリック:そのまま送信";
+    b.addEventListener("click",()=>{ if(b._t) return; b._t=setTimeout(()=>{ b._t=null; insertCompose(tpl.text, tpl.caret, tpl.end); },200); });
+    b.addEventListener("dblclick",()=>{ if(b._t){clearTimeout(b._t); b._t=null;} doSend(tpl.text); });
+    wrap.appendChild(b);
+  });
+}
+
+/* right column: markdown decoration -> edit textarea (memos live in stock) */
+const MD_TPLS=[
+  {grp:"::: メモ"},
+  {label:":::info", before:":::info\n", after:"\n:::"},
+  {label:":::warn", before:":::warn\n", after:"\n:::"},
+  {label:":::alert", before:":::alert\n", after:"\n:::"},
+  {label:":::success", before:":::success\n", after:"\n:::"},
+  {label:":::note", before:":::note\n", after:"\n:::"},
+  {label:":::ラベル #色", before:":::ラベル #c0392b\n", after:"\n:::"},
+  {grp:"装飾"},
+  {label:"**太字**", before:"**", after:"**", ph:"太字"},
+  {label:"*斜体*", before:"*", after:"*", ph:"斜体"},
+  {label:"~~取り消し~~", before:"~~", after:"~~", ph:"取り消し"},
+  {label:"`コード`", before:"`", after:"`", ph:"コード"},
+  {label:"- リスト", before:"- ", after:"", ph:"項目"},
+  {label:"# 見出し", before:"# ", after:"", ph:"見出し"}
+];
+function insertAtField(f, before, after, ph){
+  const top=f.scrollTop, left=f.scrollLeft;
+  const s=(f.selectionStart!=null?f.selectionStart:f.value.length);
+  const e=(f.selectionEnd!=null?f.selectionEnd:f.value.length);
+  const v=f.value, sel=v.slice(s,e), mid = sel || ph || "";
+  f.value=v.slice(0,s)+before+mid+after+v.slice(e);
+  const cs=s+before.length, ce=cs+mid.length;
+  f.focus(); f.setSelectionRange(cs,ce);
+  f.scrollTop=top; f.scrollLeft=left;
+}
+function mdInsert(tpl){
+  const entering=!state.editMode;
+  if(entering){ rememberExpand(); state.editMode=true; renderActiveBody(); }
+  const f=$("#editArea");
+  if(entering){ f.focus(); f.setSelectionRange(0,0); f.scrollTop=0; }
+  insertAtField(f, tpl.before, tpl.after, tpl.ph);
+}
+function loadMdTpls(){ try{ const a=JSON.parse(localStorage.getItem("ep2_mdtpls")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function saveMdTpls(a){ try{ localStorage.setItem("ep2_mdtpls", JSON.stringify(a)); }catch(e){} }
+function addMdTpl(){
+  const label=prompt("ボタン名（表示ラベル）"); if(label==null||!label.trim()) return;
+  const before=prompt("挿入テキスト（選択を囲む場合は開始側）\n改行は \\n と入力\n例: **  /  :::info\\n", ""); if(before==null) return;
+  const after=prompt("後側テキスト（囲まない単純挿入なら空でOK）\n例: **  /  \\n:::", "");
+  const norm = s => (s==null?"":s).replace(/\\n/g,"\n");
+  const a=loadMdTpls(); a.push({label:label.trim(), before:norm(before), after:norm(after), ph:""});
+  saveMdTpls(a); buildMdTpls();
+}
+function buildMdTpls(){
+  const col=$("#mdlist"); col.innerHTML="";
+  const make=(t)=>{ const b=document.createElement("button"); b.type="button"; b.textContent=t.label;
+    b.title="選択範囲を囲む／無選択なら挿入（編集モードに切替）";
+    b.addEventListener("click",()=>mdInsert(t)); return b; };
+  MD_TPLS.forEach(t=>{
+    if(t.grp){ const h=document.createElement("h4"); h.textContent=t.grp; col.appendChild(h); return; }
+    col.appendChild(make(t));
+  });
+  const customs=loadMdTpls();
+  const h=document.createElement("h4"); h.textContent="カスタム"; col.appendChild(h);
+  customs.forEach((t,i)=>{
+    const b=make(t); b.title="クリック:挿入 / 右クリック:削除";
+    b.addEventListener("contextmenu",e=>{ e.preventDefault();
+      if(confirm("「"+t.label+"」を削除しますか？")){ const a=loadMdTpls(); a.splice(i,1); saveMdTpls(a); buildMdTpls(); } });
+    col.appendChild(b);
+  });
+  const add=document.createElement("button"); add.type="button"; add.className="md-add"; add.textContent="＋ 装飾を追加";
+  add.title="新しい装飾テンプレを追加";
+  add.addEventListener("click",addMdTpl);
+  col.appendChild(add);
+}
+function setMdcol(hidden){
+  $("#mdcol").classList.toggle("collapsed", hidden);
+  $("#mdToggle").textContent = hidden ? "«" : "»";
+  $("#mdToggle").title = hidden ? "装飾を表示" : "隠す";
+  setCfg("ep2_mdcol", hidden?"hidden":"shown");
+}
+
+/* ---------- GM table (initiative / free table) ---------- */
+/* ep2_gmtable = {round, cols:[{id,name}], rows:[{id,name,vals:{colId:val}}], active:rowId|null} */
+function seedGmTable(){
+  return {round:1, active:null,
+    cols:[{id:"c_init",name:"行動値"},{id:"c_hp",name:"HP"},{id:"c_mp",name:"MP"},{id:"c_note",name:"メモ"}],
+    rows:[]};
+}
+function loadGmTable(){
+  try{ const o=JSON.parse(localStorage.getItem("ep2_gmtable")||"null");
+    if(o&&Array.isArray(o.cols)&&Array.isArray(o.rows)) return {round:o.round||1, active:o.active||null, cols:o.cols, rows:o.rows};
+  }catch(e){}
+  return seedGmTable();
+}
+function saveGmTable(t){ try{ localStorage.setItem("ep2_gmtable", JSON.stringify(t)); }catch(e){} }
+const uidGm = pfx => pfx+"_"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36);
+function gmAddRow(name){
+  const t=loadGmTable(); t.rows.push({id:uidGm("r"), name:(name||"新規").trim()||"新規", vals:{}});
+  saveGmTable(t); gmRefresh();
+}
+function gmDelRow(id){ const t=loadGmTable(); t.rows=t.rows.filter(r=>r.id!==id); if(t.active===id) t.active=null; saveGmTable(t); gmRefresh(); }
+function gmAddCol(){
+  const name=prompt("列名（例：防護点／状態／MP）","新しい列"); if(name==null) return;
+  const t=loadGmTable(); t.cols.push({id:uidGm("c"), name:name.trim()||"新しい列"}); saveGmTable(t); gmRefresh();
+}
+function gmDelCol(id){
+  const t=loadGmTable(); t.cols=t.cols.filter(c=>c.id!==id);
+  t.rows.forEach(r=>{ delete r.vals[id]; }); saveGmTable(t); gmRefresh();
+}
+function gmRenameCol(id,name){ const t=loadGmTable(); const c=t.cols.find(x=>x.id===id); if(c){ c.name=(name||"").trim()||c.name; saveGmTable(t); gmRefresh(); } }
+function gmSetVal(rowId, colId, val){ const t=loadGmTable(); const r=t.rows.find(x=>x.id===rowId); if(!r) return; r.vals[colId]=val; saveGmTable(t); }
+function gmSetName(rowId, name){ const t=loadGmTable(); const r=t.rows.find(x=>x.id===rowId); if(r){ r.name=(name||"").trim()||r.name; saveGmTable(t); gmRefresh(); } }
+function gmSetActive(rowId){ const t=loadGmTable(); t.active=(t.active===rowId)?null:rowId; saveGmTable(t); gmRefresh(); }
+function gmMoveRow(id, beforeId){
+  const t=loadGmTable(); const i=t.rows.findIndex(r=>r.id===id); if(i<0) return;
+  const [row]=t.rows.splice(i,1);
+  let ti = beforeId ? t.rows.findIndex(r=>r.id===beforeId) : t.rows.length;
+  if(ti<0) ti=t.rows.length;
+  t.rows.splice(ti,0,row); saveGmTable(t); gmRefresh();
+}
+function gmSortByCol(colId){
+  const t=loadGmTable();
+  t.rows.sort((a,b)=>{ const x=parseFloat(a.vals[colId]), y=parseFloat(b.vals[colId]);
+    const xa=isNaN(x)?-Infinity:x, ya=isNaN(y)?-Infinity:y; return ya-xa; });   // 大きい順（行動値）
+  saveGmTable(t); gmRefresh();
+}
+function gmRound(delta){ const t=loadGmTable(); t.round=Math.max(1,(t.round||1)+delta); saveGmTable(t); gmRefresh(); }
+function gmResetRound(){ const t=loadGmTable(); t.round=1; saveGmTable(t); gmRefresh(); }
+
+/* ---------- [:列±値] table ops ---------- */
+/* 記法: [:HP-2]（対象=選択行/送信者名） / [:ゴブリンA:HP-2]（対象を明示） / [:HP=10]（代入） / [:HP+1d6]（ダイス） */
+const TBLOP_RE = /\[:\s*(?:([^\[\]:]+?)\s*:\s*)?([^\[\]:+\-=]+?)\s*([+\-=])\s*([^\[\]]+?)\s*\]/g;
+function rollDiceExpr(expr){
+  // 1d6 / 2d6+1 / c(12-2) / 数値 を評価（テーブル用のローカル計算）
+  let s=String(expr).trim();
+  const cm=s.match(/^c\((.+)\)$/i); if(cm) s=cm[1];
+  s=s.replace(/(\d*)d(\d+)/gi,(m,n,f)=>{ n=parseInt(n||"1",10); f=parseInt(f,10); let t=0;
+    for(let i=0;i<Math.min(n,100);i++) t+=1+Math.floor(Math.random()*f); return t; });
+  if(!/^[\d+\-*/(). ]+$/.test(s)) return null;
+  try{ const v=Function('"use strict";return ('+s+')')(); return (typeof v==="number"&&isFinite(v))?Math.trunc(v):null; }catch(e){ return null; }
+}
+function stripTableOps(text){ return text.replace(TBLOP_RE,"").replace(/[ \u3000]{2,}/g," ").trim(); }
+function findGmRow(t, name){
+  if(!name) return null;
+  const q=String(name).trim().toLowerCase(); if(!q) return null;
+  return t.rows.find(r=>r.name.trim().toLowerCase()===q)
+      || t.rows.find(r=>r.name.trim().toLowerCase().includes(q)) || null;
+}
+function findGmCol(t, name){
+  const q=String(name).trim().toLowerCase();
+  return t.cols.find(c=>c.name.trim().toLowerCase()===q)
+      || t.cols.find(c=>c.name.trim().toLowerCase().includes(q)) || null;
+}
+/* テキスト中の [:...] を実行し、変更内容の配列を返す（テーブルのみ更新。Tekeyへは送らない） */
+function applyTableOps(text, senderName){
+  const t=loadGmTable(); const changes=[]; let m; TBLOP_RE.lastIndex=0;
+  while((m=TBLOP_RE.exec(text))!==null){
+    const [,tgtName, colName, op, rawVal]=m;
+    const row = findGmRow(t, tgtName) || findGmRow(t, senderName) || t.rows.find(r=>r.id===t.active);
+    const col = findGmCol(t, colName);
+    if(!row || !col){ changes.push({error:true, text:(tgtName?tgtName+":":"")+colName+op+rawVal, why: !col?"列なし":"行なし"}); continue; }
+    const n=rollDiceExpr(rawVal);
+    if(n==null){ changes.push({error:true, text:colName+op+rawVal, why:"値不正"}); continue; }
+    const before=parseFloat(row.vals[col.id]); const cur=isNaN(before)?0:before;
+    let after;
+    if(op==="=") after=n; else if(op==="+") after=cur+n; else after=cur-n;
+    row.vals[col.id]=String(after);
+    changes.push({row:row.name, col:col.name, before:isNaN(before)?"-":String(cur), after:String(after)});
+  }
+  if(changes.length) saveGmTable(t);
+  return changes;
+}
+function toastTableChanges(changes){
+  if(!changes.length) return;
+  const ok=changes.filter(c=>!c.error), ng=changes.filter(c=>c.error);
+  let msg=ok.map(c=>c.row+" "+c.col+" "+c.before+"→"+c.after).join(" / ");
+  if(ng.length) msg+=(msg?" / ":"")+ng.map(c=>"⚠"+c.text+"("+c.why+")").join(" ");
+  toast(msg, ng.length>0);
+  if(state.board && boardLayout()==="table") renderBoard();
+  renderGmFloat();
+}
+
+/* ---------- board (flow / timeline) ---------- */
+const byId = id => state.palettes.find(p=>p.paletteID===id);
+function parseBlocks(stock){
+  const lines=(stock||"").split("\n"); const blocks=[]; let cur=null, loose=null;
+  const flush=()=>{ if(loose){ blocks.push(loose); loose=null; } };
+  for(let i=0;i<lines.length;i++){
+    const ln=lines[i];
+    if(cur===null){
+      const m=ln.match(/^###(.*)$/);
+      if(m && m[1].trim()!==""){ flush(); cur={type:"section", title:m[1].trim(), lines:[ln]}; }
+      else { if(!loose) loose={type:"loose", lines:[]}; loose.lines.push(ln); }
+    } else {
+      cur.lines.push(ln);
+      if(/^###\s*$/.test(ln)){ blocks.push(cur); cur=null; }
+    }
+  }
+  flush(); if(cur) blocks.push(cur);
+  return blocks;
+}
+function countSendable(lines){
+  let n=0, inC=false;
+  for(const ln of lines){
+    if(inC){ if(ln.trim()===":::") inC=false; continue; }
+    if(/^:::(.+)$/.test(ln)||ln.trim()===":::"){ inC=true; continue; }
+    if(/^###/.test(ln)||/^####/.test(ln)||/^\/\//.test(ln)||ln.trim()==="") continue;
+    n++;
+  }
+  return n;
+}
+function repColor(lines){ for(const ln of lines){ const m=ln.match(/@#([0-9a-fA-F]{3,6})\b/); if(m) return "#"+m[1]; } return null; }
+const labelOf = id => { const p=byId(id); return p?((p.label&&p.label.trim())||(p.name&&p.name.trim())||"?"):"?"; };
+const cardKey = (tabId, title) => tabId+"\u0000"+title;
+// 実在カード一覧（key -> {homeTab, title, ord, lines}）。stockは一切変更しない
+function currentCards(){
+  const map={};
+  state.palettes.forEach(p=>{
+    parseBlocks(p.stock).filter(b=>b.type==="section").forEach((s,ord)=>{
+      map[cardKey(p.paletteID,s.title)]={homeTab:p.paletteID, title:s.title, ord, lines:s.lines};
+    });
+  });
+  return map;
+}
+/* card meta (color/tags) — stock非干渉 */
+function loadCardMeta(){ try{ return JSON.parse(localStorage.getItem("ep2_cardmeta")||"{}")||{}; }catch(e){ return {}; } }
+function saveCardMeta(m){ try{ localStorage.setItem("ep2_cardmeta", JSON.stringify(m)); }catch(e){} }
+function setCardColor(key, color){ const m=loadCardMeta(); m[key]=m[key]||{}; if(color) m[key].color=color; else delete m[key].color; saveCardMeta(m); renderBoard(); }
+function addCardTag(key, tag){ tag=(tag||"").trim(); if(!tag) return; const m=loadCardMeta(); m[key]=m[key]||{}; m[key].tags=m[key].tags||[]; if(!m[key].tags.includes(tag)) m[key].tags.push(tag); saveCardMeta(m); renderBoard(); }
+function removeCardTag(key, tag){ const m=loadCardMeta(); if(m[key]&&m[key].tags){ m[key].tags=m[key].tags.filter(t=>t!==tag); saveCardMeta(m); renderBoard(); } }
+function boardLayout(){ const m=localStorage.getItem("ep2_boardlayout"); return (m==="timeline"||m==="table")?m:"flow"; }
+function setBoardLayout(m){ localStorage.setItem("ep2_boardlayout", m); renderBoard(); }
+/* ----- timeline (vertical bands) ----- */
+function loadTimeline(){ try{ const o=JSON.parse(localStorage.getItem("ep2_timeline")||"null"); if(o&&Array.isArray(o.bands)) return o; }catch(e){} return null; }
+function saveTimeline(t){ try{ localStorage.setItem("ep2_timeline", JSON.stringify(t)); }catch(e){} }
+function seedTimeline(){ return {bands:[{id:"unsorted", label:"未割当", cards:[]}]}; }
+function syncTimeline(){
+  const cards=currentCards();
+  let t=loadTimeline()||seedTimeline();
+  if(!t.bands.some(b=>b.id==="unsorted")) t.bands.push({id:"unsorted", label:"未割当", cards:[]});
+  t.bands.forEach(b=> b.cards=b.cards.filter(k=>cards[k]));
+  const placed=new Set(); t.bands.forEach(b=>b.cards.forEach(k=>placed.add(k)));
+  const uns=t.bands.find(b=>b.id==="unsorted");
+  Object.keys(cards).forEach(k=>{ if(!placed.has(k)) uns.cards.push(k); });
+  t.bands=t.bands.filter(b=>b.id!=="unsorted").concat(uns);
+  saveTimeline(t);
+  return {t, cards};
+}
+function addBand(){ const t=loadTimeline()||seedTimeline(); const band={id:"tb_"+Date.now()+"_"+Math.floor(Math.random()*1e4), label:"", cards:[]}; const ui=t.bands.findIndex(b=>b.id==="unsorted"); if(ui<0) t.bands.push(band); else t.bands.splice(ui,0,band); saveTimeline(t); renderBoard(); }
+function setBandLabel(id,label){ const t=loadTimeline(); if(!t) return; const b=t.bands.find(b=>b.id===id); if(b){ b.label=label; saveTimeline(t); } }
+function setBandColor(id,color){ const t=loadTimeline(); if(!t) return; const b=t.bands.find(b=>b.id===id); if(b){ if(color) b.color=color; else delete b.color; saveTimeline(t); renderBoard(); } }
+function toggleBandCollapse(id){ const t=loadTimeline(); if(!t) return; const b=t.bands.find(b=>b.id===id); if(b){ b.collapsed=!b.collapsed; saveTimeline(t); renderBoard(); } }
+function deleteBand(id){ const t=loadTimeline(); if(!t) return; const b=t.bands.find(x=>x.id===id); if(!b||b.id==="unsorted") return; const uns=t.bands.find(x=>x.id==="unsorted"); if(uns) uns.cards.push(...b.cards); t.bands=t.bands.filter(x=>x.id!==id); saveTimeline(t); renderBoard(); }
+function moveTimelineCard(key,bandId,idx){ const t=loadTimeline(); if(!t) return; t.bands.forEach(b=>b.cards=b.cards.filter(k=>k!==key)); const b=t.bands.find(x=>x.id===bandId); if(!b) return; b.cards.splice(idx,0,key); saveTimeline(t); renderBoard(); }
+function moveTimelineBand(id,beforeId){
+  if(id===beforeId) return; const t=loadTimeline(); if(!t) return;
+  const i=t.bands.findIndex(b=>b.id===id); if(i<0) return;
+  const [bd]=t.bands.splice(i,1);
+  let ti = beforeId ? t.bands.findIndex(b=>b.id===beforeId) : t.bands.length;
+  if(ti<0) ti=t.bands.length;
+  t.bands.splice(ti,0,bd);
+  const uns=t.bands.find(b=>b.id==="unsorted"); t.bands=t.bands.filter(b=>b.id!=="unsorted").concat(uns);
+  saveTimeline(t); renderBoard();
+}
+function renderTimeline(content){
+  const {t, cards}=syncTimeline(); const meta=loadCardMeta();
+  t.bands.forEach(b=>{
+    const uns = b.id==="unsorted";
+    const band=el("tband"); band.dataset.band=b.id;
+    if(b.color) band.style.setProperty("--bc", b.color);
+    if(b.collapsed) band.classList.add("tcollapsed");
+    const head=el("tband-head");
+    head.innerHTML="<button class='tband-col' title='折りたたみ'>"+(b.collapsed?"▸":"▾")+"</button>"+
+      "<span class='tband-grip' draggable='true' title='ドラッグで並べ替え'>⠿</span>"+
+      (uns ? "<span class='tband-uns'>未割当</span>"
+           : "<input class='tband-label' value=\""+esc(b.label)+"\" placeholder='時間・フェーズなど（編集可）'>")+
+      "<span class='tband-cnt'>"+b.cards.length+"</span>"+
+      (uns ? "" : "<button class='tband-del' title='帯を削除（カードは未割当へ）'>×</button>");
+    band.appendChild(head);
+    if(!b.collapsed){
+      const list=el("tband-list"); list.dataset.band=b.id;
+      if(!b.cards.length) list.appendChild(el("bcol-empty","（空）"));
+      b.cards.forEach(k=>{
+        const card=cards[k]; if(!card) return; const m=meta[k]||{};
+        const cd=el("bcard"); cd.draggable=true; cd.dataset.key=k;
+        const clr=m.color||repColor(card.lines); if(clr) cd.style.borderLeftColor=clr;
+        const subs=card.lines.filter(l=>/^####(.+)$/.test(l)).length;
+        let h="<div class='bcard-ttl'>"+esc(card.title)+"</div>";
+        if(m.tags&&m.tags.length) h+="<div class='bcard-tags'>"+m.tags.map(tg=>tagChip(tg)).join("")+"</div>";
+        h+="<div class='bcard-meta'>"+esc(countSendable(card.lines)+"行"+(subs?" ・小"+subs:""))+"</div>";
+        cd.innerHTML=h; list.appendChild(cd);
+      });
+      band.appendChild(list);
+    }
+    content.appendChild(band);
+  });
+}
+function buildGmTable(compact){
+  const t=loadGmTable();
+  const tb=document.createElement("table"); tb.className="gmtable"+(compact?" compact":"");
+  let th="<thead><tr><th class='gm-th-act' title='行動済みマーク'>◇</th><th class='gm-th-name'>名前</th>";
+  t.cols.forEach(c=>{ th+="<th class='gm-th' data-col='"+c.id+"'><span class='gm-colname'>"+esc(c.name)+"</span>"+
+      "<button class='gm-sort' data-col='"+c.id+"' title='この列で降順ソート'>⇅</button>"+
+      "<button class='gm-colx' data-col='"+c.id+"' title='列を削除'>×</button></th>"; });
+  th+="<th class='gm-th-del'></th></tr></thead>";
+  let tr="<tbody>";
+  if(!t.rows.length) tr+="<tr class='gm-empty'><td colspan='"+(t.cols.length+3)+"'>行がありません。「＋行」から追加してください。</td></tr>";
+  t.rows.forEach(r=>{
+    const on = t.active===r.id;
+    tr+="<tr class='gm-row"+(on?" active":"")+"' data-row='"+r.id+"'>"+
+        "<td class='gm-act'><button class='gm-actbtn"+(on?" on":"")+"' data-row='"+r.id+"' title='現在の手番として選択'>"+(on?"●":"○")+"</button></td>"+
+        "<td class='gm-name'><input class='gm-nameinp' data-row='"+r.id+"' value='"+esc(r.name)+"'></td>";
+    t.cols.forEach(c=>{ const v=r.vals[c.id]==null?"":r.vals[c.id];
+      tr+="<td class='gm-cell'><input class='gm-val' data-row='"+r.id+"' data-col='"+c.id+"' value='"+esc(String(v))+"'></td>"; });
+    tr+="<td class='gm-del'><button class='gm-delbtn' data-row='"+r.id+"' title='行を削除'>×</button></td></tr>";
+  });
+  tr+="</tbody>";
+  tb.innerHTML=th+tr;
+  return tb;
+}
+function renderTable(content){
+  const wrap=el("gmwrap");
+  wrap.appendChild(buildGmTable(false));
+  const hint=el("gm-hint","送信文に <code>[:HP-2]</code> と書くとこの表の値が変わります（Tekeyへは送られません）。"+
+    "対象を明示するなら <code>[:ゴブリンA:HP-2]</code>、代入は <code>[:HP=10]</code>、ダイスは <code>[:HP+1d6]</code>。"+
+    "表の値は <code>{ゴブリンA.HP}</code> や <code>{選択.HP}</code>、<code>{ラウンド}</code> で本文から参照できます。");
+  wrap.appendChild(hint);
+  content.appendChild(wrap);
+}
+function renderBoard(){
+  const board=$("#board");
+  const oldC=$("#boardcontent");
+  const keepScroll = oldC ? {mode:oldC.className, l:oldC.scrollLeft, t:oldC.scrollTop} : null;
+  board.innerHTML="";
+  const mode=boardLayout();
+  const bar=el("boardbar"); bar.id="boardbar";
+  bar.innerHTML="<button id='bmFlow' class='bm"+(mode==="flow"?" on":"")+"'>⤳ フロー</button>"+
+                "<button id='bmTimeline' class='bm"+(mode==="timeline"?" on":"")+"'>🕒 タイムライン</button>"+
+                "<button id='bmTable' class='bm"+(mode==="table"?" on":"")+"'>📋 テーブル</button>";
+  if(mode==="table"){
+    const t=loadGmTable();
+    bar.innerHTML+="<span class='gm-round'>ラウンド <b>"+(t.round||1)+"</b></span>"+
+      "<button id='gmRoundDn' class='bm' title='ラウンドを戻す'>−</button>"+
+      "<button id='gmRoundUp' class='bm' title='ラウンドを進める'>＋</button>"+
+      "<button id='gmRoundRst' class='bm' title='ラウンドを1に戻す'>↺</button>"+
+      "<button id='gmAddRow' class='bm'>＋行を追加</button>"+
+      "<button id='gmAddCol' class='bm'>＋列を追加</button>";
+  }
+  if(mode==="flow"){
+    bar.innerHTML+="<button id='addZone' class='bm'>＋エリア</button>";
+    const cards=currentCards(); const n=loadFlow().hidden.filter(k=>cards[k]).length;
+    if(n) bar.innerHTML+="<button id='fRestore' class='bm'>非表示 "+n+" 枚 ↺戻す</button>";
+    bar.innerHTML+="<span class='bm-hint'>カードドラッグで移動 ・上下の○から接続 ・線クリックでラベル ・線を右クリックで削除</span>";
+  }
+  if(mode==="timeline"){
+    bar.innerHTML+="<button id='tbandAdd' class='bm'>＋帯を追加</button>";
+    bar.innerHTML+="<span class='bm-hint'>帯ラベルは直接編集 ・⠿で帯を並べ替え ・カードをドラッグで移動</span>";
+  }
+  bar.innerHTML+="<input id='boardSearch' class='bm-search' placeholder='🔍 カード検索'>";
+  bar.innerHTML+="<button id='boardExport' class='bm bm-io' title='盤面を書き出し'>⤓書出</button>";
+  bar.innerHTML+="<button id='boardImport' class='bm bm-io' title='盤面を読み込み'>⤒読込</button>";
+  board.appendChild(bar);
+  const sb=bar.querySelector("#boardSearch"); if(sb) sb.value=boardSearch;
+  // tag filter bar
+  const tags=(mode==="table")?[]:allTags();
+  const af=loadTagFilter().filter(t=>tags.includes(t));
+  if(af.length!==loadTagFilter().length) saveTagFilter(af);
+  if(tags.length){
+    const active=af; const tc=loadTagColors();
+    const tb=el("tagbar"); tb.id="tagbar";
+    let th="<span class='tagbar-lbl'>絞り込み（右クリックで色）</span>";
+    tags.forEach(t=>{ const c=tc[t]; const on=active.includes(t);
+      let st=""; if(on&&c) st=" style=\"background:"+c+";border-color:"+c+";color:#fff\"";
+      else if(!on&&c) st=" style=\"border-color:"+c+";color:"+c+"\"";
+      th+="<button class='tfchip"+(on?" on":"")+"'"+st+" data-tag='"+esc(t)+"'>"+esc(t)+"</button>"; });
+    if(active.length) th+="<button id='tfClear' class='tfchip tfclear'>クリア</button>";
+    tb.innerHTML=th; board.appendChild(tb);
+  }
+  const content=el(mode); content.id="boardcontent";
+  board.appendChild(content);
+  if(mode==="timeline") renderTimeline(content);
+  else if(mode==="table") renderTable(content);
+  else renderFlow(content);
+  applyTagFilter();
+  if(keepScroll && keepScroll.mode===mode){ content.scrollLeft=keepScroll.l; content.scrollTop=keepScroll.t; }
+}
+/* ----- flow (free canvas) ----- */
+const SVGNS="http://www.w3.org/2000/svg";
+function loadFlow(){ try{ const o=JSON.parse(localStorage.getItem("ep2_flow")||"null"); if(o&&o.pos&&Array.isArray(o.links)) return {pos:o.pos, links:o.links, hidden:Array.isArray(o.hidden)?o.hidden:[], zones:Array.isArray(o.zones)?o.zones:[]}; }catch(e){} return {pos:{}, links:[], hidden:[], zones:[]}; }
+function saveFlow(f){ try{ localStorage.setItem("ep2_flow", JSON.stringify(f)); }catch(e){} }
+function saveFlowPos(key,x,y){ const f=loadFlow(); f.pos[key]={x:Math.round(x),y:Math.round(y)}; saveFlow(f); }
+function addLink(from,to){ const f=loadFlow(); if(from===to) return; if(f.links.some(l=>l.from===from&&l.to===to)) return; f.links.push({from,to}); saveFlow(f); redrawLinks(); }
+function deleteLink(idx){ const f=loadFlow(); f.links.splice(idx,1); saveFlow(f); redrawLinks(); }
+function hideFlowCard(key){ const f=loadFlow(); if(!f.hidden.includes(key)) f.hidden.push(key); saveFlow(f); renderBoard(); }
+function restoreFlowCards(){ const f=loadFlow(); f.hidden=[]; saveFlow(f); renderBoard(); }
+function flowCardEl(key){ const c=$("#fcanvas"); if(!c) return null; return [...c.querySelectorAll(".fcard")].find(el=>el.dataset.key===key)||null; }
+/* zones (area boxes) */
+function addZone(){ const f=loadFlow(); f.zones.push({id:"z_"+Date.now()+"_"+Math.floor(Math.random()*1e4), x:40,y:40,w:380,h:260,name:"エリア"}); saveFlow(f); renderBoard(); }
+function updateZone(id,patch){ const f=loadFlow(); const z=f.zones.find(z=>z.id===id); if(z){ Object.assign(z,patch); saveFlow(f); } }
+function renameZone(id,name){ const f=loadFlow(); const z=f.zones.find(z=>z.id===id); if(z){ z.name=(name||"").trim()||z.name; saveFlow(f); renderBoard(); } }
+function deleteZone(id){ const f=loadFlow(); f.zones=f.zones.filter(z=>z.id!==id); saveFlow(f); renderBoard(); }
+function setZoneColor(id,color){ const f=loadFlow(); const z=f.zones.find(z=>z.id===id); if(z){ if(color) z.color=color; else delete z.color; saveFlow(f); renderBoard(); } }
+function toggleZoneLock(id){ const f=loadFlow(); const z=f.zones.find(z=>z.id===id); if(z){ z.locked=!z.locked; saveFlow(f); renderBoard(); } }
+/* tag filter (focus) */
+function loadTagFilter(){ try{ const a=JSON.parse(localStorage.getItem("ep2_tagfilter")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function saveTagFilter(a){ try{ localStorage.setItem("ep2_tagfilter", JSON.stringify(a)); }catch(e){} }
+function toggleTagFilter(t){ let a=loadTagFilter(); a=a.includes(t)?a.filter(x=>x!==t):a.concat(t); saveTagFilter(a); renderBoard(); }
+function clearTagFilter(){ saveTagFilter([]); renderBoard(); }
+function allTags(){ const s=new Set(); const m=loadCardMeta(); const cards=currentCards(); Object.keys(m).forEach(k=>{ if(cards[k]&&m[k].tags) m[k].tags.forEach(t=>s.add(t)); }); return [...s].sort(); }
+function cardMatchesFilter(key){ const a=loadTagFilter(); if(!a.length) return true; const m=loadCardMeta()[key]; const tags=(m&&m.tags)||[]; return a.some(t=>tags.includes(t)); }
+function loadTagColors(){ try{ return JSON.parse(localStorage.getItem("ep2_tagcolors")||"{}")||{}; }catch(e){ return {}; } }
+function saveTagColors(m){ try{ localStorage.setItem("ep2_tagcolors", JSON.stringify(m)); }catch(e){} }
+function setTagColor(tag,color){ const m=loadTagColors(); if(color) m[tag]=color; else delete m[tag]; saveTagColors(m); renderBoard(); }
+function tagChip(tag){ const c=loadTagColors()[tag];
+  const st = c ? " style=\"background:color-mix(in srgb,"+c+" 16%,transparent);border-color:"+c+";color:"+c+"\"" : "";
+  return "<span class='tag'"+st+">"+esc(tag)+"</span>"; }
+let boardSearch="";
+function cardMatchesSearch(key){ const q=boardSearch.trim().toLowerCase(); if(!q) return true; const c=currentCards()[key]; if(!c) return false;
+  if((c.title||"").toLowerCase().includes(q)) return true;
+  const m=loadCardMeta()[key]; if(m&&m.tags&&m.tags.some(t=>t.toLowerCase().includes(q))) return true; return false; }
+const BOARD_KEYS=["ep2_gmtable","ep2_cardmeta","ep2_flow","ep2_timeline","ep2_boardlayout","ep2_tagfilter","ep2_tagcolors","ep2_pins"];
+function exportBoard(){ const o={_type:"ep2-board", v:1}; BOARD_KEYS.forEach(k=>{ const v=localStorage.getItem(k); if(v!=null) o[k]=v; });
+  download("ep2-board-"+new Date().toISOString().slice(0,10)+".json", JSON.stringify(o,null,2)); toast("盤面を書き出しました"); }
+function importBoard(text){ let o; try{ o=JSON.parse(text); }catch(e){ toast("読み込み失敗：JSONを解析できません", true); return; }
+  if(!o || o._type!=="ep2-board"){ if(!confirm("ep2の盤面ファイルではないかもしれません。読み込みますか？")) return; }
+  BOARD_KEYS.forEach(k=>{ if(typeof o[k]==="string") localStorage.setItem(k, o[k]); });
+  boardSearch=""; render(); renderBoard(); toast("盤面を読み込みました"); }
+function openTagMenu(tag, x, y){
+  const menu=$("#ctxmenu"); const cur=loadTagColors()[tag];
+  let h="<div class='ctx-sec'>タグ「"+esc(tag)+"」の色</div><div class='ctx-colors'>";
+  CARD_COLORS.forEach(c=> h+="<button class='ctx-sw' data-color='"+c+"' style='background:"+c+"' title='"+c+"'></button>");
+  h+="<button class='ctx-sw ctx-none' data-color='' title='色なし'>×</button></div>";
+  menu.innerHTML=h; menu.dataset.tagname=tag; menu.dataset.key=""; menu.dataset.zid=""; menu.dataset.bandid="";
+  menu.style.display="block";
+  menu.style.left=Math.min(x, innerWidth-186)+"px";
+  menu.style.top=Math.min(y, innerHeight-120)+"px";
+}
+function applyTagFilter(){
+  document.querySelectorAll("#boardcontent .bcard, #boardcontent .fcard").forEach(cd=>{
+    const ok = cardMatchesFilter(cd.dataset.key) && cardMatchesSearch(cd.dataset.key);
+    cd.classList.toggle("dim", !ok);
+  });
+}
+function renderFlow(content){
+  const cards=currentCards(); const meta=loadCardMeta();
+  const f=loadFlow();
+  // prune & auto-place
+  Object.keys(f.pos).forEach(k=>{ if(!cards[k]) delete f.pos[k]; });
+  f.links=f.links.filter(l=>cards[l.from]&&cards[l.to]);
+  f.hidden=f.hidden.filter(k=>cards[k]);
+  const hid=new Set(f.hidden);
+  let gi=0;
+  Object.keys(cards).forEach(k=>{ if(!f.pos[k]) f.pos[k]={x:30+(gi%5)*210, y:30+Math.floor(gi/5)*130}; gi++; });
+  saveFlow(f);
+  const canvas=el("fcanvas"); canvas.id="fcanvas";
+  (f.zones||[]).forEach(z=>{
+    const zd=el("fzone"); zd.dataset.id=z.id;
+    zd.style.left=z.x+"px"; zd.style.top=z.y+"px"; zd.style.width=z.w+"px"; zd.style.height=z.h+"px";
+    if(z.color) zd.style.setProperty("--zc", z.color);
+    if(z.locked) zd.classList.add("locked");
+    zd.innerHTML="<div class='fzone-head'><span class='fzone-name'>"+esc(z.name)+"</span><button class='fzone-del' title='エリア削除'>×</button></div><div class='fzone-rz' title='ドラッグでリサイズ'></div>";
+    canvas.appendChild(zd);
+  });
+  const svg=document.createElementNS(SVGNS,"svg"); svg.id="fsvg"; svg.setAttribute("class","fsvg");
+  svg.innerHTML="<defs><marker id='fa' markerWidth='9' markerHeight='9' refX='7' refY='3' orient='auto'><path d='M0,0 L7,3 L0,6 Z'/></marker></defs>";
+  canvas.appendChild(svg);
+  Object.keys(cards).forEach(k=>{
+    if(hid.has(k)) return;
+    const card=cards[k]; const pos=f.pos[k]; const m=meta[k]||{};
+    const cd=el("fcard"); cd.dataset.key=k; cd.style.left=pos.x+"px"; cd.style.top=pos.y+"px";
+    const clr=m.color||repColor(card.lines); if(clr) cd.style.borderLeftColor=clr;
+    let h="<div class='fhandle fhandle-t' title='ドラッグで接続'></div>";
+    h+="<button class='fdel' title='フローから外す'>×</button>";
+    h+="<div class='bcard-ttl'>"+esc(card.title)+"</div>";
+    if(m.tags&&m.tags.length) h+="<div class='bcard-tags'>"+m.tags.map(t=>tagChip(t)).join("")+"</div>";
+    h+="<div class='fhandle fhandle-b' title='ドラッグで接続'></div>";
+    cd.innerHTML=h; canvas.appendChild(cd);
+  });
+  content.appendChild(canvas);
+  redrawLinks();
+}
+function cardBox(elm){ if(!elm) return null; const hw=elm.offsetWidth/2, hh=elm.offsetHeight/2; return {cx:elm.offsetLeft+hw, cy:elm.offsetTop+hh, hw, hh}; }
+function edgePoint(from, box){
+  const dx=from.x-box.cx, dy=from.y-box.cy;
+  if(!dx&&!dy) return {x:box.cx,y:box.cy};
+  const sx=dx?box.hw/Math.abs(dx):Infinity, sy=dy?box.hh/Math.abs(dy):Infinity;
+  const s=Math.min(sx,sy); return {x:box.cx+dx*s, y:box.cy+dy*s};
+}
+function mkLine(cls,p1,p2,marker){ const l=document.createElementNS(SVGNS,"line"); l.setAttribute("class",cls);
+  l.setAttribute("x1",p1.x); l.setAttribute("y1",p1.y); l.setAttribute("x2",p2.x); l.setAttribute("y2",p2.y);
+  if(marker) l.setAttribute("marker-end","url(#fa)"); return l; }
+function redrawLinks(){
+  const svg=$("#fsvg"); if(!svg) return; const canvas=$("#fcanvas");
+  [...svg.querySelectorAll(".flink,.flinkhit")].forEach(n=>n.remove());
+  if(canvas) [...canvas.querySelectorAll(".flabel")].forEach(n=>n.remove());
+  const f=loadFlow(); const hid=new Set(f.hidden);
+  f.links.forEach((lk,i)=>{
+    if(hid.has(lk.from)||hid.has(lk.to)) return;
+    const a=flowCardEl(lk.from), b=flowCardEl(lk.to);
+    const ba=cardBox(a), bb=cardBox(b); if(!ba||!bb) return;
+    const p1=edgePoint({x:bb.cx,y:bb.cy}, ba), p2=edgePoint({x:ba.cx,y:ba.cy}, bb);
+    const hit=mkLine("flinkhit",p1,p2,false); hit.dataset.idx=i;
+    svg.appendChild(hit); svg.appendChild(mkLine("flink",p1,p2,true));
+    if(lk.label && canvas){
+      const chip=el("flabel"); chip.dataset.idx=i; chip.textContent=lk.label;
+      chip.style.left=((p1.x+p2.x)/2)+"px"; chip.style.top=((p1.y+p2.y)/2)+"px";
+      canvas.appendChild(chip);
+    }
+  });
+}
+function editLinkLabel(idx){
+  const f=loadFlow(); const lk=f.links[idx]; if(!lk) return;
+  const v=prompt("矢印のラベル（空欄で削除）", lk.label||"");
+  if(v===null) return;
+  if(v.trim()) lk.label=v.trim(); else delete lk.label;
+  saveFlow(f); redrawLinks();
+}
+function setBoard(on){
+  state.board=on;
+  if(typeof closeCardMenu==="function") closeCardMenu();
+  document.body.classList.toggle("boardmode", on);
+  $("#btnBoard").textContent = on ? "← パレットに戻る" : "▦ ボード";
+  $("#btnBoard").classList.toggle("on", on);
+  if(on){ if(state.editMode) commitEdit(); renderBoard(); } else { render(); }
+}
+function boardDropOrd(list, y){
+  const cards=[...list.querySelectorAll(".bcard:not(.dragging)")];
+  for(let i=0;i<cards.length;i++){ const r=cards[i].getBoundingClientRect(); if(y < r.top + r.height/2) return i; }
+  return cards.length;
+}
+
+/* ---------- section editing ---------- */
+function setStock(p, lines){ p.stock=lines.join("\n"); render(); }
+function getSecTitle(uid){
+  const p=activeP(); const info=secMap[uid]; if(!p||!info) return "";
+  return (p.stock.split("\n")[info.lineIndex]||"").replace(/^#{3,4}/,"").trim();
+}
+function setSecTitle(uid, val){
+  const p=activeP(); const info=secMap[uid]; if(!p||!info) return;
+  const lines=p.stock.split("\n");
+  lines[info.lineIndex]=(info.level===2?"####":"###")+val.trim();
+  setStock(p, lines);
+}
+function inlineEdit(spanEl, initial, commit){
+  const inp=document.createElement("input"); inp.type="text"; inp.className="inline-edit"; inp.value=initial;
+  spanEl.replaceWith(inp); inp.focus(); inp.select();
+  let done=false;
+  const fin=save=>{ if(done) return; done=true; if(save) commit(inp.value); else render(); };
+  inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){e.preventDefault(); fin(true);} else if(e.key==="Escape"){e.preventDefault(); fin(false);} });
+  inp.addEventListener("blur",()=>fin(true));
+}
+function scrollToSec(uid){
+  const sec=document.getElementById("sec-"+uid);
+  if(sec){ sec.classList.remove("collapsed"); sec.scrollIntoView({behavior:"smooth",block:"start"}); }
+}
+function jumpEditTo(uid){
+  const ed=$("#editArea"); if(!ed||ed.style.display==="none"||!ed.value) return;
+  const info=secMap[uid]; const title=getSecTitle(uid);
+  const lines=ed.value.split("\n");
+  const re = (info&&info.level===2) ? /^####(?!#)\s*(.*)$/ : /^###(?!#)\s*(.*)$/;
+  let target=-1;
+  for(let i=0;i<lines.length;i++){ const m=lines[i].match(re); if(m && m[1].trim()===(title||"").trim()){ target=i; break; } }
+  if(target<0 && info) target=info.lineIndex;
+  if(target<0) return;
+  let pos=0; for(let i=0;i<target;i++) pos+=lines[i].length+1;
+  ed.focus(); ed.setSelectionRange(pos,pos);
+  const lh=parseFloat(getComputedStyle(ed).lineHeight)||20;
+  ed.scrollTop=Math.max(0, target*lh - lh);
+}
+
+/* ---------- search (本文参照) ---------- */
+function highlightEl(node, q){
+  const w=document.createTreeWalker(node, NodeFilter.SHOW_TEXT); const ns=[];
+  while(w.nextNode()) ns.push(w.currentNode);
+  ns.forEach(n=>{
+    const t=n.nodeValue, lo=t.toLowerCase(); let i=lo.indexOf(q);
+    if(i<0) return;
+    const frag=document.createDocumentFragment(); let last=0;
+    while(i>=0){
+      frag.appendChild(document.createTextNode(t.slice(last,i)));
+      const mk=document.createElement("mark"); mk.textContent=t.slice(i,i+q.length); frag.appendChild(mk);
+      last=i+q.length; i=lo.indexOf(q,last);
+    }
+    frag.appendChild(document.createTextNode(t.slice(last)));
+    n.parentNode.replaceChild(frag,n);
+  });
+}
+function applySearch(query){
+  const q=(query||"").trim().toLowerCase();
+  const body=$("#body"); if(!body) return;
+  if(!q){ body.querySelectorAll(".sec,.line,.callout,.paramdef,.blank").forEach(e=>e.style.display=""); return; }
+  body.querySelectorAll(".blank").forEach(e=>e.style.display="none");
+  body.querySelectorAll(".line,.callout,.paramdef").forEach(le=>{
+    const hit=le.textContent.toLowerCase().includes(q);
+    le.classList.toggle("hit",hit); le.style.display=hit?"":"none";
+    if(hit) highlightEl(le,q);
+  });
+  body.querySelectorAll(".sec").forEach(sec=>{
+    const ttl=sec.querySelector(":scope > .sec-head .sec-title");
+    const headHit = ttl && ttl.textContent.toLowerCase().includes(q);
+    const anyHit = headHit || sec.querySelector(".line.hit,.callout.hit,.paramdef.hit");
+    sec.style.display = anyHit ? "" : "none";
+    if(anyHit){ sec.classList.remove("collapsed"); if(headHit && ttl) highlightEl(ttl,q); }
+  });
+}
+
+/* ---------- cross-tab search ---------- */
+function renderXtab(query){
+  const box=$("#xtab"); if(!box) return;
+  const q=(query||"").trim().toLowerCase(); box.innerHTML="";
+  if(!q){ box.style.display="none"; return; }
+  const hits=[];
+  state.palettes.forEach(p=>{
+    if(p.paletteID===state.activeId) return;
+    const label=(p.label&&p.label.trim())||(p.name&&p.name.trim())||"?";
+    (p.stock||"").split("\n").forEach((ln,idx)=>{
+      if(ln.trim()==="") return;
+      if(ln.toLowerCase().includes(q)) hits.push({pid:p.paletteID, label, idx, text:ln});
+    });
+  });
+  if(!hits.length){ box.style.display="none"; return; }
+  box.style.display="block";
+  box.appendChild(el("xtab-cap","🔎 他タブの結果 "+hits.length));
+  hits.slice(0,40).forEach(h=>{
+    const it=el("xtab-item");
+    it.innerHTML="<span class='xtab-tab'>"+esc(h.label)+"</span><span class='xtab-txt'>"+esc(h.text.replace(/^#{1,4}\s*/,'').trim()||"(空行)")+"</span>";
+    it.addEventListener("click",()=>gotoXtab(h.pid,h.idx));
+    box.appendChild(it);
+  });
+  if(hits.length>40) box.appendChild(el("xtab-more","他 "+(hits.length-40)+" 件…"));
+}
+function gotoXtab(pid, idx){
+  if(state.editMode){ state.editMode=false; }
+  selectTab(pid);
+  requestAnimationFrame(()=>{
+    const l=document.querySelector('#body .line[data-idx="'+idx+'"]');
+    if(l){ let s=l.closest(".sec"); while(s){ s.classList.remove("collapsed"); s=s.parentElement&&s.parentElement.closest(".sec"); }
+      l.scrollIntoView({behavior:"smooth",block:"center"});
+      l.classList.add("flash"); setTimeout(()=>l.classList.remove("flash"),1200); }
+  });
+}
+
+/* ---------- expand/collapse ---------- */
+function rememberExpand(){
+  const p=activeP(); if(!p) return; const m=expand[p.paletteID]={};
+  $("#body").querySelectorAll(".sec").forEach(s=>{ m[s.dataset.uid]=!s.classList.contains("collapsed"); });
+}
+function setAll(open){
+  $("#body").querySelectorAll(".sec").forEach(s=>s.classList.toggle("collapsed",!open));
+  rememberExpand();
+}
+
+/* ---------- tabs ---------- */
+function selectTab(id){
+  if(state.editMode) commitEdit();
+  state.activeId=id;
+  $("#tabs").querySelectorAll(".tab").forEach(t=>t.classList.toggle("on", +t.dataset.id===id));
+  renderActiveBody();
+  renderDest();
+}
+function addTab(){
+  const ids=state.palettes.map(p=>p.paletteID); const nid=(ids.length?Math.max(...ids):0)+1;
+  const nlabel=String(state.palettes.length+1);
+  const base=activeP();
+  state.palettes.push({paletteID:nid, order:state.palettes.length, label:nlabel,
+    name:base?base.name:"", stock:"", textColor:"#000000", isSearchOn:true, expandeds:[]});
+  state.activeId=nid; render();
+}
+function delTab(){
+  if(state.palettes.length<=1){ toast("最後のタブは削除できません",true); return; }
+  const p=activeP(); if(!confirm("タブ「"+p.label+"」を削除しますか？")) return;
+  const i=state.palettes.findIndex(x=>x.paletteID===p.paletteID);
+  state.lastDeleted={pal:p, index:i};
+  state.palettes.splice(i,1);
+  state.activeId=state.palettes[Math.max(0,i-1)].paletteID;
+  render();
+}
+function undoDel(){
+  if(!state.lastDeleted) return;
+  const {pal,index}=state.lastDeleted;
+  state.palettes.splice(Math.min(index,state.palettes.length),0,pal);
+  state.activeId=pal.paletteID; state.lastDeleted=null; render();
+}
+function renameTab(id){
+  const p=state.palettes.find(x=>x.paletteID===id); if(!p) return;
+  const nv=prompt("タブ名を変更", p.label); if(nv==null) return;
+  p.label=nv.trim()||p.label; render();
+}
+
+/* ---------- edit mode ---------- */
+function commitEdit(){
+  if(!state.editMode) return;
+  clearTimeout(livePvT);
+  const p=activeP(); if(p) p.stock=$("#editArea").value;
+  state.editMode=false;
+}
+function toggleEdit(){
+  if(state.editMode){ commitEdit(); }
+  else{ rememberExpand(); state.editMode=true; }
+  render();
+}
+
+/* ---------- save / load ---------- */
+function exportPalettes(strip){
+  const out={palettes: state.palettes.map((p,i)=>({
+    paletteID:p.paletteID, order:i, label:p.label, name:p.name||"",
+    stock: strip? stripCallouts(p.stock||"") : (p.stock||""),
+    textColor:p.textColor||"#000000", isSearchOn:p.isSearchOn!==false, expandeds:[]
+  }))};
+  return JSON.stringify(out, null, 2);
+}
+function stripCallouts(stock){
+  const lines=(stock||"").split("\n"); const out=[]; let inC=false;
+  for(const ln of lines){
+    if(inC){ if(ln.trim()===":::") inC=false; continue; }
+    if(/^:::(.+)$/.test(ln) || ln.trim()===":::"){ inC=true; continue; }
+    out.push(ln);
+  }
+  return out.join("\n");
+}
+function download(name, text){
+  const b=new Blob([text],{type:"application/json"}); const u=URL.createObjectURL(b);
+  const a=document.createElement("a"); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
+}
+function loadJSON(text){
+  let o; try{ o=JSON.parse(text); }catch(e){ toast("JSONの読み込みに失敗",true); return; }
+  if(!o||!Array.isArray(o.palettes)){ toast("Tekeyパレット形式ではありません",true); return; }
+  state.palettes=o.palettes.map((p,i)=>({
+    paletteID: p.paletteID!=null?p.paletteID:(i+1), order:p.order!=null?p.order:i,
+    label:p.label!=null?String(p.label):String(i+1), name:p.name||"",
+    stock:p.stock||"", textColor:p.textColor||"#000000",
+    isSearchOn:p.isSearchOn!==false, expandeds:p.expandeds||[]
+  }));
+  state.activeId=state.palettes[0].paletteID; state.editMode=false; expand={};
+  render(); toast(state.palettes.length+"タブを読み込みました");
+}
+
+/* ---------- settings modal ---------- */
+function openSettings(){
+  $("#s_room").value=cfg("room"); $("#s_pass").value=cfg("pass");
+  $("#s_tabs").value=cfg("ep2_desttabs")||cfg("tab")||""; $("#s_name").value=cfg("senderName");
+  $("#s_ep").value=cfg("ep2_endpoint")||DEFAULT_EP;
+  $("#settings").classList.add("open");
+}
+function saveSettings(){
+  setCfg("room",$("#s_room").value.trim()); setCfg("pass",$("#s_pass").value.trim());
+  const tabs=$("#s_tabs").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  setCfg("ep2_desttabs", tabs.join("\n"));
+  // 選択中が一覧から消えていたら先頭へ寄せる（無ければ未指定）
+  const sel=cfg("ep2_destsel")||""; if(sel && !tabs.includes(sel)) setCfg("ep2_destsel","");
+  setCfg("tab", destTabName());     // 旧キーも同期（後方互換）
+  setCfg("senderName",$("#s_name").value.trim());
+  setCfg("ep2_endpoint",$("#s_ep").value.trim()||DEFAULT_EP);
+  $("#settings").classList.remove("open"); renderDest(); toast("設定を保存しました");
+}
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  const dark = t==="dark";
+  document.body.dataset.theme = dark?"dark":"";
+  setCfg("ep2_theme", dark?"dark":"light");
+  $("#btnTheme").textContent = dark ? "☀ ライト" : "🌙 ダーク";
+}
+function toggleTheme(){ applyTheme(document.body.dataset.theme==="dark"?"light":"dark"); }
+
+/* ---------- rail scroll-spy ---------- */
+function updateSpy(){
+  if(state.editMode) return;
+  const wrap=$("#previewpane"); if(!wrap) return;
+  const top=wrap.getBoundingClientRect().top;
+  let curUid=null;
+  const secs=$("#body").querySelectorAll(".sec[id]");
+  secs.forEach(sec=>{ if(sec.getBoundingClientRect().top - top <= 44) curUid=sec.dataset.uid; });
+  if(curUid==null && secs.length) curUid=secs[0].dataset.uid;
+  $("#rail").querySelectorAll(".rail-item,.rail-sub").forEach(it=>{
+    it.classList.toggle("active", it.dataset.uid===curUid);
+  });
+}
+
+/* ---------- toast ---------- */
+let toT=null;
+function toast(msg,err){ const t=$("#toast"); t.textContent=msg; t.className="show"+(err?" err":"");
+  clearTimeout(toT); toT=setTimeout(()=>t.className="",2200); }
+
+/* ---------- events ---------- */
+let clickTimer=null;
+$("#body").addEventListener("click",e=>{
+  if(state.editMode){
+    if(splitMode()==="none") return;
+    const ln=e.target.closest(".line[data-idx]");
+    if(ln){ jumpEditToLine(+ln.dataset.idx); return; }
+    return;
+  }
+  const ppc=e.target.closest(".pinpanel-cap");
+  if(ppc){ const panel=ppc.closest(".pinpanel"); panel.classList.toggle("collapsed"); savePinFold(panel.classList.contains("collapsed")); return; }
+  const coh=e.target.closest(".co-head");
+  if(coh){ coh.closest(".callout").classList.toggle("collapsed"); return; }
+  const head=e.target.closest(".sec-head");
+  if(head){ const sec=head.closest(".sec"); sec.classList.toggle("collapsed"); rememberExpand(); return; }
+  const line=e.target.closest(".line"); if(!line) return;
+  if(clickTimer) return;
+  const idx=+line.dataset.idx;
+  clickTimer=setTimeout(()=>{ clickTimer=null; stageLine(idx); },230);
+});
+$("#body").addEventListener("dblclick",e=>{
+  if(state.editMode) return;
+  const line=e.target.closest(".line"); if(!line) return;
+  if(clickTimer){ clearTimeout(clickTimer); clickTimer=null; }
+  sendLine(+line.dataset.idx);
+});
+$("#rail").addEventListener("click",e=>{
+  const pin=e.target.closest(".rail-pin");
+  if(pin){ e.stopPropagation(); const it=pin.closest(".rail-item,.rail-sub"); if(it) togglePin(state.activeId, getSecTitle(+it.dataset.uid)); return; }
+  const it=e.target.closest(".rail-item,.rail-sub"); if(!it) return;
+  if(state.editMode) jumpEditTo(+it.dataset.uid); else scrollToSec(+it.dataset.uid);
+});
+$("#rail").addEventListener("dblclick",e=>{
+  if(state.editMode) return;
+  const it=e.target.closest(".rail-item,.rail-sub"); if(!it||it.classList.contains("rail-pinned")) return;
+  const uid=+it.dataset.uid; const span=it.querySelector(".rail-label");
+  if(span) inlineEdit(span, getSecTitle(uid), v=>setSecTitle(uid,v));
+});
+
+/* rail width resize */
+(function(){
+  const col=document.querySelector(".railcol"), h=$("#railResize"); if(!col||!h) return;
+  const stored=parseInt(localStorage.getItem("ep2_railw")||"",10);
+  if(stored>=90 && stored<=560) col.style.flexBasis=stored+"px";
+  let drag=null;
+  const onMove=e=>{ if(!drag) return; let w=Math.round(drag.w+(e.clientX-drag.x)); w=Math.max(90,Math.min(560,w)); col.style.flexBasis=w+"px"; };
+  const onUp=()=>{ if(!drag) return; drag=null; h.classList.remove("dragging");
+    document.body.style.userSelect=""; document.body.style.cursor="";
+    window.removeEventListener("pointermove",onMove); window.removeEventListener("pointerup",onUp);
+    try{ localStorage.setItem("ep2_railw", parseInt(col.style.flexBasis,10)||col.getBoundingClientRect().width); }catch(_){} };
+  h.addEventListener("pointerdown",e=>{
+    drag={x:e.clientX, w:col.getBoundingClientRect().width};
+    h.classList.add("dragging"); e.preventDefault();
+    document.body.style.userSelect="none"; document.body.style.cursor="ew-resize";
+    window.addEventListener("pointermove",onMove); window.addEventListener("pointerup",onUp);
+  });
+})();
+
+$("#tabs").addEventListener("click",e=>{
+  if(e.target.id==="tabUndoInline"){ if(state.lastDeleted) undoDel(); return; }
+  if(e.target.closest(".tab-add")){ if(e.target.id==="tabUndoInline") return; addTab(); return; }
+  const tab=e.target.closest(".tab"); if(!tab) return;
+  if(e.target.classList.contains("x")){ const id=+tab.dataset.id; if(id===state.activeId) delTab(); else { state.activeId=id; delTab(); } return; }
+  selectTab(+tab.dataset.id);
+});
+$("#tabs").addEventListener("dblclick",e=>{
+  const tab=e.target.closest(".tab"); if(!tab||e.target.classList.contains("x")) return;
+  const id=+tab.dataset.id; const p=state.palettes.find(x=>x.paletteID===id); if(!p) return;
+  const span=tab.querySelector(".lbl");
+  if(span) inlineEdit(span, p.label, v=>{ p.label=v.trim()||p.label; render(); });
+});
+/* tab reorder (drag) */
+let tabDrag=null;
+$("#tabs").addEventListener("dragstart",e=>{ const t=e.target.closest(".tab"); if(!t) return; tabDrag=+t.dataset.id; t.classList.add("tabdragging"); if(e.dataTransfer){ e.dataTransfer.effectAllowed="move"; try{e.dataTransfer.setData("text/plain",String(tabDrag));}catch(_){} } });
+$("#tabs").addEventListener("dragend",()=>{ tabDrag=null; document.querySelectorAll(".tab").forEach(t=>t.classList.remove("tabdragging","dropL","dropR")); });
+$("#tabs").addEventListener("dragover",e=>{ if(tabDrag==null) return; const t=e.target.closest(".tab"); if(!t||+t.dataset.id===tabDrag) return; e.preventDefault();
+  const r=t.getBoundingClientRect(); const after=e.clientX>r.left+r.width/2;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("dropL","dropR")); t.classList.add(after?"dropR":"dropL"); });
+$("#tabs").addEventListener("drop",e=>{ if(tabDrag==null) return; const t=e.target.closest(".tab"); if(!t) return; e.preventDefault();
+  const r=t.getBoundingClientRect(); const after=e.clientX>r.left+r.width/2; moveTab(tabDrag,+t.dataset.id,after); tabDrag=null; });
+function moveTab(pid, targetPid, after){
+  if(pid===targetPid) return; const arr=state.palettes; const from=arr.findIndex(p=>p.paletteID===pid); if(from<0) return;
+  const [item]=arr.splice(from,1); let ti=arr.findIndex(p=>p.paletteID===targetPid);
+  if(ti<0) arr.push(item); else arr.splice(after?ti+1:ti,0,item);
+  persist(); renderTabs();
+}
+/* tab color */
+$("#tabs").addEventListener("contextmenu",e=>{ const t=e.target.closest(".tab"); if(!t) return; e.preventDefault(); showTabColorPop(t,+t.dataset.id); });
+function showTabColorPop(tab, pid){
+  closeTabPop(); const pop=el("tabpop"); pop.id="tabpop"; const cur=loadTabColors()[pid]; let h="";
+  CARD_COLORS.forEach(c=>{ h+="<button class='tabsw"+(cur===c?" on":"")+"' style='background:"+c+"' data-c='"+c+"'></button>"; });
+  h+="<button class='tabsw none' data-c=''>なし</button>"; pop.innerHTML=h; document.body.appendChild(pop);
+  const r=tab.getBoundingClientRect(); pop.style.left=Math.min(r.left, window.innerWidth-190)+"px"; pop.style.top=(r.bottom+4)+"px";
+  pop.addEventListener("click",ev=>{ const b=ev.target.closest(".tabsw"); if(!b) return; const c=b.dataset.c; const m=loadTabColors(); if(c) m[pid]=c; else delete m[pid]; saveTabColors(m); renderTabs(); closeTabPop(); });
+}
+function closeTabPop(){ const p=$("#tabpop"); if(p) p.remove(); }
+document.addEventListener("click",e=>{ if(!e.target.closest("#tabpop")&&!e.target.closest(".tab")) closeTabPop(); });
+
+$("#f_name").addEventListener("input",e=>{ const p=activeP(); if(p){ p.name=e.target.value; persist(); } });
+$("#f_color").addEventListener("input",e=>{ const p=activeP(); if(p){ p.textColor=e.target.value; persist(); } });
+$("#f_bot").addEventListener("change",e=>setCfg("ep2_bot",e.target.value.trim()));
+
+function sendCompose(){
+  const f=$("#compose"); const v=f.value;
+  doSend(v).then(r=>{ if(r&&r.ok) f.value=""; });
+}
+$("#btnSend").addEventListener("click",sendCompose);
+$("#btnCopyCompose").addEventListener("click",async()=>{
+  const f=$("#compose"), v=f.value;
+  if(!v){ toast("コピーする内容がありません",true); return; }
+  let ok=false;
+  try{ await navigator.clipboard.writeText(v); ok=true; }
+  catch(e){ try{ f.focus(); f.select(); ok=document.execCommand("copy"); f.setSelectionRange(v.length,v.length); }catch(_){} }
+  if(ok){ const b=$("#btnCopyCompose"); b.classList.add("copied"); b.textContent="✓";
+    setTimeout(()=>{ b.classList.remove("copied"); b.textContent="⧉"; },900); toast("コピーしました"); }
+  else toast("コピーできませんでした",true);
+});
+$("#compose").addEventListener("keydown",e=>{
+  if(e.key==="Enter" && !e.shiftKey && !e.isComposing && e.keyCode!==229){ e.preventDefault(); sendCompose(); }
+});
+$("#compose").addEventListener("input",bumpSpeakerAuto);
+$("#compose").addEventListener("focus",bumpSpeakerAuto);
+
+$("#btnEdit").addEventListener("click",toggleEdit);
+/* ツールメニュー */
+$("#btnTools").addEventListener("click",e=>{ e.stopPropagation(); closeMenus("#toolsMenu"); $("#toolsMenu").classList.toggle("open"); });
+$("#toolsMenu").addEventListener("click",e=>{ const mi=e.target.closest(".mi"); if(!mi) return; const a=mi.dataset.act;
+  $("#toolsMenu").classList.remove("open");
+  if(a==="vars") openVarPanel(); else if(a==="replace") openReplace();
+  else if(a==="expand") setAll(true); else if(a==="collapse") setAll(false);
+});
+/* ファイルメニュー */
+$("#btnFile").addEventListener("click",e=>{ e.stopPropagation(); closeMenus("#fileMenu"); refreshSaveTip(); $("#fileMenu").classList.toggle("open"); });
+$("#fileMenu").addEventListener("click",e=>{ const mi=e.target.closest(".mi"); if(!mi) return; const a=mi.dataset.act;
+  $("#fileMenu").classList.remove("open");
+  if(a==="save") doSaveFile(false); else if(a==="load") $("#file").click(); else if(a==="rename") doSaveFile(true);
+});
+function closeMenus(except){ document.querySelectorAll(".menu").forEach(m=>{ if(!except||("#"+m.id)!==except) m.classList.remove("open"); }); }
+document.addEventListener("click",e=>{ if(!e.target.closest(".menu-wrap")) closeMenus(); });
+/* 記法早見表 */
+function openHelp(){ closeMenus(); $("#helpOverlay").classList.add("open"); }
+$("#btnHelp").addEventListener("click",openHelp);
+$("#helpClose").addEventListener("click",()=>$("#helpOverlay").classList.remove("open"));
+$("#helpOverlay").addEventListener("click",e=>{ if(e.target.id==="helpOverlay") $("#helpOverlay").classList.remove("open"); });
+$("#helpOverlay").addEventListener("click",async e=>{ const c=e.target.closest(".hrow code"); if(!c) return;
+  const t=c.textContent;
+  let ok=false;
+  try{ await navigator.clipboard.writeText(t); ok=true; }
+  catch(_){ try{ const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); ok=document.execCommand("copy"); ta.remove(); }catch(__){} }
+  toast(ok?("コピー："+t):"コピーできませんでした", !ok);
+});function loadSaveName(){ const v=localStorage.getItem("ep2_savename"); return (v&&v.trim())?v.trim():""; }
+function saveSaveName(v){ try{ localStorage.setItem("ep2_savename", v); }catch(e){} }
+function sanitizeName(n){ return (n||"").trim().replace(/[\\/:*?"<>|]/g,"_").replace(/\.json$/i,""); }
+function askSaveName(force){
+  let name=loadSaveName();
+  if(!name || force){
+    const v=prompt("保存するファイル名（.json は不要）", name || "tekey-palette");
+    if(v==null) return null;               // キャンセル
+    name=sanitizeName(v) || "tekey-palette";
+    saveSaveName(name);
+  }
+  return name;
+}
+function doSaveFile(force){
+  commitEdit();
+  const name=askSaveName(force); if(name==null) return;
+  download(name+".json", exportPalettes(false));
+  refreshSaveTip();
+  toast("「"+name+".json」を保存しました");
+}
+function refreshSaveTip(){ const n=loadSaveName();
+  const el2=$("#fileSaveName"); if(el2) el2.textContent = n ? ("「"+n+".json」で保存") : "名前を付けて保存"; }
+refreshSaveTip();
+$("#file").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>loadJSON(r.result); r.readAsText(f); e.target.value=""; });
+$("#boardFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>importBoard(r.result); r.readAsText(f); e.target.value=""; });
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){ const m=$("#ctxmenu"); if(m&&m.style.display==="block"){ closeCardMenu(); return; } if(state.board){ setBoard(false); } return; }
+  const tag=(e.target.tagName||"").toLowerCase();
+  if(tag==="input"||tag==="textarea"||e.target.isContentEditable) return;
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  if(e.key==="b"||e.key==="B"){ setBoard(!state.board); return; }
+  if(state.board && (e.key==="ArrowLeft"||e.key==="ArrowRight")){
+    const modes=["flow","timeline","table"]; let i=modes.indexOf(boardLayout());
+    i=(i + (e.key==="ArrowRight"?1:-1) + modes.length) % modes.length;
+    setBoardLayout(modes[i]); e.preventDefault();
+  }
+});
+
+$("#btnSettings").addEventListener("click",openSettings);
+$("#btnTheme").addEventListener("click",toggleTheme);
+$("#previewpane").addEventListener("scroll",()=>requestAnimationFrame(updateSpy));
+let searchT=null;
+$("#search").addEventListener("input",()=>{
+  clearTimeout(searchT);
+  searchT=setTimeout(()=>{ if(!state.editMode) render(); renderXtab($("#search").value); }, 180);
+});
+$("#searchClr").addEventListener("click",()=>{ $("#search").value=""; if(!state.editMode) render(); renderXtab(""); $("#search").focus(); });
+$("#mdToggle").addEventListener("click",()=> setMdcol(!$("#mdcol").classList.contains("collapsed")));
+
+/* board events */
+let tDrag=null;
+$("#btnBoard").addEventListener("click",()=> setBoard(!state.board));
+$("#board").addEventListener("dragstart",e=>{
+  if(boardLayout()==="timeline"){
+    const grip=e.target.closest(".tband-grip");
+    if(grip){ const band=grip.closest(".tband"); tDrag={type:"band", id:band.dataset.band}; e.dataTransfer.effectAllowed="move"; try{e.dataTransfer.setData("text/plain","");}catch(_){}
+      requestAnimationFrame(()=>band.classList.add("coldrag")); return; }
+    const tc=e.target.closest(".bcard");
+    if(tc){ tDrag={type:"card", key:tc.dataset.key}; e.dataTransfer.effectAllowed="move"; try{e.dataTransfer.setData("text/plain","");}catch(_){}
+      requestAnimationFrame(()=>tc.classList.add("dragging")); return; }
+    return;
+  }
+});
+$("#board").addEventListener("dragend",()=>{
+  $("#board").querySelectorAll(".dragging,.coldrag,.dragover,.coldragover").forEach(c=>c.classList.remove("dragging","coldrag","dragover","coldragover"));
+  bDrag=null; tDrag=null;
+});
+$("#board").addEventListener("dragover",e=>{
+  if(boardLayout()==="timeline"){
+    if(!tDrag) return; e.preventDefault(); e.dataTransfer.dropEffect="move";
+    const band=e.target.closest(".tband");
+    $("#board").querySelectorAll(".tband.dragover,.tband.coldragover").forEach(x=>{ if(x!==band) x.classList.remove("dragover","coldragover"); });
+    if(band) band.classList.add(tDrag.type==="card"?"dragover":"coldragover");
+    return;
+  }
+});
+$("#board").addEventListener("drop",e=>{
+  if(boardLayout()==="timeline"){
+    if(!tDrag) return; e.preventDefault();
+    const band=e.target.closest(".tband");
+    if(tDrag.type==="card"){
+      if(!band){ tDrag=null; return; }
+      const list=band.querySelector(".tband-list");
+      const idx=boardDropOrd(list, e.clientY);
+      const key=tDrag.key; tDrag=null; moveTimelineCard(key, band.dataset.band, idx);
+    } else {
+      const id=tDrag.id; tDrag=null; let before=null;
+      if(band){ const r=band.getBoundingClientRect();
+        if(e.clientY < r.top+r.height/2) before=band.dataset.band;
+        else { const nx=band.nextElementSibling; before=(nx&&nx.classList.contains("tband"))?nx.dataset.band:null; } }
+      moveTimelineBand(id, before);
+    }
+    return;
+  }
+});
+$("#board").addEventListener("click",e=>{
+  const tf=e.target.closest(".tfchip"); if(tf){ if(tf.id==="tfClear") clearTagFilter(); else toggleTagFilter(tf.dataset.tag); return; }
+  if(e.target.closest("#boardExport")){ exportBoard(); return; }
+  if(e.target.closest("#boardImport")){ $("#boardFile").click(); return; }
+  if(e.target.closest("#bmFlow")){ if(boardLayout()!=="flow") setBoardLayout("flow"); return; }
+  if(e.target.closest("#bmTimeline")){ if(boardLayout()!=="timeline") setBoardLayout("timeline"); return; }
+  if(e.target.closest("#bmTable")){ if(boardLayout()!=="table") setBoardLayout("table"); return; }
+  if(e.target.closest("#gmRoundUp")){ gmRound(1); return; }
+  if(e.target.closest("#gmRoundDn")){ gmRound(-1); return; }
+  if(e.target.closest("#gmRoundRst")){ gmResetRound(); return; }
+  if(e.target.closest("#gmAddRow")){ const n=prompt("名前（キャラ/モンスター）","新規"); if(n!=null) gmAddRow(n); return; }
+  if(e.target.closest("#gmAddCol")){ gmAddCol(); return; }
+  const gsort=e.target.closest(".gm-sort"); if(gsort){ gmSortByCol(gsort.dataset.col); return; }
+  const gcolx=e.target.closest(".gm-colx"); if(gcolx){ const t=loadGmTable(); const c=t.cols.find(x=>x.id===gcolx.dataset.col);
+    if(c&&confirm("列「"+c.name+"」を削除しますか？（各行の値も消えます）")) gmDelCol(gcolx.dataset.col); return; }
+  const gact=e.target.closest(".gm-actbtn"); if(gact){ gmSetActive(gact.dataset.row); return; }
+  const gdel=e.target.closest(".gm-delbtn"); if(gdel){ const t=loadGmTable(); const r=t.rows.find(x=>x.id===gdel.dataset.row);
+    if(r&&confirm("「"+r.name+"」を削除しますか？")) gmDelRow(gdel.dataset.row); return; }
+  const tcol=e.target.closest(".tband-col"); if(tcol){ const tb=tcol.closest(".tband"); if(tb) toggleBandCollapse(tb.dataset.band); return; }
+  if(e.target.closest("#tbandAdd")){ addBand(); return; }
+  const tdel=e.target.closest(".tband-del"); if(tdel){ const tb=tdel.closest(".tband"); if(tb) deleteBand(tb.dataset.band); return; }
+  if(e.target.closest("#addZone")){ addZone(); return; }
+  if(e.target.closest("#fRestore")){ restoreFlowCards(); return; }
+  const zdel=e.target.closest(".fzone-del"); if(zdel){ const z=zdel.closest(".fzone"); if(z&&confirm("このエリアを削除しますか？（カードは残ります）")) deleteZone(z.dataset.id); return; }
+  const fdel=e.target.closest(".fdel"); if(fdel){ const fc=fdel.closest(".fcard"); if(fc) hideFlowCard(fc.dataset.key); return; }
+  const hit=e.target.closest(".flinkhit"); if(hit){ editLinkLabel(+hit.dataset.idx); return; }
+  const fl=e.target.closest(".flabel"); if(fl){ editLinkLabel(+fl.dataset.idx); return; }
+  const card=e.target.closest(".bcard"); if(!card) return;
+  const cur=currentCards()[card.dataset.key]; if(!cur) return;
+  setBoard(false); selectTab(cur.homeTab);
+  requestAnimationFrame(()=>{
+    const secs=$("#body").querySelectorAll("#body > .sec-l1");
+    const t=secs[cur.ord];
+    if(t){ t.classList.remove("collapsed"); t.scrollIntoView({behavior:"smooth", block:"start"}); }
+  });
+});
+/* flow: drag-move cards & drag-connect */
+let fDrag=null;
+$("#board").addEventListener("change",e=>{
+  const lab=e.target.closest("input.tband-label"); if(!lab) return;
+  const band=lab.closest(".tband"); if(band) setBandLabel(band.dataset.band, lab.value);
+});
+$("#board").addEventListener("input",e=>{
+  if(e.target.id==="boardSearch"){ boardSearch=e.target.value; applyTagFilter(); return; }
+  const gv=e.target.closest(".gm-val"); if(gv){ gmSetVal(gv.dataset.row, gv.dataset.col, gv.value); return; }
+});
+$("#board").addEventListener("change",e=>{
+  const gn=e.target.closest(".gm-nameinp"); if(gn){ gmSetName(gn.dataset.row, gn.value); return; }
+});
+$("#board").addEventListener("dblclick",e=>{
+  const cn=e.target.closest(".gm-colname"); if(cn){
+    const th=cn.closest(".gm-th"); const id=th.dataset.col;
+    const t=loadGmTable(); const c=t.cols.find(x=>x.id===id); if(!c) return;
+    const v=prompt("列名", c.name); if(v!=null) gmRenameCol(id, v);
+    return;
+  }
+},true);
+$("#board").addEventListener("pointerdown",e=>{
+  if(boardLayout()!=="flow" || e.button!==0) return;
+  if(e.target.closest(".fdel")||e.target.closest(".fzone-del")) return;
+  const canvas=$("#fcanvas"); if(!canvas) return; const cr=canvas.getBoundingClientRect();
+  const card=e.target.closest(".fcard");
+  if(!card){
+    const zone=e.target.closest(".fzone"); if(!zone) return;
+    const z=loadFlow().zones.find(x=>x.id===zone.dataset.id); if(!z) return;
+    if(z.locked) return;
+    if(e.target.closest(".fzone-rz")){
+      fDrag={mode:"zresize", id:z.id, zone, startW:z.w, startH:z.h, sx:e.clientX, sy:e.clientY};
+    } else if(e.target.closest(".fzone-head")){
+      fDrag={mode:"zmove", id:z.id, zone, dx:e.clientX-cr.left-z.x, dy:e.clientY-cr.top-z.y};
+    } else return;
+    e.preventDefault(); return;
+  }
+  if(e.target.closest(".fhandle")){
+    const box=cardBox(card); const start={x:box.cx,y:box.cy};
+    const temp=mkLine("ftemp",start,start,false); $("#fsvg").appendChild(temp);
+    fDrag={mode:"link", from:card.dataset.key, fromEl:card, temp};
+  } else {
+    fDrag={mode:"move", key:card.dataset.key, card, moved:false, sx:e.clientX, sy:e.clientY,
+      dx:e.clientX-cr.left-card.offsetLeft, dy:e.clientY-cr.top-card.offsetTop};
+    card.style.zIndex=5;
+  }
+  e.preventDefault();
+});
+document.addEventListener("pointermove",e=>{
+  if(!fDrag) return;
+  const canvas=$("#fcanvas"); if(!canvas) return; const cr=canvas.getBoundingClientRect();
+  if(fDrag.mode==="move"){
+    let x=Math.max(0, e.clientX-cr.left-fDrag.dx), y=Math.max(0, e.clientY-cr.top-fDrag.dy);
+    fDrag.card.style.left=x+"px"; fDrag.card.style.top=y+"px"; fDrag.lastX=x; fDrag.lastY=y;
+    if(Math.abs(e.clientX-fDrag.sx)>4||Math.abs(e.clientY-fDrag.sy)>4) fDrag.moved=true;
+    redrawLinks();
+  } else if(fDrag.mode==="link" && fDrag.temp){
+    const box=cardBox(fDrag.fromEl); if(!box) return;
+    const px=e.clientX-cr.left, py=e.clientY-cr.top;
+    const p1=edgePoint({x:px,y:py},box);
+    fDrag.temp.setAttribute("x1",p1.x); fDrag.temp.setAttribute("y1",p1.y);
+    fDrag.temp.setAttribute("x2",px); fDrag.temp.setAttribute("y2",py);
+  } else if(fDrag.mode==="zmove"){
+    let x=Math.max(0, e.clientX-cr.left-fDrag.dx), y=Math.max(0, e.clientY-cr.top-fDrag.dy);
+    fDrag.zone.style.left=x+"px"; fDrag.zone.style.top=y+"px"; fDrag.lastX=x; fDrag.lastY=y;
+  } else if(fDrag.mode==="zresize"){
+    let w=Math.max(140, fDrag.startW+(e.clientX-fDrag.sx)), h=Math.max(90, fDrag.startH+(e.clientY-fDrag.sy));
+    fDrag.zone.style.width=w+"px"; fDrag.zone.style.height=h+"px"; fDrag.lastW=w; fDrag.lastH=h;
+  }
+});
+document.addEventListener("pointerup",e=>{
+  if(!fDrag) return;
+  if(fDrag.mode==="move"){
+    if(fDrag.card) fDrag.card.style.zIndex="";
+    if(fDrag.moved) saveFlowPos(fDrag.key, fDrag.lastX, fDrag.lastY);
+    else {
+      const cur=currentCards()[fDrag.key];
+      if(cur){ setBoard(false); selectTab(cur.homeTab);
+        requestAnimationFrame(()=>{ const t=$("#body").querySelectorAll("#body > .sec-l1")[cur.ord]; if(t){ t.classList.remove("collapsed"); t.scrollIntoView({behavior:"smooth",block:"start"}); } }); }
+    }
+  } else if(fDrag.mode==="link"){
+    if(fDrag.temp) fDrag.temp.remove();
+    const tgt=document.elementFromPoint(e.clientX,e.clientY); const tc=tgt&&tgt.closest&&tgt.closest(".fcard");
+    if(tc && tc.dataset.key!==fDrag.from) addLink(fDrag.from, tc.dataset.key);
+  } else if(fDrag.mode==="zmove"){
+    if(fDrag.lastX!=null) updateZone(fDrag.id,{x:Math.round(fDrag.lastX), y:Math.round(fDrag.lastY)});
+  } else if(fDrag.mode==="zresize"){
+    if(fDrag.lastW!=null) updateZone(fDrag.id,{w:Math.round(fDrag.lastW), h:Math.round(fDrag.lastH)});
+  }
+  fDrag=null;
+});
+$("#board").addEventListener("dblclick",e=>{
+  const zname=e.target.closest(".fzone-name");
+  if(zname){
+    const zone=zname.closest(".fzone"); const id=zone.dataset.id;
+    const z=loadFlow().zones.find(x=>x.id===id); if(!z) return;
+    const inp=document.createElement("input"); inp.className="inline-edit"; inp.value=z.name;
+    zname.replaceWith(inp); inp.focus(); inp.select();
+    let done=false; const fin=s=>{ if(done)return; done=true; if(s) renameZone(id, inp.value); else renderBoard(); };
+    inp.addEventListener("pointerdown",ev=>ev.stopPropagation());
+    inp.addEventListener("keydown",ev=>{ ev.stopPropagation(); if(ev.key==="Enter"){ev.preventDefault();fin(true);} else if(ev.key==="Escape"){ev.preventDefault();fin(false);} });
+    inp.addEventListener("blur",()=>fin(true));
+    return;
+  }
+});
+/* card right-click menu: color + tags */
+const CARD_COLORS=["#d83a2f","#e08a1e","#caa600","#2e7d46","#2f6fb3","#7a4fb3","#5b6772"];
+function openCardMenu(key, x, y){
+  const m=loadCardMeta()[key]||{}; const menu=$("#ctxmenu");
+  let h="<div class='ctx-sec'>色</div><div class='ctx-colors'>";
+  CARD_COLORS.forEach(c=> h+="<button class='ctx-sw' data-color='"+c+"' style='background:"+c+"' title='"+c+"'></button>");
+  h+="<button class='ctx-sw ctx-none' data-color='' title='色なし'>×</button></div>";
+  h+="<div class='ctx-sec'>タグ</div>";
+  if(m.tags&&m.tags.length) h+="<div class='ctx-tags'>"+m.tags.map(t=>"<span class='tag'>"+esc(t)+"<button class='ctx-tagdel' data-tag='"+esc(t)+"'>×</button></span>").join("")+"</div>";
+  h+="<input class='ctx-tagin' placeholder='タグを追加 (Enter)'>";
+  menu.innerHTML=h; menu.dataset.key=key; menu.dataset.zid=""; menu.dataset.bandid=""; menu.dataset.tagname=""; menu.dataset.x=x; menu.dataset.y=y;
+  menu.style.display="block";
+  menu.style.left=Math.min(x, innerWidth-186)+"px";
+  menu.style.top=Math.min(y, innerHeight-200)+"px";
+  const inp=menu.querySelector(".ctx-tagin"); if(inp) inp.focus();
+}
+function openZoneMenu(id, x, y){
+  const z=loadFlow().zones.find(z=>z.id===id); if(!z) return;
+  const menu=$("#ctxmenu");
+  let h="<div class='ctx-sec'>エリアの色</div><div class='ctx-colors'>";
+  CARD_COLORS.forEach(c=> h+="<button class='ctx-sw' data-color='"+c+"' style='background:"+c+"' title='"+c+"'></button>");
+  h+="<button class='ctx-sw ctx-none' data-color='' title='色なし'>×</button></div>";
+  h+="<button class='ctx-lock'>"+(z.locked?"🔓 固定を解除":"🔒 固定する")+"</button>";
+  menu.innerHTML=h; menu.dataset.zid=id; menu.dataset.key=""; menu.dataset.bandid=""; menu.dataset.tagname="";
+  menu.style.display="block";
+  menu.style.left=Math.min(x, innerWidth-186)+"px";
+  menu.style.top=Math.min(y, innerHeight-160)+"px";
+}
+function openBandMenu(id, x, y){
+  const menu=$("#ctxmenu");
+  let h="<div class='ctx-sec'>帯の色</div><div class='ctx-colors'>";
+  CARD_COLORS.forEach(c=> h+="<button class='ctx-sw' data-color='"+c+"' style='background:"+c+"' title='"+c+"'></button>");
+  h+="<button class='ctx-sw ctx-none' data-color='' title='色なし'>×</button></div>";
+  menu.innerHTML=h; menu.dataset.bandid=id; menu.dataset.key=""; menu.dataset.zid=""; menu.dataset.tagname="";
+  menu.style.display="block";
+  menu.style.left=Math.min(x, innerWidth-186)+"px";
+  menu.style.top=Math.min(y, innerHeight-120)+"px";
+}
+function closeCardMenu(){ const m=$("#ctxmenu"); m.style.display="none"; m.innerHTML=""; m.dataset.key=""; m.dataset.zid=""; m.dataset.bandid=""; m.dataset.tagname=""; }
+$("#board").addEventListener("contextmenu",e=>{
+  const hit=e.target.closest(".flinkhit"); if(hit){ e.preventDefault(); if(confirm("この接続を削除しますか？")) deleteLink(+hit.dataset.idx); return; }
+  const fl=e.target.closest(".flabel"); if(fl){ e.preventDefault(); if(confirm("この接続を削除しますか？")) deleteLink(+fl.dataset.idx); return; }
+  const tfc=e.target.closest(".tfchip");
+  if(tfc && tfc.dataset.tag){ e.preventDefault(); openTagMenu(tfc.dataset.tag, e.clientX, e.clientY); return; }
+  const card=e.target.closest(".bcard,.fcard");
+  if(card){ e.preventDefault(); openCardMenu(card.dataset.key, e.clientX, e.clientY); return; }
+  const zone=e.target.closest(".fzone");
+  if(zone){ e.preventDefault(); openZoneMenu(zone.dataset.id, e.clientX, e.clientY); return; }
+  const band=e.target.closest(".tband");
+  if(band){ e.preventDefault(); openBandMenu(band.dataset.band, e.clientX, e.clientY); return; }
+});
+$("#ctxmenu").addEventListener("click",e=>{
+  const menu=$("#ctxmenu");
+  const tagname=menu.dataset.tagname;
+  if(tagname){ const tsw=e.target.closest(".ctx-sw"); if(tsw){ setTagColor(tagname, tsw.dataset.color||null); closeCardMenu(); } return; }
+  const bandid=menu.dataset.bandid;
+  if(bandid){
+    const bsw=e.target.closest(".ctx-sw"); if(bsw){ setBandColor(bandid, bsw.dataset.color||null); closeCardMenu(); }
+    return;
+  }
+  const zid=menu.dataset.zid;
+  if(zid){
+    const zsw=e.target.closest(".ctx-sw"); if(zsw){ setZoneColor(zid, zsw.dataset.color||null); closeCardMenu(); return; }
+    if(e.target.closest(".ctx-lock")){ toggleZoneLock(zid); closeCardMenu(); return; }
+    return;
+  }
+  const key=menu.dataset.key; if(!key) return;
+  const sw=e.target.closest(".ctx-sw"); if(sw){ setCardColor(key, sw.dataset.color||null); closeCardMenu(); return; }
+  const td=e.target.closest(".ctx-tagdel"); if(td){ removeCardTag(key, td.dataset.tag); openCardMenu(key, +$("#ctxmenu").dataset.x, +$("#ctxmenu").dataset.y); return; }
+});
+$("#ctxmenu").addEventListener("keydown",e=>{
+  if(e.target.classList.contains("ctx-tagin") && e.key==="Enter"){ e.preventDefault(); addCardTag($("#ctxmenu").dataset.key, e.target.value); closeCardMenu(); }
+  if(e.key==="Escape") closeCardMenu();
+});
+document.addEventListener("click",e=>{ if(!e.target.closest("#ctxmenu") && !e.target.closest(".bcard")) closeCardMenu(); });
+
+$("#s_cancel").addEventListener("click",()=>$("#settings").classList.remove("open"));
+$("#s_save").addEventListener("click",saveSettings);
+$("#settings").addEventListener("click",e=>{ if(e.target.id==="settings") $("#settings").classList.remove("open"); });
+
+/* ---------- variable quick panel ---------- */
+function openVarPanel(){
+  const base=allParams(); const ov=loadVarOverrides();
+  const names=Array.from(new Set([...Object.keys(base), ...Object.keys(ov)])).sort((a,b)=>a.localeCompare(b,"ja"));
+  const list=$("#varList"); list.innerHTML="";
+  if(!names.length){ list.innerHTML="<p class='varempty'>変数がありません。本文に <code>// 名前=値</code> を書くとここに出ます。</p>"; }
+  names.forEach(n=>{
+    const overridden = n in ov;
+    const val = overridden ? ov[n] : (base[n]!=null?base[n]:"");
+    const row=el("varrow"+(overridden?" ov":""));
+    row.innerHTML="<span class='varname'>{"+esc(n)+"}</span><input class='varval' type='text'><button class='varrst' title='上書き解除'>↺</button>";
+    const inp=row.querySelector(".varval"); inp.value=val;
+    inp.addEventListener("input",e=>{ const v=e.target.value;
+      if(v==="") { clearVarOverride(n); row.classList.remove("ov"); } else { setVarOverride(n,v); row.classList.add("ov"); } });
+    row.querySelector(".varrst").addEventListener("click",()=>{ clearVarOverride(n); openVarPanel(); });
+    list.appendChild(row);
+  });
+  $("#varModal").classList.add("open");
+}
+function setVarOverride(n,v){ const o=loadVarOverrides(); o[n]=v; saveVarOverrides(o); }
+function clearVarOverride(n){ const o=loadVarOverrides(); delete o[n]; saveVarOverrides(o); }
+$("#btnTable").addEventListener("click",()=>{ const f=loadGmFloat(); setGmFloat(!f.open); });
+$("#destChips").addEventListener("click",e=>{ const c=e.target.closest(".dest-chip"); if(!c) return;
+  setDest(c.dataset.dest);
+  const nm=c.dataset.dest==="__auto__" ? "自動（タブ既定）" : (c.dataset.dest||"未指定");
+  toast("送信先："+nm);
+});
+$("#destChips").addEventListener("contextmenu",e=>{ const c=e.target.closest(".dest-chip"); if(!c) return; e.preventDefault();
+  const name=c.dataset.dest; if(name==="__auto__") return;
+  const p=activeP(); if(!p) return;
+  const m=loadTabDest();
+  if(m[p.paletteID]===name && name!==""){ delete m[p.paletteID]; saveTabDest(m); renderDest(); toast("このタブの既定送信先を解除"); return; }
+  m[p.paletteID]=name; saveTabDest(m);
+  setCfg("ep2_destsel","__auto__");   // 既定を設定したら自動追従に切替
+  renderDest();
+  toast("このパレットタブの既定送信先："+(name||"未指定"));
+});
+
+/* speakers */
+let spkClickT=null;
+$("#spkChips").addEventListener("click",e=>{ const c=e.target.closest(".spk-chip"); if(!c) return;
+  if(spkClickT){ clearTimeout(spkClickT); spkClickT=null;
+    if(c.dataset.spk==="__gm__"){ setSpeaker(null); } else { speakerSend(+c.dataset.idx); } return; }
+  spkClickT=setTimeout(()=>{ spkClickT=null;
+    if(c.dataset.spk==="__gm__") setSpeaker(null); else setSpeaker(+c.dataset.idx);
+  },230);
+});
+$("#btnSpkManage").addEventListener("click",openSpkModal);
+$("#destToggle").addEventListener("click",()=>{ const v=localStorage.getItem("ep2_destfold")==="1"; localStorage.setItem("ep2_destfold", v?"0":"1"); renderDest(); });
+$("#spkToggle").addEventListener("click",()=>{ const v=localStorage.getItem("ep2_spkfold")==="1"; localStorage.setItem("ep2_spkfold", v?"0":"1"); renderSpeakers(); });
+$("#spkClose").addEventListener("click",()=>$("#spkModal").classList.remove("open"));
+$("#spkAdd").addEventListener("click",spkAdd);
+$("#spkModal").addEventListener("click",e=>{ if(e.target.id==="spkModal") $("#spkModal").classList.remove("open"); });
+$("#spkList").addEventListener("input",e=>{
+  const a=loadSpeakers();
+  const nm=e.target.closest(".spk-name"); if(nm){ a[+nm.dataset.i].name=nm.value; saveSpeakers(a); renderSpeakers(); return; }
+  const col=e.target.closest(".spk-color"); if(col){ const i=+col.dataset.i; a[i].color=col.value; saveSpeakers(a);
+    const hx=$("#spkList").querySelector('.spk-hex[data-i="'+i+'"]'); if(hx) hx.value=col.value; renderSpeakers(); return; }
+  const hex=e.target.closest(".spk-hex"); if(hex){ const i=+hex.dataset.i; const v=normHex(hex.value); if(v){ a[i].color=v; saveSpeakers(a);
+    const cp=$("#spkList").querySelector('.spk-color[data-i="'+i+'"]'); if(cp) cp.value=v; renderSpeakers(); } return; }
+});
+$("#spkList").addEventListener("click",e=>{
+  const del=e.target.closest(".spk-del"); if(del){ spkDel(+del.dataset.i); return; }
+  const up=e.target.closest(".spk-up"); if(up){ spkMoveUp(+up.dataset.i); return; }
+});
+$("#varClose").addEventListener("click",()=>$("#varModal").classList.remove("open"));
+$("#varResetAll").addEventListener("click",()=>{ saveVarOverrides({}); openVarPanel(); });
+$("#varModal").addEventListener("click",e=>{ if(e.target.id==="varModal") $("#varModal").classList.remove("open"); });
+
+/* ---------- live preview (split) ---------- */
+let livePvT=null;
+function livePreview(){
+  if(!state.editMode || splitMode()==="none") return;
+  const p=activeP(); if(!p) return;
+  const ed=$("#editArea"); p.stock=ed.value;                 // 内容を反映（保存はデバウンス側で）
+  const tree=parseStock(p.stock||"");
+  const body=$("#body"); const top=$("#previewpane").scrollTop;
+  body.innerHTML=""; renderNodes(tree, body);
+  renderRail(tree);
+  $("#previewpane").scrollTop=top;
+  if(syncOn()) syncPreviewToCursor(); 
+  persist();
+}
+function scheduleLivePreview(){
+  clearTimeout(livePvT);
+  livePvT=setTimeout(livePreview, 260);
+}
+function cursorLineIndex(){
+  const ed=$("#editArea"); const pos=ed.selectionStart||0;
+  return ed.value.slice(0,pos).split("\n").length-1;   // 0-based
+}
+function syncPreviewToCursor(){
+  if(!state.editMode || splitMode()==="none" || !syncOn()) return;
+  const idx=cursorLineIndex(), pane=$("#previewpane"), body=$("#body");
+  body.querySelectorAll(".line.cursorline").forEach(l=>l.classList.remove("cursorline"));
+  body.querySelectorAll(".sec-head.cursorhead").forEach(l=>l.classList.remove("cursorhead"));
+
+  // 1) 見出し行にカーソルがあるか（secMapは行番号を持つ）
+  let headUid=null;
+  for(const uid in secMap){ if(secMap[uid].lineIndex===idx){ headUid=uid; break; } }
+  let target=null;
+  if(headUid){
+    const sec=body.querySelector('.sec[data-uid="'+headUid+'"]');
+    if(sec){ target=sec.querySelector(":scope > .sec-head") || sec; if(target.classList) target.classList.add("cursorhead"); }
+  }
+  // 2) 行（前方向に最も近い .line[data-idx]）
+  if(!target){
+    for(let i=idx;i>=0 && i>idx-200;i--){
+      const l=body.querySelector('.line[data-idx="'+i+'"]');
+      if(l){ target=l; l.classList.add("cursorline"); break; }
+    }
+  }
+  // 3) 後方向も探す（コールアウト内などidxが無い行のため）
+  if(!target){
+    for(let i=idx+1;i<idx+200;i++){
+      const l=body.querySelector('.line[data-idx="'+i+'"]');
+      if(l){ target=l; break; }
+    }
+  }
+  if(!target) return;
+  // 折り畳まれていたら開く
+  let s=target.closest(".sec"); while(s){ s.classList.remove("collapsed"); s=s.parentElement&&s.parentElement.closest(".sec"); }
+  // 常にペイン内の見やすい位置（上から35%）へ寄せる
+  const r=target.getBoundingClientRect(), pr=pane.getBoundingClientRect();
+  pane.scrollTop += (r.top-pr.top) - pane.clientHeight*0.35;
+}
+$("#editArea").addEventListener("input",()=>{ scheduleLivePreview(); });
+$("#editArea").addEventListener("click",()=>{ if(syncOn()) syncPreviewToCursor(); });
+$("#editArea").addEventListener("keyup",()=>{ if(syncOn()) syncPreviewToCursor(); });
+document.addEventListener("selectionchange",()=>{
+  if(document.activeElement===$("#editArea") && syncOn()) syncPreviewToCursor();
+});
+$("#btnSplit").addEventListener("click",()=>{ const m=splitMode(); setSplitMode(m==="none"?"lr":m==="lr"?"tb":"none");
+  if(splitMode()!=="none" && state.editMode) requestAnimationFrame(()=>{ if(syncOn()) syncPreviewToCursor(); }); });
+$("#btnSync").addEventListener("click",()=>{ setSyncOn(!syncOn()); if(syncOn()) requestAnimationFrame(syncPreviewToCursor); });
+
+function jumpEditToLine(idx){
+  const ed=$("#editArea"); if(!ed) return;
+  const lines=ed.value.split("\n"); if(idx<0||idx>=lines.length) return;
+  let pos=0; for(let i=0;i<idx;i++) pos+=lines[i].length+1;
+  ed.focus(); ed.setSelectionRange(pos,pos+lines[idx].length);
+  const lh=parseFloat(getComputedStyle(ed).lineHeight)||20;
+  ed.scrollTop=Math.max(0, idx*lh - ed.clientHeight/2);
+  if(syncOn()) syncPreviewToCursor();
+}
+
+/* ---------- destination tab (送信先) ---------- */
+function loadDestTabs(){
+  const raw=cfg("ep2_desttabs")||"";
+  return raw.split("\n").map(s=>s.trim()).filter(Boolean);
+}
+function setDest(name){ setCfg("ep2_destsel", name); renderDest(); }
+const DEST_COLORS=["#4a3fb0","#2e7d46","#c07a1e","#2f6fb3","#a23b8f","#5b6772"];
+function destColor(name){ if(!name) return "var(--tx3)"; let h=0; for(let i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))>>>0; return DEST_COLORS[h%DEST_COLORS.length]; }
+/* パレットタブごとの既定送信先： ep2_tabdest = {paletteID: destName} */
+function loadTabDest(){ try{ const o=JSON.parse(localStorage.getItem("ep2_tabdest")||"{}"); return (o&&typeof o==="object")?o:{}; }catch(e){ return {}; } }
+function saveTabDest(o){ try{ localStorage.setItem("ep2_tabdest", JSON.stringify(o)); }catch(e){} }
+function tabDefaultDest(){ const p=activeP(); if(!p) return null; const m=loadTabDest(); return (p.paletteID in m)?m[p.paletteID]:null; }
+/* 実効の送信先：手動選択 > タブ既定 > 未指定 */
+function effectiveDest(){
+  const list=loadDestTabs(); const sel=localStorage.getItem("ep2_destsel");
+  if(sel!=null && sel!=="__auto__"){ return list.includes(sel)?sel:""; }   // 明示選択（""=未指定）
+  const td=tabDefaultDest(); if(td!=null) return list.includes(td)?td:"";   // タブ既定
+  return "";
+}
+function destTabName(){ return effectiveDest(); }
+function renderDest(){
+  const list=loadDestTabs();
+  const bar=$("#destbar"); if(!bar) return;
+  bar.style.display = list.length ? "flex" : "none";
+  bar.classList.toggle("folded", localStorage.getItem("ep2_destfold")==="1");
+  const cur=effectiveDest();
+  const rawSel=localStorage.getItem("ep2_destsel");
+  const auto = rawSel==null || rawSel==="__auto__";
+  const td=tabDefaultDest();
+  const box=$("#destChips"); box.innerHTML="";
+  const mk=(name,label,active,isAuto)=>{ const b=el("dest-chip"+(active?" on":"")+(isAuto?" auto":"")); b.dataset.dest=name;
+    b.innerHTML=(name?"<span class='dest-dot' style='background:"+destColor(name)+"'></span>":"")+esc(label);
+    b.title=isAuto?"タブごとの既定に従う":(name?"クリック:送信先に / 右クリック:このパレットタブの既定に":"送信先を未指定に");
+    return b; };
+  // 「自動（タブ既定）」チップ：タブ既定が設定されている時のみ意味を持つ
+  if(td!=null){ const b=mk("__auto__","⟳ 自動"+(td?"（"+td+"）":"（未指定）"), auto, true); box.appendChild(b); }
+  box.appendChild(mk("", "未指定", !auto && cur==="" , false));
+  list.forEach(n=> box.appendChild(mk(n, n, !auto && cur===n, false)));
+}
+
+/* ---------- speakers (話者プリセット) ---------- */
+function loadSpeakers(){ try{ const a=JSON.parse(localStorage.getItem("ep2_speakers")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function saveSpeakers(a){ try{ localStorage.setItem("ep2_speakers", JSON.stringify(a)); }catch(e){} }
+/* 現在の話者上書き（この選択が続く間、送信のname/colorを上書き）。null=GM（通常） */
+let curSpeaker=null;
+let spkAutoTimer=null;
+const SPK_AUTO_MS=60000;   // 非GMのまま無操作でGMへ戻すまでの時間
+function normHex(c){ c=(c||"").trim(); if(/^#?[0-9a-fA-F]{6}$/.test(c)) return "#"+c.replace("#",""); return ""; }
+function applySpeakerAccent(){
+  const on = !!curSpeaker;
+  const col = on ? (curSpeaker.color||"#4a3fb0") : "";
+  // C: コンポーズ枠を発言者色に
+  const comp=$("#compose"); if(comp){ comp.style.borderColor = on?col:""; comp.style.boxShadow = on?("0 0 0 2px "+hexA(col,.18)):""; }
+  // B: 発言者バー全体を強調（縁取り＋現在発言者ラベル）
+  const bar=$("#spkbar"); if(bar){ bar.classList.toggle("active-npc", on);
+    bar.style.setProperty("--spk-accent", col||"transparent"); }
+}
+function hexA(hex,a){ const m=/^#?([0-9a-fA-F]{6})$/.exec(hex||""); if(!m) return "rgba(74,63,176,"+a+")";
+  const n=parseInt(m[1],16); return "rgba("+((n>>16)&255)+","+((n>>8)&255)+","+(n&255)+","+a+")"; }
+function armSpeakerAuto(){
+  clearTimeout(spkAutoTimer); spkAutoTimer=null;
+  if(!curSpeaker) return;
+  spkAutoTimer=setTimeout(()=>{ if(curSpeaker){ setSpeaker(null); toast("発言者を自動でGMに戻しました"); } }, SPK_AUTO_MS);
+}
+function bumpSpeakerAuto(){ if(curSpeaker) armSpeakerAuto(); }   // 操作のたびに延長
+function renderSpeakers(){
+  const bar=$("#spkbar"); if(!bar) return;
+  const list=loadSpeakers(); const box=$("#spkChips"); box.innerHTML="";
+  // GMに戻すチップ
+  const gm=el("spk-chip"+(curSpeaker==null?" on":"")); gm.dataset.spk="__gm__";
+  gm.innerHTML="<span class='dest-dot' style='background:var(--tx3)'></span>GM";
+  gm.title="自分（GM）の名義・色に戻す";
+  box.appendChild(gm);
+  list.forEach((s,i)=>{
+    const on = curSpeaker && curSpeaker.i===i;
+    const c=el("spk-chip"+(on?" on":"")); c.dataset.idx=i;
+    c.innerHTML="<span class='dest-dot' style='background:"+(normHex(s.color)||"var(--tx3)")+"'></span>"+esc(s.name||"(無名)");
+    if(on) c.style.setProperty("--chip-accent", normHex(s.color)||"var(--link)");
+    c.title="クリック:発言者セット / ダブルクリック:送信予定を即送信";
+    box.appendChild(c);
+  });
+  // 現在の発言者ラベル（非GM時のみ）
+  if(curSpeaker){ const tag=el("spk-now"); tag.innerHTML="✏ <b>"+esc(curSpeaker.name||"(無名)")+"</b> で発言中";
+    tag.style.color=curSpeaker.color||"var(--link)"; box.appendChild(tag); }
+  bar.style.display="flex";
+  bar.classList.toggle("folded", localStorage.getItem("ep2_spkfold")==="1");
+  applySpeakerAccent();
+}
+function setSpeaker(idx){
+  if(idx==null){ curSpeaker=null; toast("発言者：GM"); }
+  else { const s=loadSpeakers()[idx]; if(!s) return; curSpeaker={i:idx, name:s.name, color:normHex(s.color)};
+    toast("発言者："+(s.name||"(無名)")); }
+  renderSpeakers();
+  armSpeakerAuto();
+}
+function speakerSend(idx){
+  const s=loadSpeakers()[idx]; if(!s) return;
+  setSpeaker(idx);
+  const f=$("#compose"); if(!f.value.trim()){ toast("送信予定が空です",true); return; }
+  sendCompose();
+}
+/* 管理モーダル */
+function openSpkModal(){ renderSpkList(); $("#spkModal").classList.add("open"); }
+function renderSpkList(){
+  const list=loadSpeakers(); const box=$("#spkList"); box.innerHTML="";
+  if(!list.length) box.innerHTML="<p class='varempty'>まだありません。「＋ 追加」で登録してください。</p>";
+  list.forEach((s,i)=>{
+    const row=el("spkrow");
+    row.innerHTML="<input class='spk-name' data-i='"+i+"' value='"+esc(s.name||"")+"' placeholder='名前'>"+
+      "<input class='spk-color' data-i='"+i+"' type='color' value='"+(normHex(s.color)||"#4a3fb0")+"' title='文字色'>"+
+      "<input class='spk-hex' data-i='"+i+"' value='"+(normHex(s.color)||"")+"' placeholder='#RRGGBB'>"+
+      "<button class='spk-up' data-i='"+i+"' title='上へ'>↑</button>"+
+      "<button class='spk-del' data-i='"+i+"' title='削除'>×</button>";
+    box.appendChild(row);
+  });
+}
+function spkAdd(){ const a=loadSpeakers(); a.push({name:"NPC", color:"#4a3fb0"}); saveSpeakers(a); renderSpkList(); renderSpeakers(); }
+function spkDel(i){ const a=loadSpeakers(); a.splice(i,1); saveSpeakers(a);
+  if(curSpeaker&&curSpeaker.i===i) curSpeaker=null; else if(curSpeaker&&curSpeaker.i>i) curSpeaker.i--;
+  renderSpkList(); renderSpeakers(); }
+function spkMoveUp(i){ if(i<=0) return; const a=loadSpeakers(); [a[i-1],a[i]]=[a[i],a[i-1]]; saveSpeakers(a); renderSpkList(); renderSpeakers(); }
+
+/* ---------- floating GM table ---------- */
+function loadGmFloat(){
+  try{ const o=JSON.parse(localStorage.getItem("ep2_gmfloat")||"null");
+    if(o&&typeof o==="object") return {open:!!o.open, min:!!o.min, x:o.x??null, y:o.y??null, w:o.w||420, h:o.h||260};
+  }catch(e){}
+  return {open:false, min:false, x:null, y:null, w:420, h:260};
+}
+function saveGmFloat(f){ try{ localStorage.setItem("ep2_gmfloat", JSON.stringify(f)); }catch(e){} }
+function renderGmFloat(){
+  const f=loadGmFloat(), box=$("#gmfloat"); if(!box) return;
+  box.style.display = f.open ? "flex" : "none";
+  if(!f.open) return;
+  box.classList.toggle("min", f.min);
+  const vw=window.innerWidth, vh=window.innerHeight;
+  const w=Math.max(300,Math.min(f.w, vw-20)), h=Math.max(120,Math.min(f.h, vh-80));
+  box.style.width=w+"px";
+  box.style.height = f.min ? "auto" : h+"px";
+  const x = f.x==null ? Math.max(10, vw-w-28) : Math.max(0,Math.min(f.x, vw-80));
+  const y = f.y==null ? 96 : Math.max(0,Math.min(f.y, vh-40));
+  box.style.left=x+"px"; box.style.top=y+"px";
+  const t=loadGmTable();
+  const rd=$("#gmfRound"); if(rd) rd.textContent=String(t.round||1);
+  const mb=$("#gmfMin"); if(mb) mb.textContent = f.min ? "▸" : "▾";
+  const body=$("#gmfBody");
+  if(!f.min){ body.innerHTML=""; body.appendChild(buildGmTable(true)); }
+}
+function setGmFloat(open){ const f=loadGmFloat(); f.open=open; saveGmFloat(f); renderGmFloat(); }
+function gmRefresh(){ if(state.board) renderBoard(); renderGmFloat(); }
+(function(){
+  const box=$("#gmfloat"), head=$("#gmfHead"), rz=$("#gmfRz"); if(!box) return;
+  let drag=null, rs=null;
+  const onMove=e=>{ if(!drag) return;
+    const f=loadGmFloat(); const w=box.getBoundingClientRect().width, h=box.getBoundingClientRect().height;
+    let x=drag.ox+(e.clientX-drag.x), y=drag.oy+(e.clientY-drag.y);
+    x=Math.max(0,Math.min(x, window.innerWidth-60)); y=Math.max(0,Math.min(y, window.innerHeight-32));
+    box.style.left=x+"px"; box.style.top=y+"px"; drag.nx=x; drag.ny=y; };
+  const onUp=()=>{ if(!drag) return; const f=loadGmFloat(); if(drag.nx!=null){ f.x=drag.nx; f.y=drag.ny; saveGmFloat(f); }
+    drag=null; document.body.style.userSelect="";
+    window.removeEventListener("pointermove",onMove); window.removeEventListener("pointerup",onUp); };
+  head.addEventListener("pointerdown",e=>{
+    if(e.target.closest("button")) return;
+    const r=box.getBoundingClientRect(); drag={x:e.clientX,y:e.clientY,ox:r.left,oy:r.top,nx:null,ny:null};
+    document.body.style.userSelect="none"; e.preventDefault();
+    window.addEventListener("pointermove",onMove); window.addEventListener("pointerup",onUp);
+  });
+  const rzMove=e=>{ if(!rs) return;
+    let w=Math.max(300, rs.w+(e.clientX-rs.x)), h=Math.max(120, rs.h+(e.clientY-rs.y));
+    w=Math.min(w, window.innerWidth-20); h=Math.min(h, window.innerHeight-60);
+    box.style.width=w+"px"; box.style.height=h+"px"; rs.nw=w; rs.nh=h; };
+  const rzUp=()=>{ if(!rs) return; const f=loadGmFloat(); if(rs.nw){ f.w=rs.nw; f.h=rs.nh; saveGmFloat(f); }
+    rs=null; document.body.style.userSelect="";
+    window.removeEventListener("pointermove",rzMove); window.removeEventListener("pointerup",rzUp); };
+  rz.addEventListener("pointerdown",e=>{
+    const r=box.getBoundingClientRect(); rs={x:e.clientX,y:e.clientY,w:r.width,h:r.height,nw:0,nh:0};
+    document.body.style.userSelect="none"; e.preventDefault();
+    window.addEventListener("pointermove",rzMove); window.addEventListener("pointerup",rzUp);
+  });
+  $("#gmfClose").addEventListener("click",()=>setGmFloat(false));
+  $("#gmfMin").addEventListener("click",()=>{ const f=loadGmFloat(); f.min=!f.min; saveGmFloat(f); renderGmFloat(); });
+  $("#gmfRup").addEventListener("click",()=>gmRound(1));
+  $("#gmfRdn").addEventListener("click",()=>gmRound(-1));
+  $("#gmfAddRow").addEventListener("click",()=>{ const n=prompt("名前（キャラ/モンスター）","新規"); if(n!=null) gmAddRow(n); });
+  // 表の操作（フロート内）
+  box.addEventListener("click",e=>{
+    const gsort=e.target.closest(".gm-sort"); if(gsort){ gmSortByCol(gsort.dataset.col); return; }
+    const gcolx=e.target.closest(".gm-colx"); if(gcolx){ const t=loadGmTable(); const c=t.cols.find(x=>x.id===gcolx.dataset.col);
+      if(c&&confirm("列「"+c.name+"」を削除しますか？（各行の値も消えます）")) gmDelCol(gcolx.dataset.col); return; }
+    const gact=e.target.closest(".gm-actbtn"); if(gact){ gmSetActive(gact.dataset.row); return; }
+    const gdel=e.target.closest(".gm-delbtn"); if(gdel){ const t=loadGmTable(); const r=t.rows.find(x=>x.id===gdel.dataset.row);
+      if(r&&confirm("「"+r.name+"」を削除しますか？")) gmDelRow(gdel.dataset.row); return; }
+  });
+  box.addEventListener("input",e=>{ const gv=e.target.closest(".gm-val"); if(gv) gmSetVal(gv.dataset.row, gv.dataset.col, gv.value); });
+  box.addEventListener("change",e=>{ const gn=e.target.closest(".gm-nameinp"); if(gn) gmSetName(gn.dataset.row, gn.value); });
+  box.addEventListener("dblclick",e=>{ const cn=e.target.closest(".gm-colname"); if(!cn) return;
+    const id=cn.closest(".gm-th").dataset.col; const t=loadGmTable(); const c=t.cols.find(x=>x.id===id); if(!c) return;
+    const v=prompt("列名", c.name); if(v!=null) gmRenameCol(id, v); });
+  window.addEventListener("resize",()=>{ if(loadGmFloat().open) renderGmFloat(); });
+})();
+
+/* ---------- find & replace ---------- */
+function openReplace(){ $("#replaceModal").classList.add("open"); setTimeout(()=>$("#rpFind").focus(),30); }
+function doReplace(){
+  const find=$("#rpFind").value; if(!find){ toast("検索する文字列を入力してください",true); return; }
+  const to=$("#rpTo").value;
+  const all=(document.querySelector('input[name="rpScope"]:checked')||{}).value==="all";
+  if(state.editMode){ const ap=activeP(); if(ap) ap.stock=$("#editArea").value; }
+  let count=0;
+  const targets = all ? state.palettes : [activeP()].filter(Boolean);
+  targets.forEach(p=>{ const parts=(p.stock||"").split(find); if(parts.length>1){ count+=parts.length-1; p.stock=parts.join(to); } });
+  if(count){
+    persist();
+    if(state.editMode){ const ap=activeP(); if(ap) $("#editArea").value=ap.stock; }
+    else render();
+    toast(count+"件を置換しました");
+  } else toast("見つかりませんでした",true);
+}
+$("#rpClose").addEventListener("click",()=>$("#replaceModal").classList.remove("open"));
+$("#rpDo").addEventListener("click",doReplace);
+$("#replaceModal").addEventListener("click",e=>{ if(e.target.id==="replaceModal") $("#replaceModal").classList.remove("open"); });
+$("#rpFind").addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.isComposing){ e.preventDefault(); doReplace(); } });
+$("#rpTo").addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.isComposing){ e.preventDefault(); doReplace(); } });
+
+/* ---------- boot ---------- */
+function seed(){
+  state.palettes=[{paletteID:1,order:0,label:"1",name:"GM",textColor:"#000000",isSearchOn:true,expandeds:[],
+    stock:["###使い方",
+      "クリックで上の送信予定へ（編集できます）",
+      "ダブルクリックでそのまま送信",
+      ":::note info",
+      "これは自分用メモ。**送信されません**。",
+      "~~取り消し~~ や `コード`、箇条書きも使えます。",
+      "- 戦況メモ",
+      "- 次の展開",
+      ":::",
+      "###",
+      "###戦闘",
+      "2d6+5 [命中] @#d83a2f",
+      "2d6+3 [ダメージ]",
+      "####必殺技",
+      "3d6+10 [全力] @#1a73e8",
+      "####",
+      "###",
+      "###能力判定",
+      "1d100<=({STR}*5) 筋力判定",
+      "// STR=12",
+      "###",
+      "###定型文",
+      "こんばんは、よろしくお願いします。",
+      "判定の前にひと呼吸。\\n落ち着いていきましょう。",
+      "###"].join("\n")}];
+  state.activeId=1;
+}
+$("#f_bot").value=cfg("ep2_bot");
+applyTheme(cfg("ep2_theme")||"light");
+buildCmdTpls(); buildMdTpls();
+setMdcol(cfg("ep2_mdcol")==="hidden");
+if(!restore()) seed();
+render();
+renderGmFloat();
+renderDest();
+renderSpeakers();
+if(!cfg("room")) setTimeout(openSettings,400);
+</script>
+</body>
+</html>
