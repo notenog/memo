@@ -6,11 +6,11 @@
       <description>最新の10件 on memo</description>
       <generator>Quartz -- quartz.jzhao.xyz</generator>
       <item>
-    <title>⚔️ 戦闘ルール</title>
+    <title>02戦闘ルール</title>
     <link>https://https://notenog.github.io/memo/CoC/02CoC_battle</link>
     <guid>https://https://notenog.github.io/memo/CoC/02CoC_battle</guid>
     <description><![CDATA[  基本ルルブ・2010・2015に記載のある戦闘ルールに準拠・優先します。 01.戦闘について 【基本的な流れ】 攻撃と回避は両立しない。１R中どちらかのみの行動になる。 回避のオプションを採用する。(基本ルルブp150) 1Rにつき3回までの攻撃に回避が可能とし、最初は＜回避＞の値、二度目は＜回避2/3＞、三度目は＜回避1/3＞の値で試みることが出来る。数値は切り上げ。 １つの攻撃に３回回避が出来る訳ではない。一度回避に失敗した時点でダメージロールを行う。 ただし上記の通り、既に攻撃を行ってる場合回避は一度も行えない。逆も同様。 受け流しはあらゆる行動と両立する。1Rに一度可能。(１R内に攻... ]]></description>
-    <pubDate>Wed, 05 Aug 2026 13:14:44 GMT</pubDate>
+    <pubDate>Wed, 05 Aug 2026 13:26:31 GMT</pubDate>
   </item><item>
     <title>index</title>
     <link>https://https://notenog.github.io/memo/</link>
@@ -24,7 +24,7 @@
     <description><![CDATA[  「CS秘匿ルールを採用する」という記載のある場合にのみ起用します。記載のあるセッションの際は必ずご確認下さい。 《 CS秘匿ルール 》 【生命点・正気度・アイテムの公開について】 「生命点」「正気度」は全体公開です。 「所持アイテム」は非公開からスタートします。下記項目と同じく、公開タイミングはPLに委ねます。 【アビリティ・特技・CSの公開について】 公開タイミングを全てPLに委ねます。 公開する場合は特に宣言不要、メイン・雑談・ステルス問わずいつでもどうぞ。一部ずつ公開していっても構いません。 ただし、公開する場合は全PLに見えるよう公開して下さい。 一部のPLにだけ教える、という事はな... ]]></description>
     <pubDate>Sun, 19 Oct 2025 04:38:36 GMT</pubDate>
   </item><item>
-    <title>🏚️ ハウスルール</title>
+    <title>01ハウスルール</title>
     <link>https://https://notenog.github.io/memo/CoC/01CoC</link>
     <guid>https://https://notenog.github.io/memo/CoC/01CoC</guid>
     <description><![CDATA[  01.探索者について 【継続探索者での参加】 特殊な条件で作成している場合はCSに記載をお願いします。 特徴表は２つまで適用可能。 年齢のEDU+6下限、EDU加齢ルール適用は一応確認を行っています。 通過シナリオなどのネタバレにはご配慮下さい。 具体的には私は気にしませんが、同卓者への配慮をお願いします。 【新規探索者の作成】 基本ルルブ、2010、2015の職業ベースから選択。ベースはCS内に記載下さい。職業ベースに囚われない技能振りの探索者もOKとしますが、基本的には職業ベースでとることを推奨します。 能力値の一括振り直し、同ダイスステータス値の入れ替え・3pt移動可。上記の回数は良心... ]]></description>

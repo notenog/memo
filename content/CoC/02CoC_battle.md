@@ -1,5 +1,5 @@
 ---
-title: "⚔️ 戦闘ルール"
+title: 02戦闘ルール
 draft: false
 ---
 <br>

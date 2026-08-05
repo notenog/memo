@@ -1,5 +1,5 @@
 ---
-title: "🏚️ ハウスルール"
+title: 01ハウスルール
 draft: false
 ---
 
