@@ -1,0 +1,1488 @@
+{
+  "is_disp_status": "1",
+  "V_shuzoku_id": "3",
+  "shuzoku_name": "ドワーフ",
+  "special_shuzoku_id": "0",
+  "special_shuzoku_name": "",
+  "shuzoku_tokucho": "暗視、剣の加護/炎身",
+  "umare_id": "2",
+  "umare_name": "戦士",
+  "N_waza": "4",
+  "N_karada": "11",
+  "N_kokoro": "5",
+  "tokucho_kyouka_add": "1",
+  "V_NC1": "12",
+  "V_NC2": "3",
+  "V_NC3": "7",
+  "V_NC4": "7",
+  "V_NC5": "2",
+  "V_NC6": "13",
+  "life_resist_base": "16",
+  "mental_resist_base": "16",
+  "HP_base": "60",
+  "MP_base": "27",
+  "mamono_sikibetu_base": "0",
+  "mamono_chishiki_base": "0",
+  "sensei_base": "6",
+  "ido_base": "12",
+  "zenryoku_ido_base": "36",
+  "session_num": "29",
+  "NS1": "2",
+  "NS2": "5",
+  "NS3": "6",
+  "NS4": "6",
+  "NS5": "1",
+  "NS6": "9",
+  "HP_tokugi": "30",
+  "MP_tokugi": "0",
+  "ido_tokugi": "0",
+  "NM1": "",
+  "NM2": "",
+  "NM3": "",
+  "NM4": "",
+  "NM5": "",
+  "NM6": "",
+  "life_resist_mod": "",
+  "mental_resist_mod": "",
+  "HP_mod": "",
+  "MP_mod": "",
+  "mamono_chishiki_mod": "",
+  "sensei_mod": "",
+  "ido_mod": "",
+  "zenryoku_ido_mod": "",
+  "NP1": "20",
+  "NP2": "12",
+  "NP3": "26",
+  "NP4": "24",
+  "NP5": "8",
+  "NP6": "27",
+  "life_resist": "16",
+  "mental_resist": "16",
+  "HP": "92",
+  "MP": "27",
+  "mamono_sikibetu": "0",
+  "mamono_chishiki": "0",
+  "sensei": "6",
+  "ido": "12",
+  "zenryoku_ido": "36",
+  "NB1": "3",
+  "NB2": "2",
+  "NB3": "4",
+  "NB4": "4",
+  "NB5": "1",
+  "NB6": "4",
+  "is_disp_ginou": "1",
+  "lv": "12",
+  "magic_lv_sum": "0",
+  "not_sel_ginou": "",
+  "V_GLv1": "12",
+  "V_GLv5": "0",
+  "V_GLv10": "4",
+  "create_exp": "2000",
+  "used_exp": "61000",
+  "now_exp": "6430",
+  "V_GLv2": "0",
+  "V_GLv6": "0",
+  "V_GLv11": "6",
+  "create_ginou_exp": "1000",
+  "V_GLv3": "0",
+  "V_GLv7": "0",
+  "V_GLv12": "0",
+  "create_ginou_name": "ファイター",
+  "V_GLv4": "0",
+  "priest_sinkou": "",
+  "V_GLv13": "5",
+  "session_exp": "64430",
+  "V_GLv8": "0",
+  "V_GLv14": "0",
+  "pc_rank": "",
+  "V_GLv20": "0",
+  "V_GLv9": "0",
+  "V_GLv16": "0",
+  "V_GLv22": "",
+  "V_GLv17": "0",
+  "V_GLv15": "0",
+  "V_GLv23": "",
+  "V_GLv21": "",
+  "V_GLv18": "0",
+  "V_GLv19": "0",
+  "V_special_lv": "",
+  "special_get_hpmp": "",
+  "special_get_regist": "",
+  "special_get_nm": "",
+  "special_get_bbj": "",
+  "special_get_others": "",
+  "is_disp_sentotokugi": "1",
+  "tokugi_mode": "2",
+  "ST_name_fig1": "タフネス",
+  "ST_id_fig1": "72",
+  "ST_kouka_fig1": "最大HP+15",
+  "ST_zentei_fig1": "ファイターLv.7",
+  "ST_page_fig1": "2122",
+  "ST_name_grp1": "追加攻撃",
+  "ST_id_grp1": "7",
+  "ST_kouka_grp1": "格闘片手武器の近接攻撃でもう一度攻撃可能",
+  "ST_zentei_grp1": "グラップラー習得",
+  "ST_page_grp1": "220",
+  "ST_name_grp2": "投げ攻撃",
+  "ST_id_grp2": "56",
+  "ST_kouka_grp2": "投げが可能、命中すると対象を転倒させて達成値-2",
+  "ST_zentei_grp2": "グラップラー習得",
+  "ST_page_grp2": "225",
+  "ST_name_grp4": "鎧貫き",
+  "ST_kouka_grp4": "C値上昇、無効打ち消し、クリティカル時防御無視",
+  "ST_zentei_grp4": "グラップラーLv.5",
+  "ST_page_grp4": "IB39",
+  "ST_name_grp3": "カウンター",
+  "ST_id_grp3": "66",
+  "ST_kouka_grp3": "近接攻撃の命中判定で勝てばカウンター/負けるとクリティカル攻撃を受ける",
+  "ST_zentei_grp3": "グラップラーLv.7",
+  "ST_page_grp3": "2120",
+  "ST_name_figgrp": "バトルマスター",
+  "ST_id_figgrp": "95",
+  "ST_kouka_figgrp": "宣言の必要な戦闘特技を最大２つ同時に宣言できるようになる",
+  "ST_zentei_figgrp": "ﾌｧｲﾀｰorｸﾞﾗｯﾌﾟﾗｰLv13",
+  "ST_page_figgrp": "3143",
+  "ST_name_magicmaster": "ルーンマスター",
+  "ST_kouka_magicmaster": "魔法拡大を宣言せずに使用出来る",
+  "ST_zentei_magicmaster": "魔法技能１つのLv11",
+  "ST_page_magicmaster": "IB34",
+  "ST_name_scout1": "トレジャーハント",
+  "ST_id_scout1": "74",
+  "ST_kouka_scout1": "戦利品のロールに+1",
+  "ST_zentei_scout1": "スカウトLv.5",
+  "ST_page_scout1": "2120",
+  "ST_name_scout2": "ファストアクション",
+  "ST_id_scout2": "76",
+  "ST_kouka_scout2": "戦闘の第1ラウンドで先手なら、主動作を2回行える",
+  "ST_zentei_scout2": "スカウトLv.7",
+  "ST_page_scout2": "2123",
+  "ST_name_scout3": "影走り",
+  "ST_id_scout3": "67",
+  "ST_kouka_scout3": "乱戦エリアの脇を通り抜けるとき、乱戦を宣言されない",
+  "ST_zentei_scout3": "スカウトLv.9",
+  "ST_page_scout3": "2120",
+  "ST_name_scout4": "トレジャーマスター",
+  "ST_id_scout4": "94",
+  "ST_kouka_scout4": "さらに戦利品のロールに+1",
+  "ST_zentei_scout4": "スカウトLv.12",
+  "ST_page_scout4": "3143",
+  "ST_name_scout5": "匠の技",
+  "ST_id_scout5": "93",
+  "ST_kouka_scout5": "スカウト技能を用いる判定を判定1つにつき1回だけ振りなおせる",
+  "ST_zentei_scout5": "スカウトLv.15",
+  "ST_page_scout5": "3143",
+  "ST_name_ranger1": "治癒適性",
+  "ST_id_ranger1": "73",
+  "ST_kouka_ranger1": "Hpが回復する効果を受けるとき、その効果に自分だけ+1",
+  "ST_zentei_ranger1": "レンジャーLv.5",
+  "ST_page_ranger1": "2122",
+  "ST_name_ranger2": "不屈",
+  "ST_id_ranger2": "77",
+  "ST_kouka_ranger2": "HPが0以下になっても気絶しない",
+  "ST_zentei_ranger2": "レンジャーLv.7",
+  "ST_page_ranger2": "2123",
+  "ST_name_ranger3": "ポーションマスター",
+  "ST_id_ranger3": "78",
+  "ST_kouka_ranger3": "ポーションを1R1本補助動作で飲める",
+  "ST_zentei_ranger3": "レンジャーLv.9",
+  "ST_page_ranger3": "2123",
+  "ST_name_ranger4": "韋駄天",
+  "ST_id_ranger4": "88",
+  "ST_kouka_ranger4": "移動力に+10(全力移動に+30)",
+  "ST_zentei_ranger4": "レンジャーLv.12",
+  "ST_page_ranger4": "3142",
+  "ST_name_ranger5": "縮地",
+  "ST_id_ranger5": "92",
+  "ST_kouka_ranger5": "全力移動時も通常移動で行える動作を行える",
+  "ST_zentei_ranger5": "レンジャーLv.15",
+  "ST_page_ranger5": "3143",
+  "ST_name_sage1": "鋭い目",
+  "ST_id_sage1": "71",
+  "ST_kouka_sage1": "戦利品のロールに+1",
+  "ST_zentei_sage1": "セージLv.5",
+  "ST_page_sage1": "2120",
+  "ST_name_sage2": "弱点看破",
+  "ST_id_sage2": "69",
+  "ST_kouka_sage2": "魔物知識判定成功時弱点ボーナスを2倍",
+  "ST_zentei_sage2": "セージLv.7",
+  "ST_page_sage2": "2121",
+  "ST_name_sage3": "マナセーブ",
+  "ST_id_sage3": "79",
+  "ST_kouka_sage3": "消費MP-1(最低1)",
+  "ST_zentei_sage3": "セージLv.9",
+  "ST_page_sage3": "2123",
+  "ST_name_sage4": "マナ耐性",
+  "ST_id_sage4": "98",
+  "ST_kouka_sage4": "魔法ダメージ-5",
+  "ST_zentei_sage4": "セージLv.12",
+  "ST_page_sage4": "3144",
+  "ST_name_sage5": "賢人の知恵",
+  "ST_id_sage5": "91",
+  "ST_kouka_sage5": "セージ技能を用いる判定を判定1つにつき1回だけ振りなおせる",
+  "ST_zentei_sage5": "セージLv.15",
+  "ST_page_sage5": "3142",
+  "ST_lv": [
+    "1",
+    "3",
+    "5",
+    "7",
+    "9",
+    "11",
+    "13"
+  ],
+  "V_ST_id": [
+    "81",
+    "54",
+    "6",
+    "86",
+    "57",
+    "94",
+    "0"
+  ],
+  "ST_name": [
+    "かばう",
+    "防具習熟/金属鎧",
+    "頑強",
+    "全力攻撃",
+    "防具習熟S/金属鎧",
+    "なぎ払い",
+    ""
+  ],
+  "ST_tlv": [
+    "Ⅲ",
+    "-",
+    "-",
+    "2",
+    "1",
+    "1",
+    ""
+  ],
+  "ST_kouka": [
+    "1Rに1回1PCをかばう、自動命中となる。《Ⅱ》後攻でも宣言可能",
+    "防護点+1、Aランク装備可能",
+    "最大HP+15",
+    "近接攻撃ダメージ+12、回避-2",
+    "",
+    "3体までの敵(選択可)を同時攻撃。ただしダメージに-3",
+    ""
+  ],
+  "ST_zentei": [
+    "",
+    "",
+    "ﾌｧｲﾀｰorｸﾞﾗｯﾌﾟﾗｰLv5",
+    "",
+    "2H近接武器",
+    "2H近接武器",
+    ""
+  ],
+  "ST_page": [
+    "224",
+    "222",
+    "218",
+    "IB36",
+    "IB38",
+    "IB38",
+    ""
+  ],
+  "hikinzoku_shujuku": "0",
+  "kinzoku_shujuku": "3",
+  "tate_shujuku": "0",
+  "is_disp_equip": "1",
+  "GLv1_dsp": "12",
+  "G1_hit": "15",
+  "G1_damage": "16",
+  "G1_kaihi": "14",
+  "GLv2_dsp": "",
+  "G2_hit": "",
+  "G2_damage": "",
+  "G2_kaihi": "",
+  "GLv3_dsp": "",
+  "G3_hit": "",
+  "G3_damage": "",
+  "G3_kaihi": "",
+  "GLv4_dsp": "",
+  "G4_hit": "",
+  "G4_damage": "",
+  "G4_kaihi": "",
+  "GLv13_dsp": "5",
+  "G13_hit": "8",
+  "G13_damage": "9",
+  "GLv17_dsp": "",
+  "G17_hit": "",
+  "G17_damage": "",
+  "G17_kaihi": "",
+  "NP3_dsp": "26",
+  "NP3_upper": "",
+  "arms_is_input": [
+    "0",
+    "1"
+  ],
+  "V_arms_id": [
+    "41",
+    "0"
+  ],
+  "arms_name": [
+    "モール",
+    "ポールメイス"
+  ],
+  "arm_equip": "on",
+  "arms_is_equip": [
+    "1",
+    "0"
+  ],
+  "arms_price": [
+    "440",
+    "0"
+  ],
+  "arms_yoho": [
+    "2H",
+    "2H"
+  ],
+  "arms_hitsukin": [
+    "20",
+    "23"
+  ],
+  "arms_is_senyou": [
+    "0",
+    "0"
+  ],
+  "arms_hit_mod": [
+    "1",
+    "1"
+  ],
+  "V_arms_hit_ginou": [
+    "1",
+    "1"
+  ],
+  "arms_hit": [
+    "16",
+    "16"
+  ],
+  "arms_iryoku": [
+    "35",
+    "43"
+  ],
+  "arms_critical": [
+    "12",
+    "12"
+  ],
+  "arms_damage_mod": [
+    "",
+    ""
+  ],
+  "arms_damage": [
+    "16",
+    "16"
+  ],
+  "arms_page": [
+    "234",
+    "262"
+  ],
+  "arms_cate": [
+    "メイス",
+    "メイス"
+  ],
+  "arms_rank": [
+    "B",
+    "A"
+  ],
+  "arms_memo": [
+    "",
+    ""
+  ],
+  "arm_input": "on",
+  "arms_price_sum": "440",
+  "armor_name": "ミスリルプレート",
+  "armor_hitsukin": "24",
+  "armor_kaihi": "-2",
+  "armor_bougo": "11",
+  "armor_price": "0",
+  "armor_memo": "金属鎧/銀製、FG",
+  "shield_name": "",
+  "shield_hitsukin": "",
+  "shield_kaihi": "",
+  "shield_bougo": "",
+  "shield_price": "0",
+  "shield_memo": "",
+  "shield2_name": "",
+  "shield2_hitsukin": "",
+  "shield2_kaihi": "",
+  "shield2_bougo": "",
+  "shield2_price": "",
+  "shield2_memo": "",
+  "V_armer_type": "2",
+  "bougu_kaihi_tokugi": "0",
+  "bougu_bougo_tokugi": "3",
+  "bougu_kaihi_mod": "",
+  "bougu_bougo_mod": "",
+  "V_kaihi_ginou": "1",
+  "kaihi_ginou_name": "ファイター",
+  "kaihi": "12",
+  "bougo": "15",
+  "bougu_price_sum": "0",
+  "arms_hit_tokugi": "",
+  "eeq_hit_extend": "",
+  "eeq_dmg_extend": "",
+  "eeq_spl_extend": "",
+  "eeq_evd_extend": "",
+  "is_disp_physical": "0",
+  "phy_bui_name": [
+    ""
+  ],
+  "phy_bui_attack": [
+    ""
+  ],
+  "phy_bui_yoho": [
+    ""
+  ],
+  "phy_bui_hit_mod": [
+    ""
+  ],
+  "phy_bui_hit": [
+    "0"
+  ],
+  "phy_bui_iryoku": [
+    ""
+  ],
+  "phy_bui_critical": [
+    ""
+  ],
+  "phy_bui_damage_mod": [
+    ""
+  ],
+  "phy_bui_damage": [
+    "0"
+  ],
+  "phy_bui_page": [
+    ""
+  ],
+  "phy_bui_rank": [
+    ""
+  ],
+  "phy_bui_kaihi_mod": [
+    ""
+  ],
+  "phy_bui_kaihi": [
+    "0"
+  ],
+  "phy_bui_bougo": [
+    ""
+  ],
+  "phy_bui_hp": [
+    ""
+  ],
+  "phy_bui_mp": [
+    ""
+  ],
+  "phy_bui_memo": [
+    ""
+  ],
+  "MS_lv": [
+    "1"
+  ],
+  "MS_name": [
+    ""
+  ],
+  "MS_type": [
+    ""
+  ],
+  "MS_kouka": [
+    ""
+  ],
+  "MS_page": [
+    ""
+  ],
+  "phy_bui_core_kaihi_tokugi": "",
+  "phy_bui_core_damage_tokugi": "",
+  "phy_bui_kaihi_tokugi": "",
+  "phy_bui_damage_tokugi": "",
+  "is_disp_accessory": "1",
+  "acce1_senyou": [
+    ""
+  ],
+  "acce1_name": [
+    ""
+  ],
+  "acce1_price": [
+    ""
+  ],
+  "acce1_memo": [
+    ""
+  ],
+  "acce1_valid": [
+    ""
+  ],
+  "acce1_st": [
+    "0"
+  ],
+  "acce1_stv": [
+    ""
+  ],
+  "acce2_senyou": [
+    ""
+  ],
+  "acce2_name": [
+    "耳飾り×２"
+  ],
+  "acce2_price": [
+    "10"
+  ],
+  "acce2_memo": [
+    "頭が悪そうなやつ"
+  ],
+  "acce2_valid": [
+    ""
+  ],
+  "acce2_st": [
+    "0"
+  ],
+  "acce2_stv": [
+    ""
+  ],
+  "acce3_senyou": [
+    ""
+  ],
+  "acce3_name": [
+    ""
+  ],
+  "acce3_price": [
+    ""
+  ],
+  "acce3_memo": [
+    ""
+  ],
+  "acce3_valid": [
+    ""
+  ],
+  "acce3_st": [
+    "0"
+  ],
+  "acce3_stv": [
+    ""
+  ],
+  "acce4_senyou": [
+    ""
+  ],
+  "acce4_name": [
+    "ポーションインジェクター"
+  ],
+  "acce4_price": [
+    "0"
+  ],
+  "acce4_memo": [
+    "ポーションを補助動作で飲める(妖精郷購入"
+  ],
+  "acce4_valid": [
+    ""
+  ],
+  "acce4_st": [
+    "0"
+  ],
+  "acce4_stv": [
+    ""
+  ],
+  "acce5_senyou": [
+    ""
+  ],
+  "acce5_name": [
+    "ウェポンホルダー"
+  ],
+  "acce5_price": [
+    "0"
+  ],
+  "acce5_memo": [
+    "ブキが補助動作でいれかえできる"
+  ],
+  "acce5_valid": [
+    ""
+  ],
+  "acce5_st": [
+    "0"
+  ],
+  "acce5_stv": [
+    ""
+  ],
+  "acce6_senyou": [
+    ""
+  ],
+  "acce6_name": [
+    "剛力の腕輪"
+  ],
+  "acce6_price": [
+    "0"
+  ],
+  "acce6_memo": [
+    "筋力+2(妖精郷購入p290"
+  ],
+  "acce6_valid": [
+    "1"
+  ],
+  "sl_acce6_valid": "1",
+  "acce6_st": [
+    "3"
+  ],
+  "acce6_stv": [
+    "2"
+  ],
+  "acce7_senyou": [
+    ""
+  ],
+  "acce7_name": [
+    "宗匠の腕輪"
+  ],
+  "acce7_price": [
+    "0"
+  ],
+  "acce7_memo": [
+    "器用度+2(妖精郷購入"
+  ],
+  "acce7_valid": [
+    "1"
+  ],
+  "sl_acce7_valid": "1",
+  "acce7_st": [
+    "1"
+  ],
+  "acce7_stv": [
+    "2"
+  ],
+  "acce8_senyou": [
+    "1"
+  ],
+  "acce8_name": [
+    "ブラックベルト"
+  ],
+  "acce8_price": [
+    "0"
+  ],
+  "acce8_memo": [
+    "取得品"
+  ],
+  "acce8_valid": [
+    "1"
+  ],
+  "sl_acce8_valid": "1",
+  "acce8_st": [
+    "8"
+  ],
+  "acce8_stv": [
+    "1"
+  ],
+  "acce9_senyou": [
+    ""
+  ],
+  "acce9_name": [
+    ""
+  ],
+  "acce9_price": [
+    ""
+  ],
+  "acce9_memo": [
+    ""
+  ],
+  "acce9_valid": [
+    ""
+  ],
+  "acce9_st": [
+    "0"
+  ],
+  "acce9_stv": [
+    ""
+  ],
+  "acce10_senyou": [
+    ""
+  ],
+  "acce10_name": [
+    "小熊の爪"
+  ],
+  "acce10_price": [
+    ""
+  ],
+  "acce10_memo": [
+    "マッスルベアーに+1"
+  ],
+  "acce10_valid": [
+    ""
+  ],
+  "acce10_st": [
+    "0"
+  ],
+  "acce10_stv": [
+    ""
+  ],
+  "acce_price_sum": "10",
+  "is_disp_item": "1",
+  "item_name": [
+    "冒険者セット",
+    "スカウト用ツール",
+    "アンロックキー",
+    "バナナ",
+    "背負い袋",
+    "羊皮紙",
+    "羽ペン",
+    "インク",
+    "財布",
+    "テント",
+    "調理セット",
+    "",
+    "",
+    "",
+    "ヘビーフレイル",
+    "薬師道具セット",
+    "防寒具",
+    "",
+    "幻影城で貰ったお小遣い宝石",
+    ""
+  ],
+  "item_tanka": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "item_num": [
+    "1",
+    "1",
+    "1",
+    "10",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1"
+  ],
+  "item_price": [
+    "100",
+    "100",
+    "100",
+    "50",
+    "50",
+    "5",
+    "2",
+    "3",
+    "100",
+    "250",
+    "50",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0"
+  ],
+  "item_memo": [
+    "たいま/毛布/水の入った袋/マつッチハコ/ロープ10m/小型ナイフ",
+    "",
+    "",
+    "ドワーフの里特産。売るし食べれる。売値は1000G",
+    "革製。バナナをいれる",
+    "色々メモるぞ",
+    "色々メモるぞ",
+    "色々メモるぞ",
+    "頭が悪そうなやつ",
+    "",
+    "ダンジョン飯用",
+    "",
+    "",
+    "",
+    "",
+    "FGで購入　威力表1d+4で参照することができます",
+    "",
+    "",
+    "1400G",
+    ""
+  ],
+  "price_item_sum": "810",
+  "price_equip_sum": "450",
+  "useMindCalc": "1",
+  "money": "14940",
+  "debt": "",
+  "price_all_sum": "1260",
+  "is_disp_language": "1",
+  "create_language": "交易交通語、ドワーフ語",
+  "ginou_language": "",
+  "lang3S": "1",
+  "lang3R": "1",
+  "lang8S": "1",
+  "lang8R": "1",
+  "now_lang_num": "4",
+  "synonim_lang_num": "",
+  "can_lang_num": "4",
+  "V_lang_type_id": [
+    "0"
+  ],
+  "lang_type_name": [
+    ""
+  ],
+  "V_langS": [
+    "0"
+  ],
+  "V_langR": [
+    "0"
+  ],
+  "V_lang_typeA_id": [
+    "0"
+  ],
+  "lang_typeA_name": [
+    ""
+  ],
+  "V_langSA": [
+    "0"
+  ],
+  "V_langRA": [
+    "0"
+  ],
+  "is_disp_enhance": "1",
+  "ES_lv": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+  ],
+  "ES_name": [
+    "キャッツアイ",
+    "ビートルスキン",
+    "マッスルベアー",
+    "アンチボディ",
+    "ジャイアントアーム",
+    ""
+  ],
+  "ES_koukatime": [
+    "30秒",
+    "30秒",
+    "30秒",
+    "30秒",
+    "10秒",
+    ""
+  ],
+  "ES_kouka": [
+    "命中力判定の際に命中度+1",
+    "防護点+2",
+    "筋力ボーナス+2",
+    "毒、病気に対して抵抗力4",
+    "筋力を+12",
+    ""
+  ],
+  "ES_page": [
+    "80",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "is_disp_song": "0",
+  "JK_lv": [
+    "1"
+  ],
+  "JK_name": [
+    ""
+  ],
+  "JK_zentei": [
+    ""
+  ],
+  "JK_kouka": [
+    ""
+  ],
+  "JK_eishou": [
+    ""
+  ],
+  "JK_page": [
+    ""
+  ],
+  "ejuka_hit_extend": "",
+  "is_disp_riding": "0",
+  "KG_lv": [
+    "1"
+  ],
+  "KG_name": [
+    ""
+  ],
+  "KG_timing": [
+    ""
+  ],
+  "KG_kouka": [
+    ""
+  ],
+  "KG_zentei": [
+    ""
+  ],
+  "KG_animal": [
+    "0"
+  ],
+  "KG_Genju": [
+    "0"
+  ],
+  "KG_Kikai": [
+    "0"
+  ],
+  "KG_page": [
+    ""
+  ],
+  "is_disp_hujutu": "0",
+  "HJ_lv": [
+    "1"
+  ],
+  "HJ_name": [
+    ""
+  ],
+  "HJ_zentei": [
+    ""
+  ],
+  "HJ_timing": [
+    ""
+  ],
+  "HJ_kouka": [
+    ""
+  ],
+  "HJ_B": [
+    ""
+  ],
+  "HJ_A": [
+    ""
+  ],
+  "HJ_S": [
+    ""
+  ],
+  "HJ_SS": [
+    ""
+  ],
+  "HJ_page": [
+    ""
+  ],
+  "is_disp_houkou": "0",
+  "HO_lv": [
+    "1"
+  ],
+  "HO_name": [
+    ""
+  ],
+  "HO_type": [
+    ""
+  ],
+  "HO_rank": [
+    ""
+  ],
+  "HO_kouka": [
+    ""
+  ],
+  "HO_page": [
+    ""
+  ],
+  "is_disp_uranai": "0",
+  "UR_lv": [
+    "1"
+  ],
+  "UR_name": [
+    ""
+  ],
+  "UR_type": [
+    ""
+  ],
+  "UR_rank": [
+    ""
+  ],
+  "UR_kouka": [
+    ""
+  ],
+  "UR_page": [
+    ""
+  ],
+  "is_disp_artizan": "",
+  "JI_lv": [
+    ""
+  ],
+  "JI_name": [
+    ""
+  ],
+  "JI_timing": [
+    ""
+  ],
+  "JI_kouka": [
+    ""
+  ],
+  "JI_page": [
+    ""
+  ],
+  "is_disp_maryoku": "0",
+  "MLv5": "",
+  "MLv6": "",
+  "MLv7": "",
+  "MLv8": "",
+  "MLv9": "",
+  "MLv17": "",
+  "MLv21": "",
+  "NB5_dsp": "1",
+  "MM_Tokugi": "0",
+  "arms_maryoku_sum": "0",
+  "maryoku5": "",
+  "maryoku6": "",
+  "maryoku7": "",
+  "maryoku8": "",
+  "maryoku9": "",
+  "maryoku17": "",
+  "maryoku21": "",
+  "is_disp_failys": "0",
+  "faily_tab1": "",
+  "faily_tab2": "",
+  "faily_tab3": "",
+  "faily_tab4": "",
+  "faily_tab5": "",
+  "faily_tab6": "",
+  "faily_tab_text": "0000000",
+  "is_disp_skill": "0",
+  "skill_header": [
+    ""
+  ],
+  "skill_name": [
+    ""
+  ],
+  "skill_id": [
+    "0"
+  ],
+  "skill_taisho": [
+    ""
+  ],
+  "skill_range": [
+    ""
+  ],
+  "skill_shape": [
+    ""
+  ],
+  "skill_time": [
+    ""
+  ],
+  "skill_cost": [
+    ""
+  ],
+  "skill_limit": [
+    ""
+  ],
+  "skill_memo": [
+    ""
+  ],
+  "skill_shozoku": [
+    ""
+  ],
+  "is_disp_horse": "0",
+  "horse_name": "",
+  "horse_lv": "",
+  "horse_speed": "",
+  "horse_known": "",
+  "horse_weaken": "",
+  "horse_weakeneffect": "",
+  "horse_memo": "",
+  "horse1_name": "",
+  "horse1_hr": "",
+  "horse1_mr": "",
+  "horse1_hit": "",
+  "horse1_dmg": "",
+  "horse1_evd": "",
+  "horse1_def": "",
+  "horse1_hp": "",
+  "horse1_mp": "",
+  "horses_memo": "",
+  "horse2_name": "",
+  "horse2_hr": "",
+  "horse2_mr": "",
+  "horse2_hit": "",
+  "horse2_dmg": "",
+  "horse2_evd": "",
+  "horse2_def": "",
+  "horse2_hp": "",
+  "horse2_mp": "",
+  "horse3_name": "",
+  "horse3_hr": "",
+  "horse3_mr": "",
+  "horse3_hit": "",
+  "horse3_dmg": "",
+  "horse3_evd": "",
+  "horse3_def": "",
+  "horse3_hp": "",
+  "horse3_mp": "",
+  "ehorse_hit_extend": "",
+  "ehorse_power_extend": "",
+  "ehorse_evation_extend": "",
+  "ehorse_hr_extend": "",
+  "ehorse_mr_extend": "",
+  "is_disp_legion": "",
+  "KK_lv": [
+    ""
+  ],
+  "KK_name": [
+    ""
+  ],
+  "KK_timing": [
+    ""
+  ],
+  "KK_kouka": [
+    ""
+  ],
+  "KK_zentei": [
+    ""
+  ],
+  "KK_page": [
+    ""
+  ],
+  "legion_name": "",
+  "legion_price": "",
+  "legion_power": "",
+  "legion_max": "",
+  "legion_memo": "",
+  "is_disp_honor": "1",
+  "honor_item_name": [
+    "フェアリーガーデン",
+    "フェアリーガーデン２周目",
+    ""
+  ],
+  "honor_item_point": [
+    "219",
+    "547",
+    ""
+  ],
+  "honor_item_memo": [
+    "フェアリーガーデンクリア！",
+    "",
+    ""
+  ],
+  "honor_point_sum": "766",
+  "honorout_item_name": [
+    "称号：妖精郷の救出者",
+    "ブラックベルト専用化",
+    "称号：妖精郷の帰還者"
+  ],
+  "honorout_item_point": [
+    "0",
+    "50",
+    "0"
+  ],
+  "HonorOutchkDeleting": "on",
+  "honorout_item_deleting": [
+    "1",
+    "1",
+    "1"
+  ],
+  "honorout_item_memo": [
+    "ファリーガーデンクリア！",
+    "",
+    "FG：古代種妖精の宝石を持ち帰った"
+  ],
+  "used_honor_point": "50",
+  "total_honor_point": "766",
+  "now_honor_point": "716",
+  "is_disp_seicho_his": "1",
+  "is_use_seicho_his": "1",
+  "exp_his_sum": "64430",
+  "money_his_sum": "7381",
+  "V_SN_his": [
+    "6",
+    "2",
+    "6",
+    "2",
+    "3",
+    "3",
+    "2",
+    "3",
+    "6",
+    "6",
+    "2",
+    "4",
+    "4",
+    "3",
+    "4",
+    "4",
+    "6",
+    "4",
+    "1",
+    "4",
+    "2",
+    "6",
+    "3",
+    "1",
+    "5",
+    "3",
+    "6",
+    "6",
+    "6"
+  ],
+  "SN_name_his": [
+    "精神力",
+    "敏捷度",
+    "精神力",
+    "敏捷度",
+    "筋力",
+    "筋力",
+    "敏捷度",
+    "筋力",
+    "精神力",
+    "精神力",
+    "敏捷度",
+    "生命力",
+    "生命力",
+    "筋力",
+    "生命力",
+    "生命力",
+    "精神力",
+    "生命力",
+    "器用度",
+    "生命力",
+    "敏捷度",
+    "精神力",
+    "筋力",
+    "器用度",
+    "知力",
+    "筋力",
+    "精神力",
+    "精神力",
+    "精神力"
+  ],
+  "adv_exp_his": [
+    "1140",
+    "1110",
+    "1840",
+    "1850",
+    "1500",
+    "1800",
+    "1360",
+    "1520",
+    "3190",
+    "3420",
+    "1400",
+    "1500",
+    "3400",
+    "2040",
+    "2040",
+    "1500",
+    "1500",
+    "2250",
+    "2110",
+    "6580",
+    "2900",
+    "3060",
+    "1950",
+    "2350",
+    "2700",
+    "1500",
+    "1500",
+    "2920",
+    "1600"
+  ],
+  "1zoro_his": [
+    "1",
+    "0",
+    "1",
+    "3",
+    "1",
+    "0",
+    "2",
+    "1",
+    "0",
+    "1",
+    "0",
+    "0",
+    "1",
+    "0",
+    "0",
+    "1",
+    "0",
+    "0",
+    "0",
+    "2",
+    "",
+    "1",
+    "",
+    "",
+    "1",
+    "2",
+    "",
+    "",
+    ""
+  ],
+  "bns_exp_his": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "get_exp_his": [
+    "1190",
+    "1110",
+    "1890",
+    "2000",
+    "1550",
+    "1800",
+    "1460",
+    "1570",
+    "3190",
+    "3470",
+    "1400",
+    "1500",
+    "3450",
+    "2040",
+    "2040",
+    "1550",
+    "1500",
+    "2250",
+    "2110",
+    "6680",
+    "2900",
+    "3110",
+    "1950",
+    "2350",
+    "2750",
+    "1600",
+    "1500",
+    "2920",
+    "1600"
+  ],
+  "get_money_his": [
+    "1250",
+    "0",
+    "0",
+    "0",
+    "330",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "2000",
+    "",
+    "3801",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "seicho_memo_his": [
+    "バルトゥーの屋敷",
+    "フェアリーガーデン：１",
+    "フェアリーガーデン：２",
+    "フェアリーガーデン：３",
+    "昔日の守り人　スカウト＋セージ",
+    "フェアリーガーデン：４　ファイター",
+    "フェアリーガーデン：5　エンハ",
+    "フェアリーガーデン：６　ファイター",
+    "",
+    "フェアリーガーデン：７　ファイター",
+    "",
+    "フェアリーガーデン一周目クリア！",
+    "",
+    "",
+    "↑のと＋ファイター9・レンジャー5",
+    "",
+    "",
+    "エンハ4　アンチボディ",
+    "",
+    "湖面の果実：フェアリーガーデン　10600MM",
+    "ファイター１１、エンハ５",
+    "レンジャー6、スカウト４",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "is_disp_personal": "1",
+  "pc_name": "ナナナ=カンポ",
+  "pc_tags": "ｇｌｍ",
+  "age": "10",
+  "sex": "男",
+  "pc_height": "120",
+  "pc_weight": "ぽっちゃり",
+  "color_hair": "黄色",
+  "color_eye": "緑",
+  "color_skin": "褐色",
+  "V_kegare": "0",
+  "keireki": [
+    "【役に立たない得意技がある】",
+    "【転んで泣いていた時に、通りすがりの冒険者から慰められ、赤い花をもらった】",
+    ""
+  ],
+  "pc_making_memo": "バナナを売るぽっちゃり系ショタドワーフだぞ！\r\n南の秘境から来た。強くて頭が悪い！\r\n\r\n約に立たない得意技は利きバナナ\r\n\r\n自由都市の南の南出身でルキスラ帝国にいたらしい(生えた)\r\n\r\n\r\n今後の予定：\r\nLv13　なぎ払いⅡをとる　/ スカウトちょっとあげたい /\r\nLv13盾をすててバトルマスターを目指そう\r\n◆参加：\r\n「バルトゥーの屋敷」",
+  "pc_making_memo_rows": "10",
+  "message": "",
+  "game": "swordworld2",
+  "data_id": 1200706,
+  "phrase": "52e2d6813cdd84cad44148318e9fc220",
+  "data_title": "ナナナ",
+  "save_limitate": "account",
+  "dodontof_url": "mqqu 75207520752075207520752075207520752075206D**vdnkqjc+vdnpwd+k 7520752075207520752075207520752075207560+ou*AjajkqjC*AjajkqjC+vrc",
+  "dodontof_room": "1",
+  "koma_name": "",
+  "dodontof_image": "",
+  "dodontof_param_auto_change": "1",
+  "": ""
+}
