@@ -846,6 +846,13 @@
 <script>
 "use strict";
 const DEFAULT_EP = "https://us-central1-trpgnog.cloudfunctions.net/tekeyProxy2";
+/* コールドスタート対策：送信前にプロキシを温めておく（結果は使わない・無料枠内） */
+let lastWarm=0;
+function warmProxy(){
+  const now=Date.now(); if(now-lastWarm < 45000) return; lastWarm=now;
+  const ep=cfg("ep2_endpoint")||DEFAULT_EP; if(!ep) return;
+  try{ fetch(ep, {method:"GET", mode:"no-cors", cache:"no-store", keepalive:true}).catch(()=>{}); }catch(e){}
+}
 
 /* ---------- config (localStorage) ---------- */
 const cfg = k => localStorage.getItem(k) || "";
@@ -2228,7 +2235,7 @@ $("#compose").addEventListener("keydown",e=>{
   if(e.key==="Enter" && !e.shiftKey && !e.isComposing && e.keyCode!==229){ e.preventDefault(); sendCompose(); }
 });
 $("#compose").addEventListener("input",bumpSpeakerAuto);
-$("#compose").addEventListener("focus",bumpSpeakerAuto);
+$("#compose").addEventListener("focus",()=>{ bumpSpeakerAuto(); warmProxy(); });
 
 $("#btnEdit").addEventListener("click",toggleEdit);
 /* ツールメニュー */
@@ -2982,6 +2989,9 @@ render();
 renderGmFloat();
 renderDest();
 renderSpeakers();
+warmProxy();
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) warmProxy(); });
+window.addEventListener("focus",warmProxy);
 if(!cfg("room")) setTimeout(openSettings,400);
 </script>
 </body>
