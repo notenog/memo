@@ -231,21 +231,24 @@ let PCS = [];
 let ENEMIES = [];
 
 // ---------- storage ----------
+// window.storage はClaudeのアーティファクトプレビュー内でのみ使える特別なAPIで、
+// GitHub Pagesやローカルで直接開いた場合には存在しない（保存が黙って失敗する）。
+// このツールは実ブラウザで動かす前提なので、標準のlocalStorageを使う。
 async function loadStore(){
   try{
-    const p = await window.storage.get('pcs');
-    PCS = p ? JSON.parse(p.value) : [];
+    const p = localStorage.getItem('nechro_pcs');
+    PCS = p ? JSON.parse(p) : [];
   }catch(e){ PCS = []; }
   try{
-    const e = await window.storage.get('enemies');
-    ENEMIES = e ? JSON.parse(e.value) : [];
+    const e = localStorage.getItem('nechro_enemies');
+    ENEMIES = e ? JSON.parse(e) : [];
   }catch(e){ ENEMIES = []; }
 }
 async function savePCs(){
-  try{ await window.storage.set('pcs', JSON.stringify(PCS)); }catch(e){}
+  try{ localStorage.setItem('nechro_pcs', JSON.stringify(PCS)); }catch(e){ console.error('PC保存に失敗:', e); }
 }
 async function saveEnemies(){
-  try{ await window.storage.set('enemies', JSON.stringify(ENEMIES)); }catch(e){}
+  try{ localStorage.setItem('nechro_enemies', JSON.stringify(ENEMIES)); }catch(e){ console.error('手駒保存に失敗:', e); }
 }
 
 // ---------- tabs ----------
