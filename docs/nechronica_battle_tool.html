@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ネクロニカ データ図鑑＆パレット生成</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#141019;
+  --panel:#1d1822;
+  --panel2:#241e2b;
+  --border:#3a3040;
+  --border-soft:#2a2430;
+  --text:#e9e2e6;
+  --text-muted:#948a97;
+  --accent:#9c3350;
+  --accent-soft:#5c2334;
+  --accent-text:#f0a4b6;
+  --legion:#4d6b4a;
+  --legion-text:#9fc797;
+  --ok:#5a8f5f;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Zen Kaku Gothic New', sans-serif;
+  line-height:1.6;
+  padding:0 0 4rem;
+}
+h1,h2,h3{
+  font-family:'Zen Old Mincho', serif;
+  font-weight:700;
+  margin:0 0 .3em;
+}
+header{
+  padding:2.5rem 1.5rem 1.5rem;
+  text-align:center;
+  border-bottom:1px solid var(--border-soft);
+  position:relative;
+}
+header h1{font-size:1.6rem;letter-spacing:.06em;}
+header p{color:var(--text-muted);font-size:.85rem;margin:0;}
+.torn{
+  height:10px;
+  background:repeating-linear-gradient(115deg,var(--bg) 0 6px, transparent 6px 12px);
+  margin-top:1rem;
+}
+.wrap{max-width:900px;margin:0 auto;padding:1.5rem;}
+nav.tabs{
+  display:flex;
+  gap:.5rem;
+  justify-content:center;
+  padding:1rem 1.5rem 0;
+  flex-wrap:wrap;
+}
+nav.tabs button{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text-muted);
+  padding:.5rem 1.1rem;
+  font-family:'Zen Kaku Gothic New',sans-serif;
+  font-size:.85rem;
+  cursor:pointer;
+  border-radius:2px;
+}
+nav.tabs button.active{
+  color:var(--text);
+  border-color:var(--accent);
+  background:var(--accent-soft);
+}
+.panel{display:none;}
+.panel.active{display:block;}
+.card{
+  background:var(--panel);
+  border:1px solid var(--border-soft);
+  border-radius:4px;
+  padding:1.2rem 1.4rem;
+  margin-bottom:1rem;
+}
+.card h3{font-size:1.05rem;color:var(--accent-text);}
+textarea{
+  width:100%;
+  min-height:180px;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-family:ui-monospace,'SFMono-Regular',monospace;
+  font-size:.8rem;
+  padding:.7rem;
+  border-radius:3px;
+  resize:vertical;
+}
+textarea.palette-out{min-height:220px;margin-top:.6rem;}
+select,input[type=text],input[type=number]{
+  background:var(--panel2);
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:.4rem .6rem;
+  border-radius:3px;
+  font-family:inherit;
+  font-size:.85rem;
+}
+button.act{
+  background:var(--accent-soft);
+  border:1px solid var(--accent);
+  color:var(--accent-text);
+  padding:.5rem 1.1rem;
+  border-radius:3px;
+  font-size:.85rem;
+  cursor:pointer;
+  margin-top:.6rem;
+}
+button.act:hover{background:var(--accent);color:#fff;}
+button.small{padding:.3rem .7rem;font-size:.75rem;margin-top:0;}
+button.ghost{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text-muted);
+  padding:.3rem .7rem;
+  border-radius:3px;
+  font-size:.75rem;
+  cursor:pointer;
+}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.8rem;margin-top:1rem;}
+.entity-card{
+  background:var(--panel2);
+  border:1px solid var(--border-soft);
+  border-left:3px solid var(--accent);
+  border-radius:3px;
+  padding:.8rem .9rem;
+  position:relative;
+}
+.entity-card.legion{border-left-color:var(--legion);}
+.entity-card h4{margin:0 0 .2em;font-family:'Zen Old Mincho',serif;font-size:1rem;}
+.entity-card .sub{color:var(--text-muted);font-size:.75rem;margin-bottom:.4em;}
+.tag{
+  display:inline-block;
+  font-size:.65rem;
+  padding:.15em .5em;
+  border-radius:20px;
+  background:var(--accent-soft);
+  color:var(--accent-text);
+  margin:.15em .25em .15em 0;
+  border:1px solid var(--border-soft);
+}
+.legion .tag{background:#28361f;color:var(--legion-text);}
+.entity-card .del{position:absolute;top:.5rem;right:.5rem;font-size:.7rem;color:var(--text-muted);cursor:pointer;background:none;border:none;}
+.hint{color:var(--text-muted);font-size:.78rem;margin-top:.4rem;}
+.notice{color:var(--text-muted);font-size:.78rem;text-align:center;padding:1.5rem;}
+.copy-msg{font-size:.72rem;color:var(--ok);margin-left:.5rem;}
+.actions-row{display:flex;gap:.5rem;align-items:center;margin-top:.6rem;flex-wrap:wrap;}
+.maneuver-table{width:100%;border-collapse:collapse;margin-top:.6rem;font-size:.75rem;}
+.maneuver-table th,.maneuver-table td{
+  border:1px solid var(--border-soft);
+  padding:.35rem .5rem;
+  text-align:left;
+  vertical-align:top;
+}
+.maneuver-table thead th{background:var(--panel);color:var(--accent-text);font-weight:500;}
+.maneuver-table tbody tr:nth-child(even){background:rgba(255,255,255,.02);}
+.maneuver-table .part-row td{
+  background:var(--accent-soft);
+  color:var(--accent-text);
+  font-family:'Zen Old Mincho',serif;
+  font-weight:700;
+  padding:.3rem .5rem;
+}
+.legion .maneuver-table .part-row td{background:#28361f;color:var(--legion-text);}
+</style>
+</head>
+<body>
+<header>
+  <h1>永い後日談のネクロニカ　データ図鑑＆パレット生成</h1>
+  <p>PC / 手駒を登録して、Tekey用のチャットパレットを書き出すツール</p>
+  <div class="torn"></div>
+</header>
+
+<nav class="tabs">
+  <button data-tab="pc" class="active">PCデータ</button>
+  <button data-tab="enemy">手駒</button>
+</nav>
+
+<div class="wrap">
+
+<!-- PC TAB -->
+<div class="panel active" id="tab-pc">
+  <div class="card">
+    <h3>キャラシテキストを貼り付け</h3>
+    <p class="hint">charasheet.vampire-blood.net の「テキスト」出力、またはキャラシページの生HTMLソースをそのまま貼ってください。どちらの形式かは自動判定します。</p>
+    <textarea id="pc-input" placeholder="タイトル：ピュアレクコート&#10;キャラクター名：ウェスト&#10;..."></textarea>
+    <div><button class="act" onclick="parseAndAddPC()">解析して登録</button></div>
+    <div id="pc-parse-msg" class="hint"></div>
+  </div>
+  <div class="card">
+    <h3>登録済みPC</h3>
+    <div class="grid" id="pc-list"></div>
+  </div>
+</div>
+
+<!-- ENEMY(手駒) TAB -->
+<div class="panel" id="tab-enemy">
+  <div class="card">
+    <h3>手駒テキストを貼り付け</h3>
+    <p class="hint">「名前 / (タイプ・)最大行動値N(・悪意N) / 【マニューバ名】《タイミング/コスト/射程》効果...」の形式。タイプ（レギオン/ホラー/サヴァント）は本文中の記載から自動判定します（「悪意」があればホラー扱い）。複数体を空行区切りでまとめて貼ってもOKです。</p>
+    <textarea id="enemy-input">ハウンド
+悪意：2　最大行動値：9
+【セイバートゥース】　《アクション/2/0》　肉弾攻撃2
+【けもあし】　《アクション/2/自身》　移動1~2
+【強化脊髄】　《オート/なし/自身》　最大行動値+2
+【しっぽ】　《オート/なし/自身》　最大行動値+1
+【はらわた】　《オート/なし/なし》　なし
+アンデッドの軍用犬。半ば機械化された強靭な体で機敏な襲撃を繰り返す。</textarea>
+    <div><button class="act" onclick="parseAndAddEnemies()">解析して登録</button></div>
+    <div id="enemy-parse-msg" class="hint"></div>
+  </div>
+  <div class="card">
+    <h3>登録済み手駒</h3>
+    <div class="grid" id="enemy-list"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let PCS = [];
+let ENEMIES = [];
+
+// ---------- storage ----------
+async function loadStore(){
+  try{
+    const p = await window.storage.get('pcs');
+    PCS = p ? JSON.parse(p.value) : [];
+  }catch(e){ PCS = []; }
+  try{
+    const e = await window.storage.get('enemies');
+    ENEMIES = e ? JSON.parse(e.value) : [];
+  }catch(e){ ENEMIES = []; }
+}
+async function savePCs(){
+  try{ await window.storage.set('pcs', JSON.stringify(PCS)); }catch(e){}
+}
+async function saveEnemies(){
+  try{ await window.storage.set('enemies', JSON.stringify(ENEMIES)); }catch(e){}
+}
+
+// ---------- tabs ----------
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ---------- PC parsing ----------
+const PART_LABELS = ['','ポジション','メインクラス','サブクラス','頭','腕','胴','足'];
+const TIMING_LABELS = ['オート','アクション','ジャッジ','ダメージ','ラピッド'];
+
+function parsePCHtml(html){
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const val = sel => { const el = doc.querySelector(sel); return el ? el.value.trim() : ''; };
+
+  const title = val('input[name="data_title"]');
+  const name = val('input[name="pc_name"]');
+  const position = val('input[name="Position_Name"]');
+  const mainClass = val('input[name="MCLS_Name"]');
+  const subClass = val('input[name="SCLS_Name"]');
+  const initialArea = val('input[name="sex"]') || '花園';
+  const maxActionRaw = val('input[name="Act_Total"]');
+  const maxAction = parseInt(maxActionRaw,10) || 10;
+
+  const maneuvers = [];
+  doc.querySelectorAll('#Table_Power tbody tr').forEach(tr=>{
+    const nameInput = tr.querySelector('input[name="Power_name[]"]');
+    if(!nameInput) return;
+    const mname = nameInput.value.trim();
+    if(!mname) return;
+    const partIdx = parseInt(tr.querySelector('input[name="V_Power_hantei[]"]')?.value, 10) || 0;
+    const timingIdx = parseInt(tr.querySelector('input[name="V_Power_timing[]"]')?.value, 10) || 0;
+    const cost = tr.querySelector('input[name="Power_cost[]"]')?.value.trim() || 'なし';
+    const range = tr.querySelector('input[name="Power_range[]"]')?.value.trim() || '';
+    const effect = tr.querySelector('input[name="Power_memo[]"]')?.value.trim() || '';
+    maneuvers.push({
+      part: PART_LABELS[partIdx] || '',
+      name: mname,
+      timing: TIMING_LABELS[timingIdx] || 'オート',
+      cost, range, effect
+    });
+  });
+
+  // 未練の「たからもの」はマニューバ欄でなく未練テーブル側で管理されていることがあるため、別途拾っておく
+  doc.querySelectorAll('input[name="roice_name[]"]').forEach(inp=>{
+    if(inp.value.trim() !== 'たからもの') return;
+    const row = inp.closest('tr');
+    const memo = row?.querySelector('input[name="roice_memo[]"]')?.value.trim() || '';
+    const breakEff = row?.querySelector('input[name="roice_break[]"]')?.value.trim() || '';
+    maneuvers.push({
+      part: '未練',
+      name: 'たからもの',
+      timing: 'オート',
+      cost: 'なし',
+      range: '自身',
+      effect: [memo, breakEff].filter(Boolean).join(' / ') || '(詳細は未練欄を参照)'
+    });
+  });
+
+  return {
+    id: 'pc_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    title, name: name||'(無名)', position, mainClass, subClass,
+    initialArea, maxAction, maneuvers
+  };
+}
+
+function parsePCText(text){
+  const get = (label)=>{
+    const m = text.match(new RegExp(label+'：(.*)'));
+    return m ? m[1].trim() : '';
+  };
+  const title = get('タイトル');
+  const name = get('キャラクター名');
+  const position = get('ポジション');
+  const classLine = get('クラス');
+  const [mainClass, subClass] = classLine.split('/').map(s=>s?s.trim():'');
+  const initialArea = get('初期配置') || '花園';
+  const maxActionM = text.match(/行動値：(\d+)/);
+  const maxAction = maxActionM ? parseInt(maxActionM[1],10) : 10;
+
+  const maneuvers = [];
+  text.split('\n').forEach(line=>{
+    const l = line.trim();
+    if(!l.startsWith('[')) return;
+    const partMatch = l.match(/^\[(.*?)\]/);
+    if(!partMatch) return;
+    const part = partMatch[1].trim();
+    const rest = l.slice(partMatch[0].length);
+    const fields = rest.split(':');
+    if(fields.length < 4) return;
+    const clean = s => s.replace(/[\s\u3000]+/g,'').trim();
+    const name = clean(fields[0]);
+    if(!name) return;
+    const timing = clean(fields[1]);
+    const cost = clean(fields[2]);
+    const range = clean(fields[3]);
+    const effect = fields.slice(4).join(':').trim();
+    maneuvers.push({part, name, timing, cost, range, effect});
+  });
+
+  return {
+    id: 'pc_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    title, name: name||'(無名)', position, mainClass: mainClass||'', subClass: subClass||'',
+    initialArea, maxAction, maneuvers
+  };
+}
+
+async function parseAndAddPC(){
+  const text = document.getElementById('pc-input').value;
+  const msg = document.getElementById('pc-parse-msg');
+  if(!text.trim()){ msg.textContent = 'テキストを貼り付けてください。'; return; }
+  try{
+    const isHtml = /<!DOCTYPE|<html|<input\s/i.test(text);
+    const pc = isHtml ? parsePCHtml(text) : parsePCText(text);
+    if(pc.maneuvers.length === 0){
+      msg.textContent = 'マニューバが1件も読み取れませんでした。フォーマットを確認してください。';
+      return;
+    }
+    PCS.push(pc);
+    await savePCs();
+    document.getElementById('pc-input').value = '';
+    msg.textContent = `「${pc.name}」を登録しました（マニューバ${pc.maneuvers.length}件、${isHtml?'HTMLソース':'テキスト出力'}から読み取り）`;
+    renderPCList();
+  }catch(e){
+    msg.textContent = '解析中にエラーが発生しました: '+e.message;
+  }
+}
+
+function renderPCList(){
+  const list = document.getElementById('pc-list');
+  list.innerHTML = '';
+  if(PCS.length===0){ list.innerHTML = '<p class="notice">まだ登録がありません</p>'; return; }
+  PCS.forEach(pc=>{
+    const div = document.createElement('div');
+    div.className = 'entity-card';
+    div.innerHTML = `
+      <button class="del" onclick="deletePC('${pc.id}')">削除</button>
+      <h4>${pc.name}</h4>
+      <div class="sub">${pc.title||''}／${pc.position}／${pc.mainClass}・${pc.subClass}</div>
+      <div class="sub">初期配置: ${pc.initialArea}／行動値: ${pc.maxAction}</div>
+      <div>${pc.maneuvers.map(m=>`<span class="tag">${m.name}</span>`).join('')}</div>
+      <div class="actions-row">
+        <button class="ghost small" onclick="toggleTable('pc-tbl-${pc.id}', this)">一覧表示</button>
+        <button class="ghost small" onclick="togglePalette('pc-pal-${pc.id}', this)">パレット生成</button>
+        <span class="copy-msg" id="pc-copy-${pc.id}"></span>
+      </div>
+      <div id="pc-tbl-${pc.id}" style="display:none;"></div>
+      <textarea class="palette-out" id="pc-pal-${pc.id}" style="display:none;" readonly></textarea>
+    `;
+    list.appendChild(div);
+  });
+}
+async function deletePC(id){
+  PCS = PCS.filter(p=>p.id!==id);
+  await savePCs();
+  renderPCList();
+}
+
+// ---------- Enemy(手駒) parsing ----------
+function parseEnemyBlock(block){
+  const rawLines = block.split('\n').map(l=>l.trim()).filter(l=>l);
+  if(rawLines.length===0) return null;
+  const name = rawLines[0];
+
+  let type = null;
+  ['レギオン','ホラー','サヴァント'].forEach(t=>{ if(block.includes(t)) type = type || t; });
+  const maliceMatch = block.match(/悪意[:：]?\s*([0-9]+)/);
+  const malice = maliceMatch ? parseInt(maliceMatch[1],10) : null;
+  const maxActionMatch = block.match(/最大行動値[:：]?\s*([0-9]+)/);
+  const maxAction = maxActionMatch ? parseInt(maxActionMatch[1],10) : 8;
+  if(!type) type = malice !== null ? 'ホラー' : 'レギオン';
+
+  const maneuvers = [];
+  const notes = [];
+  rawLines.slice(1).forEach(l=>{
+    const m = l.match(/^[□■]?\s*【(.*?)】\s*《(.*?)\/(.*?)\/(.*?)》\s*(.*)$/);
+    if(m){
+      maneuvers.push({name:m[1].trim(), timing:m[2].trim(), cost:m[3].trim(), range:m[4].trim(), effect:m[5].trim()});
+      return;
+    }
+    if(/悪意|最大行動値/.test(l)) return; // ステータス行はスキップ
+    notes.push(l);
+  });
+  if(maneuvers.length===0) return null;
+
+  return {
+    id: 'en_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    name, type, maxAction, malice, notes: notes.join(' '),
+    maneuvers
+  };
+}
+
+async function parseAndAddEnemies(){
+  const text = document.getElementById('enemy-input').value;
+  const msg = document.getElementById('enemy-parse-msg');
+  if(!text.trim()){ msg.textContent = 'テキストを貼り付けてください。'; return; }
+  const blocks = text.split(/\n\s*\n/);
+  let added = 0;
+  blocks.forEach(b=>{
+    const en = parseEnemyBlock(b);
+    if(en){ ENEMIES.push(en); added++; }
+  });
+  await saveEnemies();
+  document.getElementById('enemy-input').value = '';
+  msg.textContent = added>0 ? `${added}体を手駒として登録しました` : '解析できるデータが見つかりませんでした。フォーマットを確認してください。';
+  renderEnemyList();
+}
+
+function renderEnemyList(){
+  const list = document.getElementById('enemy-list');
+  list.innerHTML = '';
+  if(ENEMIES.length===0){ list.innerHTML = '<p class="notice">まだ登録がありません</p>'; return; }
+  ENEMIES.forEach(en=>{
+    const div = document.createElement('div');
+    div.className = 'entity-card legion';
+    div.innerHTML = `
+      <button class="del" onclick="deleteEnemy('${en.id}')">削除</button>
+      <h4>${en.name}</h4>
+      <div class="sub">${en.type}／最大行動値${en.maxAction}${en.malice!=null?'／悪意'+en.malice:''}</div>
+      ${en.notes ? `<div class="hint">${en.notes}</div>` : ''}
+      <div>${en.maneuvers.map(m=>`<span class="tag">${m.name}</span>`).join('')}</div>
+      <div class="actions-row">
+        <button class="ghost small" onclick="toggleTable('en-tbl-${en.id}', this)">一覧表示</button>
+        <button class="ghost small" onclick="togglePalette('en-pal-${en.id}', this)">パレット生成</button>
+        <span class="copy-msg" id="en-copy-${en.id}"></span>
+      </div>
+      <div id="en-tbl-${en.id}" style="display:none;"></div>
+      <textarea class="palette-out" id="en-pal-${en.id}" style="display:none;" readonly></textarea>
+    `;
+    list.appendChild(div);
+  });
+}
+async function deleteEnemy(id){
+  ENEMIES = ENEMIES.filter(e=>e.id!==id);
+  await saveEnemies();
+  renderEnemyList();
+}
+
+// ---------- palette generation ----------
+// ダイスコマンドは付けず、まず宣言用のテキストとして書き出す。
+// 各行の頭に「□」を付け、キャラシと同じ並び（部位ごとにグループ化）で出力する。
+function maneuverToPaletteLine(m){
+  return `□【${m.name}】　《${m.timing}/${m.cost || 'なし'}/${m.range}》　${m.effect}`.trim();
+}
+
+function buildPalette(entity){
+  const lines = [];
+  lines.push(`// ${entity.name}`);
+  if(entity.maneuvers.some(m=>m.part)){
+    // PC: 部位ごとにグループ化して、キャラシ上の並び順（初出順）を維持する
+    const partOrder = [];
+    entity.maneuvers.forEach(m=>{ if(m.part && !partOrder.includes(m.part)) partOrder.push(m.part); });
+    partOrder.forEach(part=>{
+      lines.push(`▼${part}`);
+      entity.maneuvers.filter(m=>m.part===part).forEach(m=>{
+        lines.push(maneuverToPaletteLine(m));
+      });
+    });
+  }else{
+    // エネミー: 部位の概念がないため、そのまま並べる
+    entity.maneuvers.forEach(m=>{
+      lines.push(maneuverToPaletteLine(m));
+    });
+  }
+  return lines.join('\n');
+}
+
+function buildManeuverTable(entity){
+  const hasPart = entity.maneuvers.some(m=>m.part);
+  let rows = '';
+  if(hasPart){
+    const partOrder = [];
+    entity.maneuvers.forEach(m=>{ if(m.part && !partOrder.includes(m.part)) partOrder.push(m.part); });
+    partOrder.forEach(part=>{
+      rows += `<tr class="part-row"><td colspan="5">${part}</td></tr>`;
+      entity.maneuvers.filter(m=>m.part===part).forEach(m=>{
+        rows += `<tr><td>${m.name}</td><td>${m.timing}</td><td>${m.cost||'なし'}</td><td>${m.range}</td><td>${m.effect}</td></tr>`;
+      });
+    });
+  }else{
+    entity.maneuvers.forEach(m=>{
+      rows += `<tr><td>${m.name}</td><td>${m.timing}</td><td>${m.cost||'なし'}</td><td>${m.range}</td><td>${m.effect}</td></tr>`;
+    });
+  }
+  return `<table class="maneuver-table">
+    <thead><tr><th>マニューバ</th><th>タイミング</th><th>ｺｽﾄ</th><th>射程</th><th>効果</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function toggleTable(boxId, btn){
+  const box = document.getElementById(boxId);
+  const isPc = boxId.startsWith('pc-tbl-');
+  const id = boxId.replace(isPc?'pc-tbl-':'en-tbl-','');
+  const entity = isPc ? PCS.find(p=>p.id===id) : ENEMIES.find(e=>e.id===id);
+  if(!entity) return;
+  const card = box.closest('.entity-card');
+  if(box.style.display === 'none'){
+    box.innerHTML = buildManeuverTable(entity);
+    box.style.display = 'block';
+    if(card) card.style.gridColumn = '1 / -1';
+    btn.textContent = '一覧を閉じる';
+  }else{
+    box.style.display = 'none';
+    box.innerHTML = '';
+    if(card) card.style.gridColumn = '';
+    btn.textContent = '一覧表示';
+  }
+}
+
+function togglePalette(taId, btn){
+  const ta = document.getElementById(taId);
+  const isPc = taId.startsWith('pc-pal-');
+  const id = taId.replace(isPc?'pc-pal-':'en-pal-','');
+  const entity = isPc ? PCS.find(p=>p.id===id) : ENEMIES.find(e=>e.id===id);
+  if(!entity) return;
+  if(ta.style.display === 'none'){
+    ta.value = buildPalette(entity);
+    ta.style.display = 'block';
+    ta.style.height = Math.min(400, 60 + entity.maneuvers.length*22) + 'px';
+    btn.textContent = 'パレットを閉じる';
+    ta.onclick = ()=>{ ta.select(); copyPalette(ta, isPc?'pc-copy-'+id:'en-copy-'+id); };
+  }else{
+    ta.style.display = 'none';
+    btn.textContent = 'パレット生成';
+  }
+}
+
+async function copyPalette(ta, msgId){
+  ta.select();
+  try{
+    await navigator.clipboard.writeText(ta.value);
+    const msg = document.getElementById(msgId);
+    if(msg){ msg.textContent = 'コピーしました'; setTimeout(()=>{ msg.textContent=''; }, 1500); }
+  }catch(e){ /* clipboard permission not available - selection still lets manual copy */ }
+}
+
+// ---------- init ----------
+(async function init(){
+  await loadStore();
+  renderPCList();
+  renderEnemyList();
+})();
+</script>
+</body>
+</html>
