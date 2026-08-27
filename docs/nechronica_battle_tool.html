@@ -130,8 +130,8 @@ button.ghost:hover{color:var(--accent-text);border-color:var(--accent);}
 /* ---- 横並び一覧（メイン） ---- */
 .hlist{
   display:flex;
+  flex-wrap:wrap;
   gap:1rem;
-  overflow-x:auto;
   padding-bottom:1rem;
   align-items:flex-start;
 }
@@ -216,6 +216,75 @@ textarea.palette-out{
   border-radius:3px;
 }
 .notice{color:var(--text-muted);font-size:.85rem;text-align:center;padding:3rem 1rem;width:100%;}
+
+/* ---- 編集フォーム ---- */
+.hcard.editing{flex:1 1 480px;max-width:560px;border-top-color:var(--accent-text);}
+.edit-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;flex-wrap:wrap;}
+.edit-row label{font-size:.7rem;color:var(--text-muted);min-width:4.5em;}
+.edit-row input[type=text],.edit-row input[type=number],.edit-row textarea,.edit-row select{
+  flex:1;
+  min-width:80px;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:.3rem .5rem;
+  border-radius:3px;
+  font-size:.78rem;
+  font-family:inherit;
+}
+.edit-row textarea{min-height:44px;resize:vertical;}
+.edit-maneuvers{margin-top:.8rem;padding-top:.6rem;border-top:1px solid var(--border-soft);}
+.edit-mline{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:.3rem;
+  background:var(--panel2);
+  border:1px solid var(--border-soft);
+  border-radius:3px;
+  padding:.5rem;
+  margin-bottom:.5rem;
+}
+.edit-mline input,.edit-mline select,.edit-mline textarea{
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:.25rem .4rem;
+  border-radius:3px;
+  font-size:.72rem;
+  font-family:inherit;
+  width:100%;
+}
+.edit-mline .ed-effect{grid-column:1/-1;min-height:36px;resize:vertical;}
+.edit-mline .ed-del{grid-column:1/-1;justify-self:end;background:none;border:1px solid var(--border);color:var(--text-muted);font-size:.65rem;padding:.15rem .5rem;border-radius:10px;cursor:pointer;}
+.edit-mline .ed-del:hover{color:#d99;border-color:#5a2a2a;}
+.edit-actions{display:flex;gap:.5rem;margin-top:.7rem;}
+
+/* ---- NC管理: 手駒ピッカー ---- */
+.pick-grid{display:flex;flex-wrap:wrap;gap:.6rem;}
+.pick-chip{
+  position:relative;
+  cursor:pointer;
+}
+.pick-chip input{position:absolute;opacity:0;pointer-events:none;}
+.pick-chip .chip-body{
+  display:flex;
+  flex-direction:column;
+  gap:.15rem;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:.5rem .8rem;
+  min-width:120px;
+  transition:border-color .1s, background .1s;
+}
+.pick-chip .chip-name{font-size:.85rem;font-weight:700;color:var(--text);}
+.pick-chip .chip-type{font-size:.68rem;color:var(--text-muted);}
+.pick-chip input:checked + .chip-body{
+  border-color:var(--accent);
+  background:var(--accent-soft);
+}
+.pick-chip input:checked + .chip-body .chip-name{color:var(--accent-text);}
+.pick-chip:hover .chip-body{border-color:var(--accent-text);}
 </style>
 </head>
 <body>
@@ -227,6 +296,7 @@ textarea.palette-out{
 <nav class="tabs">
   <button data-tab="pc" class="active">PC一覧</button>
   <button data-tab="enemy">手駒一覧</button>
+  <button data-tab="nc">NC管理</button>
 </nav>
 
 <!-- PC TAB -->
@@ -246,18 +316,21 @@ textarea.palette-out{
   <button class="register-toggle" onclick="toggleRegisterPanel('enemy-register')">＋ 手駒を新規登録</button>
   <div class="register-panel" id="enemy-register">
     <p class="hint">「名前 / (タイプ・)最大行動値N(・悪意N) / 【マニューバ名】《タイミング/コスト/射程》効果...」の形式。タイプ（レギオン/ホラー/サヴァント）は本文中の記載から自動判定します（「悪意」があればホラー扱い）。複数体を空行区切りでまとめて貼ってもOKです。</p>
-    <textarea id="enemy-input">ハウンド
-悪意：2　最大行動値：9
-【セイバートゥース】　《アクション/2/0》　肉弾攻撃2
-【けもあし】　《アクション/2/自身》　移動1~2
-【強化脊髄】　《オート/なし/自身》　最大行動値+2
-【しっぽ】　《オート/なし/自身》　最大行動値+1
-【はらわた】　《オート/なし/なし》　なし
-アンデッドの軍用犬。半ば機械化された強靭な体で機敏な襲撃を繰り返す。</textarea>
+    <textarea id="enemy-input" placeholder="ゾンビ&#10;悪意：1で5体　最大行動値：8&#10;【ひさぎ】　《アクション/2/0》　肉弾攻撃1+連撃（同エリアのゾンビの数÷10)[切り捨て]&#10;..."></textarea>
     <div><button class="act" onclick="parseAndAddEnemies()">解析して登録</button></div>
     <div id="enemy-parse-msg" class="hint"></div>
   </div>
   <div class="hlist" id="enemy-hlist"></div>
+</div>
+
+<!-- NC管理 TAB -->
+<div class="section" id="tab-nc">
+  <button class="register-toggle" onclick="toggleRegisterPanel('nc-picker')">＋ 手駒を選択</button>
+  <div class="register-panel" id="nc-picker">
+    <p class="hint">今回のセッションで使う手駒を手駒図鑑からピックしてください。ここでのチェックは表示の絞り込みだけで、図鑑側のデータは削除されません。</p>
+    <div id="nc-picker-list"></div>
+  </div>
+  <div class="hlist" id="nc-hlist"></div>
 </div>
 
 <div id="toast"></div>
@@ -471,6 +544,104 @@ function parseAndAddEnemies(){
   renderEnemyList();
 }
 
+// ---------- 編集機能 ----------
+let editDrafts = {}; // entityId -> 編集中のドラフト（保存するまで実データは変更しない）
+
+function escAttr(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function startEdit(entityId, isPc){
+  const list = isPc ? PCS : ENEMIES;
+  const entity = list.find(e=>e.id===entityId);
+  if(!entity) return;
+  editDrafts[entityId] = JSON.parse(JSON.stringify(entity));
+  if(isPc) renderPCList(); else renderEnemyList();
+}
+function cancelEdit(entityId, isPc){
+  delete editDrafts[entityId];
+  if(isPc) renderPCList(); else renderEnemyList();
+}
+function saveEdit(entityId, isPc){
+  const list = isPc ? PCS : ENEMIES;
+  const idx = list.findIndex(e=>e.id===entityId);
+  const draft = editDrafts[entityId];
+  if(idx===-1 || !draft) return;
+  if(!draft.name || !draft.name.trim()){ alert('名前は必須です。'); return; }
+  list[idx] = draft;
+  delete editDrafts[entityId];
+  if(isPc){ savePCs(); renderPCList(); } else { saveEnemies(); renderEnemyList(); }
+}
+function addManeuverToDraft(entityId, isPc){
+  const draft = editDrafts[entityId];
+  if(!draft) return;
+  draft.maneuvers.push({part:'', name:'新規マニューバ', timing:'アクション', cost:'', range:'', effect:''});
+  if(isPc) renderPCList(); else renderEnemyList();
+}
+function removeManeuverFromDraft(entityId, isPc, idx){
+  const draft = editDrafts[entityId];
+  if(!draft) return;
+  draft.maneuvers.splice(idx,1);
+  if(isPc) renderPCList(); else renderEnemyList();
+}
+
+function editManeuverRow(entityId, isPc, m, idx){
+  const timingOptions = TIMING_LABELS.map(t=>`<option value="${t}" ${m.timing===t?'selected':''}>${t}</option>`).join('');
+  return `
+    <div class="edit-mline">
+      ${isPc ? `<input type="text" placeholder="部位" value="${escAttr(m.part)}" onchange="editDrafts['${entityId}'].maneuvers[${idx}].part=this.value">` : ''}
+      <input type="text" placeholder="マニューバ名" value="${escAttr(m.name)}" onchange="editDrafts['${entityId}'].maneuvers[${idx}].name=this.value">
+      <select onchange="editDrafts['${entityId}'].maneuvers[${idx}].timing=this.value">${timingOptions}</select>
+      <input type="text" placeholder="コスト" value="${escAttr(m.cost)}" onchange="editDrafts['${entityId}'].maneuvers[${idx}].cost=this.value">
+      <input type="text" placeholder="射程" value="${escAttr(m.range)}" onchange="editDrafts['${entityId}'].maneuvers[${idx}].range=this.value">
+      <textarea class="ed-effect" placeholder="効果" onchange="editDrafts['${entityId}'].maneuvers[${idx}].effect=this.value">${escAttr(m.effect)}</textarea>
+      <button class="ed-del" onclick="removeManeuverFromDraft('${entityId}', ${isPc}, ${idx})">この行を削除</button>
+    </div>
+  `;
+}
+
+function buildPCEditCard(pc){
+  const d = editDrafts[pc.id];
+  return `
+    <div class="hcard editing">
+      <div class="edit-row"><label>名前</label><input type="text" value="${escAttr(d.name)}" onchange="editDrafts['${pc.id}'].name=this.value"></div>
+      <div class="edit-row"><label>タイトル</label><input type="text" value="${escAttr(d.title)}" onchange="editDrafts['${pc.id}'].title=this.value"></div>
+      <div class="edit-row"><label>ポジション</label><input type="text" value="${escAttr(d.position)}" onchange="editDrafts['${pc.id}'].position=this.value"></div>
+      <div class="edit-row"><label>メイン/サブ</label><input type="text" value="${escAttr(d.mainClass)}" onchange="editDrafts['${pc.id}'].mainClass=this.value"><input type="text" value="${escAttr(d.subClass)}" onchange="editDrafts['${pc.id}'].subClass=this.value"></div>
+      <div class="edit-row"><label>初期配置</label><input type="text" value="${escAttr(d.initialArea)}" onchange="editDrafts['${pc.id}'].initialArea=this.value"><label>行動値</label><input type="number" value="${d.maxAction}" onchange="editDrafts['${pc.id}'].maxAction=parseInt(this.value)||0"></div>
+      <div class="edit-maneuvers">
+        ${d.maneuvers.map((m,idx)=>editManeuverRow(pc.id, true, m, idx)).join('')}
+      </div>
+      <button class="ghost" onclick="addManeuverToDraft('${pc.id}', true)">＋ マニューバ追加</button>
+      <div class="edit-actions">
+        <button class="act" onclick="saveEdit('${pc.id}', true)">保存</button>
+        <button class="ghost" onclick="cancelEdit('${pc.id}', true)">キャンセル</button>
+      </div>
+    </div>
+  `;
+}
+
+function buildEnemyEditCard(en){
+  const d = editDrafts[en.id];
+  const typeOptions = ['レギオン','ホラー','サヴァント'].map(t=>`<option value="${t}" ${d.type===t?'selected':''}>${t}</option>`).join('');
+  return `
+    <div class="hcard editing legion">
+      <div class="edit-row"><label>名前</label><input type="text" value="${escAttr(d.name)}" onchange="editDrafts['${en.id}'].name=this.value"></div>
+      <div class="edit-row"><label>タイプ</label><select onchange="editDrafts['${en.id}'].type=this.value">${typeOptions}</select><label>行動値</label><input type="number" value="${d.maxAction}" onchange="editDrafts['${en.id}'].maxAction=parseInt(this.value)||0"></div>
+      <div class="edit-row"><label>悪意</label><input type="number" value="${d.malice==null?'':d.malice}" placeholder="なければ空欄" onchange="editDrafts['${en.id}'].malice=this.value===''?null:(parseInt(this.value)||0)"></div>
+      <div class="edit-row"><label>メモ</label><textarea onchange="editDrafts['${en.id}'].notes=this.value">${escAttr(d.notes)}</textarea></div>
+      <div class="edit-maneuvers">
+        ${d.maneuvers.map((m,idx)=>editManeuverRow(en.id, false, m, idx)).join('')}
+      </div>
+      <button class="ghost" onclick="addManeuverToDraft('${en.id}', false)">＋ マニューバ追加</button>
+      <div class="edit-actions">
+        <button class="act" onclick="saveEdit('${en.id}', false)">保存</button>
+        <button class="ghost" onclick="cancelEdit('${en.id}', false)">キャンセル</button>
+      </div>
+    </div>
+  `;
+}
+
 // ---------- rendering (横並び一覧がメイン) ----------
 function symbolFor(m){
   if(m.broken) return '×';
@@ -572,6 +743,7 @@ function renderPCList(){
   const box = document.getElementById('pc-hlist');
   if(PCS.length===0){ box.innerHTML = '<p class="notice">まだPCが登録されていません。「＋ PCを新規登録」から追加してください。</p>'; return; }
   box.innerHTML = PCS.map(pc=>{
+    if(editDrafts[pc.id]) return buildPCEditCard(pc);
     const partOrder = [];
     pc.maneuvers.forEach(m=>{ if(m.part && !partOrder.includes(m.part)) partOrder.push(m.part); });
     const blocks = partOrder.map(part=>`
@@ -588,6 +760,7 @@ function renderPCList(){
         <div class="sub">初期配置: ${pc.initialArea}／行動値: ${pc.maxAction}</div>
         <div class="card-actions">
           <button class="ghost" onclick="togglePalette('${pc.id}', true, this)">パレット生成</button>
+          <button class="ghost" onclick="startEdit('${pc.id}', true)">編集</button>
           <span class="copy-msg" id="pc-copy-${pc.id}"></span>
         </div>
         <textarea class="palette-out" id="pc-pal-${pc.id}" style="display:none;" readonly onclick="this.select(); copyPalette('${pc.id}', true);"></textarea>
@@ -602,10 +775,9 @@ function deletePC(id){
   renderPCList();
 }
 
-function renderEnemyList(){
-  const box = document.getElementById('enemy-hlist');
-  if(ENEMIES.length===0){ box.innerHTML = '<p class="notice">まだ手駒が登録されていません。「＋ 手駒を新規登録」から追加してください。</p>'; return; }
-  box.innerHTML = ENEMIES.map(en=>`
+function enemyCardOrEdit(en){
+  if(editDrafts[en.id]) return buildEnemyEditCard(en);
+  return `
     <div class="hcard legion">
       <button class="del" onclick="deleteEnemy('${en.id}')">削除</button>
       <h3>${en.name}</h3>
@@ -613,21 +785,407 @@ function renderEnemyList(){
       ${en.notes ? `<div class="notes">${en.notes}</div>` : ''}
       <div class="card-actions">
         <button class="ghost" onclick="togglePalette('${en.id}', false, this)">パレット生成</button>
+        <button class="ghost" onclick="startEdit('${en.id}', false)">編集</button>
         <span class="copy-msg" id="en-copy-${en.id}"></span>
       </div>
       <textarea class="palette-out" id="en-pal-${en.id}" style="display:none;" readonly onclick="this.select(); copyPalette('${en.id}', false);"></textarea>
       ${en.maneuvers.map((m,idx)=>maneuverLine(m, en.id, false, idx)).join('')}
     </div>
-  `).join('');
+  `;
+}
+
+function renderEnemyList(){
+  const box = document.getElementById('enemy-hlist');
+  if(ENEMIES.length===0){ box.innerHTML = '<p class="notice">まだ手駒が登録されていません。「＋ 手駒を新規登録」から追加してください。</p>'; return; }
+  box.innerHTML = ENEMIES.map(enemyCardOrEdit).join('');
+  renderNC();
 }
 function deleteEnemy(id){
   ENEMIES = ENEMIES.filter(e=>e.id!==id);
   saveEnemies();
+  NC_SELECTED.delete(id);
+  saveNCSelection();
   renderEnemyList();
+}
+
+// ---------- NC管理 ----------
+let NC_SELECTED = new Set();
+function loadNCSelection(){
+  try{ NC_SELECTED = new Set(JSON.parse(localStorage.getItem('nechro_nc_selection') || '[]')); }
+  catch(e){ NC_SELECTED = new Set(); }
+}
+function saveNCSelection(){
+  try{ localStorage.setItem('nechro_nc_selection', JSON.stringify([...NC_SELECTED])); }catch(e){}
+}
+function toggleNCPick(id, checked){
+  if(checked) NC_SELECTED.add(id); else NC_SELECTED.delete(id);
+  saveNCSelection();
+  renderNC();
+}
+function renderNCPicker(){
+  const box = document.getElementById('nc-picker-list');
+  if(ENEMIES.length===0){ box.innerHTML = '<p class="notice">手駒図鑑にまだ何も登録されていません。</p>'; return; }
+  box.innerHTML = `<div class="pick-grid">${ENEMIES.map(en=>`
+    <label class="pick-chip">
+      <input type="checkbox" ${NC_SELECTED.has(en.id)?'checked':''} onchange="toggleNCPick('${en.id}', this.checked)">
+      <span class="chip-body">
+        <span class="chip-name">${en.name}</span>
+        <span class="chip-type">${en.type}${en.malice!=null?'／悪意'+en.malice:''}</span>
+      </span>
+    </label>
+  `).join('')}</div>`;
+}
+function renderNC(){
+  renderNCPicker();
+  const box = document.getElementById('nc-hlist');
+  const picked = ENEMIES.filter(en=>NC_SELECTED.has(en.id));
+  if(picked.length===0){ box.innerHTML = '<p class="notice">「＋ 手駒を選択」から、このセッションで使う手駒をピックしてください。</p>'; return; }
+  box.innerHTML = picked.map(enemyCardOrEdit).join('');
+}
+
+// ---------- デフォルト手駒データ（ルールブック画像から文字起こし） ----------
+// ※ 悪意欄が「1で5体」のように書かれているものは「5体1組のレギオンで、
+//    構成体1体あたり悪意1」という意味合いのため、malice には単体分の値を入れ、
+//    体数の情報は notes 側に記載している。
+// ※ 全体的に文字が小さく判読が難しかったため、技名・効果の一部は推測を含む。
+//    確信が持てなかった箇所には効果文中に [要検証] を付けているが、
+//    プレイで実際に使う前には原典（ルールブック）との照合を推奨する。
+//    特にサヴァント4体（ネメシス/バルキリー/キメラ/ゾンビクイーン）は
+//    元写真の解像度・照明が悪く、全体的に信頼度が低い。
+const DEFAULT_ENEMIES = [
+  {
+    name: 'ゾンビ', type: 'レギオン', maxAction: 8, malice: 1,
+    notes: '5体1組のレギオン。群生を厭わない非効率的なアンデッド。量産しやすいため、よく見かける。',
+    maneuvers: [
+      {name:'ひさぎ', timing:'アクション', cost:'2', range:'0', effect:'肉弾攻撃1+連撃（同エリアのゾンビの数÷10）[切り捨て]'},
+      {name:'よろめく', timing:'アクション', cost:'3', range:'自身', effect:'移動1'},
+      {name:'むらがる', timing:'ラピッド', cost:'0', range:'0', effect:'移動妨害1'},
+    ]
+  },
+  {
+    name: 'ナイトメア', type: 'レギオン', maxAction: 8, malice: 2,
+    notes: '5体1組のレギオン。自我の崩壊した鳥類やサヴァントの失敗作。その存在はドールの心を乱す。',
+    maneuvers: [
+      {name:'うわごと', timing:'アクション', cost:'3', range:'0', effect:'精神攻撃1+追撃（同エリアのナイトメアの数÷10）[切り捨て]'},
+      {name:'よろめく', timing:'アクション', cost:'3', range:'自身', effect:'移動1'},
+      {name:'むらがる', timing:'ラピッド', cost:'0', range:'0', effect:'移動妨害1'},
+    ]
+  },
+  {
+    name: 'ハウンド', type: 'ホラー', maxAction: 9, malice: 2,
+    notes: 'アンデッドの軍用犬。半ば機械化された強靭な体で機敏な襲撃を繰り返す。',
+    maneuvers: [
+      {name:'セイバートゥース', timing:'アクション', cost:'2', range:'0', effect:'肉弾攻撃2'},
+      {name:'けもあし', timing:'アクション', cost:'2', range:'自身', effect:'移動1~2'},
+      {name:'強化脊髄', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2'},
+      {name:'しっぽ', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1'},
+      {name:'はらわた', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+    ]
+  },
+  {
+    name: 'グール', type: 'ホラー', maxAction: 8, malice: 3,
+    notes: '[要検証：カードの表示行数が他個体より少なく、読み取り漏れの可能性あり。フレーバーテキストも未収録]',
+    maneuvers: [
+      {name:'とうきさぎ', timing:'アクション', cost:'2', range:'0', effect:'肉弾攻撃2 [要検証：技名]'},
+      {name:'ほね', timing:'オート', cost:'なし', range:'自身', effect:'移動1 [要検証：オートで移動付与は他個体と傾向が異なるため要確認]'},
+    ]
+  },
+  {
+    name: 'スナイパー', type: 'ホラー', maxAction: 8, malice: 3,
+    notes: '遠距離からの狙撃に特化したアンデッド兵士。[要検証：一部の効果値・射程]',
+    maneuvers: [
+      {name:'狙撃ライフル', timing:'アクション', cost:'2', range:'1~3', effect:'射撃攻撃1、攻撃判定の出目+1 [要検証]'},
+      {name:'スコープ', timing:'ジャッジ', cost:'0', range:'自身', effect:'支援2、射撃・砲撃攻撃にのみ使用可 [要検証]'},
+      {name:'死の手', timing:'ラピッド', cost:'0', range:'自身', effect:'任意の攻撃マニューバ1つを「ラピッド」として使用してよい [要検証]'},
+      {name:'のうみそ', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2'},
+      {name:'はらわた', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+    ]
+  },
+  {
+    name: 'バブルヘッド', type: 'ホラー', maxAction: 8, malice: 5,
+    notes: '引火性ガスで体を膨らませ、半ば浮遊しながら行動する自爆型アンデッド。[要検証：一部技名・効果]',
+    maneuvers: [
+      {name:'かざぐるま', timing:'アクション', cost:'2', range:'0', effect:'肉弾攻撃2 [要検証]'},
+      {name:'ほね', timing:'アクション', cost:'3', range:'自身', effect:'移動1'},
+      {name:'ゾンビガム', timing:'ダメージ', cost:'0', range:'自身', effect:'このパーツが損傷した際、攻撃力2+全体攻撃を与える [要検証：効果詳細]'},
+      {name:'もうどく[要検証:技名]', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2 [要検証]'},
+      {name:'のうみそ', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2'},
+      {name:'はらわた', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+    ]
+  },
+  {
+    name: 'バンシー', type: 'ホラー', maxAction: 10, malice: 6,
+    notes: 'ネクロマンサーの意志により、精神を注入され洗脳されたアンデッド。[要検証：一部技名・効果]',
+    maneuvers: [
+      {name:'悲鳴きゅう[要検証:技名]', timing:'アクション', cost:'3', range:'0', effect:'精神攻撃1+全体攻撃 [要検証]'},
+      {name:'祝い髪[要検証:技名]', timing:'ジャッジ', cost:'1', range:'0~1', effect:'支援2 [要検証]'},
+      {name:'うろこ', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2 [要検証]'},
+      {name:'めだま', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1'},
+      {name:'しんぞう', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+      {name:'はらわた', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+    ]
+  },
+  {
+    name: 'ソルジャー', type: 'レギオン', maxAction: 8, malice: 2,
+    notes: '5体1組のレギオン。（フレーバーテキストは判読困難のため未収録）[要検証]',
+    maneuvers: [
+      {name:'一斉射撃', timing:'アクション', cost:'3', range:'0~1', effect:'射撃攻撃2+連撃（同エリアのソルジャーの数÷10）[切り捨て]'},
+      {name:'よろめく', timing:'アクション', cost:'3', range:'自身', effect:'移動1'},
+      {name:'むらがる', timing:'ラピッド', cost:'0', range:'0', effect:'移動妨害1'},
+    ]
+  },
+  {
+    name: 'マガドリ', type: 'レギオン', maxAction: 9, malice: 2,
+    notes: '5体1組のレギオン（要確認：むらがる等の追加マニューバが写真に写っていない可能性あり）。アンデッド化した鳥の群れ。野生化し、無差別にアンデッドやドールを狙うものもいる。[要検証]',
+    maneuvers: [
+      {name:'ついばむ', timing:'アクション', cost:'2', range:'0', effect:'肉弾攻撃1+連撃（同エリアのマガドリの数÷10）[切り捨て]'},
+      {name:'はばたき', timing:'アクション', cost:'2', range:'自身', effect:'移動1'},
+    ]
+  },
+  {
+    name: 'ヘビトンボ', type: 'ホラー', maxAction: 8, malice: 3,
+    notes: '代表的な巨大昆虫。群れで飛び回る全長3メートルほどの怪物。[要検証：一部技名・射程・コスト]',
+    maneuvers: [
+      {name:'おおあご', timing:'アクション', cost:'2', range:'0', effect:'肉弾攻撃2'},
+      {name:'はね', timing:'アクション', cost:'2', range:'0', effect:'移動1 [要検証：射程/コスト]'},
+      {name:'ふらふら[要検証:技名]', timing:'ラピッド', cost:'1', range:'0~1', effect:'妨害2 [要検証]'},
+      {name:'外骨格[要検証:技名]', timing:'オート', cost:'なし', range:'自身', effect:'防御1 [要検証]'},
+      {name:'中枢神経[要検証:技名]', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+      {name:'脚[要検証:技名]', timing:'アクション', cost:'0', range:'自身', effect:'移動1 [要検証：はねと重複気味、要確認]'},
+    ]
+  },
+  {
+    name: 'ドラッグイーター', type: 'サヴァント', maxAction: 10, malice: 5,
+    notes: 'ドールを装って自我を明確にした、独自の不完全なサヴァント。[要検証：多数の技名・効果]',
+    maneuvers: [
+      {name:'にくむち[要検証:技名]', timing:'アクション', cost:'3', range:'0~1', effect:'肉弾攻撃2+連撃1 [要検証]'},
+      {name:'触肢', timing:'アクション', cost:'3', range:'0', effect:'移動1 [要検証]'},
+      {name:'触肢', timing:'ジャッジ', cost:'2', range:'0', effect:'妨害2、1ターンに何度でも使用可 [要検証]'},
+      {name:'肉厚[要検証:技名]', timing:'ダメージ', cost:'0', range:'自身', effect:'防御1 [要検証]'},
+      {name:'根肢', timing:'オート', cost:'なし', range:'自身', effect:'[要検証：効果不明]'},
+      {name:'のうみそ', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2'},
+      {name:'めだま', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1'},
+      {name:'はらわた', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+    ]
+  },
+  {
+    name: 'ラフレシア', type: 'サヴァント', maxAction: 8, malice: 6,
+    notes: '動くものを盲目的に貪り食う内臓生物。捕らわれた獲物は花弁とされる。[要検証：技名・効果多数]',
+    maneuvers: [
+      {name:'性触手[要検証:技名の一部不明]', timing:'アクション', cost:'3', range:'0~1', effect:'肉弾攻撃2+運搬1 [要検証]'},
+      {name:'触肢', timing:'アクション', cost:'3', range:'0', effect:'移動1 [要検証]'},
+      {name:'肉[要検証:技名の一部不明]', timing:'ダメージ', cost:'0', range:'自身', effect:'防御1 [要検証]'},
+      {name:'のうみそ', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2'},
+      {name:'はなびら', timing:'オート', cost:'なし', range:'なし', effect:'なし [要検証]'},
+      {name:'はなびら', timing:'オート', cost:'なし', range:'なし', effect:'なし [要検証]'},
+    ]
+  },
+  {
+    name: 'ブッチャー', type: 'ホラー', maxAction: 8, malice: 4,
+    notes: '屠殺場を徘徊する巡回型アンデッド。巨大な刃物を振り回し、敵を数える。[要検証：一部技名]',
+    maneuvers: [
+      {name:'大鉈', timing:'アクション', cost:'2', range:'0', effect:'白兵攻撃2'},
+      {name:'ほね', timing:'アクション', cost:'3', range:'自身', effect:'移動1'},
+      {name:'性力[要検証:技名不明]', timing:'ダメージ', cost:'0', range:'自身', effect:'肉弾・白兵攻撃マニューバのダメージ+1 [要検証]'},
+      {name:'のうみそ', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2'},
+      {name:'はらわた', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+    ]
+  },
+  {
+    name: 'リフトバイス', type: 'ホラー', maxAction: 9, malice: 4,
+    notes: '有機エンジンとやや不安定な操作性が特徴。過去の技術力に頼らない。[要検証：一部技名・効果]',
+    maneuvers: [
+      {name:'キャタピラ', timing:'アクション', cost:'3', range:'0', effect:'肉弾攻撃3'},
+      {name:'モーターバイス', timing:'ダメージ', cost:'1', range:'自身', effect:'自身が与えるダメージ+2 [要検証]'},
+      {name:'強化装甲', timing:'オート', cost:'なし', range:'自身', effect:'防御2 [要検証]'},
+      {name:'サブエンジン', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2 [要検証]'},
+      {name:'装甲板', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+      {name:'装甲板', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+    ]
+  },
+  {
+    name: 'ミートシュレッダー', type: 'ホラー', maxAction: 9, malice: 7,
+    notes: '有機エンジンで動きながら作業服を纏う巨大ミンチマシン。[要検証：多数の技名・タイミング]',
+    maneuvers: [
+      {name:'ミンチ', timing:'アクション', cost:'2', range:'0', effect:'白兵攻撃2+切断'},
+      {name:'突進[要検証:技名不明]', timing:'アクション', cost:'3', range:'自身', effect:'移動1 [要検証]'},
+      {name:'正面装甲', timing:'ジャッジ', cost:'1', range:'自身', effect:'支援2 [要検証]'},
+      {name:'反応装甲[要検証:技名不明]', timing:'ラピッド', cost:'1', range:'自身', effect:'防御1 [要検証：タイミング/効果不明瞭]'},
+      {name:'強化装甲', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2 [要検証]'},
+      {name:'サブエンジン', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+    ]
+  },
+  {
+    name: 'シテンシ', type: 'ホラー', maxAction: 10, malice: 9,
+    notes: '最強の巨大昆虫。全長10メートル以上の高さを誇るオオムカデ。[要検証：多数の技名・効果]',
+    maneuvers: [
+      {name:'鎌脚[要検証:技名不明]', timing:'アクション', cost:'3', range:'0', effect:'肉弾攻撃3 [要検証]'},
+      {name:'粘液吐', timing:'アクション', cost:'3', range:'自身', effect:'移動1 [要検証：技名と効果が不一致気味、要確認]'},
+      {name:'突進', timing:'ジャッジ', cost:'1', range:'0~1', effect:'妨害2 [要検証]'},
+      {name:'先制攻撃[要検証:技名不明]', timing:'ラピッド', cost:'1', range:'自身', effect:'自身の移動時に使用可、移動前か移動後のエリアの対象1体に肉弾攻撃3 [要検証]'},
+      {name:'平気', timing:'オート', cost:'なし', range:'自身', effect:'パーツを損傷しても、そのターンはマニューバ使用可 [要検証]'},
+      {name:'巨体', timing:'オート', cost:'なし', range:'自身', effect:'「転倒」「移動妨害」を無効化してよい [要検証]'},
+      {name:'強靭[要検証:技名不明]', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2 [要検証]'},
+      {name:'めだま', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1'},
+      {name:'はらわた', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+    ]
+  },
+  {
+    name: 'マタンゴ', type: 'ホラー', maxAction: 8, malice: 4,
+    notes: 'アンデッドの体に寄生し繁殖する菌類。キノコに似たものに近づいてはいけない。[要検証：一部技名]',
+    maneuvers: [
+      {name:'毒生子', timing:'アクション', cost:'2', range:'0~1', effect:'射撃攻撃1+爆発、攻撃判定の出目+1 [要検証]'},
+      {name:'ほね', timing:'アクション', cost:'3', range:'自身', effect:'移動1'},
+      {name:'じくじく[要検証:技名不明]', timing:'ジャッジ', cost:'1', range:'自身', effect:'支援2 [要検証]'},
+      {name:'不動', timing:'オート', cost:'なし', range:'自身', effect:'パーツが損傷してもマニューバ使用可 [要検証]'},
+      {name:'反射行動[要検証:技名不明]', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2 [要検証]'},
+      {name:'きのこ', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+      {name:'きのこ', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+    ]
+  },
+  {
+    name: 'マッドガッサー', type: 'ホラー', maxAction: 8, malice: 5,
+    notes: '分厚いガスマスクを装着したアンデッド。おぞましいガスを操る。[要検証：一部技名・効果]',
+    maneuvers: [
+      {name:'分裂ガス[要検証:技名不明]', timing:'アクション', cost:'3', range:'1', effect:'全体攻撃、攻撃判定の出目+1 [要検証]'},
+      {name:'ほね', timing:'アクション', cost:'3', range:'自身', effect:'移動1'},
+      {name:'耐熱装備[要検証:技名不明]', timing:'オート', cost:'なし', range:'自身', effect:'パーツが損傷しても損傷扱いにしない [要検証：効果不確か]'},
+      {name:'対策兵器[要検証:技名不明]', timing:'オート', cost:'なし', range:'自身', effect:'自身・味方の全体攻撃によるダメージを無効化する [要検証]'},
+      {name:'のうみそ', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2'},
+      {name:'はらわた', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+    ]
+  },
+  {
+    name: 'オチムシャ', type: 'ホラー', maxAction: 13, malice: 8,
+    notes: '名刀を携えたる甲冑武者。不死身らしき硬質な体を持つ。[要検証：多数の技名]',
+    maneuvers: [
+      {name:'名刀', timing:'アクション', cost:'2', range:'0', effect:'白兵攻撃2+切断、攻撃判定の出目+1 [要検証]'},
+      {name:'ほね', timing:'アクション', cost:'3', range:'自身', effect:'移動1'},
+      {name:'自己犠牲[要検証:技名不明]', timing:'ダメージ', cost:'0', range:'自身', effect:'防御1 [要検証]'},
+      {name:'鎧装甲[要検証:技名不明]', timing:'オート', cost:'なし', range:'自身', effect:'白兵攻撃マニューバの攻撃判定の出目+1 [要検証]'},
+      {name:'のうみそ', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2'},
+      {name:'分厚い甲冑[要検証:技名不明]', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2 [要検証]'},
+      {name:'黒甲冑[要検証:技名不明]', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+    ]
+  },
+  {
+    name: 'モンスター', type: 'ホラー', maxAction: 10, malice: 10,
+    notes: '不死性を持つ追い詰められた巨漢アンデッド。おそらく確固たる体を持つ。[要検証：多数の技名]',
+    maneuvers: [
+      {name:'怪物の腕[要検証:技名不明]', timing:'アクション', cost:'3', range:'0', effect:'肉弾攻撃3 [要検証]'},
+      {name:'ほね', timing:'アクション', cost:'3', range:'自身', effect:'移動1'},
+      {name:'性怖の目[要検証:技名不明]', timing:'ジャッジ', cost:'1', range:'自身', effect:'支援2 [要検証]'},
+      {name:'肉の盾', timing:'ダメージ', cost:'0', range:'自身', effect:'ダメージに付随する追加効果を全て無効化する'},
+      {name:'防弾装備[要検証:技名不明]', timing:'ダメージ', cost:'0', range:'自身', effect:'防御1+「切断」無効化 [要検証]'},
+      {name:'耐火装備[要検証:技名不明]', timing:'ダメージ', cost:'0', range:'自身', effect:'防御1+「発火」無効化 [要検証]'},
+      {name:'超回復[要検証:技名不明]', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2 [要検証]'},
+      {name:'のうみそ', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1'},
+      {name:'はらわた', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+    ]
+  },
+  {
+    name: 'ネメシス', type: 'サヴァント', maxAction: 11, malice: null,
+    notes: '[要検証：3枚目の写真は解像度・照明の問題が大きく、技名・効果の大部分が推測含みです。プレイ前に必ず原典で照合してください]',
+    maneuvers: [
+      {name:'のうみそ', timing:'オート', cost:'なし', range:'自身', effect:'[要検証：効果不明]'},
+      {name:'めだま', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2 [要検証]'},
+      {name:'カンプク[要検証:技名不明瞭]', timing:'アクション', cost:'2', range:'0', effect:'肉弾攻撃 [要検証：数値不明]'},
+      {name:'あご', timing:'アクション', cost:'3', range:'自身', effect:'移動1 [要検証]'},
+      {name:'犬士指揮[要検証:技名不明瞭]', timing:'ジャッジ', cost:'0', range:'自身', effect:'支援、1ターンに使用不可 [要検証：詳細不明]'},
+      {name:'こぶし', timing:'アクション', cost:'2', range:'0', effect:'肉弾攻撃1 [要検証]'},
+      {name:'かた', timing:'アクション', cost:'4', range:'自身', effect:'移動1 [要検証]'},
+      {name:'二丁拳銃[要検証:技名不明瞭]', timing:'アクション', cost:'3', range:'0~1', effect:'射撃攻撃2 [要検証]'},
+      {name:'うで', timing:'ジャッジ', cost:'1', range:'0', effect:'支援1 [要検証]'},
+      {name:'せぼね', timing:'アクション', cost:'1', range:'自身', effect:'次カウントで使うマニューバ1つのコスト-1 [要検証]'},
+      {name:'肩代わり[要検証:技名不明瞭]', timing:'ダメージ', cost:'0', range:'0', effect:'対象が受けたダメージを自身が受ける、1ターンに何度でも使用可 [要検証]'},
+      {name:'しんぞう', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+      {name:'はらわた', timing:'オート', cost:'なし', range:'なし', effect:'なし [要検証]'},
+      {name:'はらわた', timing:'オート', cost:'なし', range:'なし', effect:'なし [要検証]'},
+      {name:'ほね', timing:'アクション', cost:'3', range:'自身', effect:'移動1 [要検証]'},
+      {name:'あし', timing:'ジャッジ', cost:'1', range:'0', effect:'妨害1 [要検証]'},
+    ]
+  },
+  {
+    name: 'バルキリー', type: 'サヴァント', maxAction: 14, malice: 10,
+    notes: '[要検証：3枚目の写真は解像度・照明の問題が大きく、技名・効果の大部分が推測含みです。プレイ前に必ず原典で照合してください]',
+    maneuvers: [
+      {name:'スコープ', timing:'オート', cost:'なし', range:'自身', effect:'支援2、射撃・砲撃攻撃にのみ [要検証]'},
+      {name:'リミッター[要検証:技名不明瞭]', timing:'オート', cost:'なし', range:'自身', effect:'白兵攻撃中、損傷したら最大行動値+1 [要検証：詳細不明]'},
+      {name:'めだま', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+      {name:'うで', timing:'ジャッジ', cost:'1', range:'0', effect:'支援1 [要検証]'},
+      {name:'シューティーピース[要検証:技名不明瞭]', timing:'アクション', cost:'3', range:'0', effect:'射撃攻撃1+切断 [要検証]'},
+      {name:'ステーブレース[要検証:技名不明瞭]', timing:'ダメージ', cost:'0', range:'自身', effect:'防御1+「切断」無効化 [要検証]'},
+      {name:'突進', timing:'ラピッド', cost:'1', range:'0', effect:'自身の移動前に使用可、移動前後のエリアの対象1体に肉弾攻撃3 [要検証]'},
+      {name:'人工知能[要検証:技名不明瞭]', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2 [要検証]'},
+      {name:'エンジン', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2 [要検証]'},
+      {name:'リフレックス[要検証:技名不明瞭]', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+      {name:'ブースター', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+      {name:'アドレナリン[要検証:技名不明瞭]', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+      {name:'フローター[要検証:技名不明瞭]', timing:'オート', cost:'なし', range:'自身', effect:'自身を対象とする肉弾・白兵攻撃判定値-1（全体攻撃は自身に対してのみ-1）[要検証：詳細不明]'},
+      {name:'ヒートプロー[要検証:技名不明瞭]', timing:'ジャッジ', cost:'1', range:'0', effect:'妨害1 [要検証]'},
+      {name:'ホバー[要検証:技名不明瞭]', timing:'アクション', cost:'2', range:'自身', effect:'移動1~2 [要検証]'},
+      {name:'装甲板', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+    ]
+  },
+  {
+    name: 'キメラ', type: 'サヴァント', maxAction: 11, malice: 10,
+    notes: '強い生命力を持つ、初期タイプの実験型サヴァント。[要検証：3枚目の写真は解像度・照明の問題が大きく、技名・効果の大部分が推測含みです。プレイ前に必ず原典で照合してください]',
+    maneuvers: [
+      {name:'のうみそ', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2'},
+      {name:'めだま', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+      {name:'狂気[要検証:技名不明瞭]', timing:'アクション', cost:'2', range:'0', effect:'肉弾攻撃マニューバの効果に+1 [要検証：詳細不明]'},
+      {name:'あご', timing:'アクション', cost:'2', range:'0', effect:'肉弾攻撃1 [要検証]'},
+      {name:'うで', timing:'ジャッジ', cost:'1', range:'0', effect:'支援1 [要検証]'},
+      {name:'望むアクション[要検証:技名不明瞭]', timing:'ラピッド', cost:'0', range:'0', effect:'任意の攻撃マニューバ1つを「ラピッド」として使用可 [要検証]'},
+      {name:'怪力[要検証:技名不明瞭]', timing:'ダメージ', cost:'0', range:'自身', effect:'自身・白兵攻撃ダメージ+? [要検証：数値不明]'},
+      {name:'防御[要検証:技名不明瞭]', timing:'ダメージ', cost:'0', range:'自身', effect:'防御2 [要検証]'},
+      {name:'しんぞう', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+      {name:'はらわた', timing:'オート', cost:'なし', range:'なし', effect:'なし'},
+      {name:'はりつき[要検証:技名不明瞭]', timing:'アクション', cost:'3', range:'自身', effect:'移動1、「移動妨害」を無効化 [要検証]'},
+      {name:'くらわす[要検証:技名不明瞭]', timing:'アクション', cost:'2', range:'0', effect:'肉弾攻撃3 [要検証：数値不明]'},
+      {name:'あし', timing:'ジャッジ', cost:'1', range:'0', effect:'妨害1 [要検証]'},
+      {name:'装甲板[要検証:技名不明瞭]', timing:'オート', cost:'なし', range:'なし', effect:'最大行動値+1 [要検証]'},
+    ]
+  },
+  {
+    name: 'ゾンビクイーン', type: 'サヴァント', maxAction: 13, malice: null,
+    notes: '無数のアンデッドを率いるネクロマンサーの傀儡。行動時にネクロマンサーの力を使える。[要検証：3枚目の写真は解像度・照明の問題が大きく、技名・効果の大部分が推測含みです。プレイ前に必ず原典で照合してください]',
+    maneuvers: [
+      {name:'増援[要検証:技名不明瞭]', timing:'アクション', cost:'3', range:'0~1', effect:'増援（ゾンビ×サイコロの出目分）[要検証：効果詳細不明]'},
+      {name:'妨害[要検証:技名不明瞭]', timing:'ジャッジ', cost:'2', range:'0', effect:'妨害2、1ターンに何度使用してもよい、1回の判定に重複不可 [要検証]'},
+      {name:'支援[要検証:技名不明瞭]', timing:'ジャッジ', cost:'0', range:'0~1', effect:'支援2、自身に対しては使用不可 [要検証]'},
+      {name:'めだま', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+2 [要検証]'},
+      {name:'うろこ[要検証:技名不明瞭]', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+      {name:'増援[要検証:技名不明瞭]', timing:'アクション', cost:'2', range:'0~1', effect:'増援（ブッチャー×1、対象エリアの任意のレギオンをサイコロの出目分だけ減らす）[要検証：詳細不明]'},
+      {name:'自爆攻撃[要検証:技名不明瞭]', timing:'アクション', cost:'3', range:'0~1', effect:'白兵攻撃1+切断+連撃[対象エリアのゾンビの数÷10][切り捨て] [要検証]'},
+      {name:'肩代わり[要検証:技名不明瞭]', timing:'ダメージ', cost:'1', range:'0~1', effect:'同エリアのレギオンを任意の数選らび、その数に等しいダメージを減少する、1ターンに何度でも使用可 [要検証]'},
+      {name:'のうみそ', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+      {name:'カリスマ[要検証:技名不明瞭]', timing:'オート', cost:'なし', range:'自身', effect:'最大行動値+1 [要検証]'},
+      {name:'装甲板', timing:'オート', cost:'なし', range:'なし', effect:'なし [要検証]'},
+      {name:'装甲板', timing:'オート', cost:'なし', range:'なし', effect:'なし [要検証]'},
+      {name:'不屈[要検証:技名不明瞭]', timing:'オート', cost:'なし', range:'自身', effect:'ターン終了時、全ての攻撃判定値-1（全体攻撃では、自身への判定値のみ）[要検証：詳細不明]'},
+    ]
+  },
+];
+
+function seedDefaultEnemies(){
+  let added = false;
+  DEFAULT_ENEMIES.forEach(de=>{
+    if(ENEMIES.some(e=>e.name === de.name)) return;
+    ENEMIES.push({
+      id: 'en_default_'+de.name+'_'+Math.random().toString(36).slice(2,7),
+      name: de.name, type: de.type, maxAction: de.maxAction, malice: de.malice, notes: de.notes,
+      maneuvers: de.maneuvers.map(m=>({...m}))
+    });
+    added = true;
+  });
+  if(added) saveEnemies();
 }
 
 // ---------- init ----------
 loadStore();
+loadNCSelection();
+seedDefaultEnemies();
 renderPCList();
 renderEnemyList();
 </script>
