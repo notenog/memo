@@ -601,7 +601,7 @@
   ],
   "arms_damage": [
     "1d10",
-    ""
+    "1d8+db"
   ],
   "arms_range": [
     "15",
