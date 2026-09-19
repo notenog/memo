@@ -1249,6 +1249,7 @@ async function sendChat(message,{name,color,bot,tab:tabOverride}={}){
 }
 async function doSend(message){
   message=(message||""); if(!message.trim()) return;
+  bumpSpeakerAuto();   // どの送信経路でも発言者の自動復帰タイマーを延長
   if(!cfg("room")){ toast("ルームID未設定。接続設定を開いてね",true); openSettings(); return; }
   const p=activeP();
   // inlineの @#色 はAPI経由だと解釈されないため、colorパラメータへ回し本文からは除去する
@@ -2133,6 +2134,10 @@ $("#body").addEventListener("click",e=>{
   if(clickTimer) return;
   const idx=+line.dataset.idx;
   clickTimer=setTimeout(()=>{ clickTimer=null; stageLine(idx); },230);
+});
+$("#body").addEventListener("mousedown",e=>{
+  if(state.editMode) return;
+  if(e.detail>1 && e.target.closest(".line")) e.preventDefault();   // ダブルクリック時の単語選択を防止
 });
 $("#body").addEventListener("dblclick",e=>{
   if(state.editMode) return;
