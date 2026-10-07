@@ -316,6 +316,26 @@ li.cards__item { list-style: none; }
 }
 
 .card__image { position: absolute; inset: 0; overflow: hidden; }
+.card__ratings {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  z-index: 3;
+}
+.card__rating {
+  background: #d1495b;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  padding: 3px 8px;
+  border-radius: 3px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.35);
+}
 .card__image img {
   width: 100%;
   height: 100%;
@@ -551,6 +571,8 @@ footer {
         const title = doc.querySelector('meta[name="scenario-list-title"]')?.content || pageTitle;
         const system = (doc.querySelector('meta[name="scenario-genre"]')?.content || 'その他').trim() || 'その他';
         const description = doc.querySelector('meta[name="scenario-description"]')?.content || '';
+        const ratingRaw = doc.querySelector('meta[name="scenario-rating"]')?.content || '';
+        const ratings = ratingRaw.split(/[,、]/).map(t => t.trim()).filter(t => t);
 
         // サムネイル: URL指定 > 画像番号指定 > 本文の最初の画像
         let imageUrl = null;
@@ -570,6 +592,7 @@ footer {
           title,
           system,
           description,
+          ratings,
           url: `${GITHUB_PAGES_BASE}/${file.name}`,
           image: imageUrl,
           updatedAt: updatedAt ? new Date(updatedAt).getTime() : 0
@@ -615,7 +638,8 @@ footer {
       const matchSearch = !searchText ||
         s.title.toLowerCase().includes(searchText) ||
         s.description.toLowerCase().includes(searchText) ||
-        s.system.toLowerCase().includes(searchText);
+        s.system.toLowerCase().includes(searchText) ||
+        (s.ratings || []).some(r => r.toLowerCase().includes(searchText));
       const matchSystem = activeSystems.length === 0 || activeSystems.includes(s.system);
       return matchSearch && matchSystem;
     });
@@ -655,10 +679,13 @@ footer {
     const imageHtml = s.image
       ? `<img src="${escapeAttr(s.image)}" alt="${escapeAttr(s.title)}">`
       : `<div class="card__image--default" style="background:linear-gradient(150deg, hsl(${hue} var(--default-s) var(--default-l1)) 0%, hsl(${hue} var(--default-s) var(--default-l2)) 100%)">${escapeHtml(s.title.substring(0, 1))}</div>`;
+    const ratingHtml = (s.ratings && s.ratings.length)
+      ? `<div class="card__ratings">${s.ratings.map(r=>`<span class="card__rating">${escapeHtml(r)}</span>`).join('')}</div>`
+      : '';
     return `
       <li class="cards__item">
         <a class="card" href="${escapeAttr(s.url)}" target="_blank" rel="noopener">
-          <div class="card__image">${imageHtml}</div>
+          <div class="card__image">${imageHtml}${ratingHtml}</div>
           <div class="card__overlay">
             <span class="card__system">${escapeHtml(s.system)}</span>
             <div class="card__title">${escapeHtml(s.title)}</div>

@@ -21,7 +21,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--mono);height:100%;}
-  .app{display:grid;grid-template-columns: 400px 1fr; height:100vh;}
+  .app{display:grid;grid-template-columns: 480px 1fr; height:100vh;}
   @media (max-width: 900px){ .app{grid-template-columns:1fr; height:auto;} }
 
   /* ---------- 左パネル ---------- */
@@ -165,16 +165,32 @@
   .preset-chip:hover{border-color:var(--accent);color:var(--text);}
   .preset-chip .dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
 
+  .rating-grid{display:flex;gap:8px;flex-wrap:wrap;}
+  .rating-chip{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:6px 14px;
+    font-size:12px;
+    font-weight:600;
+    color:var(--text-dim);
+    cursor:pointer;
+    user-select:none;
+    transition:all .15s;
+  }
+  .rating-chip:hover{border-color:#d1495b;color:var(--text);}
+  .rating-chip.active{background:#d1495b;border-color:#d1495b;color:#fff;}
+
   .table-editor{display:flex;flex-direction:column;gap:6px;}
-  .table-row{display:flex;gap:6px;align-items:center;}
-  .table-row input{
+  .table-row{display:flex;gap:6px;align-items:flex-start;}
+  .table-row input, .table-row textarea{
     background:var(--surface);border:1px solid var(--border);color:var(--text);
     font-family:var(--mono);font-size:12px;padding:7px 8px;border-radius:2px;
   }
   .table-row input.key{width:38%;flex-shrink:0;}
-  .table-row input.val{flex:1;min-width:0;}
-  .table-row input:focus{outline:none;border-color:var(--accent);}
-  .table-row .rm{color:var(--text-dim);cursor:pointer;font-size:14px;padding:0 4px;flex-shrink:0;}
+  .table-row textarea.val{flex:1;min-width:0;resize:vertical;line-height:1.5;overflow:hidden;}
+  .table-row input:focus, .table-row textarea:focus{outline:none;border-color:var(--accent);}
+  .table-row .rm{color:var(--text-dim);cursor:pointer;font-size:14px;padding:6px 4px 0;flex-shrink:0;}
   .table-row .rm:hover{color:#d95d5d;}
   input[type=color]{width:52px;height:34px;padding:2px;cursor:pointer;}
   .color-row span{font-size:11.5px;color:var(--text-dim);}
@@ -205,6 +221,32 @@
   .img-item .rm{margin-left:auto;color:var(--text-dim);cursor:pointer;font-size:14px;padding:0 4px;}
   .img-item .rm:hover{color:#d95d5d;}
   .hint{font-size:10.5px;color:var(--text-dim);margin-top:6px;line-height:1.6;}
+
+  .thumb-picker{
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .thumb-opt{
+    width: 52px;
+    height: 52px;
+    border-radius: 3px;
+    border: 2px solid var(--border);
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.2;
+    padding: 2px;
+  }
+  .thumb-opt img{ width: 100%; height: 100%; object-fit: cover; }
+  .thumb-opt.active{ border-color: var(--accent); }
 
   .gh-file-list{
     margin-top: 10px;
@@ -276,7 +318,33 @@
     font-family: var(--mono);
     font-size: 9px;
     color: var(--accent);
+    cursor: pointer;
+    transition: background .15s, color .15s;
   }
+  .markdown-tips-content code:hover{
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .markdown-tips-content code.copied{
+    background: #4a9d5b;
+    color: #fff;
+  }
+  .copy-toast{
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #333;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    z-index: 9999;
+  }
+  .copy-toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
   .hint code{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:1px 4px;color:var(--accent);font-size:10px;}
 
   .download-btn{
@@ -325,6 +393,7 @@
         <button class="mini-btn" id="loadFileBtn">📂 HTML/設定を読み込む</button>
         <button class="mini-btn" id="saveSettingsBtn">💾 設定をJSON保存</button>
       </div>
+      <button class="mini-btn" id="resetBtn" style="width:100%;margin-top:8px">🆕 新規作成(内容をクリア)</button>
       <input type="file" id="loadFileInput" accept=".html,.json" style="display:none">
       <p class="hint">このツールで書き出したHTMLを読み込むと、内容と設定を復元して再編集できます。設定は自動的にブラウザにも保存されます(画像を除く)。</p>
     </div>
@@ -343,9 +412,23 @@
     </div>
 
     <div class="group">
+      <label class="title">レーティング(注意タグ)</label>
+      <div class="rating-grid" id="ratingGrid"></div>
+      <p class="hint">選んだタグが本文ページと概要一覧に表示されます。複数選択できます。</p>
+    </div>
+
+    <div class="group">
       <label class="title">シナリオ説明(一覧用)</label>
       <input type="text" id="scenarioDescInput" value="" placeholder="シナリオの簡潔な説明（1-2文）例: 深夜の図書館で起こる不可解な事件。真犯人は人間か、それとも...">
       <p class="hint">一覧ページに表示される説明文です。</p>
+    </div>
+
+    <div class="group">
+      <label class="title">一覧用タイトル / サムネイル</label>
+      <input type="text" id="listTitleInput" value="" placeholder="一覧に表示するタイトル (空欄ならページのタイトルを使用)">
+      <input type="text" id="thumbUrlInput" value="" placeholder="サムネイル画像のURL (任意・公開済みの画像)" style="margin-top:8px">
+      <div id="thumbPicker" class="thumb-picker"></div>
+      <p class="hint">下のアップロード画像から選ぶこともできます。URLを入れた場合はそちらが優先されます。</p>
     </div>
 
     <div class="group">
@@ -376,6 +459,7 @@
       <details class="markdown-tips">
         <summary>📝 マークダウン機能一覧</summary>
         <div class="markdown-tips-content">
+          <p style="margin-bottom:10px;color:var(--accent);font-size:10px;">💡 コード部分をクリックするとコピーできます</p>
           <h4>基本的な書き方</h4>
           <ul>
             <li><code># タイトル</code> … h1見出し</li>
@@ -393,6 +477,7 @@
           <ul>
             <li><code>==テキスト==</code> … 差し色の蛍光ペン</li>
             <li><code>===テキスト===</code> … 黄色の蛍光ペン</li>
+            <li><code>{#c0392b: テキスト}</code> … 文字色を変更(色名も可: <code>{red: テキスト}</code>)。中で*斜体*等も使えます</li>
           </ul>
           <h4>注釈・説明ボックス</h4>
           <ul>
@@ -403,12 +488,20 @@
           </ul>
           <h4>インタラクティブなブロック</h4>
           <ul>
-            <li><code>:::accordion</code><br><code>タイトル | 本文</code><br><code>:::</code> … 折りたたみボックス</li>
+            <li><code>:::accordion</code><br><code>## タイトル</code><br><code>本文(改行・マークダウンOK)</code><br><code>:::</code> … 折りたたみボックス<br>※<code>タイトル | 本文</code>の1行形式も使えます</li>
             <li><code>:::card</code><br><code>## タイトル</code><br><code>本文</code><br><code>:::</code> … カードレイアウト (## で分割)</li>
             <li><code>:::carousel</code><br><code>{{img1}}</code><br><code>{{img2}}</code><br><code>:::</code> … 画像スライドショー</li>
+            <li><code>:::center</code><br><code>中央寄せしたい文章</code><br><code>:::</code> … 中央寄せ(中で*斜体*や**太字**も使えます)</li>
           </ul>
         </div>
       </details>
+    </div>
+
+    <div class="group">
+      <label class="title">画像</label>
+      <div class="upload-zone" id="uploadZone">＋ 画像を選択 / ドラッグ&ドロップ</div>
+      <input type="file" id="imgFileInput" accept="image/*" multiple>
+      <div class="img-list" id="imgList"></div>
     </div>
 
     <div class="group">
@@ -426,13 +519,6 @@
     <div class="group">
       <label class="title">カードのデザイン</label>
       <div class="pattern-grid" id="cardStyleGrid"></div>
-    </div>
-
-    <div class="group">
-      <label class="title">画像</label>
-      <div class="upload-zone" id="uploadZone">＋ 画像を選択 / ドラッグ&ドロップ</div>
-      <input type="file" id="imgFileInput" accept="image/*" multiple>
-      <div class="img-list" id="imgList"></div>
     </div>
 
     <div class="group">
@@ -529,6 +615,8 @@ const state = {
   heading: 'underline',
   tableStyle: 'minimal',
   cardStyle: 'simple',
+  thumbIndex: 0,
+  ratings: [],
   tableRows: [
     {key:'システム', value:'ソード・ワールド2.5'},
     {key:'人数', value:'3〜4人'},
@@ -571,6 +659,11 @@ const PRESETS = [
   {label:'紫苑', color:'#7a5aa8'},
   {label:'桜', color:'#d47a95'},
   {label:'鋼', color:'#6e7681'},
+];
+
+const RATINGS = [
+  {id:'R18', label:'R18'},
+  {id:'R-18G', label:'R-18G'},
 ];
 
 const DIVIDERS = [
@@ -708,6 +801,23 @@ function renderOptionGrids(){
       updatePreview();
     });
   });
+
+  const rg = document.getElementById('ratingGrid');
+  if(rg){
+    rg.innerHTML = RATINGS.map(r => `
+      <div class="rating-chip ${(state.ratings||[]).includes(r.id)?'active':''}" data-rating="${r.id}">${r.label}</div>
+    `).join('');
+    rg.querySelectorAll('.rating-chip').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const id = el.dataset.rating;
+        if(!Array.isArray(state.ratings)) state.ratings = [];
+        const i = state.ratings.indexOf(id);
+        if(i === -1) state.ratings.push(id); else state.ratings.splice(i, 1);
+        renderOptionGrids();
+        updatePreview();
+      });
+    });
+  }
 }
 renderOptionGrids();
 
@@ -739,6 +849,23 @@ function handleFiles(files){
   });
 }
 
+function renderThumbPicker(){
+  const el = document.getElementById('thumbPicker');
+  if(!el) return;
+  const opts = [`<div class="thumb-opt ${state.thumbIndex === 0 ? 'active' : ''}" data-thumb="0">指定なし<br>(1枚目)</div>`]
+    .concat(state.images.map((img,i)=>
+      `<div class="thumb-opt ${state.thumbIndex === i+1 ? 'active' : ''}" data-thumb="${i+1}"><img src="${img.dataUrl}"></div>`
+    ));
+  el.innerHTML = opts.join('');
+  el.querySelectorAll('.thumb-opt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      state.thumbIndex = Number(opt.dataset.thumb);
+      renderThumbPicker();
+      updatePreview();
+    });
+  });
+}
+
 function renderImgList(){
   imgListEl.innerHTML = state.images.map((img,i)=>`
     <div class="img-item">
@@ -756,11 +883,15 @@ function renderImgList(){
   });
   imgListEl.querySelectorAll('.rm').forEach(el=>{
     el.addEventListener('click', ()=>{
-      state.images.splice(+el.dataset.rm,1);
+      const removed = +el.dataset.rm;
+      state.images.splice(removed,1);
+      if(state.thumbIndex === removed + 1) state.thumbIndex = 0;
+      else if(state.thumbIndex > removed + 1) state.thumbIndex -= 1;
       renderImgList();
       updatePreview();
     });
   });
+  renderThumbPicker();
 }
 
 // ---- シナリオ情報テーブル編集 ----
@@ -769,11 +900,17 @@ function renderTableEditor(){
   tableEditorEl.innerHTML = state.tableRows.map((row,i)=>`
     <div class="table-row" data-idx="${i}">
       <input class="key" type="text" value="${escapeAttr(row.key)}" placeholder="項目名" data-field="key">
-      <input class="val" type="text" value="${escapeAttr(row.value)}" placeholder="内容" data-field="value">
+      <textarea class="val" rows="1" placeholder="内容(改行可)" data-field="value">${escapeHTML(row.value)}</textarea>
       <span class="rm" data-rm="${i}">✕</span>
     </div>
   `).join('');
-  tableEditorEl.querySelectorAll('input').forEach(inp=>{
+  tableEditorEl.querySelectorAll('input, textarea').forEach(inp=>{
+    if(inp.tagName === 'TEXTAREA'){
+      // 内容に応じて高さ自動調整
+      const autosize = ()=>{ inp.style.height = 'auto'; inp.style.height = inp.scrollHeight + 'px'; };
+      autosize();
+      inp.addEventListener('input', autosize);
+    }
     inp.addEventListener('input', ()=>{
       const idx = +inp.closest('.table-row').dataset.idx;
       state.tableRows[idx][inp.dataset.field] = inp.value;
@@ -804,12 +941,12 @@ function scheduleUpdate(){
   clearTimeout(updateTimer);
   updateTimer = setTimeout(updatePreview, 200);
 }
-['titleInput','genreInput','tagInput','houseRuleInput','mdInput','accentInput'].forEach(id=>{
+['titleInput','genreInput','tagInput','houseRuleInput','mdInput','accentInput','listTitleInput','thumbUrlInput'].forEach(id=>{
   document.getElementById(id).addEventListener('input', scheduleUpdate);
 });
 
 // ---- 状態の収集と復元 ----
-const TEXT_FIELDS = ['titleInput','genreInput','tagInput','scenarioDescInput','houseRuleInput','mdInput','accentInput','fontSizeInput','titleSizeInput'];
+const TEXT_FIELDS = ['titleInput','genreInput','tagInput','scenarioDescInput','listTitleInput','thumbUrlInput','houseRuleInput','mdInput','accentInput','fontSizeInput','titleSizeInput'];
 
 function collectState(includeImages){
   const s = {
@@ -820,6 +957,8 @@ function collectState(includeImages){
       font: state.font, divider: state.divider, heading: state.heading,
       tableStyle: state.tableStyle,
       cardStyle: state.cardStyle,
+      thumbIndex: state.thumbIndex,
+      ratings: (state.ratings||[]).slice(),
       forceAnim: document.getElementById('forceAnimInput').checked,
     },
   };
@@ -833,16 +972,28 @@ function applyState(s){
   if(!s) return;
   try{
     if(s.fields){
+      // データに含まれない時に空へ戻す対象(任意入力で、前シナリオの値が残ると困るもの)
+      const CLEARABLE = ['listTitleInput','thumbUrlInput','scenarioDescInput','houseRuleInput','genreInput','tagInput'];
       TEXT_FIELDS.forEach(id=>{
-        if(s.fields[id] !== undefined){ document.getElementById(id).value = s.fields[id]; }
+        const el = document.getElementById(id);
+        if(!el) return;
+        if(s.fields[id] !== undefined){
+          el.value = s.fields[id];
+        } else if(CLEARABLE.includes(id)){
+          el.value = '';
+        }
       });
       document.getElementById('fontSizeVal').textContent = document.getElementById('fontSizeInput').value + 'px';
       document.getElementById('titleSizeVal').textContent = document.getElementById('titleSizeInput').value + 'px';
     }
     if(s.options){
-      ['pattern','animation','theme','font','divider','heading','tableStyle','cardStyle'].forEach(k=>{
+      ['pattern','animation','theme','font','divider','heading','tableStyle','cardStyle','thumbIndex'].forEach(k=>{
         if(s.options[k] !== undefined){ state[k] = s.options[k]; }
       });
+      // thumbIndexはデータに無ければ0(指定なし)に戻す
+      if(s.options.thumbIndex === undefined){ state.thumbIndex = 0; }
+      // ratingsはデータに無ければ空に戻す(前シナリオのタグが残らないように)
+      state.ratings = Array.isArray(s.options.ratings) ? s.options.ratings.slice() : [];
       if(s.options.forceAnim !== undefined){ document.getElementById('forceAnimInput').checked = s.options.forceAnim; }
     }
     if(Array.isArray(s.images)){
@@ -854,6 +1005,7 @@ function applyState(s){
       renderTableEditor();
     }
     renderOptionGrids();
+    renderThumbPicker();
     updatePreview();
   }catch(e){ console.error('applyState error', e); }
 }
@@ -871,10 +1023,36 @@ document.querySelector('.panel').addEventListener('input', scheduleAutosave);
 document.querySelector('.panel').addEventListener('click', scheduleAutosave);
 
 // 起動時に復元
+// (復元より前に初期状態をスナップショットしておき、リセットで使う)
+const INITIAL_STATE = collectState(true);
 try{
   const saved = localStorage.getItem(LS_KEY);
   if(saved){ applyState(JSON.parse(saved)); }
 }catch(e){}
+
+// ---- 新規作成(リセット) ----
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('入力内容をすべてクリアして、新しいシナリオを最初から作成します。よろしいですか?\n(GitHub接続設定・トークンは保持されます)')) return;
+  // 画像とサムネ選択もクリア
+  state.images = [];
+  state.thumbIndex = 0;
+  // 初期状態を適用
+  applyState(JSON.parse(JSON.stringify(INITIAL_STATE)));
+  // 一覧用フィールドやファイル名など、初期状態に無い任意入力を明示的に空へ
+  ['listTitleInput','thumbUrlInput','scenarioDescInput','houseRuleInput','ghFilenameInput'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  renderImgList();
+  renderThumbPicker();
+  // 自動保存も新しい初期状態で上書き
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(collectState(false))); }catch(e){}
+  // GitHub欄のステータスを戻す
+  if(typeof setGhStatus === 'function'){
+    setGhStatus('トークンはこのブラウザ内だけに保存され、書き出すHTML/JSONには含まれません。Fine-grained tokenでこのリポジトリのContents権限だけに絞ることをおすすめします。', false);
+  }
+  window.scrollTo(0,0);
+});
 
 // ---- JSON設定の保存 ----
 document.getElementById('saveSettingsBtn').addEventListener('click', ()=>{
@@ -933,7 +1111,10 @@ function buildPageHTML({forExport}){
   const genre = document.getElementById('genreInput').value || '';
   const tag = document.getElementById('tagInput').value || '';
   const scenarioDesc = document.getElementById('scenarioDescInput').value || '';
+  const listTitle = (document.getElementById('listTitleInput').value || '').trim();
+  const thumbUrl = (document.getElementById('thumbUrlInput').value || '').trim();
   const houseRuleUrl = (document.getElementById('houseRuleInput').value || '').trim();
+  const ratings = (state.ratings||[]).slice();
   const accent = document.getElementById('accentInput').value || '#c98a3c';
   const mdRaw = document.getElementById('mdInput').value || '';
   const pattern = state.pattern;
@@ -991,7 +1172,11 @@ function buildPageHTML({forExport}){
 <meta name="scenario-title" content="${escapeAttr(title)}">
 <meta name="scenario-genre" content="${escapeAttr(genre)}">
 <meta name="scenario-tags" content="${escapeAttr(tag)}">
+<meta name="scenario-rating" content="${escapeAttr(ratings.join(','))}">
 <meta name="scenario-description" content="${escapeAttr(scenarioDesc)}">
+<meta name="scenario-list-title" content="${escapeAttr(listTitle || title)}">${thumbUrl ? `
+<meta name="scenario-thumb" content="${escapeAttr(thumbUrl)}">` : (state.thumbIndex ? `
+<meta name="scenario-thumb-index" content="${state.thumbIndex}">` : '')}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?${fontGoogleParam}&display=swap" rel="stylesheet">
 <style>
@@ -1008,6 +1193,7 @@ ${pageCSS(accent, themeDef.id, fontDef.family, forceAnim, fontSize, titleSize, s
     <header class="page-head">
       ${genre ? `<div class="eyebrow">${escapeHTML(genre)}${tag ? ' ・ '+escapeHTML(tag) : ''}</div>` : ''}
       <h1>${escapeHTML(title)}</h1>
+      ${ratings.length ? `<div class="rating-badges">${ratings.map(r=>`<span class="rating-badge">${escapeHTML(r)}</span>`).join('')}</div>` : ''}
       ${dividerHTML}
     </header>
 
@@ -1044,22 +1230,33 @@ function infoTableHTML(){
   const rows = (state.tableRows||[]).filter(r => (r.key||'').trim() !== '' || (r.value||'').trim() !== '');
   if(rows.length === 0) return '';
   const style = state.tableStyle || 'minimal';
+  const nl2br = (s)=> escapeHTML(s).replace(/\n/g, '<br>');
 
   if(style === 'card'){
     const cards = rows.map(r=>`
       <div class="info-card">
         <div class="info-card-key">${escapeHTML(r.key)}</div>
-        <div class="info-card-val">${escapeHTML(r.value)}</div>
+        <div class="info-card-val">${nl2br(r.value)}</div>
       </div>`).join('');
     return `<div class="info-table-card">${cards}
     </div>`;
   }
 
-  const body = rows.map(r=>`
+  const body = rows.map(r=>{
+    const hasKey = (r.key||'').trim() !== '';
+    if(!hasKey){
+      // 項目名が空の行は、内容を2列ぶち抜きで表示(縞や罫線のズレを防ぐ)
+      return `
+      <tr class="no-key">
+        <td colspan="2">${nl2br(r.value)}</td>
+      </tr>`;
+    }
+    return `
       <tr>
-        <th>${escapeHTML(r.key)}</th>
-        <td>${escapeHTML(r.value)}</td>
-      </tr>`).join('');
+        <th>${nl2br(r.key)}</th>
+        <td>${nl2br(r.value)}</td>
+      </tr>`;
+  }).join('');
   return `<table class="info-table info-table-${style}"><tbody>${body}
     </tbody></table>`;
 }
@@ -1075,50 +1272,78 @@ function highlightSyntax(mdRaw){
   s = s.replace(/===([^=\n]+)===/g, '<mark class="hl hl-yellow">$1</mark>');
   // ==文字== は差し色の蛍光ペン
   s = s.replace(/==([^=\n]+)==/g, '<mark class="hl">$1</mark>');
+  // {#色: テキスト} または {色名: テキスト} で文字色を変更(中のマークダウンも有効)
+  // 例: {#c0392b: 赤い文字} {red: *斜体も*効く}
+  s = s.replace(/\{\s*(#[0-9a-fA-F]{3,8}|[a-zA-Z]+)\s*:\s*([^{}\n]+?)\s*\}/g, (m, color, text)=>{
+    const safe = /^#[0-9a-fA-F]{3,8}$/.test(color) || /^[a-zA-Z]+$/.test(color);
+    if(!safe) return m;
+    return `<span style="color:${color}">${text}</span>`;
+  });
   return s;
 }
 
 function preprocessBlocks(mdRaw){
   let result = mdRaw || '';
-  
+
+  // :::center ... ::: パース(中でマークダウンが使える中央寄せ)
+  result = result.replace(/^:::center[ \t]*\n([\s\S]*?)\n:::[ \t]*$/gm, (match, content)=>{
+    const inner = (typeof marked !== 'undefined') ? marked.parse(content.trim()) : escapeHTML(content.trim());
+    return `\n\n<div class="md-center">${inner}</div>\n\n`;
+  });
+
   // :::accordion ... ::: パース
-  result = result.replace(/^:::accordion\s*\n([\s\S]*?)\n:::\s*$/gm, (match, content)=>{
-    const items = content.trim().split('\n')
-      .filter(line => line.trim())
-      .map(line => {
-        const [title, body] = line.split('|').map(s => s.trim());
-        return `<details class="accordion"><summary>${escapeHTML(title || '')}</summary><div class="accordion-body">${escapeHTML(body || '')}</div></details>`;
-      })
-      .join('');
-    return `<div class="accordion-container">\n${items}\n</div>`;
+  result = result.replace(/^:::accordion[ \t]*\n([\s\S]*?)\n:::[ \t]*$/gm, (match, content)=>{
+    const md = (t)=> (typeof marked !== 'undefined') ? marked.parse(t) : escapeHTML(t);
+    const raw = content.replace(/^\n+|\n+$/g, '');
+    let items = '';
+
+    if(/^##\s+/m.test(raw)){
+      // 「## タイトル」区切り: 本文は複数行・マークダウンOK
+      const chunks = raw.split(/^##\s+/m).filter(c => c.trim());
+      items = chunks.map(chunk => {
+        const nl = chunk.indexOf('\n');
+        const title = (nl === -1 ? chunk : chunk.slice(0, nl)).trim();
+        const body = (nl === -1 ? '' : chunk.slice(nl + 1)).replace(/\s+$/,'');
+        return `<details class="accordion"><summary>${escapeHTML(title)}</summary><div class="accordion-body">${md(body)}</div></details>`;
+      }).join('');
+    } else {
+      // 従来の「タイトル | 本文」1行形式(本文にもマークダウン可)
+      items = raw.split('\n').filter(line => line.trim()).map(line => {
+        const idx = line.indexOf('|');
+        const title = (idx === -1 ? line : line.slice(0, idx)).trim();
+        const body = (idx === -1 ? '' : line.slice(idx + 1)).trim();
+        return `<details class="accordion"><summary>${escapeHTML(title)}</summary><div class="accordion-body">${md(body)}</div></details>`;
+      }).join('');
+    }
+    return `\n\n<div class="accordion-container">\n${items}\n</div>\n\n`;
   });
 
   // :::card ... ::: パース
-  result = result.replace(/^:::card\s*\n([\s\S]*?)\n:::\s*$/gm, (match, content)=>{
+  result = result.replace(/^:::card[ \t]*\n([\s\S]*?)\n:::[ \t]*$/gm, (match, content)=>{
     const mdContent = content.trim();
     const cardMd = (typeof marked !== 'undefined') ? marked.parse(mdContent) : mdContent;
     // h2ごとにカードを分割
     const cardHTML = cardMd.replace(/<h2[^>]*>(.*?)<\/h2>([\s\S]*?)(?=<h2|$)/g, (m, title, body)=>{
       return `<div class="card card-${state.cardStyle || 'simple'}"><div class="card-title">${title}</div><div class="card-body">${body}</div></div>`;
     });
-    return `<div class="card-container">\n${cardHTML}\n</div>`;
+    return `\n\n<div class="card-container">\n${cardHTML}\n</div>\n\n`;
   });
 
   // :::carousel ... ::: パース
-  result = result.replace(/^:::carousel\s*\n([\s\S]*?)\n:::\s*$/gm, (match, content)=>{
+  result = result.replace(/^:::carousel[ \t]*\n([\s\S]*?)\n:::[ \t]*$/gm, (match, content)=>{
     const images = content.trim().split('\n')
       .filter(line => /\{\{img\d+\}\}/.test(line))
       .map((line, idx) => `<div class="carousel-slide" data-slide="${idx}">${line}</div>`)
       .join('');
     const slideCount = (content.match(/\{\{img\d+\}\}/g) || []).length;
-    return `<div class="carousel" data-total="${slideCount}">
+    return `\n\n<div class="carousel" data-total="${slideCount}">
   <div class="carousel-inner">
     ${images}
   </div>
   <button class="carousel-btn carousel-prev">❮</button>
   <button class="carousel-btn carousel-next">❯</button>
   <div class="carousel-dots">${Array.from({length: slideCount}, (_, i) => `<span class="dot" data-slide="${i}"></span>`).join('')}</div>
-</div>`;
+</div>\n\n`;
   });
 
   return result;
@@ -1213,6 +1438,8 @@ a.tab.tab-link:hover{filter:brightness(1.05);}
 .page-head{text-align:center;margin-bottom:36px;}
 .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:10px;}
 h1{font-family:var(--serif);font-weight:800;font-size:clamp(${Math.round(titleSize*0.62)}px,5vw,${titleSize}px);margin:0 0 22px;letter-spacing:.02em;}
+.rating-badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 22px;}
+.rating-badge{display:inline-block;background:#d1495b;color:#fff;font-size:12px;font-weight:700;letter-spacing:.04em;padding:4px 12px;border-radius:3px;}
 .divider{margin:0 auto;max-width:340px;}
 .divider-tear{
   height:10px;
@@ -1222,7 +1449,7 @@ h1{font-family:var(--serif);font-weight:800;font-size:clamp(${Math.round(titleSi
 .divider-line{height:1px;background:var(--border);}
 .divider-double{height:5px;display:flex;flex-direction:column;gap:3px;}
 .divider-double span{display:block;height:1px;background:var(--border);}
-.hero-image{margin:0 0 40px;overflow:hidden;background:var(--surface);line-height:0;}
+.hero-image{margin:0 0 40px;overflow:hidden;line-height:0;}
 .hero-image img{width:100%;display:block;max-height:420px;object-fit:cover;}
 .content{font-size:${fontSize}px;line-height:1.9;}
 .content h2{font-family:var(--serif);font-size:22px;margin:40px 0 16px;${
@@ -1248,6 +1475,9 @@ h1{font-family:var(--serif);font-weight:800;font-size:clamp(${Math.round(titleSi
 }
 .content a{color:var(--accent);}
 .content blockquote{margin:20px 0;padding:4px 18px;border-left:2px solid var(--accent);color:var(--text-dim);}
+.md-center{text-align:center;}
+.md-center > *:first-child{margin-top:0;}
+.md-center > *:last-child{margin-bottom:0;}
 
 .info-table{
   width:100%; border-collapse:collapse; margin:28px 0;
@@ -1268,8 +1498,9 @@ h1{font-family:var(--serif);font-weight:800;font-size:clamp(${Math.round(titleSi
 .info-table-minimal th{color:var(--accent);}
 
 /* ストライプ */
-.info-table-striped{border-radius:4px;overflow:hidden;}
-.info-table-striped tr:nth-child(odd){background:var(--surface);}
+.info-table-striped{border-radius:4px;overflow:hidden;background:var(--bg);}
+.info-table-striped tr:nth-child(even) th, .info-table-striped tr:nth-child(even) td{background:var(--bg);}
+.info-table-striped tr:nth-child(odd) th, .info-table-striped tr:nth-child(odd) td{background:var(--surface);}
 .info-table-striped th{color:var(--accent);}
 .info-table-striped th, .info-table-striped td{border-bottom:none;}
 
@@ -1325,8 +1556,8 @@ h1{font-family:var(--serif);font-weight:800;font-size:clamp(${Math.round(titleSi
 .callout-warning{--cc:#d6a83c;}
 .callout-danger{--cc:#d6615c;}
 
-.img-block{clear:both;margin:26px 0;background:var(--surface);line-height:0;}
-.img-block img{width:100%;display:block;border:1px solid var(--border);}
+.img-block{clear:both;margin:26px 0;line-height:0;}
+.img-block img{width:100%;display:block;}
 .pattern-alternating .img-block.alt{
   width:46%; margin:10px 0 24px;
 }
@@ -1420,6 +1651,18 @@ h1{font-family:var(--serif);font-weight:800;font-size:clamp(${Math.round(titleSi
   padding: 0 16px 12px;
   color: var(--text);
   line-height: 1.6;
+}
+.accordion-body > *:first-child { margin-top: 0; }
+.accordion-body > *:last-child { margin-bottom: 0; }
+.accordion-body p { margin: 0 0 .7em; }
+.accordion-body ul, .accordion-body ol { margin: 0 0 .7em 1.3em; }
+.accordion-body h1, .accordion-body h2, .accordion-body h3,
+.accordion-body h4, .accordion-body h5 {
+  font-size: 1em;
+  margin: .6em 0 .3em;
+  color: var(--accent);
+  border: none;
+  padding: 0;
 }
 
 /* ---- カード ---- */
@@ -1875,7 +2118,44 @@ document.getElementById('ghUploadBtn').addEventListener('click', async ()=>{
   }
 });
 
+// マークダウン機能一覧のコード片をクリックでコピー
+(function(){
+  let toast = null;
+  function showToast(msg){
+    if(!toast){
+      toast = document.createElement('div');
+      toast.className = 'copy-toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=> toast.classList.remove('show'), 1400);
+  }
+
+  document.querySelectorAll('.markdown-tips-content code').forEach(code=>{
+    code.addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      // <br>を改行に変換してテキスト化
+      const text = code.innerHTML.replace(/<br\s*\/?>/gi, '\n').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+      try{
+        await navigator.clipboard.writeText(text);
+      }catch(err){
+        // フォールバック
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try{ document.execCommand('copy'); }catch(e2){}
+        ta.remove();
+      }
+      code.classList.add('copied');
+      setTimeout(()=> code.classList.remove('copied'), 700);
+      showToast('コピーしました');
+    });
+  });
+})();
+
 // 初期プレビュー
+renderThumbPicker();
 updatePreview();
 </script>
 </body>
