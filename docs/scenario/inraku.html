@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>淫楽なる城</title>
+<meta name="scenario-title" content="淫楽なる城">
+<meta name="scenario-genre" content="インセイン">
+<meta name="scenario-tags" content="PL4 / 中級">
+<meta name="scenario-description" content="">
+<meta name="scenario-list-title" content="淫楽なる城">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;600;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  
+  --bg:#f5f1e8; --surface:#ffffff; --border:#ddd4c2;
+  --text:#2a2723; --text-dim:#83786a;
+
+  --accent:#c98a3c;
+  --serif:'Zen Old Mincho', serif; --sans:'Zen Kaku Gothic New', sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);}
+body.has-bg-image{position:relative;}
+body.has-bg-image::before{
+  content:'';position:fixed;inset:-20px;
+  background-image:var(--bg-image);background-size:cover;background-position:center;
+  opacity:.28;filter:grayscale(.3) blur(4px);z-index:0;
+}
+.page{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:64px 28px 100px;}
+.tab-stack{
+  position:fixed; left:0; top:120px; z-index:5;
+  display:flex; flex-direction:column; gap:14px;
+}
+.tab{
+  writing-mode:vertical-rl; text-orientation:upright;
+  background:var(--accent); color:#161410;
+  font-family:var(--sans); font-weight:700; font-size:12px; letter-spacing:.15em;
+  padding:14px 7px; border-radius:0 4px 4px 0;
+}
+a.tab.tab-link{
+  text-decoration:none;
+  filter:brightness(0.92);
+}
+a.tab.tab-link:hover{filter:brightness(1.05);}
+@media (max-width:640px){ .tab-stack{display:none;} }
+.page-head{text-align:center;margin-bottom:36px;}
+.eyebrow{font-size:12px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:10px;}
+h1{font-family:var(--serif);font-weight:800;font-size:clamp(26px,5vw,42px);margin:0 0 22px;letter-spacing:.02em;}
+.divider{margin:0 auto;max-width:340px;}
+.divider-tear{
+  height:10px;
+  background:var(--border);
+  clip-path:polygon(0% 0%,4% 100%,8% 0%,12% 100%,16% 0%,20% 100%,24% 0%,28% 100%,32% 0%,36% 100%,40% 0%,44% 100%,48% 0%,52% 100%,56% 0%,60% 100%,64% 0%,68% 100%,72% 0%,76% 100%,80% 0%,84% 100%,88% 0%,92% 100%,96% 0%,100% 100%);
+}
+.divider-line{height:1px;background:var(--border);}
+.divider-double{height:5px;display:flex;flex-direction:column;gap:3px;}
+.divider-double span{display:block;height:1px;background:var(--border);}
+.hero-image{margin:0 0 40px;overflow:hidden;line-height:0;}
+.hero-image img{width:100%;display:block;max-height:420px;object-fit:cover;}
+.content{font-size:15.5px;line-height:1.9;}
+.content h2{font-family:var(--serif);font-size:22px;margin:40px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.content h3{font-family:var(--serif);font-size:18px;margin:28px 0 12px;}
+.content p{margin:0 0 18px;color:var(--text);}
+.content ul,.content ol{margin:0 0 18px;padding-left:1.4em;}
+.content li{margin-bottom:6px;}
+.content strong{color:var(--accent);}
+.content mark, .callout-body mark{
+  background: linear-gradient(transparent 60%, color-mix(in srgb, var(--accent) 55%, transparent) 60%);
+  color: var(--text);
+  padding: 0 2px;
+}
+.content mark.hl-yellow, .callout-body mark.hl-yellow{
+  background: linear-gradient(transparent 60%, #f6ff5f 60%);
+  color: #211f1c;
+}
+.content a{color:var(--accent);}
+.content blockquote{margin:20px 0;padding:4px 18px;border-left:2px solid var(--accent);color:var(--text-dim);}
+.md-center{text-align:center;}
+.md-center > *:first-child{margin-top:0;}
+.md-center > *:last-child{margin-bottom:0;}
+
+.info-table{
+  width:100%; border-collapse:collapse; margin:28px 0;
+  font-size:14.5px;
+}
+.info-table th, .info-table td{
+  text-align:left; padding:11px 14px; vertical-align:top;
+}
+.info-table th{
+  width:28%; white-space:nowrap;
+  font-family:var(--sans); font-weight:700;
+}
+.info-table td{color:var(--text);}
+
+/* ミニマル */
+.info-table-minimal{border-top:2px solid var(--accent);}
+.info-table-minimal th, .info-table-minimal td{border-bottom:1px solid var(--border);}
+.info-table-minimal th{color:var(--accent);}
+
+/* ストライプ */
+.info-table-striped{border-radius:4px;overflow:hidden;background:var(--bg);}
+.info-table-striped tr:nth-child(even) th, .info-table-striped tr:nth-child(even) td{background:var(--bg);}
+.info-table-striped tr:nth-child(odd) th, .info-table-striped tr:nth-child(odd) td{background:var(--surface);}
+.info-table-striped th{color:var(--accent);}
+.info-table-striped th, .info-table-striped td{border-bottom:none;}
+
+/* ラベル帯 */
+.info-table-labelbar{border-collapse:separate;border-spacing:0 6px;}
+.info-table-labelbar th{
+  background:var(--accent);
+  color:#fff;
+  border-radius:3px; text-align:center;
+}
+.info-table-labelbar td{padding-left:16px;}
+
+/* 枠付き資料 */
+.info-table-sheet{border:1.5px solid var(--border);}
+.info-table-sheet th, .info-table-sheet td{border:1px solid var(--border);}
+.info-table-sheet th{background:var(--surface);color:var(--accent);}
+
+/* カード型 */
+.info-table-card{
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin:28px 0;
+}
+.info-card{
+  border:1px solid var(--border); border-radius:5px;
+  padding:12px 14px; background:var(--surface);
+  border-top:2px solid var(--accent);
+}
+.info-card-key{
+  font-family:var(--sans); font-size:11px; font-weight:700;
+  color:var(--accent); letter-spacing:.06em; margin-bottom:5px;
+}
+.info-card-val{font-size:15px; color:var(--text); line-height:1.5;}
+@media (max-width:520px){
+  .info-table-card{grid-template-columns:1fr;}
+  .info-table th{width:34%;}
+}
+
+.callout{
+  --cc: var(--accent);
+  margin:24px 0; padding:14px 18px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:3px solid var(--cc);
+  border-radius:3px;
+}
+.callout-title{
+  font-family:var(--sans); font-weight:700; font-size:12.5px; letter-spacing:.06em;
+  color:var(--cc); margin-bottom:8px; text-transform:uppercase;
+}
+.callout-body p{margin:0 0 10px; font-size:14.5px;}
+.callout-body p:last-child{margin-bottom:0;}
+.callout-note{--cc:#5b8fd6;}
+.callout-tip{--cc:#5cb87a;}
+.callout-warning{--cc:#d6a83c;}
+.callout-danger{--cc:#d6615c;}
+
+.img-block{clear:both;margin:26px 0;line-height:0;}
+.img-block img{width:100%;display:block;}
+.pattern-alternating .img-block.alt{
+  width:46%; margin:10px 0 24px;
+}
+.pattern-alternating .img-block.alt.left{float:left; margin-right:24px;}
+.pattern-alternating .img-block.alt.right{float:right; margin-left:24px;}
+@media (max-width:640px){
+  .pattern-alternating .img-block.alt{width:100%; float:none; margin:20px 0;}
+}
+.pattern-inline .img-block.inline{width:200px;}
+.pattern-inline .img-block.inline.left{float:left; margin:6px 24px 20px 0;}
+.pattern-inline .img-block.inline.right{float:right; margin:6px 0 20px 24px;}
+@media (max-width:640px){
+  .pattern-inline .img-block.inline{width:100%; float:none; margin:18px 0;}
+}
+.pattern-background .img-block{width:100%;max-width:420px;margin:26px auto;}
+
+/* ---- アニメーション基本状態 ---- */
+[data-anim]{ }
+[data-anim="none"]{opacity:1;}
+[data-anim="fade"]{opacity:0; transition:opacity 1.8s ease;}
+[data-anim="fade"].in-view{opacity:1;}
+[data-anim="slide"]{opacity:0; transform:translateY(40px); transition:opacity .8s ease, transform .8s ease;}
+[data-anim="slide"].in-view{opacity:1; transform:translateY(0);}
+[data-anim="slideLeft"]{opacity:0; transform:translateX(-55px); transition:opacity .8s ease, transform .8s ease;}
+[data-anim="slideLeft"].in-view{opacity:1; transform:translateX(0);}
+[data-anim="slideRight"]{opacity:0; transform:translateX(55px); transition:opacity .8s ease, transform .8s ease;}
+[data-anim="slideRight"].in-view{opacity:1; transform:translateX(0);}
+[data-anim="zoom"]{opacity:0; transform:scale(.85); transition:opacity .8s ease, transform .8s ease;}
+[data-anim="zoom"].in-view{opacity:1; transform:scale(1);}
+[data-anim="blur"]{opacity:0; filter:blur(10px); transition:opacity 1.6s ease, filter 1.6s ease;}
+[data-anim="blur"].in-view{opacity:1; filter:blur(0);}
+[data-anim="wipe"]{position:relative; overflow:hidden; opacity:1;}
+[data-anim="wipe"]::before{
+  content:''; position:absolute; top:0; left:0; width:100%; height:100%; z-index:2;
+  background:var(--bg); pointer-events:none;
+  transform:translateX(0); will-change:transform;
+}
+[data-anim="wipe"].in-view::before{
+  animation:wipe-reveal 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes wipe-reveal{
+  0%{ transform:translateX(0); }
+  100%{ transform:translateX(100%); }
+}
+[data-anim="kiran"]{position:relative; overflow:hidden; opacity:1;}
+[data-anim="kiran"]::before{
+  content:''; position:absolute; top:0; left:0; z-index:2;
+  width:40px; height:100%;
+  background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.85) 50%, rgba(255,255,255,0) 100%);
+  transform:translateX(-150px) skewX(-20deg);
+  pointer-events:none; opacity:0;
+}
+[data-anim="kiran"].in-view::before{
+  animation:kiran-shine 1s ease-out forwards;
+}
+@keyframes kiran-shine{
+  0%{ transform:translateX(-150px) skewX(-20deg); opacity:0; }
+  30%{ opacity:1; }
+  100%{ transform:translateX(700px) skewX(-20deg); opacity:0; }
+}
+
+.callout-body p { margin: 0; }
+
+/* ---- アコーディオン ---- */
+.accordion-container{ margin: 28px 0; }
+.accordion {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.accordion summary {
+  cursor: pointer;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: var(--accent);
+  user-select: none;
+}
+.accordion summary::after {
+  content: '▼';
+  font-size: 10px;
+  transition: transform .3s;
+  margin-left: 8px;
+  float: right;
+}
+.accordion[open] summary::after {
+  transform: rotate(180deg);
+}
+.accordion-body {
+  padding: 0 16px 12px;
+  color: var(--text);
+  line-height: 1.6;
+}
+.accordion-body > *:first-child { margin-top: 0; }
+.accordion-body > *:last-child { margin-bottom: 0; }
+.accordion-body p { margin: 0 0 .7em; }
+.accordion-body ul, .accordion-body ol { margin: 0 0 .7em 1.3em; }
+.accordion-body h1, .accordion-body h2, .accordion-body h3,
+.accordion-body h4, .accordion-body h5 {
+  font-size: 1em;
+  margin: .6em 0 .3em;
+  color: var(--accent);
+  border: none;
+  padding: 0;
+}
+
+/* ---- カード ---- */
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 28px 0;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  border-top: 3px solid var(--accent);
+}
+.card-title {
+  padding: 12px 14px;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 14px;
+}
+.card-body {
+  padding: 12px 14px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.card-body p { margin: 0; }
+
+/* カードスタイル: シンプル(デフォルト) */
+.card-simple {
+  border-top: 3px solid var(--accent);
+}
+
+/* カードスタイル: シャドウ */
+.card-shadow {
+  border: 1px solid var(--border);
+  box-shadow: 2px 4px 8px rgba(0,0,0,.3);
+  transition: transform .3s, box-shadow .3s;
+}
+.card-shadow:hover {
+  transform: translateY(-4px);
+  box-shadow: 4px 8px 16px rgba(0,0,0,.4);
+}
+
+/* カードスタイル: ホバー反応 */
+.card-hover {
+  border: 1px solid var(--border);
+  transition: transform .3s, border-color .3s, box-shadow .3s;
+}
+.card-hover:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 16px rgba(0,0,0,.2);
+}
+
+/* カードスタイル: 背景色濃い */
+.card-darkbg {
+  background: #1a1a17;
+  border-color: var(--border);
+}
+.card-darkbg .card-title {
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 10px;
+}
+
+/* カードスタイル: グラデーション */
+.card-gradient {
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.card-gradient::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+.card-gradient .card-title {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--surface) 100%);
+  color: #fff;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+/* ---- カルーセル ---- */
+.carousel {
+  position: relative;
+  margin: 28px 0;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.carousel-inner {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+.carousel-slide {
+  display: none;
+  width: 100%;
+}
+.carousel-slide.active {
+  display: block;
+  animation: carousel-fade .5s ease-in-out;
+}
+@keyframes carousel-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.carousel-slide img {
+  width: 100%;
+  display: block;
+  max-height: 500px;
+  object-fit: cover;
+}
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 10;
+  border-radius: 3px;
+}
+.carousel-prev { left: 10px; }
+.carousel-next { right: 10px; }
+.carousel-btn:hover { background: rgba(0,0,0,.8); }
+.carousel-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.5);
+  cursor: pointer;
+}
+.dot.active {
+  background: var(--accent);
+}
+
+
+
+</style>
+</head>
+<body class="" >
+  <div class="tab-stack">
+    <div class="tab" aria-hidden="true">インセイン</div>
+    
+  </div>
+
+  <main class="page">
+    <header class="page-head">
+      <div class="eyebrow">インセイン ・ PL4 / 中級</div>
+      <h1>淫楽なる城</h1>
+      <div class="divider divider-line"></div>
+    </header>
+
+    
+
+    <article class="content pattern-hero">
+      <div class="md-center"><p>他者を避け、慎ましく生きるために俗欲を立った修道院<br>神に祈る場であるこの場所が狂気に犯された時<br>人々は蕩け、歪み、狂っていく————</p>
+<p>inSANe「淫楽なる城」</p>
+<p>そして人は快楽に溺れ、堕落する</p>
+</div>
+## シナリオ情報
+<table class="info-table info-table-minimal"><tbody>
+      <tr>
+        <th>PL人数</th>
+        <td>4人</td>
+      </tr>
+      <tr>
+        <th>所要時間</th>
+        <td>終日3</td>
+      </tr>
+      <tr>
+        <th>傾向</th>
+        <td>特殊型</td>
+      </tr>
+      <tr>
+        <th>ワールドセッティング</th>
+        <td>迷信の暗黒時代</td>
+      </tr>
+    </tbody></table>
+
+<h2>共通HO(1~4)</h2>
+<p>あなたはこの修道院の修道士だ。<br>とある修道士が起こした事件から修道院では淫らな行為が広がっている。<br>神に祈る場でそのような行為があってはいけない。あなたの【使命】は事件を根絶することだ。あなたたちはPC/NPC全員の【居所】を所持している。<br>個別としてHO1とHO3は快楽判定に対して+2の修正値を常に得る。</p>
+<h2>注意事項</h2>
+<p>今シナリオでは、Sheepfoldさま発行のシナリオ集「秘蜜の箱庭」に記載されている「睦事ルール」を使用する。</p>
+<h2>睦事ルールとは？</h2>
+<p>性技(?)で相手を屈服させるルールある。</p>
+<p>今シナリオは雰囲気としてイチャイチャする類ではありません。<br>加虐、被虐、モブレ、複数プレイ、同性愛、後味の悪さ、暴力表現、ホラー表現など多くが含まれています。不安なPLがいれば事前に地雷表現をGMまでご連絡下さい。<br>また修道院は男女分かれて生活しているため、PCは同性同士になります。好みに合わせて性別を合わせてください。本文では男性verで描写しています。<br>※同性同士でなくとも男女混同でも構いません。</p>
+<h2>ハウスルール</h2>
+<p>放心表：今シナリオに限りクライマックスフェイズの勝者は敗者全員に放心表を振らせることが出来る。<br>その他：ラウンド制限の撤廃：不採用<br>バッティング/戦果の拡張：採用<br>ブロック：ブロックで肩代わりできるのは1名まで、またブロックしたキャラクターは快感度が1上昇し、快感判定を行います。戦闘の泥沼化を回避するためこのハウスルールを採用して構いません。</p>
+
+    </article>
+  </main>
+
+<script type="application/json" id="generator-state">
+{"version":1,"fields":{"titleInput":"淫楽なる城","genreInput":"インセイン","tagInput":"PL4 / 中級","scenarioDescInput":"","listTitleInput":"","thumbUrlInput":"","houseRuleInput":"","mdInput":":::center\n他者を避け、慎ましく生きるために俗欲を立った修道院\n神に祈る場であるこの場所が狂気に犯された時\n人々は蕩け、歪み、狂っていく————\n\ninSANe「淫楽なる城」\n\nそして人は快楽に溺れ、堕落する\n:::\n\n\n## シナリオ情報\n{{table}}\n\n## 共通HO(1~4)\nあなたはこの修道院の修道士だ。\nとある修道士が起こした事件から修道院では淫らな行為が広がっている。\n神に祈る場でそのような行為があってはいけない。あなたの【使命】は事件を根絶することだ。あなたたちはPC/NPC全員の【居所】を所持している。\n個別としてHO1とHO3は快楽判定に対して+2の修正値を常に得る。\n\n## 注意事項\n今シナリオでは、Sheepfoldさま発行のシナリオ集「秘蜜の箱庭」に記載されている「睦事ルール」を使用する。\n\n## 睦事ルールとは？\n性技(?)で相手を屈服させるルールある。\n\n今シナリオは雰囲気としてイチャイチャする類ではありません。\n加虐、被虐、モブレ、複数プレイ、同性愛、後味の悪さ、暴力表現、ホラー表現など多くが含まれています。不安なPLがいれば事前に地雷表現をGMまでご連絡下さい。\nまた修道院は男女分かれて生活しているため、PCは同性同士になります。好みに合わせて性別を合わせてください。本文では男性verで描写しています。\n※同性同士でなくとも男女混同でも構いません。\n\n## ハウスルール\n放心表：今シナリオに限りクライマックスフェイズの勝者は敗者全員に放心表を振らせることが出来る。\nその他：ラウンド制限の撤廃：不採用\nバッティング/戦果の拡張：採用\nブロック：ブロックで肩代わりできるのは1名まで、またブロックしたキャラクターは快感度が1上昇し、快感判定を行います。戦闘の泥沼化を回避するためこのハウスルールを採用して構いません。\n\n","accentInput":"#c98a3c","fontSizeInput":"15.5","titleSizeInput":"42"},"options":{"pattern":"hero","animation":"fade","theme":"light","font":"oldmincho","divider":"line","heading":"underline","tableStyle":"minimal","cardStyle":"simple","thumbIndex":0,"forceAnim":true},"tableRows":[{"key":"PL人数","value":"4人"},{"key":"所要時間","value":"終日3"},{"key":"傾向","value":"特殊型"},{"key":"ワールドセッティング","value":"迷信の暗黒時代"}],"images":[]}
+</script>
+<script>
+
+(function(){
+  function start(){
+    var targets = Array.prototype.slice.call(document.querySelectorAll('[data-anim]'));
+    var animTargets = targets.filter(function(t){ return t.dataset.anim !== 'none'; });
+
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        var io = new IntersectionObserver(function(entries){
+          entries.forEach(function(e){
+            if(e.isIntersecting){
+              e.target.classList.add('in-view');
+              io.unobserve(e.target);
+            }
+          });
+        }, {threshold:0.15, rootMargin:'0px 0px -10% 0px'});
+        animTargets.forEach(function(t){ io.observe(t); });
+      });
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+
+  // ---- カルーセル処理 ----
+  document.querySelectorAll('.carousel').forEach(carousel => {
+    let current = 0;
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const dots = carousel.querySelectorAll('.dot');
+    const total = slides.length;
+
+    function showSlide(n) {
+      slides.forEach(s => s.classList.remove('active'));
+      dots.forEach(d => d.classList.remove('active'));
+      slides[n].classList.add('active');
+      dots[n].classList.add('active');
+    }
+
+    carousel.querySelector('.carousel-prev')?.addEventListener('click', () => {
+      current = (current - 1 + total) % total;
+      showSlide(current);
+    });
+
+    carousel.querySelector('.carousel-next')?.addEventListener('click', () => {
+      current = (current + 1) % total;
+      showSlide(current);
+    });
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        current = i;
+        showSlide(current);
+      });
+    });
+
+    showSlide(0);
+  });
+})();
+
+</script>
+</body>
+</html>
