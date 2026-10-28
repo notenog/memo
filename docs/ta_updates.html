@@ -65,6 +65,14 @@
   kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--panel-2); }
   q { quotes: "「" "」"; }
 
+  .preview-note { margin: 34px 0 0; padding: 18px 20px 16px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line-soft); border-left: 3px solid var(--accent); }
+  .preview-note h2 { font-size: 16px; margin: 0 0 6px; display: flex; align-items: center; gap: 10px; }
+  .preview-note h2 .badge { background: transparent; color: var(--accent-hi); border: 1px solid var(--accent); }
+  .preview-note p { margin: 0; font-size: 14px; color: var(--muted); }
+  .preview-note ul { margin: 8px 0 0; padding-left: 22px; font-size: 14px; }
+  .preview-note li { margin: 3px 0; }
+  .preview-note li b { color: var(--text); }
+
   .howto { margin: 44px 0 0; padding: 20px 20px 16px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line-soft); }
   .howto h2 { font-size: 17px; margin: 0 0 8px; }
   .howto ol { margin: 0; padding-left: 22px; font-size: 14px; }
@@ -88,6 +96,7 @@
     <h1>更新履歴</h1>
     <p class="lead">TRPGシナリオを解凍せずに整理する本棚アプリ「TRPG Archive」の、バージョンごとの変更点です。</p>
     <nav class="vnav" aria-label="バージョン">
+      <a href="#v1.2.0">v1.2.0</a>
       <a href="#v1.1.0">v1.1.0</a>
       <a href="#v1.0.0">v1.0.0</a>
     </nav>
@@ -102,11 +111,111 @@
     上の .vnav にもリンクを1つ足してください。
   -->
 
+  <section class="preview-note" aria-labelledby="preview-h">
+    <h2 id="preview-h"><span class="badge">予告</span>ログ・CS の追加版（有料）を準備中です</h2>
+    <p>TRPG Archive に入れて使う有料の「追加版」として、次の2つを準備しています。</p>
+    <ul>
+      <li><b>ログ</b>：ココフォリア・Tekey・どどんとふのセッションログを取り込んで、読みやすく整えて見られます。遊んだ日・同卓者・ダイスの結果などで整理できます</li>
+      <li><b>CS</b>：キャラクター保管所・いあきゃら・Charaeno などのキャラクターシートを、立ち絵つきで一覧にして管理できます</li>
+    </ul>
+    <p>v1.2.0 から、設定に<q>追加版</q>の項目があります。販売が始まったら、ダウンロードしたZIPをここから選ぶだけで入れられます。</p>
+  </section>
+
+  <section class="release" id="v1.2.0">
+    <div class="rel-head">
+      <h2>v1.2.0</h2>
+      <time datetime="2026-10-28">2026年10月28日</time>
+      <span class="badge">最新</span>
+    </div>
+    <p class="rel-summary rel-sum">シナリオがたくさんあっても軽く動くように、起動・検索・スクロールを見直しました。テキストファイルの登録や、PCの買い替え・フォルダの移動に備える機能、サムネイルの位置調整やプレビュー内の検索も追加しています。</p>
+
+    <div class="highlights">
+      <div class="hl"><h3><i></i>軽く・速く</h3>
+        <p>シナリオが多くても、起動・検索・スクロールが軽くなりました。一覧の右下の「↑」で、いちばん上に戻れます。</p></div>
+      <div class="hl"><h3><i></i>テキストファイルも登録</h3>
+        <p>単体の .txt もシナリオとして登録でき、アプリの中でそのまま読めます。</p></div>
+      <div class="hl"><h3><i></i>フォルダを付け替える</h3>
+        <p>フォルダを動かした・ドライブの文字が変わったときに、場所が見つからないシナリオをまとめて付け替えられます。</p></div>
+      <div class="hl"><h3><i></i>データの引っ越し</h3>
+        <p>登録データ・サムネイルを1つのファイルに書き出して、新しいPCで読み込めます（シナリオのZIP・フォルダは別にコピーが必要です）。</p></div>
+      <div class="hl"><h3><i></i>表紙を自動でサムネイルに</h3>
+        <p>画像の名前が表紙らしくないときは、本文のPDF・HTMLの表紙を自動でサムネイルにします。</p></div>
+      <div class="hl"><h3><i></i>システムの色を24色に</h3>
+        <p>システムの色の候補を増やしました。「ほかの色…」から好きな色も選べます。</p></div>
+      <div class="hl"><h3><i></i>サムネイルの位置調整</h3>
+        <p>サムネイルのどこを見せるか（位置・拡大）を調整できます。クリックすると画像を大きく表示します。</p></div>
+      <div class="hl"><h3><i></i>プレビューの中を検索</h3>
+        <p>プレビュー中に Ctrl+F で、HTML・PDFの中の言葉を探せます。</p></div>
+    </div>
+
+    <details class="group" open>
+      <summary>軽く・速く<em>4件</em></summary>
+      <ul>
+        <li>カード一覧の読み込みを見直して、起動が速くなりました</li>
+        <li>検索・絞り込み・並び替え・カードの選択・ドラッグを軽くしました（中のファイル名の検索も速くなりました）</li>
+        <li><span class="tag new">新機能</span>一覧を下にスクロールすると、右下に<q>↑</q>が出ます。押すと一覧のいちばん上に戻ります</li>
+        <li>シナリオがたくさん（数千件）あるときに、使うメモリが大きく減りました</li>
+      </ul>
+    </details>
+
+    <details class="group" open>
+      <summary>登録・テキストファイル<em>4件</em></summary>
+      <ul>
+        <li><span class="tag new">新機能</span>単体のテキストファイル（.txt）も、シナリオとして登録できるようになりました</li>
+        <li>テキストファイルのシナリオには<q>〇〇を読む</q>ボタンが付き、アプリの中で読めます</li>
+        <li>監視フォルダの直下に単独で置いたテキストファイルも取り込みます（readme・規約・メモなどは除きます）</li>
+        <li>フォルダをドロップしたときは、フォルダの直下のテキストファイルを別のシナリオにしないようにしました</li>
+      </ul>
+    </details>
+
+    <details class="group">
+      <summary>場所が見つからないとき・データの引っ越し<em>4件</em></summary>
+      <ul>
+        <li><span class="tag new">新機能</span><q>フォルダを付け替える</q>：元のフォルダと新しいフォルダを1回指定すると、その下のシナリオの場所をまとめて書き換えます（監視フォルダも）。<q>状態</q>→<q>場所が見つからない</q>の一覧の上か、設定 →<q>データ</q>から使えます</li>
+        <li><span class="tag new">新機能</span><q>データの引っ越し</q>：設定 →<q>データ</q>から、タグ・メモ・プレイ状況・サムネイルなどの登録データを1つのファイルに書き出して、新しいPCで読み込めます。読み込む前のデータは消さずに残します
+          <ul>
+            <li>シナリオのZIP・フォルダそのものは入りません。新しいPCへは別にコピーしてください（アプリは元のファイルを読んで表示しているので、消すと読めなくなります）</li>
+          </ul></li>
+        <li>サイドバーの<q>状態</q>の見出しの横に、場所が見つからないシナリオの数を出すようにしました（見出しを閉じていても気づけます）</li>
+        <li><q>なに回す？</q>で場所が見つからないシナリオを除いたときは、その数を表示するようにしました。押すと、そのシナリオだけを一覧で見られます</li>
+      </ul>
+    </details>
+
+    <details class="group">
+      <summary>サムネイル・プレビュー・見た目<em>9件</em></summary>
+      <ul>
+        <li><span class="tag new">新機能</span>サムネイルの<q>位置を調整</q>：詳細パネルの画像にマウスを乗せると出ます。カードと詳細パネルそれぞれで、画像のどこを見せるか・どれくらい拡大するかを決められます（画像そのものは切らないので、何度でも直せます）</li>
+        <li><span class="tag new">新機能</span>詳細パネルのサムネイルをクリックすると、画像を大きく表示します（←→で切り替え）</li>
+        <li><span class="tag new">新機能</span>プレビュー中に<q>Ctrl+F</q>で、HTML・PDFの中の言葉を探せます</li>
+        <li>一覧の上の帯（タイトル・件数・<q>選択</q>）は、スクロールしても上に残るようにしました</li>
+        <li><span class="tag new">新機能</span>自動のサムネイル：画像の名前がトレーラー・表紙・シナリオ名らしくないときは、本文のPDFの1ページ目の画像（またはHTMLの最初の画像）を使います。2ページ目以降の画像は、ネタバレ防止のため自動では使いません</li>
+        <li><span class="tag new">新機能</span>システムの色を24色にしました（これまでの12色はそのまま）。<q>ほかの色…</q>から好きな色も選べます</li>
+        <li>検索したとき、シナリオにまとめた素材の中で見つかったものも、一覧の下に出すようにしました</li>
+        <li>素材として登録済みのものを登録し直したときは、<q>〇〇の付属の素材として登録されています</q>と出して、<q>表示する</q><q>ふつうのシナリオに戻す</q>を選べるようにしました</li>
+        <li>タグの入力欄の候補を、スクロールして選べるリストにしました</li>
+      </ul>
+    </details>
+
+    <details class="group">
+      <summary>不具合の修正<em>2件</em></summary>
+      <ul>
+        <li><span class="tag fix">修正</span>タグがたくさんあるとき、入力欄の下のほうの候補が選べなかった</li>
+        <li><span class="tag fix">修正</span>画像だけのフォルダが、同じフォルダにあるシナリオの素材に隠れてしまうことがあった</li>
+      </ul>
+    </details>
+
+    <details class="group">
+      <summary>Mac版（試作）<em>1件</em></summary>
+      <ul>
+        <li>Mac版（試作）も、上の変更はすべてWindows版と同じです</li>
+      </ul>
+    </details>
+  </section>
+
   <section class="release" id="v1.1.0">
     <div class="rel-head">
       <h2>v1.1.0</h2>
       <time datetime="2026-10-16">2026年10月16日</time>
-      <span class="badge">最新</span>
     </div>
     <p class="rel-summary rel-sum">素材ZIPの自動整理や、バラバラに登録されたシナリオをひとつにまとめる機能を中心に、ドラッグでの操作をたくさん増やしました。</p>
 
