@@ -96,6 +96,7 @@
     <h1>更新履歴</h1>
     <p class="lead">TRPGシナリオを解凍せずに整理する本棚アプリ「TRPG Archive」の、バージョンごとの変更点です。</p>
     <nav class="vnav" aria-label="バージョン">
+      <a href="#v1.2.1">v1.2.1</a>
       <a href="#v1.2.0">v1.2.0</a>
       <a href="#v1.1.0">v1.1.0</a>
       <a href="#v1.0.0">v1.0.0</a>
@@ -111,21 +112,55 @@
     上の .vnav にもリンクを1つ足してください。
   -->
 
-  <section class="preview-note" aria-labelledby="preview-h">
-    <h2 id="preview-h"><span class="badge">予告</span>ログ・CS の追加版（有料）を準備中です</h2>
-    <p>TRPG Archive に入れて使う有料の「追加版」として、次の2つを準備しています。</p>
+  <section class="preview-note" aria-labelledby="addon-h">
+    <h2 id="addon-h"><span class="badge">新発売</span>ログ・CS の追加版（有料）を BOOTH で配布しています</h2>
+    <p>TRPG Archive に入れて使う有料の「追加版」です。使いたいものだけ選んで入れられます。</p>
     <ul>
-      <li><b>ログ</b>：ココフォリア・Tekey・どどんとふのセッションログを取り込んで、読みやすく整えて見られます。遊んだ日・同卓者・ダイスの結果などで整理できます</li>
-      <li><b>CS</b>：キャラクター保管所・いあきゃら・Charaeno などのキャラクターシートを、立ち絵つきで一覧にして管理できます</li>
+      <li><b>ログ</b>：ココフォリア・Tekey・どどんとふのセッションログを取り込んで、読みやすく整えて見られます。顔アイコンの表示、ダイスの成功・失敗の色分けにも対応。GM・PL・同卓者で整理でき、シナリオともつながります</li>
+      <li><b>CS</b>：キャラクター保管所・いあきゃら・Charaeno などのキャラクターシートを、立ち絵つきで一覧にして管理できます。技能での絞り込み・背景と配置・成長の記録やメモにも対応しています</li>
     </ul>
-    <p>v1.2.0 から、設定に<q>追加版</q>の項目があります。販売が始まったら、ダウンロードしたZIPをここから選ぶだけで入れられます。</p>
+    <p>本体 v1.2.1 以上が必要です。設定 →<q>追加版</q>から、ダウンロードしたZIPを選ぶだけで入ります。<a href="https://ookiitori.booth.pm/">BOOTHのページへ</a></p>
+  </section>
+
+  <section class="release" id="v1.2.1">
+    <div class="rel-head">
+      <h2>v1.2.1</h2>
+      <time datetime="2026-11-01">2026年11月1日</time>
+      <span class="badge">最新</span>
+    </div>
+    <p class="rel-summary rel-sum">追加版（ログ・CS）に対応しました。あわせて、詳細パネルの×ボタンや設定画面など、細かなところを直しています。</p>
+
+    <div class="highlights">
+      <div class="hl"><h3><i></i>追加版（ログ・CS）に対応</h3>
+        <p>BOOTHで配布している追加版「ログ」「CS」を入れられるようになりました。設定 →「追加版」から、ダウンロードしたZIPを選んでください。</p></div>
+      <div class="hl"><h3><i></i>詳細パネルの×</h3>
+        <p>詳細パネルを下までスクロールしても、右上の×で閉じられるようになりました。</p></div>
+    </div>
+
+    <details class="group" open>
+      <summary>追加版への対応<em>4件</em></summary>
+      <ul>
+        <li><span class="tag new">新機能</span>追加版を入れると、左上（アプリ名の横）のボタンで、シナリオ・ログ・CSのページを切り替えられます</li>
+        <li>使い方ガイドを、追加版のページでも使えるようにしました（はじめてそのページを開いたときに出ます。<q>…</q>→<q>使い方ガイド</q>は、いま開いているページのものを出します）</li>
+        <li><q>…</q>メニュー：追加版のページでは、シナリオだけの項目を隠して、そのページの項目を出すようにしました</li>
+        <li>アップデートしたときの<q>新しくなったこと</q>に、飛ばしたバージョンの変更点もまとめて出すようにしました</li>
+      </ul>
+    </details>
+
+    <details class="group" open>
+      <summary>細かな修正<em>3件</em></summary>
+      <ul>
+        <li>詳細パネルの×ボタンを、スクロールしても右上に残すようにしました</li>
+        <li>設定画面の高さが、左の項目を切り替えても変わらないようにしました</li>
+        <li><span class="tag fix">修正</span>お知らせが、ほかの画面の後ろに隠れて見えないことがあった</li>
+      </ul>
+    </details>
   </section>
 
   <section class="release" id="v1.2.0">
     <div class="rel-head">
       <h2>v1.2.0</h2>
       <time datetime="2026-10-28">2026年10月28日</time>
-      <span class="badge">最新</span>
     </div>
     <p class="rel-summary rel-sum">シナリオがたくさんあっても軽く動くように、起動・検索・スクロールを見直しました。テキストファイルの登録や、PCの買い替え・フォルダの移動に備える機能、サムネイルの位置調整やプレビュー内の検索も追加しています。</p>
 
